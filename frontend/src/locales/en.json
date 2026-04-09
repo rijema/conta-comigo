@@ -1,0 +1,113 @@
+{
+  "common": {
+    "back": "Back",
+    "loading": "Loading...",
+    "error": "Error",
+    "retry": "Try again",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "viewAll": "View all",
+    "next": "Next",
+    "previous": "Previous",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "auth": {
+    "login": "Login",
+    "email": "Email",
+    "password": "Password",
+    "loginButton": "Sign in",
+    "loginError": "Incorrect email or password",
+    "welcome": "Welcome!",
+    "logout": "Logout"
+  },
+  "home": {
+    "greeting": "Hello",
+    "startLearning": "Start learning",
+    "continueSession": "Continue session",
+    "myProgress": "My progress",
+    "dailyGoal": "Daily goal",
+    "streak": "streak",
+    "level": "Level",
+    "xp": "XP",
+    "skills": "Skills"
+  },
+  "activity": {
+    "question": "Question",
+    "checkAnswer": "Check answer",
+    "correct": "Correct! Well done!",
+    "incorrect": "Try again!",
+    "hint": "Hint",
+    "skip": "Skip",
+    "timeLeft": "Time left",
+    "score": "Score",
+    "completed": "Activity completed!",
+    "nextActivity": "Next activity"
+  },
+  "settings": {
+    "title": "Settings",
+    "theme": "Theme",
+    "lightMode": "Light mode",
+    "darkMode": "Dark mode",
+    "toggleTheme": "Toggle theme",
+    "sound": "Sound",
+    "soundOn": "Sound on",
+    "soundOff": "Sound off",
+    "toggleSound": "Toggle sound",
+    "lowStimulation": "Low stimulation",
+    "lowStimulationDesc": "Reduces animations and intense colors",
+    "toggleLowStimulation": "Toggle low stimulation mode",
+    "fontSize": "Font size",
+    "fontSize_small": "A",
+    "fontSize_medium": "A",
+    "fontSize_large": "A",
+    "language": "Language"
+  },
+  "guardian": {
+    "welcome": "Welcome,",
+    "noChildren": "No children linked yet",
+    "age": "{{age}} years old",
+    "sessions": "Sessions",
+    "avgScore": "Average",
+    "level": "Level",
+    "lastSession": "Last session",
+    "never": "Never",
+    "xp": "Experience",
+    "viewDetails": "View details",
+    "bnccProgress": "BNCC Progress",
+    "skillMastery": "Skill Mastery",
+    "recentSessions": "Recent sessions",
+    "activities": "activities"
+  },
+  "educator": {
+    "dashboard": "Educator Dashboard",
+    "overviewSubtitle": "Class overview",
+    "totalLearners": "Total learners",
+    "activeSessions": "Active sessions",
+    "avgMastery": "Average mastery",
+    "alerts": "Alerts",
+    "adeDecisions": "ADE Decisions",
+    "adeLogDesc": "Log of adaptive decision engine outputs",
+    "adeDecisionsDesc": "View the adaptive engine reasoning",
+    "learners": "Learners",
+    "support_mild": "Mild",
+    "support_moderate": "Moderate",
+    "support_strong": "Intense",
+    "mastery": "mastery",
+    "bnccCoverage": "BNCC Coverage",
+    "bnccDesc": "Mapping of BNCC skills covered",
+    "reasoning": "Reasoning",
+    "factors": "Factors",
+    "difficultyAdj": "Difficulty adjustment"
+  },
+  "onboarding": {
+    "welcome": "Welcome to MathQuest!",
+    "step1": "What is your name?",
+    "step2": "How old are you?",
+    "step3": "How do you prefer to learn?"
+  }
+}
+
+Now the deployment files:

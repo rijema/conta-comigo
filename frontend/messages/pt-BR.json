@@ -1,0 +1,63 @@
+"common": {
+    "loading": "Carregando...",
+    "error": "Algo deu errado",
+    "retry": "Tentar novamente",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "back": "Voltar",
+    "next": "Próximo",
+    "finish": "Terminar",
+    "points": "pontos",
+    "level": "Nível",
+    "streak": "Sequência",
+    "correct": "Correto!",
+    "incorrect": "Tente novamente",
+    "hint": "Dica"
+  },
+  "auth": {
+    "login": "Entrar",
+    "logout": "Sair",
+    "email": "E-mail",
+    "password": "Senha",
+    "loginTitle": "Bem-vindo de volta!",
+    "loginSubtitle": "Vamos aprender matemática hoje?"
+  },
+  "learner": {
+    "greeting": "Olá, {name}!",
+    "todayChallenge": "Desafio do dia",
+    "myProgress": "Meu progresso",
+    "startActivity": "Começar atividade",
+    "continueActivity": "Continuar",
+    "wellDone": "Muito bem!",
+    "keepGoing": "Continue assim!",
+    "takeBreak": "Hora de um descanso 😊",
+    "skillMastered": "Habilidade conquistada! 🌟",
+    "xpGained": "+{xp} XP",
+    "levelUp": "Subiu de nível! 🎉"
+  },
+  "activities": {
+    "counting": "Contagem",
+    "addition": "Adição",
+    "subtraction": "Subtração",
+    "multiplication": "Multiplicação",
+    "geometry": "Geometria",
+    "measurement": "Medidas",
+    "patterns": "Padrões"
+  },
+  "accessibility": {
+    "highContrast": "Alto contraste",
+    "largeText": "Texto grande",
+    "reducedMotion": "Reduzir animações",
+    "soundEffects": "Efeitos sonoros",
+    "darkMode": "Modo escuro",
+    "lowStimulation": "Modo baixa estimulação"
+  },
+  "guardian": {
+    "dashboard": "Painel do responsável",
+    "childProgress": "Progresso de {name}",
+    "weeklyReport": "Relatório semanal",
+    "alerts": "Alertas",
+    "consent": "Gerenciar consentimento"
+  }
+}

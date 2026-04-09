@@ -1,0 +1,63 @@
+"common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Try again",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish",
+    "points": "points",
+    "level": "Level",
+    "streak": "Streak",
+    "correct": "Correct!",
+    "incorrect": "Try again",
+    "hint": "Hint"
+  },
+  "auth": {
+    "login": "Sign in",
+    "logout": "Sign out",
+    "email": "Email",
+    "password": "Password",
+    "loginTitle": "Welcome back!",
+    "loginSubtitle": "Let's learn math today?"
+  },
+  "learner": {
+    "greeting": "Hello, {name}!",
+    "todayChallenge": "Today's challenge",
+    "myProgress": "My progress",
+    "startActivity": "Start activity",
+    "continueActivity": "Continue",
+    "wellDone": "Well done!",
+    "keepGoing": "Keep it up!",
+    "takeBreak": "Time for a break 😊",
+    "skillMastered": "Skill mastered! 🌟",
+    "xpGained": "+{xp} XP",
+    "levelUp": "Level up! 🎉"
+  },
+  "activities": {
+    "counting": "Counting",
+    "addition": "Addition",
+    "subtraction": "Subtraction",
+    "multiplication": "Multiplication",
+    "geometry": "Geometry",
+    "measurement": "Measurement",
+    "patterns": "Patterns"
+  },
+  "accessibility": {
+    "highContrast": "High contrast",
+    "largeText": "Large text",
+    "reducedMotion": "Reduce motion",
+    "soundEffects": "Sound effects",
+    "darkMode": "Dark mode",
+    "lowStimulation": "Low stimulation mode"
+  },
+  "guardian": {
+    "dashboard": "Guardian dashboard",
+    "childProgress": "{name}'s progress",
+    "weeklyReport": "Weekly report",
+    "alerts": "Alerts",
+    "consent": "Manage consent"
+  }
+}
