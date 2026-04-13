@@ -4,9 +4,26 @@ import {
   MinLength,
   IsEnum,
   IsOptional,
+  IsBoolean,
+  IsDateString,
+  ValidateNested,
+  IsInt,
+  Min,
+  Max,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserRole } from '../../users/enums/user-role.enum';
+
+export class ChildProfileDto {
+  @IsString()
+  name: string;
+
+  @IsInt()
+  @Min(1)
+  @Max(18)
+  age: number;
+}
 
 export class RegisterDto {
   @ApiProperty({ example: 'João Silva' })
@@ -30,4 +47,20 @@ export class RegisterDto {
   @IsOptional()
   @IsString()
   language?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsBoolean()
+  lgpdConsent?: boolean;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsDateString()
+  consentTimestamp?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => ChildProfileDto)
+  childProfile?: ChildProfileDto;
 }
