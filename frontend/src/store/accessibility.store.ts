@@ -1,19 +1,56 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 interface AccessibilityState {
   highContrast: boolean;
-  fontSize: number;
+  largeText: boolean;
   reducedMotion: boolean;
-  toggleHighContrast: () => void;
-  setFontSize: (size: number) => void;
-  toggleReducedMotion: () => void;
+  soundEffects: boolean;
+  darkMode: boolean;
+  lowStimulation: boolean;
+  fontSize: "normal" | "large" | "xlarge";
+  backgroundColor?: string;
+
+  setHighContrast: (v: boolean) => void;
+  setLargeText: (v: boolean) => void;
+  setReducedMotion: (v: boolean) => void;
+  setSoundEffects: (v: boolean) => void;
+  setDarkMode: (v: boolean) => void;
+  setLowStimulation: (v: boolean) => void;
+  setFontSize: (v: "normal" | "large" | "xlarge") => void;
+  setBackgroundColor: (v: string) => void;
+  resetToDefault: () => void;
 }
 
-export const useAccessibilityStore = create<AccessibilityState>((set) => ({
+const defaultState = {
   highContrast: false,
-  fontSize: 16,
+  largeText: false,
   reducedMotion: false,
-  toggleHighContrast: () => set((state) => ({ highContrast: !state.highContrast })),
-  setFontSize: (fontSize) => set({ fontSize }),
-  toggleReducedMotion: () => set((state) => ({ reducedMotion: !state.reducedMotion })),
-}));
+  soundEffects: true,
+  darkMode: false,
+  lowStimulation: false,
+  fontSize: "normal" as const,
+  backgroundColor: "#ffffff",
+};
+
+export const useAccessibilityStore = create<AccessibilityState>()(
+  persist(
+    (set) => ({
+      ...defaultState,
+
+      setHighContrast: (v) => set({ highContrast: v }),
+      setLargeText: (v) =>
+        set({ largeText: v, fontSize: v ? "large" : "normal" }),
+      setReducedMotion: (v) => set({ reducedMotion: v }),
+      setSoundEffects: (v) => set({ soundEffects: v }),
+      setDarkMode: (v) => set({ darkMode: v }),
+      setLowStimulation: (v) => set({ lowStimulation: v }),
+      setFontSize: (v) => set({ fontSize: v }),
+      setBackgroundColor: (v) => set({ backgroundColor: v }),
+      resetToDefault: () => set(defaultState),
+    }),
+    {
+      name: "asd-platform-accessibility",
+    }
+  )
+);

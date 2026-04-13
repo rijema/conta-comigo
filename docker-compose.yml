@@ -87,7 +87,7 @@ services:
       dockerfile: Dockerfile
     container_name: mathasd_frontend
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:3001
+      NEXT_PUBLIC_API_URL: http://localhost:3001/api
     ports:
       - "3000:3000"
     depends_on:
