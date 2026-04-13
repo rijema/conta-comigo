@@ -9,6 +9,8 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { AdeModule } from './modules/ade/ade.module';
 import { KafkaModule } from './modules/kafka/kafka.module';
 import { OntologyModule } from './modules/ontology/ontology.module';
+import { GuardianModule } from './modules/guardian/guardian.module';
+import { EducatorModule } from './modules/educator/educator.module';
 
 @Module({
   imports: [
@@ -45,6 +47,8 @@ import { OntologyModule } from './modules/ontology/ontology.module';
     AdeModule,
     KafkaModule,
     OntologyModule,
+    GuardianModule,
+    EducatorModule,
   ],
   controllers: [],
   providers: [],

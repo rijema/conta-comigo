@@ -42,7 +42,7 @@ export function MultipleChoiceActivity({
     <div>
       {/* Question */}
       <div className="text-xl font-semibold text-gray-800 mb-6 leading-relaxed">
-        {activity.content?.question}
+        {activity.content?.question || activity.content?.instructionsPt}
       </div>
 
       {/* Visual representation (if any) */}

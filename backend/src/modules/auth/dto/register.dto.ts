@@ -63,4 +63,10 @@ export class RegisterDto {
   @ValidateNested()
   @Type(() => ChildProfileDto)
   childProfile?: ChildProfileDto;
+
+  @ApiProperty({ required: false, description: 'Password for the child account (guardian registration only)' })
+  @IsOptional()
+  @IsString()
+  @MinLength(4)
+  childPassword?: string;
 }

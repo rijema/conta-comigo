@@ -45,7 +45,8 @@ export function useAuth() {
       // If the backend already returns the user, use it. Otherwise, fetch it.
       const profile = response.user || await apiClient.get<AuthUser>("/auth/me", response.accessToken);
       setAuth(profile, response.accessToken);
-      router.push(`/${locale}/dashboard`);
+      const destination = profile.role === 'child' ? `/${locale}/learn` : `/${locale}/dashboard`;
+      router.push(destination);
     } catch (error) {
       setLoading(false);
       throw error;
@@ -60,7 +61,8 @@ export function useAuth() {
       
       const profile = response.user || await apiClient.get<AuthUser>("/auth/me", response.accessToken);
       setAuth(profile, response.accessToken);
-      router.push(`/${locale}/dashboard`);
+      const destination = profile.role === 'child' ? `/${locale}/learn` : `/${locale}/dashboard`;
+      router.push(destination);
     } catch (error) {
       setLoading(false);
       throw error;

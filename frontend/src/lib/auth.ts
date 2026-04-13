@@ -7,8 +7,10 @@ export interface AuthTokens {
 }
 
 export interface LoginPayload {
-  email: string;
+  email?: string;
   password: string;
+  childName?: string;
+  guardianEmail?: string;
 }
 
 export interface RegisterPayload {

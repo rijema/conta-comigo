@@ -1,5 +1,6 @@
 import { DataSource } from 'typeorm';
 import { BnccSkillsSeed } from './bncc-skills.seed';
+import { ActivitiesSeed } from './activities.seed';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -39,6 +40,7 @@ async function runSeeds() {
 
     console.log('🌱 Running seeds...');
     await BnccSkillsSeed(dataSource);
+    await ActivitiesSeed(dataSource);
     console.log('✅ All seeds completed successfully!');
 
     await dataSource.destroy();
