@@ -1,4 +1,5 @@
 import { Logger } from '@nestjs/common';
+import { Processor, Process } from '@nestjs/bull';
 import { Job } from 'bull';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';

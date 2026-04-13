@@ -1,3 +1,4 @@
+import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
 import { KafkaProducerService } from './kafka-producer.service';
 import { AnalyticsConsumer } from './consumers/analytics.consumer';

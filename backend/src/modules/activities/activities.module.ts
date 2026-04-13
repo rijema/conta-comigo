@@ -1,3 +1,4 @@
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Activity } from './entities/activity.entity';
 import { ActivityAttempt } from './entities/activity-attempt.entity';

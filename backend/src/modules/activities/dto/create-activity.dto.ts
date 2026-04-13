@@ -1,4 +1,5 @@
-IsString,
+import {
+  IsString,
   IsEnum,
   IsArray,
   IsObject,
