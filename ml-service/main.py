@@ -1,11 +1,12 @@
-ASD Adaptive Math Platform — ML Service
+"""
+ASD Adaptive Math Platform - ML Service
 FastAPI application serving BKT, engagement classification, and modality recommendation.
 
 Architecture:
-  POST /predict/bkt         → Bayesian Knowledge Tracing update
-  POST /predict/engagement  → Engagement level classification  
-  POST /predict/next-activity → Next activity recommendation
-  GET  /health              → Health check
+  POST /predict/bkt         - Bayesian Knowledge Tracing update
+  POST /predict/engagement  - Engagement level classification  
+  POST /predict/next-activity - Next activity recommendation
+  GET  /health              - Health check
 """
 
 import os
