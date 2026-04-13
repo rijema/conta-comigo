@@ -4,6 +4,7 @@ import {
   IsNumber,
   IsBoolean,
   IsObject,
+  IsNotEmpty,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -13,6 +14,7 @@ export class SubmitAttemptDto {
   activityId: string;
 
   @ApiProperty()
+  @IsNotEmpty()
   answer: any;
 
   @ApiPropertyOptional()

@@ -9,7 +9,7 @@ import { ActivityRenderer } from "@/components/activity/activity-renderer";
 
 export default function LearnPage() {
   const { user, isLoading: authLoading, logout } = useAuth();
-  const { session, startSession, submitAnswer, isLoading: sessionLoading } = useSession();
+  const { session, startSession, submitAnswer, isLoading: sessionLoading, error: sessionError } = useSession();
   const [stars, setStars] = useState(0);
   const [showReward, setShowReward] = useState(false);
   const [lastFeedback, setLastFeedback] = useState<string | null>(null);
@@ -22,10 +22,8 @@ export default function LearnPage() {
       router.replace(`/${locale}/auth/login`);
       return;
     }
-    if (!session && !sessionLoading) {
-      startSession();
-    }
-  }, [user, authLoading, session, sessionLoading]);
+    startSession();
+  }, [user, authLoading, startSession]);
 
   const handleAnswer = async (answer: any) => {
     if (!session?.currentActivity) return;
@@ -52,9 +50,25 @@ export default function LearnPage() {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-purple-50 to-blue-50">
         <div className="text-center">
-          <div className="text-7xl animate-bounce mb-4">🌟</div>
-          <p className="text-2xl text-blue-700 font-bold">Preparando sua atividade...</p>
-          <p className="text-gray-500 mt-2 text-sm">O sistema está escolhendo a melhor atividade para você!</p>
+          {sessionError ? (
+            <>
+              <div className="text-7xl mb-4">😔</div>
+              <p className="text-xl text-red-600 font-bold">Ops! Não consegui carregar a atividade.</p>
+              <p className="text-gray-500 mt-2 text-sm">{sessionError}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700"
+              >
+                Tentar novamente
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="text-7xl animate-bounce mb-4">🌟</div>
+              <p className="text-2xl text-blue-700 font-bold">Preparando sua atividade...</p>
+              <p className="text-gray-500 mt-2 text-sm">O sistema está escolhendo a melhor atividade para você!</p>
+            </>
+          )}
         </div>
       </div>
     );

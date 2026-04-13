@@ -42,7 +42,6 @@ export class ActivitiesController {
   }
 
   @Get('next')
-  @Roles(UserRole.CHILD)
   @ApiOperation({ summary: 'Get next recommended activity for current child' })
   getNext(@CurrentUser('userId') userId: string) {
     return this.activitiesService.getNextActivity(userId);
@@ -54,7 +53,6 @@ export class ActivitiesController {
   }
 
   @Post('attempts')
-  @Roles(UserRole.CHILD)
   @ApiOperation({ summary: 'Submit an activity attempt' })
   submitAttempt(
     @CurrentUser('userId') userId: string,
