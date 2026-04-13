@@ -27,11 +27,20 @@ export class AuthService {
       throw new ConflictException('Email already registered');
     }
 
-    const hashedPassword = await bcrypt.hash(dto.password, 12);
+    const { childProfile, lgpdConsent, consentTimestamp, ...userFields } = dto;
+    const hashedPassword = await bcrypt.hash(userFields.password, 12);
     const user = await this.usersService.create({
-      ...dto,
+      ...userFields,
       password: hashedPassword,
     });
+
+    if (lgpdConsent) {
+      await this.usersService.grantLgpdConsent(user.id);
+    }
+
+    if (childProfile) {
+      await this.usersService.updateChildProfile(user.id, childProfile);
+    }
 
     this.logger.log(`New user registered: ${user.email} [${user.role}]`);
 
