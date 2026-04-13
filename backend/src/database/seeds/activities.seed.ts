@@ -61,7 +61,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
     {
       title: 'Qual número é maior?',
       description: 'Compare os números',
-      type: 'multiple_choice',
+      type: 'quiz',
       difficulty: 'easy',
       bnccSkills: ['EF01MA03'],
       targetModalities: ['visual', 'logical'],
@@ -82,7 +82,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
     {
       title: 'Menor ou maior?',
       description: 'Compare os números',
-      type: 'multiple_choice',
+      type: 'quiz',
       difficulty: 'medium',
       bnccSkills: ['EF01MA03'],
       targetModalities: ['logical'],
@@ -104,7 +104,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
     {
       title: 'Sominha fácil!',
       description: 'Resolva a adição',
-      type: 'multiple_choice',
+      type: 'quiz',
       difficulty: 'easy',
       bnccSkills: ['EF01MA06'],
       targetModalities: ['visual', 'logical'],
@@ -127,7 +127,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
     {
       title: '2 + 3 = ?',
       description: 'Adição com números',
-      type: 'multiple_choice',
+      type: 'quiz',
       difficulty: 'easy',
       bnccSkills: ['EF01MA06'],
       targetModalities: ['logical'],
@@ -172,7 +172,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
     {
       title: 'Tirando biscoitos',
       description: 'Resolva a subtração',
-      type: 'multiple_choice',
+      type: 'quiz',
       difficulty: 'easy',
       bnccSkills: ['EF01MA07'],
       targetModalities: ['visual'],
@@ -194,7 +194,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
     {
       title: '8 - 3 = ?',
       description: 'Subtração',
-      type: 'multiple_choice',
+      type: 'quiz',
       difficulty: 'medium',
       bnccSkills: ['EF01MA07'],
       targetModalities: ['logical'],
@@ -217,7 +217,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
     {
       title: 'Que número vem depois?',
       description: 'Sequência numérica',
-      type: 'multiple_choice',
+      type: 'quiz',
       difficulty: 'medium',
       bnccSkills: ['EF02MA01'],
       targetModalities: ['logical'],
@@ -240,7 +240,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
     {
       title: 'O dobro!',
       description: 'Calcule o dobro',
-      type: 'multiple_choice',
+      type: 'quiz',
       difficulty: 'medium',
       bnccSkills: ['EF02MA05'],
       targetModalities: ['visual', 'logical'],
@@ -263,7 +263,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
     {
       title: 'Tabuada do 2',
       description: 'Multiplicação por 2',
-      type: 'multiple_choice',
+      type: 'quiz',
       difficulty: 'medium',
       bnccSkills: ['EF03MA07'],
       targetModalities: ['logical'],
@@ -285,7 +285,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
     {
       title: 'Tabuada do 5',
       description: 'Multiplicação por 5',
-      type: 'multiple_choice',
+      type: 'quiz',
       difficulty: 'hard',
       bnccSkills: ['EF03MA07'],
       targetModalities: ['logical'],
@@ -308,7 +308,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
     {
       title: 'Que forma é essa?',
       description: 'Reconheça as formas geométricas',
-      type: 'multiple_choice',
+      type: 'quiz',
       difficulty: 'easy',
       bnccSkills: ['EF01MA15'],
       targetModalities: ['visual'],
@@ -330,7 +330,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
     {
       title: 'Círculo ou quadrado?',
       description: 'Identifique a forma',
-      type: 'multiple_choice',
+      type: 'quiz',
       difficulty: 'easy',
       bnccSkills: ['EF01MA15'],
       targetModalities: ['visual'],

@@ -44,6 +44,7 @@ export function ActivityRenderer({
     const hasOptions = activity.content?.options?.length > 0;
 
     switch (activity.type) {
+      case "quiz":
       case "multiple_choice":
         return (
           <MultipleChoiceActivity

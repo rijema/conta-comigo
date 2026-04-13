@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useRef } from "react";
 import { api } from "@/lib/api-client";
 import { authService } from "@/lib/auth";
 
@@ -14,10 +14,15 @@ export interface SessionState {
 export function useSession() {
   const [session, setSession] = useState<SessionState | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [activitiesCompleted, setActivitiesCompleted] = useState(0);
+  const startedRef = useRef(false);
 
-  const startSession = async () => {
+  const startSession = useCallback(async () => {
+    if (startedRef.current) return;
+    startedRef.current = true;
     setIsLoading(true);
+    setError(null);
     try {
       const token = authService.getStoredToken();
       const sessionId = `session-${Date.now()}`;
@@ -31,12 +36,14 @@ export function useSession() {
         progress: 0,
         activityStartTime: Date.now(),
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to start session:", err);
+      setError(err?.message ?? "Erro ao carregar atividade");
+      startedRef.current = false;
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   const submitAnswer = async (payload: {
     activityId: string;
@@ -45,11 +52,15 @@ export function useSession() {
   }) => {
     const token = authService.getStoredToken();
     try {
+      const rawAnswer = payload.answer;
+      const normalizedAnswer =
+        rawAnswer?.selectedOption ?? rawAnswer?.count ?? rawAnswer;
+
       const result = await api.post<{ attempt: any; feedback: any; nextActivity?: any }>(
         "/activities/attempts",
         {
           activityId: payload.activityId,
-          answer: payload.answer,
+          answer: normalizedAnswer,
           timeSpentSeconds: Math.round(payload.timeSpentMs / 1000),
           sessionId: session?.id,
         },
@@ -81,5 +92,6 @@ export function useSession() {
     startSession,
     submitAnswer,
     isLoading,
+    error,
   };
 }

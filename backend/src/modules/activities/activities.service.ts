@@ -65,21 +65,57 @@ export class ActivitiesService {
     activity: Activity;
     adeDecision: any;
   }> {
-    // 1. Load learner profile
-    const profile = await this.usersService.getChildProfile(userId);
+    // 1. Load learner profile (with safe fallback for new children)
+    let profile: any;
+    try {
+      profile = await this.usersService.getChildProfile(userId);
+    } catch {
+      profile = {
+        userId,
+        age: 7,
+        schoolYear: 1,
+        asdSupportLevel: 'mild',
+        strengths: { visual: true },
+        weaknesses: {},
+        skillMastery: {},
+        bnccProgress: {},
+        currentStreak: 0,
+      };
+    }
 
     // 2. Call ADE to decide
-    const adeDecision = await this.adeService.decide({
-      userId,
-      profile,
-      recentAttempts: await this.getRecentAttempts(userId, 5),
-    });
+    let adeDecision: any;
+    try {
+      adeDecision = await this.adeService.decide({
+        userId,
+        profile,
+        recentAttempts: await this.getRecentAttempts(userId, 5),
+      });
+    } catch (adeErr: any) {
+      this.logger.error(`ADE failed: ${adeErr?.message}`, adeErr?.stack);
+      // Fallback: skip ADE, pick any easy activity
+      const fallback = await this.activityRepo.findOne({
+        where: { difficulty: DifficultyLevel.EASY, isActive: true },
+      });
+      if (!fallback) throw new Error('No activities available');
+      return { activity: fallback, adeDecision: null };
+    }
 
     // 3. Find matching activity
-    const activity = await this.findMatchingActivity(adeDecision);
+    let activity: Activity;
+    try {
+      activity = await this.findMatchingActivity(adeDecision);
+    } catch (matchErr: any) {
+      this.logger.error(`findMatchingActivity failed: ${matchErr?.message}`);
+      const fallback = await this.activityRepo.findOne({
+        where: { isActive: true },
+      });
+      if (!fallback) throw new Error('No activities available');
+      activity = fallback;
+    }
 
     this.logger.log(
-      `Next activity for user ${userId}: ${activity.id} (ADE decision: ${adeDecision.id})`,
+      `Next activity for user ${userId}: ${activity.id} (ADE decision: ${adeDecision?.id ?? 'fallback'})`,
     );
 
     return { activity, adeDecision };
