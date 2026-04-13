@@ -61,12 +61,18 @@ export class UsersService {
 
     const profile = await this.childProfileRepo.findOne({
       where: { guardianId: guardian.id },
-      relations: ['user'],
     });
-    if (!profile?.user) return null;
+    if (!profile?.userId) return null;
 
-    const nameMatch = profile.user.name.toLowerCase().trim() === childName.toLowerCase().trim();
-    return nameMatch ? profile.user : null;
+    const child = await this.userRepo
+      .createQueryBuilder('user')
+      .addSelect('user.password')
+      .where('user.id = :id', { id: profile.userId })
+      .getOne();
+
+    if (!child) return null;
+    const nameMatch = child.name.toLowerCase().trim() === childName.toLowerCase().trim();
+    return nameMatch ? child : null;
   }
 
   async findByEmail(email: string): Promise<User | null> {

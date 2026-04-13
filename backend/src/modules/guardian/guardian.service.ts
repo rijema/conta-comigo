@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcryptjs';
 import { User } from '../users/entities/user.entity';
 import { ChildProfile } from '../users/entities/child-profile.entity';
 import { AnalyticsSnapshot } from '../analytics/entities/analytics-snapshot.entity';
+import { UserRole } from '../users/enums/user-role.enum';
 
 @Injectable()
 export class GuardianService {
@@ -59,5 +61,37 @@ export class GuardianService {
     );
 
     return summaries.filter(Boolean);
+  }
+
+  async addChild(guardianId: string, childName: string, childPassword: string, age: number) {
+    const slug = childName.toLowerCase().replace(/\s+/g, '.');
+    const email = `${slug}.filho.${guardianId.substring(0, 6)}@mathasd.internal`;
+
+    const hashedPassword = await bcrypt.hash(childPassword, 12);
+
+    const child = this.userRepo.create({
+      name: childName,
+      email,
+      password: hashedPassword,
+      role: UserRole.CHILD,
+      isActive: true,
+      lgpdConsentGiven: true,
+      lgpdConsentDate: new Date(),
+    });
+    const savedChild = await this.userRepo.save(child);
+
+    const profile = this.childProfileRepo.create({
+      userId: savedChild.id,
+      guardianId,
+      age,
+    });
+    await this.childProfileRepo.save(profile);
+
+    return {
+      id: savedChild.id,
+      name: savedChild.name,
+      email: savedChild.email,
+      age,
+    };
   }
 }
