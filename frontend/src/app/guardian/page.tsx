@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { api } from "@/lib/api-client";
+import { apiClient } from "@/lib/api-client";
 import { ProgressChart } from "@/components/charts/progress-chart";
 import { SessionHistoryTable } from "@/components/tables/session-history-table";
 import { SkillMasteryGrid } from "@/components/charts/skill-mastery-grid";
@@ -31,8 +31,11 @@ export default function GuardianPage() {
   const fetchReport = async (childId: string) => {
     setIsLoading(true);
     try {
-      const data = await api.get(`/reports/guardian/${childId}`);
+      const token = localStorage.getItem("access_token");
+      const data = await apiClient.get<LearnerReport>(`/reports/guardian/${childId}`, token || undefined);
       setReport(data);
+    } catch (error) {
+      console.error("Erro ao carregar relatório:", error);
     } finally {
       setIsLoading(false);
     }
