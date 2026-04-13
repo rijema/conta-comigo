@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useTranslation } from "react-i18next";
+import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
-import { Loader2 } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 type Role = "guardian" | "professional";
 
@@ -21,7 +21,8 @@ interface RegisterForm {
 }
 
 export default function RegisterPage() {
-  const { t } = useTranslation();
+  const t = useTranslations("auth");
+  const tCommon = useTranslations("common");
   const router = useRouter();
 
   const [form, setForm] = useState<RegisterForm>({
@@ -44,7 +45,7 @@ export default function RegisterPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!form.lgpdConsent) {
-      setError(t("auth.consentRequired"));
+      setError("consentRequired");
       return;
     }
     setLoading(true);
@@ -64,7 +65,7 @@ export default function RegisterPage() {
       });
       router.push("/auth/login?registered=1");
     } catch (err: any) {
-      setError(err?.response?.data?.message ?? t("errors.generic"));
+      setError(err?.response?.data?.message ?? tCommon("error"));
     } finally {
       setLoading(false);
     }
@@ -79,7 +80,7 @@ export default function RegisterPage() {
       >
         <div className="text-center mb-6">
           <div className="text-5xl mb-2" aria-hidden>✨</div>
-          <h1 className="text-2xl font-bold text-gray-800">{t("auth.createAccount")}</h1>
+          <h1 className="text-2xl font-bold text-gray-800">{t("createAccount")}</h1>
 
           {/* Step indicator */}
           <div className="flex items-center justify-center gap-2 mt-3">
@@ -101,7 +102,7 @@ export default function RegisterPage() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  {t("auth.yourName")}
+                  {t("yourName")}
                 </label>
                 <input
                   type="text"
@@ -113,7 +114,7 @@ export default function RegisterPage() {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  {t("auth.email")}
+                  {t("email")}
                 </label>
                 <input
                   type="email"
@@ -125,7 +126,7 @@ export default function RegisterPage() {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  {t("auth.password")}
+                  {t("password")}
                 </label>
                 <input
                   type="password"
@@ -139,7 +140,7 @@ export default function RegisterPage() {
 
               {/* Role selection */}
               <div>
-                <p className="text-sm font-semibold text-gray-700 mb-2">{t("auth.iAm")}</p>
+                <p className="text-sm font-semibold text-gray-700 mb-2">{t("iAm")}</p>
                 <div className="grid grid-cols-2 gap-2">
                   {(["guardian", "professional"] as Role[]).map((r) => (
                     <button
@@ -162,7 +163,7 @@ export default function RegisterPage() {
                 disabled={!form.name || !form.email || !form.password}
                 className="w-full py-3 rounded-2xl bg-blue-600 text-white font-bold disabled:opacity-40 hover:bg-blue-700"
               >
-                {t("auth.next")} →
+                {tCommon("next")} →
               </button>
             </motion.div>
           )}
@@ -173,7 +174,7 @@ export default function RegisterPage() {
                 <>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1">
-                      {t("auth.childName")}
+                      {t("childName")}
                     </label>
                     <input
                       type="text"
@@ -185,7 +186,7 @@ export default function RegisterPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1">
-                      {t("auth.childAge")}
+                      {t("childAge")}
                     </label>
                     <input
                       type="number"
@@ -203,10 +204,10 @@ export default function RegisterPage() {
               {/* LGPD Consent */}
               <div className="bg-gray-50 rounded-2xl p-4 border border-gray-200">
                 <h3 className="font-semibold text-gray-800 text-sm mb-2">
-                  📋 {t("lgpd.title")}
+                  📋 {t("lgpdTitle")}
                 </h3>
                 <p className="text-xs text-gray-600 mb-3 leading-relaxed">
-                  {t("lgpd.description")}
+                  {t("lgpdDescription")}
                 </p>
                 <label className="flex items-start gap-3 cursor-pointer">
                   <input
@@ -217,7 +218,7 @@ export default function RegisterPage() {
                     aria-required="true"
                   />
                   <span className="text-xs text-gray-700">
-                    {t("lgpd.consentText")}
+                    {t("lgpdConsentText")}
                   </span>
                 </label>
               </div>
@@ -234,7 +235,7 @@ export default function RegisterPage() {
                   onClick={() => setStep(1)}
                   className="flex-1 py-3 rounded-2xl border-2 border-gray-300 text-gray-700 font-semibold hover:bg-gray-50"
                 >
-                  ← {t("auth.back")}
+                  ← {tCommon("back")}
                 </button>
                 <button
                   type="submit"
@@ -242,8 +243,8 @@ export default function RegisterPage() {
                   className="flex-[2] py-3 rounded-2xl bg-blue-600 text-white font-bold
                     hover:bg-blue-700 disabled:opacity-40 flex items-center justify-center gap-2"
                 >
-                  {loading && <Loader2 size={18} className="animate-spin" />}
-                  {t("auth.createAccount")}
+                  {loading && <LoadingSpinner size="sm" />}
+                  {t("createAccount")}
                 </button>
               </div>
             </motion.div>
@@ -251,9 +252,9 @@ export default function RegisterPage() {
         </form>
 
         <p className="mt-4 text-center text-sm text-gray-500">
-          {t("auth.haveAccount")}{" "}
+          {t("haveAccount")}{" "}
           <Link href="/auth/login" className="text-blue-600 font-semibold hover:underline">
-            {t("auth.loginBtn")}
+            {t("login")}
           </Link>
         </p>
       </motion.div>

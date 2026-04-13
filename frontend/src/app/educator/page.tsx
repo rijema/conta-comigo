@@ -6,7 +6,7 @@ import { api } from "@/lib/api-client";
 import { ADEDecisionLog } from "@/components/educator/ade-decision-log";
 import { BNCCCoverageMap } from "@/components/educator/bncc-coverage-map";
 import { LearnerProfileCard } from "@/components/educator/learner-profile-card";
-import { EngagementChart } from "@/components/charts/engagement-chart";
+import { EngagementBarChart } from "@/components/charts/engagement-bar-chart";
 
 export default function EducatorPage() {
   const { user } = useAuth();
@@ -92,7 +92,7 @@ export default function EducatorPage() {
                     <h3 className="font-semibold text-slate-700 mb-3">
                       Engajamento
                     </h3>
-                    <EngagementChart learnerId={selectedLearner} />
+                    <EngagementBarChart data={[]} />
                   </div>
 
                   <div className="bg-white rounded-xl shadow p-5">

@@ -34,7 +34,7 @@ export default function EducatorDashboardPage() {
 
   useEffect(() => {
     if (!authLoading && (!user || user.role !== "EDUCATOR")) {
-      router.push("/login");
+      router.push("/auth/login");
     }
   }, [user, authLoading, router]);
 

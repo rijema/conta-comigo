@@ -1,4 +1,5 @@
-Bayesian Knowledge Tracing (BKT) — Corbett & Anderson (1994)
+"""
+Bayesian Knowledge Tracing (BKT) - Corbett & Anderson (1994)
 
 Parameters (per skill, defaults used if not trained):
   p_learn   : probability of learning the skill on each opportunity
@@ -45,7 +46,7 @@ MASTERY_THRESHOLD = 0.80
 
 class BKTService:
     """
-    Real BKT implementation — no mocking.
+    Real BKT implementation - no mocking.
     Uses standard BKT update equations.
     """
 
