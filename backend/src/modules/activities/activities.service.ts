@@ -187,7 +187,19 @@ export class ActivitiesService {
   }
 
   private evaluateAnswer(activity: Activity, answer: any): boolean {
-    const correct = activity.content.correctAnswer;
+    // Drag-drop: compare arrangement array against correctOrder
+    if (activity.type === 'drag_drop') {
+      const correctOrder: string[] = activity.content?.correctOrder || [];
+      const arrangement: string[] = Array.isArray(answer)
+        ? answer
+        : String(answer).split(',');
+      return (
+        arrangement.length === correctOrder.length &&
+        arrangement.every((id, i) => id === correctOrder[i])
+      );
+    }
+
+    const correct = activity.content?.correctAnswer;
     if (correct === null || correct === undefined) return false;
 
     if (typeof correct === 'string') {
