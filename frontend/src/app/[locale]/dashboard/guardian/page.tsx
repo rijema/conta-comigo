@@ -27,6 +27,10 @@ export default function GuardianDashboardPage() {
   const { user, isLoading: authLoading } = useAuth();
   const [children, setChildren] = useState<ChildSummary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAddChild, setShowAddChild] = useState(false);
+  const [addChildForm, setAddChildForm] = useState({ childName: '', age: '', childPassword: '' });
+  const [addChildLoading, setAddChildLoading] = useState(false);
+  const [addChildError, setAddChildError] = useState<string | null>(null);
   const router = useRouter();
   const locale = useLocale();
 
@@ -36,17 +40,42 @@ export default function GuardianDashboardPage() {
     }
   }, [user, authLoading, router]);
 
-  useEffect(() => {
-    if (!user) return;
+  const fetchChildren = () => {
     const token = authService.getStoredToken();
     if (!token) return;
-
     apiClient
       .get<ChildSummary[]>("/guardian/children-summary", token)
       .then(setChildren)
       .catch(console.error)
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    if (!user) return;
+    fetchChildren();
   }, [user]);
+
+  const handleAddChild = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAddChildLoading(true);
+    setAddChildError(null);
+    const token = authService.getStoredToken();
+    if (!token) return;
+    try {
+      await apiClient.post("/guardian/children", {
+        childName: addChildForm.childName,
+        age: parseInt(addChildForm.age),
+        childPassword: addChildForm.childPassword,
+      }, token);
+      setShowAddChild(false);
+      setAddChildForm({ childName: '', age: '', childPassword: '' });
+      fetchChildren();
+    } catch (err: any) {
+      setAddChildError(err?.message ?? 'Erro ao adicionar criança');
+    } finally {
+      setAddChildLoading(false);
+    }
+  };
 
   if (authLoading || loading) {
     return (
@@ -70,10 +99,80 @@ export default function GuardianDashboardPage() {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 -mt-6 space-y-4">
-        {children.length === 0 && (
+        {/* Add child button */}
+        <div className="flex justify-end">
+          <button
+            onClick={() => setShowAddChild(!showAddChild)}
+            className="bg-indigo-600 text-white text-sm px-4 py-2 rounded-xl hover:bg-indigo-700 transition-colors"
+          >
+            {showAddChild ? 'Cancelar' : '+ Adicionar filho'}
+          </button>
+        </div>
+
+        {showAddChild && (
+          <Card className="border-2 border-indigo-200">
+            <CardHeader>
+              <CardTitle className="text-base">Cadastrar filho</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleAddChild} className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Nome da criança</label>
+                  <input
+                    type="text"
+                    value={addChildForm.childName}
+                    onChange={(e) => setAddChildForm(f => ({ ...f, childName: e.target.value }))}
+                    placeholder="Ex: Kevin"
+                    required
+                    className="w-full mt-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-300 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Idade</label>
+                  <input
+                    type="number"
+                    min={4} max={12}
+                    value={addChildForm.age}
+                    onChange={(e) => setAddChildForm(f => ({ ...f, age: e.target.value }))}
+                    required
+                    className="w-full mt-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-300 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Senha para a criança entrar</label>
+                  <input
+                    type="password"
+                    value={addChildForm.childPassword}
+                    onChange={(e) => setAddChildForm(f => ({ ...f, childPassword: e.target.value }))}
+                    placeholder="Mínimo 4 caracteres"
+                    minLength={4}
+                    required
+                    className="w-full mt-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-300 outline-none"
+                  />
+                </div>
+                {addChildError && <p className="text-red-500 text-sm">{addChildError}</p>}
+                <button
+                  type="submit"
+                  disabled={addChildLoading}
+                  className="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 disabled:opacity-50"
+                >
+                  {addChildLoading ? 'Salvando...' : 'Salvar filho'}
+                </button>
+              </form>
+            </CardContent>
+          </Card>
+        )}
+
+        {children.length === 0 && !showAddChild && (
           <Card>
             <CardContent className="text-center py-8 text-gray-500">
-              Nenhuma criança vinculada ainda.
+              <p className="mb-3">Nenhuma criança vinculada ainda.</p>
+              <button
+                onClick={() => setShowAddChild(true)}
+                className="text-indigo-600 font-semibold text-sm hover:underline"
+              >
+                + Adicionar seu primeiro filho
+              </button>
             </CardContent>
           </Card>
         )}
