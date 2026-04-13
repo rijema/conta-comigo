@@ -54,7 +54,10 @@ export function useSession() {
     try {
       const rawAnswer = payload.answer;
       const normalizedAnswer =
-        rawAnswer?.selectedOption ?? rawAnswer?.count ?? rawAnswer;
+        rawAnswer?.arrangement ??
+        rawAnswer?.selectedOption ??
+        rawAnswer?.count ??
+        rawAnswer;
 
       const result = await api.post<{ attempt: any; feedback: any; nextActivity?: any }>(
         "/activities/attempts",

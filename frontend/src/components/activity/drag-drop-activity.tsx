@@ -91,9 +91,14 @@ export function DragDropActivity({ activity, onAnswer, sensoryProfile }: Props) 
             role="region"
           >
             {slotContent ? (
-              <span className="text-sm font-medium text-blue-700">
-                {getItem(slotContent)?.label}
-              </span>
+              <div className="text-center">
+                {getItem(slotContent)?.emoji && (
+                  <div className="text-xl">{getItem(slotContent)?.emoji}</div>
+                )}
+                <span className="text-sm font-bold text-blue-700">
+                  {getItem(slotContent)?.label}
+                </span>
+              </div>
             ) : (
               <span className="text-gray-300 text-2xl">{i + 1}</span>
             )}

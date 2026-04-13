@@ -14,7 +14,7 @@ export class SubmitAttemptDto {
   activityId: string;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsOptional()
   answer: any;
 
   @ApiPropertyOptional()
