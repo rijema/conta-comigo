@@ -20,15 +20,16 @@ export function useSession() {
 
   const startSession = useCallback(async () => {
     if (startedRef.current) return;
+    const token = authService.getStoredToken();
+    if (!token) return; // wait until token is available
     startedRef.current = true;
     setIsLoading(true);
     setError(null);
     try {
-      const token = authService.getStoredToken();
       const sessionId = `session-${Date.now()}`;
       const { activity } = await api.get<{ activity: any; adeDecision: any }>(
         "/activities/next",
-        token ?? undefined,
+        token,
       );
       setSession({
         id: sessionId,
