@@ -7,6 +7,7 @@ import { authService } from "@/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 
 interface LearnerProfile {
   id: string;
@@ -27,14 +28,15 @@ interface EducatorStats {
 }
 
 export default function EducatorDashboardPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [stats, setStats] = useState<EducatorStats | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const locale = useLocale();
 
   useEffect(() => {
-    if (!authLoading && (!user || user.role !== "EDUCATOR")) {
-      router.push("/auth/login");
+    if (!authLoading && (!user || user.role !== "professional")) {
+      router.push(`/${locale}/auth/login`);
     }
   }, [user, authLoading, router]);
 
