@@ -107,7 +107,7 @@ export class AnalyticsService {
   }
 
   async getUserAnalytics(userId: string): Promise<{
-    latest: AnalyticsSnapshot;
+    latest: AnalyticsSnapshot | null;
     history: AnalyticsSnapshot[];
     summary: any;
   }> {

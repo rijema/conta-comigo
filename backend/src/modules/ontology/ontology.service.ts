@@ -81,7 +81,7 @@ export class OntologyService {
       supportLevel,
       strengths: strengths.map(s => `${s}_Strength`),
       weaknesses: weaknesses.map(w => `${w}_Weakness`),
-      contentDifficulty: this.ontologyGraph.contentDifficultyMap[`${supportLevel}_Support_Level_User`] ?? 'Mid_Content',
+      contentDifficulty: (this.ontologyGraph.contentDifficultyMap as any)[`${supportLevel}_Support_Level_User`] ?? 'Mid_Content',
       inferredTreatments: this.inferTreatments(strengths, weaknesses, supportLevel),
     };
 

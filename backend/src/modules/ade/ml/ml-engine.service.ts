@@ -57,7 +57,8 @@ export class MlEngineService {
 
       return response.data;
     } catch (err) {
-      this.logger.error(`ML Engine error: ${err.message}`);
+      const error = err as any;
+      this.logger.error(`ML Engine error: ${error.message}`);
       return this.getFallbackPredictions(input);
     }
   }
