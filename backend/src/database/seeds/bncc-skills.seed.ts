@@ -1,3 +1,5 @@
+import { DataSource } from 'typeorm';
+
 export const BnccSkillsSeed = async (dataSource: DataSource): Promise<void> => {
   const skills = [
     // 1º ANO
@@ -38,5 +40,3 @@ export const BnccSkillsSeed = async (dataSource: DataSource): Promise<void> => {
 
   console.log(`✅ BNCC Skills seeded: ${skills.length} records`);
 };
-
-ML SERVICE (FastAPI — Complete)

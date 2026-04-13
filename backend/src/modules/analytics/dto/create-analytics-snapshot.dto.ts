@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsUUID, IsOptional, IsString, IsNumber, Min, Max, IsObject } from 'class-validator';
 
 export class CreateAnalyticsSnapshotDto {
   @ApiProperty({ description: 'Learner UUID' })

@@ -1,3 +1,5 @@
+import { Injectable, Logger } from '@nestjs/common';
+
 /**
  * OntologyService — JSON-based implementation of LASDONT ontology
  * Based on: http://www.semanticweb.org/ricma/ontologies/2024/11/LASDONT.owl

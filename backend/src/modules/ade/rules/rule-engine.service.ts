@@ -1,3 +1,4 @@
+import { Injectable, Logger } from '@nestjs/common';
 import { DifficultyLevel } from '../../activities/entities/activity.entity';
 
 export interface RuleContext {

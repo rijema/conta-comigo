@@ -1,4 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, IsNumber, IsString, IsObject } from 'class-validator';
 
 export class UpdateChildProfileDto {
   @ApiPropertyOptional()

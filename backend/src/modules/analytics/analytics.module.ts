@@ -1,3 +1,4 @@
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AnalyticsSnapshot } from './entities/analytics-snapshot.entity';
 import { AnalyticsController } from './analytics.controller';
