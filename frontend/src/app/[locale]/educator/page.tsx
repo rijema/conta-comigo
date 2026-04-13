@@ -27,7 +27,7 @@ export default function EducatorPage() {
 
   const fetchLearners = async () => {
     try {
-      const data = await api.get("/users/educator/learners");
+      const data = await api.get<any[]>("/users/educator/learners");
       setLearners(data);
       if (data.length > 0) setSelectedLearner(data[0].id);
     } finally {
@@ -36,7 +36,7 @@ export default function EducatorPage() {
   };
 
   const fetchADEDecisions = async (learnerId: string) => {
-    const data = await api.get(`/ade/decisions/${learnerId}?limit=20`);
+    const data = await api.get<any[]>(`/ade/decisions/${learnerId}?limit=20`);
     setAdeDecisions(data);
   };
 
