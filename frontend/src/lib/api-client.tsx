@@ -34,7 +34,7 @@ async function request<T>(
   return response.json();
 }
 
-export const apiClient = {
+export const api = {
   get: <T,>(endpoint: string, token?: string): Promise<T> =>
     request<T>(endpoint, { token }),
 
@@ -47,3 +47,5 @@ export const apiClient = {
   delete: <T,>(endpoint: string, token?: string): Promise<T> =>
     request<T>(endpoint, { method: "DELETE", token }),
 };
+
+export const apiClient = api;

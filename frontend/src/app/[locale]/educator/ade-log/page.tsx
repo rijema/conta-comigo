@@ -30,7 +30,7 @@ export default function AdeLogPage() {
 
   useEffect(() => {
     apiClient
-      .get("/ade/decisions?limit=50")
+      .get<AdeDecision[]>("/ade/decisions?limit=50")
       .then(setDecisions)
       .catch(console.error)
       .finally(() => setLoading(false));
