@@ -26,12 +26,12 @@ export class AnalyticsConsumer {
       // Persist analytics snapshot from event
       if (payload.masteryProbability !== undefined) {
         const snapshot = this.snapshotRepo.create({
-          learnerId: event.learnerId,
+          userId: event.learnerId,
           sessionId: event.sessionId,
-          bnccSkillCode: payload.bnccSkillCode as string,
-          masteryProbability: payload.masteryProbability as number,
+          overallAccuracy: (payload.masteryProbability as number) ?? 0,
           engagementIndex: (payload.engagementIndex as number) ?? 0.5,
-          metrics: payload.metrics as Record<string, unknown>,
+          skillMasterySnapshot: { [payload.bnccSkillCode as string]: (payload.masteryProbability as number) },
+          rawEventData: payload.metrics as Record<string, unknown>,
         });
 
         await this.snapshotRepo.save(snapshot);
@@ -41,7 +41,8 @@ export class AnalyticsConsumer {
       // Check for distress signals
       await this.detectBehavioralPatterns(event);
     } catch (error) {
-      this.logger.error(`Failed to process analytics update: ${error.message}`, error.stack);
+      const err = error as any;
+      this.logger.error(`Failed to process analytics update: ${err.message}`, err.stack);
       throw error; // Re-throw for Bull retry mechanism
     }
   }

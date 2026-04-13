@@ -131,16 +131,20 @@ export class AdeService {
 
     // Publish async
     this.kafkaProducer
-      .publish('platform.ade.decisions', {
-        type: 'ADE_DECISION_MADE',
-        decisionId: saved.id,
-        userId: input.userId,
-        recommendedDifficulty: ruleResult.recommendedDifficulty,
-        recommendedModality: primaryModality,
-        xaiSummary: xaiLog.finalReason,
+      .publishAdeDecision({
+        eventId: `ade-${saved.id}`,
+        eventType: 'ADE_DECISION_MADE',
+        learnerId: input.userId,
+        sessionId: input.sessionId || '',
         timestamp: new Date().toISOString(),
+        payload: {
+          decisionId: saved.id,
+          recommendedDifficulty: ruleResult.recommendedDifficulty,
+          recommendedModality: primaryModality,
+          xaiSummary: xaiLog.finalReason,
+        },
       })
-      .catch((err) => this.logger.error('Kafka ADE publish failed', err));
+      .catch((err: any) => this.logger.error('Kafka ADE publish failed', err));
 
     this.logger.log(
       `ADE decision ${saved.id}: difficulty=${ruleResult.recommendedDifficulty}, modality=${primaryModality}`,

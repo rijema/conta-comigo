@@ -113,21 +113,24 @@ export class ActivitiesService {
     await this.attemptRepo.save(attempt);
 
     // Publish Kafka event (async, non-blocking)
-    this.kafkaProducer.publish('platform.activity.events', {
-      type: 'ACTIVITY_COMPLETED',
-      userId,
-      activityId: dto.activityId,
-      sessionId: dto.sessionId,
-      isCorrect,
-      score,
-      timeSpentSeconds: dto.timeSpentSeconds,
-      interactionSignals: dto.interactionSignals,
-      bnccSkills: activity.bnccSkills,
+    this.kafkaProducer.publishActivityEvent({
+      eventId: `activity-${attempt.id}`,
+      eventType: 'ACTIVITY_COMPLETED',
+      learnerId: userId,
+      sessionId: dto.sessionId || '',
       timestamp: new Date().toISOString(),
-    }).catch((err) => this.logger.error('Kafka publish failed', err));
+      payload: {
+        activityId: dto.activityId,
+        isCorrect,
+        score,
+        timeSpentSeconds: dto.timeSpentSeconds,
+        interactionSignals: dto.interactionSignals,
+        bnccSkills: activity.bnccSkills,
+      },
+    }).catch((err: any) => this.logger.error('Kafka publish failed', err));
 
     // Generate feedback
-    const feedback = this.generateFeedback(isCorrect, activity, dto.hintsUsed);
+    const feedback = this.generateFeedback(isCorrect, activity, dto.hintsUsed ?? 0);
 
     return { attempt, feedback };
   }
@@ -202,9 +205,11 @@ export class ActivitiesService {
 
     if (activities.length === 0) {
       // Fallback: return any easy activity
-      return this.activityRepo.findOne({
+      const fallback = await this.activityRepo.findOne({
         where: { difficulty: DifficultyLevel.EASY, isActive: true },
       });
+      if (!fallback) throw new Error('No activities available');
+      return fallback;
     }
 
     // Random selection from candidates (simple exploration)

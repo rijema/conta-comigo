@@ -50,7 +50,7 @@ export class RuleEngineService {
       rulesFired.push('D3: accuracy<0.4 OR mastery<0.3 → EASY');
     }
     // Rule D4: Strong support level → cap at MEDIUM
-    else if (ctx.asdSupportLevel === 'strong' && difficulty === DifficultyLevel.HARD) {
+    else if (ctx.asdSupportLevel === 'strong' && difficulty !== DifficultyLevel.EASY && difficulty !== DifficultyLevel.MEDIUM) {
       difficulty = DifficultyLevel.MEDIUM;
       rulesFired.push('D4: strong_support_level → cap_at_MEDIUM');
     }
