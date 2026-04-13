@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, HTTPException
 from schemas.bkt_schemas import BKTUpdateRequest, BKTUpdateResponse
 import logging
 

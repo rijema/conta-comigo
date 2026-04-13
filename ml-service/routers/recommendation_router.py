@@ -1,3 +1,4 @@
+from fastapi import APIRouter, HTTPException, Request
 from schemas.recommendation_schemas import (
     ActivityRecommendationRequest,
     ActivityRecommendationResponse,

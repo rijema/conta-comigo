@@ -1,0 +1,18 @@
+{
+  "name": "mathasd",
+  "version": "1.0.0",
+  "description": "MathASD - Adaptive Learning Platform for ASD",
+  "private": true,
+  "scripts": {
+    "backend:build": "cd backend && npm run build",
+    "backend:start": "cd backend && npm start",
+    "backend:dev": "cd backend && npm run start:dev",
+    "backend:seed": "cd backend && npm run db:seed",
+    "frontend:build": "cd frontend && npm run build",
+    "frontend:dev": "cd frontend && npm run dev",
+    "ml:dev": "cd ml-service && python -m uvicorn main:app --reload",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f"
+  }
+}
