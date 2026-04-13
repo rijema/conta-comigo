@@ -1,5 +1,5 @@
 from typing import Optional, Dict
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 
 
 class BKTUpdateRequest(BaseModel):
