@@ -1,4 +1,4 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
 interface RequestOptions {
   method?: string;
@@ -35,15 +35,15 @@ async function request<T>(
 }
 
 export const apiClient = {
-  get: <T>(endpoint: string, token?: string) =>
+  get: <T,>(endpoint: string, token?: string): Promise<T> =>
     request<T>(endpoint, { token }),
 
-  post: <T>(endpoint: string, body: unknown, token?: string) =>
+  post: <T,>(endpoint: string, body: unknown, token?: string): Promise<T> =>
     request<T>(endpoint, { method: "POST", body, token }),
 
-  put: <T>(endpoint: string, body: unknown, token?: string) =>
+  put: <T,>(endpoint: string, body: unknown, token?: string): Promise<T> =>
     request<T>(endpoint, { method: "PUT", body, token }),
 
-  delete: <T>(endpoint: string, token?: string) =>
+  delete: <T,>(endpoint: string, token?: string): Promise<T> =>
     request<T>(endpoint, { method: "DELETE", token }),
 };

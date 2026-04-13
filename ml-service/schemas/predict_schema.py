@@ -117,7 +117,7 @@ class ADEInput(BaseModel):
     sensory_profile: Optional[str] = Field(default="balanced")
     asd_support_level: Optional[str] = Field(
         default="mild",
-        description="mild | moderate | strong — from LASDONT ontology",
+        description="mild | moderate | strong - from LASDONT ontology",
     )
     preferred_modality: Optional[ModalityEnum] = Field(default=ModalityEnum.visual)
 

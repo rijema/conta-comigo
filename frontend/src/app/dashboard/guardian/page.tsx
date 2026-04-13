@@ -29,7 +29,7 @@ export default function GuardianDashboardPage() {
 
   useEffect(() => {
     if (!authLoading && (!user || user.role !== "GUARDIAN")) {
-      router.push("/login");
+      router.push("/auth/login");
     }
   }, [user, authLoading, router]);
 

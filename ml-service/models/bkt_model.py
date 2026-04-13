@@ -47,12 +47,12 @@ class BKTState:
 class BKTModel:
     """
     Real Bayesian Knowledge Tracing implementation.
-    No mocking — actual BKT update equations.
+    No mocking - actual BKT update equations.
     """
 
     # BNCC-skill-specific parameters (can be tuned from data)
     SKILL_PARAMETERS: Dict[str, BKTParameters] = {
-        # Year 1 — easier skills, higher prior
+        # Year 1 - easier skills, higher prior
         "EF01MA01": BKTParameters(p_l0=0.5, p_t=0.15, p_g=0.25, p_s=0.08),
         "EF01MA02": BKTParameters(p_l0=0.4, p_t=0.12, p_g=0.20, p_s=0.10),
         "EF01MA06": BKTParameters(p_l0=0.3, p_t=0.10, p_g=0.20, p_s=0.10),

@@ -1,3 +1,4 @@
+"""
 Engagement Classification Service
 
 Uses a rule-based + lightweight ML approach.
@@ -16,15 +17,15 @@ logger = logging.getLogger(__name__)
 
 class EngagementService:
     """
-    Real engagement classification — no mocking.
+    Real engagement classification - no mocking.
     
     Combines:
     1. Rule-based heuristics (interpretable, ASD-appropriate)
     2. Feature scoring (weighted sum with empirical weights)
     
     References:
-    - D'Mello et al. (2012) — Dynamics of Affective States during Complex Learning
-    - Baker et al. (2010) — Contextual Slip and Prediction of Student Performance
+    - D'Mello et al. (2012) - Dynamics of Affective States during Complex Learning
+    - Baker et al. (2010) - Contextual Slip and Prediction of Student Performance
     """
 
     # Empirical feature weights (derived from literature)
@@ -122,10 +123,10 @@ class EngagementService:
             recommendations.append("Consider explicit instruction before next attempt")
 
         if engagement_level == "high":
-            recommendations.append("Increase challenge level — learner is engaged")
+            recommendations.append("Increase challenge level - learner is engaged")
 
         if not recommendations:
-            recommendations.append("Continue current activity — engagement is on track")
+            recommendations.append("Continue current activity - engagement is on track")
 
         # ── XAI ─────────────────────────────────────────────────────────────
         xai = {
@@ -162,10 +163,10 @@ class EngagementService:
             },
             "raw_score": round(raw_score, 4),
             "normalized_score": round(engagement_score, 4),
-            "classification_thresholds": {"low": "< 0.35", "medium": "0.35–0.65", "high": "> 0.65"},
+            "classification_thresholds": {"low": "< 0.35", "medium": "0.35-0.65", "high": "> 0.65"},
             "references": [
-                "D'Mello et al. (2012) — Dynamics of Affective States during Complex Learning",
-                "Baker et al. (2010) — Contextual Slip and Prediction of Student Performance",
+                "D'Mello et al. (2012) - Dynamics of Affective States during Complex Learning",
+                "Baker et al. (2010) - Contextual Slip and Prediction of Student Performance",
             ],
         }
 

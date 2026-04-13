@@ -40,7 +40,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="ASD Adaptive Math — ML Service",
+    title="ASD Adaptive Math - ML Service",
     description="Real BKT, engagement classification, and adaptive recommendation engine",
     version="1.0.0",
     docs_url="/docs",

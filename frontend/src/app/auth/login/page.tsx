@@ -25,6 +25,7 @@ export default function LoginPage() {
   const { login } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const t = useTranslations("auth");
 
   const {
     register,
@@ -38,10 +39,8 @@ export default function LoginPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const user = await login(data.email, data.password);
-      if (user.role === "child") router.push("/learn");
-      else if (user.role === "guardian") router.push("/guardian");
-      else router.push("/educator");
+      await login(data);
+      router.push("/dashboard");
     } catch (err: any) {
       setError(err.message || "Erro ao fazer login");
     } finally {
@@ -50,7 +49,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col items-center justify-center p-4 relative">
       <div className="absolute top-4 right-4">
         <LanguageSwitcher />
       </div>
@@ -67,7 +66,7 @@ export default function LoginPage() {
           </div>
           <h1 className="text-3xl font-bold text-blue-800">MathASD</h1>
           <p className="text-gray-500 mt-2">
-            Aprendendo matemática do nosso jeito
+            {t("loginSubtitle")}
           </p>
         </div>
 
@@ -78,7 +77,7 @@ export default function LoginPage() {
                 htmlFor="email"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Email
+                {t("email")}
               </label>
               <Input
                 id="email"
@@ -100,7 +99,7 @@ export default function LoginPage() {
                 htmlFor="password"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Senha
+                {t("password")}
               </label>
               <Input
                 id="password"
@@ -134,7 +133,7 @@ export default function LoginPage() {
               className="w-full text-lg py-3 bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300"
               aria-label="Entrar na plataforma"
             >
-              {isLoading ? "Entrando..." : "Entrar"}
+              {isLoading ? "Entrando..." : t("login")}
             </Button>
           </form>
 

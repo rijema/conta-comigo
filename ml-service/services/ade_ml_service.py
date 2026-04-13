@@ -1,4 +1,4 @@
-ADE ML Service — Full Adaptive Decision Engine ML Pipeline
+ADE ML Service - Full Adaptive Decision Engine ML Pipeline
 
 Orchestrates:
 1. BKT mastery update across all attempted skills
@@ -16,7 +16,7 @@ from services.engagement_service import EngagementService
 
 logger = logging.getLogger(__name__)
 
-# BNCC skill prerequisite graph (simplified — Anos Iniciais focus)
+# BNCC skill prerequisite graph (simplified - Anos Iniciais focus)
 # Format: skill_id -> list of prerequisite skill_ids
 BNCC_PREREQ_GRAPH: Dict[str, List[str]] = {
     "EF01MA01": [],
@@ -196,7 +196,7 @@ class ADEMLService:
                 f"ASD support level={asd_support_level}, "
                 f"sensory_profile={sensory_profile} → {recommended_modality}"
             ),
-            "ontology_reference": "LASDONT.owl — Strength_and_Weakness_Class mapping",
+            "ontology_reference": "LASDONT.owl - Strength_and_Weakness_Class mapping",
         }
 
         confidence = min(

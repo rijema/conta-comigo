@@ -24,7 +24,7 @@ export function useAuth() {
       return;
     }
     try {
-      const profile = await apiClient.get<User>("/auth/profile", token);
+      const profile = await apiClient.get<User>("/auth/me", token);
       setUser(profile);
     } catch {
       authService.clearTokens();
@@ -46,7 +46,7 @@ export function useAuth() {
   const logout = () => {
     authService.clearTokens();
     setUser(null);
-    router.push("/login");
+    router.push("/auth/login");
   };
 
   return { user, loading, login, logout };
