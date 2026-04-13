@@ -5,6 +5,7 @@ import { User } from './entities/user.entity';
 import { ChildProfile } from './entities/child-profile.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateChildProfileDto } from './dto/update-child-profile.dto';
+import { UserRole } from './enums/user-role.enum';
 
 @Injectable()
 export class UsersService {
@@ -22,11 +23,50 @@ export class UsersService {
     return this.userRepo.save(user);
   }
 
+  async createChildAccount(guardianId: string, childName: string, hashedPassword: string, age: number): Promise<User> {
+    const slug = childName.toLowerCase().replace(/\s+/g, '.');
+    const email = `${slug}.filho.${guardianId.substring(0, 6)}@mathasd.internal`;
+
+    const child = this.userRepo.create({
+      name: childName,
+      email,
+      password: hashedPassword,
+      role: UserRole.CHILD,
+      isActive: true,
+      lgpdConsentGiven: true,
+      lgpdConsentDate: new Date(),
+    });
+    const savedChild = await this.userRepo.save(child);
+
+    const profile = this.childProfileRepo.create({
+      userId: savedChild.id,
+      guardianId,
+      age,
+    });
+    await this.childProfileRepo.save(profile);
+
+    return savedChild;
+  }
+
   async findById(id: string): Promise<User | null> {
     return this.userRepo.findOne({
       where: { id },
       relations: ['childProfile'],
     });
+  }
+
+  async findChildByNameAndGuardianEmail(childName: string, guardianEmail: string): Promise<User | null> {
+    const guardian = await this.userRepo.findOne({ where: { email: guardianEmail } });
+    if (!guardian) return null;
+
+    const profile = await this.childProfileRepo.findOne({
+      where: { guardianId: guardian.id },
+      relations: ['user'],
+    });
+    if (!profile?.user) return null;
+
+    const nameMatch = profile.user.name.toLowerCase().trim() === childName.toLowerCase().trim();
+    return nameMatch ? profile.user : null;
   }
 
   async findByEmail(email: string): Promise<User | null> {

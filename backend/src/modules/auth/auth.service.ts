@@ -38,8 +38,19 @@ export class AuthService {
       await this.usersService.grantLgpdConsent(user.id);
     }
 
-    if (childProfile) {
-      await this.usersService.updateChildProfile(user.id, childProfile);
+    if (childProfile && dto.role === 'guardian') {
+      if (dto.childPassword) {
+        const childHash = await bcrypt.hash(dto.childPassword, 12);
+        const childUser = await this.usersService.createChildAccount(
+          user.id,
+          childProfile.name,
+          childHash,
+          childProfile.age,
+        );
+        this.logger.log(`Child account created: ${childUser.email} linked to guardian ${user.email}`);
+      } else {
+        await this.usersService.updateChildProfile(user.id, childProfile);
+      }
     }
 
     this.logger.log(`New user registered: ${user.email} [${user.role}]`);
@@ -49,7 +60,17 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
-    const user = await this.usersService.findByEmail(dto.email);
+    let user = dto.email
+      ? await this.usersService.findByEmail(dto.email)
+      : null;
+
+    if (!user && dto.childName && dto.guardianEmail) {
+      user = await this.usersService.findChildByNameAndGuardianEmail(
+        dto.childName,
+        dto.guardianEmail,
+      );
+    }
+
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }

@@ -14,9 +14,10 @@ export function CountingActivity({ activity, onAnswer, sensoryProfile }: Props) 
   const [submitted, setSubmitted] = useState(false);
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
 
-  const items = activity.content?.items || [];
-  const targetCount = activity.content?.targetCount || items.length;
-  const itemEmoji = activity.content?.itemEmoji || "🍎";
+  const rawItems = activity.content?.items || [];
+  const items = rawItems.filter((i: any) => i !== '+' && i !== '=' && i !== '?');
+  const targetCount = activity.content?.targetCount ?? items.length;
+  const itemEmoji = activity.content?.itemEmoji || null;
 
   const handleCount = () => {
     if (submitted) return;
@@ -44,7 +45,7 @@ export function CountingActivity({ activity, onAnswer, sensoryProfile }: Props) 
         role="group"
         aria-label="Itens para contar"
       >
-        {items.map((_: any, i: number) => (
+        {items.map((item: any, i: number) => (
           <span
             key={i}
             className={`text-4xl cursor-pointer select-none transition-transform ${
@@ -56,7 +57,7 @@ export function CountingActivity({ activity, onAnswer, sensoryProfile }: Props) 
             onKeyDown={(e) => e.key === "Enter" && handleCount()}
             aria-label={`Item ${i + 1}${i < count ? " contado" : ""}`}
           >
-            {itemEmoji}
+            {itemEmoji ?? item}
           </span>
         ))}
       </div>

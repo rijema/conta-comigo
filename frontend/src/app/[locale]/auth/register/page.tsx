@@ -17,6 +17,7 @@ interface RegisterForm {
   role: Role;
   childName: string;
   childAge: string;
+  childPassword: string;
   lgpdConsent: boolean;
 }
 
@@ -32,6 +33,7 @@ export default function RegisterPage() {
     role: "guardian",
     childName: "",
     childAge: "",
+    childPassword: "",
     lgpdConsent: false,
   });
   const [step, setStep] = useState<1 | 2>(1);
@@ -57,9 +59,10 @@ export default function RegisterPage() {
         password: form.password,
         role: form.role,
         childProfile:
-          form.role === "guardian"
+          form.role === "guardian" && form.childName
             ? { name: form.childName, age: parseInt(form.childAge) }
             : undefined,
+        childPassword: form.role === "guardian" && form.childPassword ? form.childPassword : undefined,
         lgpdConsent: form.lgpdConsent,
         consentTimestamp: new Date().toISOString(),
       });
@@ -197,6 +200,23 @@ export default function RegisterPage() {
                       required
                       className="w-full px-4 py-3 rounded-2xl border-2 border-gray-200 outline-none focus:border-blue-500"
                     />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">
+                      🔑 Senha da criança
+                    </label>
+                    <input
+                      type="password"
+                      value={form.childPassword}
+                      onChange={(e) => update("childPassword", e.target.value)}
+                      placeholder="Mínimo 4 caracteres"
+                      minLength={4}
+                      required
+                      className="w-full px-4 py-3 rounded-2xl border-2 border-gray-200 outline-none focus:border-blue-500"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      A criança vai usar essa senha para entrar na plataforma
+                    </p>
                   </div>
                 </>
               )}

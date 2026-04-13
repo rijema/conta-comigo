@@ -41,6 +41,8 @@ export function ActivityRenderer({
   };
 
   const renderActivity = () => {
+    const hasOptions = activity.content?.options?.length > 0;
+
     switch (activity.type) {
       case "multiple_choice":
         return (
@@ -59,6 +61,15 @@ export function ActivityRenderer({
           />
         );
       case "counting":
+        if (hasOptions) {
+          return (
+            <MultipleChoiceActivity
+              activity={activity}
+              onAnswer={handleAnswer}
+              sensoryProfile={sensoryProfile}
+            />
+          );
+        }
         return (
           <CountingActivity
             activity={activity}
@@ -102,9 +113,13 @@ export function ActivityRenderer({
           </span>
           <DifficultyIndicator level={activity.difficulty} />
         </div>
-        <h2 className="text-xl font-bold text-gray-800">{activity.title}</h2>
-        {activity.instructions && (
-          <p className="text-gray-600 mt-1">{activity.instructions}</p>
+        <h2 className="text-xl font-bold text-gray-800">
+          {activity.title || activity.content?.instructionsPt}
+        </h2>
+        {(activity.instructions || activity.content?.instructionsPt) && activity.title && (
+          <p className="text-gray-600 mt-1">
+            {activity.instructions || activity.content?.instructionsPt}
+          </p>
         )}
       </div>
 

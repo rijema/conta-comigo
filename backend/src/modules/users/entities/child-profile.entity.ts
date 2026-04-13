@@ -22,6 +22,9 @@ export class ChildProfile {
   userId: string;
 
   @Column({ nullable: true })
+  guardianId: string;
+
+  @Column({ nullable: true })
   age: number;
 
   @Column({ nullable: true })

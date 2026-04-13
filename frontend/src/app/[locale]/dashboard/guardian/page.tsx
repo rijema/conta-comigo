@@ -14,6 +14,7 @@ import { formatDate } from "@/lib/utils";
 interface ChildSummary {
   id: string;
   name: string;
+  email: string;
   age?: number;
   totalSessions: number;
   averageScore: number;
@@ -103,6 +104,9 @@ export default function GuardianDashboardPage() {
                 {child.lastActivityAt
                   ? formatDate(child.lastActivityAt)
                   : "Nunca"}
+              </p>
+              <p className="text-xs text-blue-500 mt-1">
+                Login da criança: <span className="font-mono">{child.email}</span>
               </p>
             </CardHeader>
             <CardContent>
