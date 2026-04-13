@@ -1,4 +1,5 @@
-Controller,
+import {
+  Controller,
   Post,
   Body,
   HttpCode,
