@@ -28,19 +28,3 @@ const nextConfig = {
 };
 
 module.exports = nextConfig;
-[build]
-builder = "DOCKERFILE"
-dockerfilePath = "backend/Dockerfile"
-
-[deploy]
-startCommand = "node dist/main.js"
-restartPolicyType = "ON_FAILURE"
-restartPolicyMaxRetries = 3
-
-[[services]]
-name = "mathasd-backend"
-source = "backend"
-
-[[services]]
-name = "mathasd-ml"
-source = "ml-service"
