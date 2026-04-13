@@ -1,4 +1,5 @@
-IsEmail,
+import {
+  IsEmail,
   IsString,
   MinLength,
   IsEnum,

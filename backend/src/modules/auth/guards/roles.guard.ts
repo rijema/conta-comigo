@@ -1,4 +1,5 @@
-Injectable,
+import {
+  Injectable,
   CanActivate,
   ExecutionContext,
   ForbiddenException,

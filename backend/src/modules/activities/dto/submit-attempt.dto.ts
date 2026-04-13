@@ -1,4 +1,5 @@
-IsString,
+import {
+  IsString,
   IsOptional,
   IsNumber,
   IsBoolean,
