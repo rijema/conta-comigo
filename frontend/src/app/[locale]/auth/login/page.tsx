@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -138,12 +139,12 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-4 text-center">
-            <a
+            <Link
               href="/auth/register"
               className="text-blue-600 hover:underline focus:ring-2 focus:ring-blue-300 rounded"
             >
               Criar nova conta
-            </a>
+            </Link>
           </div>
         </Card>
       </div>
