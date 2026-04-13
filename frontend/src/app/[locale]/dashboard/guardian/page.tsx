@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ProgressChart } from "@/components/charts/progress-chart";
 import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 import { formatDate } from "@/lib/utils";
 
 interface ChildSummary {
@@ -22,14 +23,15 @@ interface ChildSummary {
 }
 
 export default function GuardianDashboardPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [children, setChildren] = useState<ChildSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const locale = useLocale();
 
   useEffect(() => {
-    if (!authLoading && (!user || user.role !== "GUARDIAN")) {
-      router.push("/auth/login");
+    if (!authLoading && (!user || user.role !== "guardian")) {
+      router.push(`/${locale}/auth/login`);
     }
   }, [user, authLoading, router]);
 

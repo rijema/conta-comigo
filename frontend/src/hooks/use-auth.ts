@@ -2,6 +2,7 @@
 
 import { useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 import { authService, LoginPayload, RegisterPayload } from "@/lib/auth";
 import { apiClient } from "@/lib/api-client";
 import { useAuthStore, AuthUser } from "@/store/auth.store";
@@ -9,6 +10,7 @@ import { useAuthStore, AuthUser } from "@/store/auth.store";
 export function useAuth() {
   const { user, isAuthenticated, isLoading, setAuth, clearAuth, setLoading } = useAuthStore();
   const router = useRouter();
+  const locale = useLocale();
 
   const fetchProfile = useCallback(async () => {
     const token = localStorage.getItem("access_token");
@@ -43,7 +45,7 @@ export function useAuth() {
       // If the backend already returns the user, use it. Otherwise, fetch it.
       const profile = response.user || await apiClient.get<AuthUser>("/auth/me", response.accessToken);
       setAuth(profile, response.accessToken);
-      router.push("/dashboard");
+      router.push(`/${locale}/dashboard`);
     } catch (error) {
       setLoading(false);
       throw error;
@@ -58,7 +60,7 @@ export function useAuth() {
       
       const profile = response.user || await apiClient.get<AuthUser>("/auth/me", response.accessToken);
       setAuth(profile, response.accessToken);
-      router.push("/dashboard");
+      router.push(`/${locale}/dashboard`);
     } catch (error) {
       setLoading(false);
       throw error;
@@ -68,7 +70,7 @@ export function useAuth() {
   const logout = () => {
     authService.clearTokens();
     clearAuth();
-    router.push("/auth/login");
+    router.push(`/${locale}/auth/login`);
   };
 
   return {

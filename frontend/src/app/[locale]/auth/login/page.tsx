@@ -41,7 +41,6 @@ export default function LoginPage() {
     setError(null);
     try {
       await login(data);
-      router.push("/dashboard");
     } catch (err: any) {
       setError(err.message || "Erro ao fazer login");
     } finally {
