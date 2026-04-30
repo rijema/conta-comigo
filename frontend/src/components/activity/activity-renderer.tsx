@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { MultipleChoiceActivity } from "./multiple-choice-activity";
 import { DragDropActivity } from "./drag-drop-activity";
 import { CountingActivity } from "./counting-activity";
@@ -19,7 +19,6 @@ export function ActivityRenderer({
   sensoryProfile,
 }: ActivityRendererProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [startTime] = useState(Date.now());
 
   // Apply sensory adjustments
   const containerStyle: React.CSSProperties = {
@@ -33,13 +32,6 @@ export function ActivityRenderer({
     containerRef.current?.focus();
   }, [activity.id]);
 
-  const handleAnswer = (answer: any) => {
-    onAnswer({
-      ...answer,
-      timeSpentMs: Date.now() - startTime,
-    });
-  };
-
   const renderActivity = () => {
     const hasOptions = activity.content?.options?.length > 0;
 
@@ -50,7 +42,7 @@ export function ActivityRenderer({
           <MultipleChoiceActivity
             key={activity.id}
             activity={activity}
-            onAnswer={handleAnswer}
+            onAnswer={onAnswer}
             sensoryProfile={sensoryProfile}
           />
         );
@@ -59,7 +51,7 @@ export function ActivityRenderer({
           <DragDropActivity
             key={activity.id}
             activity={activity}
-            onAnswer={handleAnswer}
+            onAnswer={onAnswer}
             sensoryProfile={sensoryProfile}
           />
         );
@@ -69,7 +61,7 @@ export function ActivityRenderer({
             <MultipleChoiceActivity
               key={activity.id}
               activity={activity}
-              onAnswer={handleAnswer}
+              onAnswer={onAnswer}
               sensoryProfile={sensoryProfile}
             />
           );
@@ -78,7 +70,7 @@ export function ActivityRenderer({
           <CountingActivity
             key={activity.id}
             activity={activity}
-            onAnswer={handleAnswer}
+            onAnswer={onAnswer}
             sensoryProfile={sensoryProfile}
           />
         );
@@ -87,7 +79,7 @@ export function ActivityRenderer({
           <NumberLineActivity
             key={activity.id}
             activity={activity}
-            onAnswer={handleAnswer}
+            onAnswer={onAnswer}
             sensoryProfile={sensoryProfile}
           />
         );
@@ -96,7 +88,7 @@ export function ActivityRenderer({
           <MultipleChoiceActivity
             key={activity.id}
             activity={activity}
-            onAnswer={handleAnswer}
+            onAnswer={onAnswer}
             sensoryProfile={sensoryProfile}
           />
         );
@@ -116,7 +108,7 @@ export function ActivityRenderer({
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-2">
           <span className="text-sm font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded">
-            {activity.bnccSkillCode}
+            {activity.bnccSkills?.[0] ?? activity.bnccSkillCode ?? "BNCC"}
           </span>
           <DifficultyIndicator level={activity.difficulty} />
         </div>
@@ -138,12 +130,14 @@ export function ActivityRenderer({
   );
 }
 
-function DifficultyIndicator({ level }: { level: number }) {
-  const stars = Array.from({ length: 5 }, (_, i) => i < level);
+function DifficultyIndicator({ level }: { level: string | number }) {
+  const numLevel = typeof level === 'number' ? level
+    : level === 'easy' ? 1 : level === 'medium' ? 3 : level === 'hard' ? 5 : 1;
+  const stars = Array.from({ length: 5 }, (_, i) => i < numLevel);
   return (
     <div
       className="flex gap-0.5"
-      aria-label={`Dificuldade: ${level} de 5 estrelas`}
+      aria-label={`Dificuldade: ${numLevel} de 5 estrelas`}
     >
       {stars.map((filled, i) => (
         <span key={i} className={filled ? "text-yellow-400" : "text-gray-200"}>

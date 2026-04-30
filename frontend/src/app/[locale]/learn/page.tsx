@@ -6,8 +6,6 @@ import { useLocale } from "next-intl";
 import { useAuth } from "@/hooks/use-auth";
 import { useSession } from "@/hooks/use-session";
 import { ActivityRenderer } from "@/components/activity/activity-renderer";
-import { api } from "@/lib/api-client";
-import { authService } from "@/lib/auth";
 
 function LearnPageInner() {
   const { user, isLoading: authLoading, logout } = useAuth();
@@ -30,26 +28,8 @@ function LearnPageInner() {
       router.replace(`/${locale}/auth/login`);
       return;
     }
-    if (requestedActivityId && !session) {
-      startSpecificActivity(requestedActivityId);
-    } else {
-      startSession();
-    }
+    startSession();
   }, [mounted, user, authLoading]);
-
-  const startSpecificActivity = async (activityId: string) => {
-    const token = authService.getStoredToken();
-    if (!token) return;
-    try {
-      const activity = await api.get<any>(`/activities/${activityId}`, token);
-      // Inject into session via startSession then override — simplest is just startSession
-      // which picks ADE. For specific activity, we'll start session normally and use
-      // the activityId param as a hint; the menu flow works via normal ADE start.
-      startSession();
-    } catch {
-      startSession();
-    }
-  };
 
   const handleAnswer = async (answer: any) => {
     if (!session?.currentActivity) return;
@@ -217,7 +197,7 @@ function LearnPageInner() {
         <ActivityRenderer
           activity={activity}
           onAnswer={handleAnswer}
-          sensoryProfile={user?.childProfile?.uiPreferences}
+          sensoryProfile={undefined}
         />
       </main>
     </div>

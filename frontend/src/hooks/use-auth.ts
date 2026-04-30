@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
 import { authService, LoginPayload, RegisterPayload } from "@/lib/auth";
@@ -8,10 +8,9 @@ import { apiClient } from "@/lib/api-client";
 import { useAuthStore, AuthUser } from "@/store/auth.store";
 
 export function useAuth() {
-  const { user, isAuthenticated, isLoading, setAuth, clearAuth, setLoading } = useAuthStore();
+  const { user, isAuthenticated, isLoading, isHydrated, setAuth, clearAuth, setLoading } = useAuthStore();
   const router = useRouter();
   const locale = useLocale();
-  const hydratedRef = useRef(false);
 
   const fetchProfile = useCallback(async () => {
     const token = localStorage.getItem("access_token");
@@ -32,16 +31,13 @@ export function useAuth() {
   }, [setAuth, clearAuth, setLoading]);
 
   useEffect(() => {
-    // On first mount: if the persisted store already has a valid user+token, skip fetchProfile.
-    // This prevents a redirect on page reload when the store hydrated successfully.
-    if (!hydratedRef.current) {
-      hydratedRef.current = true;
-      if (isAuthenticated && user) return;
-    }
-    if (!isAuthenticated && !isLoading) {
-      fetchProfile();
-    }
-  }, [isAuthenticated, isLoading, fetchProfile]);
+    // Wait for Zustand to finish hydrating from localStorage
+    if (!isHydrated) return;
+    // If already authenticated (hydrated from store), skip remote fetch
+    if (isAuthenticated && user) return;
+    // Otherwise try to restore from token
+    fetchProfile();
+  }, [isHydrated, isAuthenticated, user, fetchProfile]);
 
   const login = async (payload: LoginPayload) => {
     setLoading(true);

@@ -1,3 +1,52 @@
+export interface SensoryProfile {
+  fontSize?: string;
+  lineHeight?: string;
+  backgroundColor?: string;
+  lowStimulationMode?: boolean;
+  highContrast?: boolean;
+  animationsEnabled?: boolean;
+  soundEnabled?: boolean;
+  [key: string]: any;
+}
+
+export interface ActivityOption {
+  id: string;
+  text: string;
+  emoji?: string;
+  isCorrect: boolean;
+}
+
+export interface ActivityContent {
+  instructionsPt?: string;
+  instructions?: string;
+  question?: string;
+  items?: string[];
+  options?: ActivityOption[];
+  correctAnswer?: any;
+  example?: string;
+  imageUrl?: string;
+  imageAlt?: string;
+  correctOrder?: string[];
+  [key: string]: any;
+}
+
+export interface Activity {
+  id: string;
+  title: string;
+  description?: string;
+  type: 'multiple_choice' | 'quiz' | 'drag_drop' | 'counting' | 'number_line' | string;
+  difficulty: 'easy' | 'medium' | 'hard' | string;
+  bnccSkills?: string[];
+  bnccSkillCode?: string;
+  targetModalities?: string[];
+  pointsReward?: number;
+  isActive?: boolean;
+  content: ActivityContent;
+  options?: ActivityOption[];
+  instructions?: string;
+  accessibility?: Record<string, any>;
+}
+
 export interface User {
   id: string;
   name: string;
