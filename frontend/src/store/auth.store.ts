@@ -17,10 +17,12 @@ interface AuthState {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isHydrated: boolean;
 
   setAuth: (user: AuthUser, token: string) => void;
   clearAuth: () => void;
   setLoading: (v: boolean) => void;
+  setHydrated: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -29,7 +31,8 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       token: null,
       isAuthenticated: false,
-      isLoading: false,
+      isLoading: true,
+      isHydrated: false,
 
       setAuth: (user, token) => {
         Cookies.set("access_token", token, {
@@ -46,6 +49,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       setLoading: (v) => set({ isLoading: v }),
+      setHydrated: () => set({ isHydrated: true, isLoading: false }),
     }),
     {
       name: "asd-platform-auth",
@@ -54,6 +58,9 @@ export const useAuthStore = create<AuthState>()(
         token: state.token,
         isAuthenticated: state.isAuthenticated,
       }),
+      onRehydrateStorage: () => (state) => {
+        if (state) state.setHydrated();
+      },
     }
   )
 );
