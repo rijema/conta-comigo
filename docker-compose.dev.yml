@@ -19,6 +19,17 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    container_name: mathasd_redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   redpanda:
     image: redpandadata/redpanda:latest
     container_name: mathasd_redpanda
@@ -55,6 +66,7 @@ services:
       JWT_EXPIRES_IN: 7d
       JWT_REFRESH_EXPIRES_IN: 30d
       ML_SERVICE_URL: http://ml-service:8000
+      REDIS_URL: redis://redis:6379
       PORT: 3001
     ports:
       - "3001:3001"
@@ -63,6 +75,8 @@ services:
       postgres:
         condition: service_healthy
       redpanda:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     volumes:
       - ./backend:/app

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { IsString, MinLength, IsInt, Min, Max } from 'class-validator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -30,6 +30,15 @@ export class GuardianController {
   @ApiOperation({ summary: 'Get summary of all children for the logged-in guardian' })
   getChildrenSummary(@CurrentUser('userId') userId: string) {
     return this.guardianService.getChildrenSummary(userId);
+  }
+
+  @Get('children/:childId')
+  @ApiOperation({ summary: 'Get detailed data for a specific child' })
+  getChildDetail(
+    @CurrentUser('userId') guardianId: string,
+    @Param('childId') childId: string,
+  ) {
+    return this.guardianService.getChildDetail(guardianId, childId);
   }
 
   @Post('children')

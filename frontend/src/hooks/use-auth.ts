@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
 import { authService, LoginPayload, RegisterPayload } from "@/lib/auth";
@@ -11,6 +11,7 @@ export function useAuth() {
   const { user, isAuthenticated, isLoading, setAuth, clearAuth, setLoading } = useAuthStore();
   const router = useRouter();
   const locale = useLocale();
+  const hydratedRef = useRef(false);
 
   const fetchProfile = useCallback(async () => {
     const token = localStorage.getItem("access_token");
@@ -31,6 +32,12 @@ export function useAuth() {
   }, [setAuth, clearAuth, setLoading]);
 
   useEffect(() => {
+    // On first mount: if the persisted store already has a valid user+token, skip fetchProfile.
+    // This prevents a redirect on page reload when the store hydrated successfully.
+    if (!hydratedRef.current) {
+      hydratedRef.current = true;
+      if (isAuthenticated && user) return;
+    }
     if (!isAuthenticated && !isLoading) {
       fetchProfile();
     }

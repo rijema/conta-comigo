@@ -1,13 +1,16 @@
 import { apiClient } from "./api-client";
 
 export interface AuthTokens {
-  access_token: string;
-  refresh_token?: string;
+  accessToken: string;
+  refreshToken?: string;
+  user?: any;
 }
 
 export interface LoginPayload {
-  email: string;
+  email?: string;
   password: string;
+  childName?: string;
+  guardianEmail?: string;
 }
 
 export interface RegisterPayload {
@@ -34,9 +37,9 @@ export const authService = {
   },
 
   storeTokens: (tokens: AuthTokens) => {
-    localStorage.setItem("access_token", tokens.access_token);
-    if (tokens.refresh_token) {
-      localStorage.setItem("refresh_token", tokens.refresh_token);
+    localStorage.setItem("access_token", tokens.accessToken);
+    if (tokens.refreshToken) {
+      localStorage.setItem("refresh_token", tokens.refreshToken);
     }
   },
 

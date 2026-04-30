@@ -168,7 +168,131 @@ export class ActivitiesService {
     // Generate feedback
     const feedback = this.generateFeedback(isCorrect, activity, dto.hintsUsed ?? 0);
 
-    return { attempt, feedback };
+    // Fetch next activity via ADE (always, so UI can advance on correct answer)
+    let nextActivity: Activity | undefined;
+    let adeDecision: any;
+    try {
+      let profile: any;
+      try {
+        profile = await this.usersService.getChildProfile(userId);
+      } catch {
+        profile = {
+          userId,
+          age: 7,
+          schoolYear: 1,
+          asdSupportLevel: 'mild',
+          strengths: { visual: true },
+          weaknesses: {},
+          skillMastery: {},
+          bnccProgress: {},
+          currentStreak: 0,
+        };
+      }
+      const timeout = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('ADE timeout')), 3000),
+      );
+      adeDecision = await Promise.race([
+        this.adeService.decide({
+          userId,
+          profile,
+          recentAttempts: await this.getRecentAttempts(userId, 5),
+          sessionId: dto.sessionId,
+        }),
+        timeout,
+      ]);
+      nextActivity = await this.findMatchingActivity(adeDecision);
+      // Avoid returning the same activity as current
+      if (nextActivity.id === dto.activityId) {
+        const candidates = await this.activityRepo
+          .createQueryBuilder('activity')
+          .where('activity.isActive = true')
+          .andWhere('activity.id != :id', { id: dto.activityId })
+          .getMany();
+        if (candidates.length > 0) {
+          nextActivity = candidates[Math.floor(Math.random() * candidates.length)];
+        }
+      }
+    } catch (err: any) {
+      this.logger.error(`Next activity fetch failed: ${err?.message}. Using random fallback.`);
+      try {
+        const fallbacks = await this.activityRepo
+          .createQueryBuilder('activity')
+          .where('activity.isActive = true')
+          .andWhere('activity.id != :id', { id: dto.activityId })
+          .orderBy('RANDOM()')
+          .limit(1)
+          .getOne();
+        if (fallbacks) nextActivity = fallbacks;
+      } catch {
+        // no-op — nextActivity stays undefined
+      }
+    }
+
+    return { attempt, feedback, nextActivity, adeDecision };
+  }
+
+  async getActivityTree(userId: string): Promise<any> {
+    let profile: any;
+    try {
+      profile = await this.usersService.getChildProfile(userId);
+    } catch {
+      profile = { strengths: {}, weaknesses: {}, skillMastery: {}, bnccProgress: {} };
+    }
+
+    const recentAttempts = await this.getRecentAttempts(userId, 20);
+    const completedActivityIds = new Set(
+      recentAttempts.filter((a) => a.isCorrect).map((a) => a.activityId)
+    );
+
+    const allActivities = await this.activityRepo.find({ where: { isActive: true } });
+
+    // Group by BNCC skill
+    const bySkill: Record<string, any[]> = {};
+    allActivities.forEach((act) => {
+      const skill = act.bnccSkills?.[0] ?? 'Geral';
+      if (!bySkill[skill]) bySkill[skill] = [];
+      bySkill[skill].push({
+        id: act.id,
+        title: act.title,
+        type: act.type,
+        difficulty: act.difficulty,
+        completed: completedActivityIds.has(act.id),
+        bnccSkills: act.bnccSkills,
+        targetModalities: act.targetModalities,
+      });
+    });
+
+    // Use ontology to determine recommended modalities
+    const ontologyResult = this.adeService.inferOntologyModalities(
+      profile.strengths ?? {},
+      profile.weaknesses ?? {},
+    );
+
+    // Mark activities as recommended based on ontology modalities
+    const tree = Object.entries(bySkill).map(([skill, activities]) => {
+      const recommended = activities.filter((a) =>
+        a.targetModalities?.some((m: string) => ontologyResult.modalities.includes(m))
+      );
+      return {
+        skill,
+        totalActivities: activities.length,
+        completedCount: activities.filter((a) => a.completed).length,
+        activities: activities.map((a) => ({
+          ...a,
+          recommended: a.targetModalities?.some((m: string) =>
+            ontologyResult.modalities.includes(m)
+          ) ?? false,
+        })),
+      };
+    });
+
+    return {
+      tree,
+      ontologyModalities: ontologyResult.modalities,
+      ontologyInferences: ontologyResult.inferences,
+      completedTotal: completedActivityIds.size,
+      totalActivities: allActivities.length,
+    };
   }
 
   async getRecentAttempts(userId: string, limit = 10): Promise<ActivityAttempt[]> {
@@ -189,7 +313,7 @@ export class ActivitiesService {
   private evaluateAnswer(activity: Activity, answer: any): boolean {
     // Drag-drop: compare arrangement array against correctOrder
     if (activity.type === 'drag_drop') {
-      const correctOrder: string[] = activity.content?.correctOrder || [];
+      const correctOrder: string[] = activity.content?.correctAnswer || [];
       const arrangement: string[] = Array.isArray(answer)
         ? answer
         : String(answer).split(',');
@@ -244,8 +368,8 @@ export class ActivitiesService {
     }
 
     if (adeDecision.recommendedModality) {
-      query.andWhere(':modality = ANY(activity.targetModalities)', {
-        modality: adeDecision.recommendedModality,
+      query.andWhere('activity.targetModalities::jsonb @> :modality::jsonb', {
+        modality: JSON.stringify([adeDecision.recommendedModality]),
       });
     }
 

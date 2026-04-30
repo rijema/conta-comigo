@@ -185,6 +185,10 @@ export class AdeService {
     return total / attempts.length;
   }
 
+  inferOntologyModalities(strengths: Record<string, boolean>, weaknesses: Record<string, boolean>) {
+    return this.ontologyReasoner.inferRecommendedModalities(strengths, weaknesses);
+  }
+
   private mapModalityToActivityType(modality: string): string {
     const map: Record<string, string> = {
       visual: 'visual_puzzle',
