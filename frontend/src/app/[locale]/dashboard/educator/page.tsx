@@ -23,7 +23,7 @@ const SUPPORT_LEVELS = [
 ];
 
 export default function EducatorDashboardPage() {
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, isLoading: authLoading, logout } = useAuth();
   const [learners, setLearners] = useState<any[]>([]);
   const [selected, setSelected] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
@@ -123,7 +123,7 @@ export default function EducatorDashboardPage() {
             <p className="text-indigo-200 text-sm">Olá, {user?.name?.split(" ")[0]}!</p>
           </div>
           <button
-            onClick={() => router.push(`/${locale}/dashboard`)}
+            onClick={logout}
             className="text-indigo-200 hover:text-white text-sm px-3 py-1.5 rounded-lg hover:bg-white/10"
           >
             ← Sair

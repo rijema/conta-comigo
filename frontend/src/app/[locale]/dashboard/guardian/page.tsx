@@ -131,13 +131,17 @@ function RadarChart({ axes, values }: { axes: string[]; values: number[] }) {
 }
 
 export default function GuardianDashboardPage() {
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, isLoading: authLoading, logout } = useAuth();
   const [children, setChildren] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<any>(null);
   const [detail, setDetail] = useState<any>(null);
   const [detailLoading, setDetailLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<"overview" | "charts" | "bncc" | "ade">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "charts" | "bncc" | "ade" | "chat">("overview");
+  const [chatQuestion, setChatQuestion] = useState("");
+  const [chatAnswer, setChatAnswer] = useState<string | null>(null);
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
   const [showAddChild, setShowAddChild] = useState(false);
   const [addForm, setAddForm] = useState({ childName: "", age: "", childPassword: "" });
   const [addLoading, setAddLoading] = useState(false);
@@ -166,6 +170,8 @@ export default function GuardianDashboardPage() {
     setDetail(null);
     setDetailLoading(true);
     setActiveTab("overview" as any);
+    setChatAnswer(null);
+    setChatQuestion("");
     try {
       const d = await api.get<any>(`/guardian/children/${child.id}`, t ?? undefined);
       setDetail(d);
@@ -216,12 +222,20 @@ export default function GuardianDashboardPage() {
             <h1 className="text-xl font-bold">👪 Painel do Responsável</h1>
             <p className="text-purple-200 text-sm">Olá, {user?.name?.split(" ")[0]}!</p>
           </div>
-          <button
-            onClick={() => setShowAddChild(true)}
-            className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl text-sm font-semibold transition-colors"
-          >
-            + Adicionar filho
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowAddChild(true)}
+              className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl text-sm font-semibold transition-colors"
+            >
+              + Adicionar filho
+            </button>
+            <button
+              onClick={logout}
+              className="px-3 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-sm font-semibold transition-colors text-purple-100 hover:text-white"
+            >
+              Sair
+            </button>
+          </div>
         </div>
       </header>
 
@@ -304,7 +318,7 @@ export default function GuardianDashboardPage() {
 
               {/* Tabs */}
               <div className="flex gap-1 flex-wrap">
-                {(["overview", "charts", "bncc", "ade"] as const).map((tab) => (
+                {(["overview", "charts", "bncc", "ade", "chat"] as const).map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
@@ -314,7 +328,7 @@ export default function GuardianDashboardPage() {
                         : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                     }`}
                   >
-                    {({ overview: "📊 Visão Geral", charts: "📈 Gráficos", bncc: "📚 BNCC", ade: "🤖 IA" } as Record<string,string>)[tab]}
+                    {({ overview: "📊 Visão Geral", charts: "📈 Gráficos", bncc: "📚 BNCC", ade: "🤖 IA", chat: "💬 Perguntar à IA" } as Record<string,string>)[tab]}
                   </button>
                 ))}
               </div>
@@ -485,6 +499,126 @@ export default function GuardianDashboardPage() {
                     </div>
                   </div>
                 )}
+
+                {/* CHAT TAB */}
+                {activeTab === "chat" && (() => {
+                  const handleChat = async (e: React.FormEvent) => {
+                    e.preventDefault();
+                    if (!chatQuestion.trim() || !selected) return;
+                    setChatLoading(true);
+                    setChatError(null);
+                    const token = authService.getStoredToken();
+                    try {
+                      const res = await api.post<any>("/guardian/chat", {
+                        question: chatQuestion.trim(),
+                        childId: selected.id,
+                      }, token ?? undefined);
+                      setChatAnswer(res.answer);
+                    } catch (err: any) {
+                      setChatError("Não consegui processar sua pergunta. Tente novamente.");
+                    } finally {
+                      setChatLoading(false);
+                    }
+                  };
+
+                  const SUGGESTED = [
+                    `Como está o progresso de ${detail.name}?`,
+                    `O que posso fazer em casa para ajudar ${detail.name}?`,
+                    `Quais atividades são mais adequadas para o nível de ${detail.name}?`,
+                    `Como a dificuldade é ajustada para ${detail.name}?`,
+                  ];
+
+                  return (
+                    <div className="space-y-4">
+                      <div className="bg-white rounded-2xl shadow-sm p-5 border border-slate-100">
+                        <div className="flex items-center gap-3 mb-3">
+                          <span className="text-3xl">🤖</span>
+                          <div>
+                            <h3 className="font-bold text-slate-800">Assistente IA</h3>
+                            <p className="text-xs text-slate-500">Pergunte sobre {detail.name} — respondo com base nos dados reais</p>
+                          </div>
+                        </div>
+
+                        {/* Suggested questions */}
+                        {!chatAnswer && (
+                          <div className="mb-4">
+                            <p className="text-xs font-semibold text-slate-500 uppercase mb-2">Sugestões de perguntas</p>
+                            <div className="grid grid-cols-1 gap-2">
+                              {SUGGESTED.map((q) => (
+                                <button
+                                  key={q}
+                                  onClick={() => setChatQuestion(q)}
+                                  className="text-left text-sm px-4 py-2.5 rounded-xl bg-purple-50 border border-purple-100 text-purple-700 hover:bg-purple-100 transition-colors font-medium"
+                                >
+                                  💬 {q}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Answer display */}
+                        {chatAnswer && (
+                          <div className="mb-4 bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-200 rounded-2xl p-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-lg">🦋</span>
+                              <span className="text-xs font-bold text-purple-600 uppercase">Resposta da IA</span>
+                            </div>
+                            <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{chatAnswer}</p>
+                            <p className="text-xs text-slate-400 mt-3 italic">
+                              Baseado nos dados reais de {detail.name} · Gemini 1.5 Flash
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Question form */}
+                        <form onSubmit={handleChat} className="space-y-3">
+                          <textarea
+                            value={chatQuestion}
+                            onChange={(e) => setChatQuestion(e.target.value)}
+                            placeholder={`Ex: Como está o progresso de ${detail.name} esta semana?`}
+                            rows={3}
+                            className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 focus:border-purple-400 outline-none text-sm resize-none transition-colors"
+                          />
+                          {chatError && <p className="text-red-500 text-xs">{chatError}</p>}
+                          <div className="flex gap-2">
+                            {chatAnswer && (
+                              <button
+                                type="button"
+                                onClick={() => { setChatAnswer(null); setChatQuestion(""); setChatError(null); }}
+                                className="flex-1 py-3 border-2 border-purple-200 text-purple-600 font-bold rounded-2xl hover:bg-purple-50 transition-colors text-sm"
+                              >
+                                🔄 Fazer outra pergunta
+                              </button>
+                            )}
+                            <button
+                              type="submit"
+                              disabled={chatLoading || !chatQuestion.trim()}
+                              className="flex-[2] py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold rounded-2xl hover:opacity-90 disabled:opacity-40 transition-all text-sm flex items-center justify-center gap-2"
+                            >
+                              {chatLoading ? (
+                                <>
+                                  <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                                  Pensando...
+                                </>
+                              ) : (
+                                <>✨ Perguntar</>
+                              )}
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+
+                      {/* Disclaimer */}
+                      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3">
+                        <p className="text-xs text-amber-700">
+                          ⚠️ <strong>Aviso:</strong> As respostas da IA são geradas automaticamente com base nos dados da plataforma.
+                          Não substituem a orientação de profissionais de saúde especializados em TEA.
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })()}
 
                 {/* ADE TAB */}
                 {activeTab === "ade" && (
