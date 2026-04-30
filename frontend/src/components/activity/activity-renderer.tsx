@@ -48,6 +48,7 @@ export function ActivityRenderer({
       case "multiple_choice":
         return (
           <MultipleChoiceActivity
+            key={activity.id}
             activity={activity}
             onAnswer={handleAnswer}
             sensoryProfile={sensoryProfile}
@@ -56,6 +57,7 @@ export function ActivityRenderer({
       case "drag_drop":
         return (
           <DragDropActivity
+            key={activity.id}
             activity={activity}
             onAnswer={handleAnswer}
             sensoryProfile={sensoryProfile}
@@ -65,6 +67,7 @@ export function ActivityRenderer({
         if (hasOptions) {
           return (
             <MultipleChoiceActivity
+              key={activity.id}
               activity={activity}
               onAnswer={handleAnswer}
               sensoryProfile={sensoryProfile}
@@ -73,6 +76,7 @@ export function ActivityRenderer({
         }
         return (
           <CountingActivity
+            key={activity.id}
             activity={activity}
             onAnswer={handleAnswer}
             sensoryProfile={sensoryProfile}
@@ -81,6 +85,7 @@ export function ActivityRenderer({
       case "number_line":
         return (
           <NumberLineActivity
+            key={activity.id}
             activity={activity}
             onAnswer={handleAnswer}
             sensoryProfile={sensoryProfile}
@@ -89,6 +94,7 @@ export function ActivityRenderer({
       default:
         return (
           <MultipleChoiceActivity
+            key={activity.id}
             activity={activity}
             onAnswer={handleAnswer}
             sensoryProfile={sensoryProfile}

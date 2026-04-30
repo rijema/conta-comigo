@@ -26,7 +26,7 @@ export class KafkaProducerService {
 
   async publishSessionEvent(event: PlatformEvent): Promise<void> {
     this.logger.log(`Publishing session event: ${event.eventType} for learner ${event.learnerId}`);
-    await this.sessionEventsQueue.add('session-event', event, {
+    this.sessionEventsQueue.add('session-event', event, {
       attempts: 3,
       backoff: { type: 'exponential', delay: 1000 },
       removeOnComplete: true,
@@ -35,7 +35,7 @@ export class KafkaProducerService {
 
   async publishActivityEvent(event: PlatformEvent): Promise<void> {
     this.logger.log(`Publishing activity event: ${event.eventType} for learner ${event.learnerId}`);
-    await this.activityEventsQueue.add('activity-event', event, {
+    this.activityEventsQueue.add('activity-event', event, {
       attempts: 3,
       backoff: { type: 'exponential', delay: 1000 },
       removeOnComplete: true,
@@ -43,21 +43,21 @@ export class KafkaProducerService {
   }
 
   async publishAnalyticsUpdate(event: PlatformEvent): Promise<void> {
-    await this.analyticsUpdatesQueue.add('analytics-update', event, {
+    this.analyticsUpdatesQueue.add('analytics-update', event, {
       attempts: 3,
       removeOnComplete: true,
     });
   }
 
   async publishAdeDecision(event: PlatformEvent): Promise<void> {
-    await this.adeDecisionsQueue.add('ade-decision', event, {
+    this.adeDecisionsQueue.add('ade-decision', event, {
       attempts: 3,
       removeOnComplete: true,
     });
   }
 
   async publishAlert(event: PlatformEvent): Promise<void> {
-    await this.alertsQueue.add('alert', event, {
+    this.alertsQueue.add('alert', event, {
       attempts: 5,
       removeOnComplete: false,
     });

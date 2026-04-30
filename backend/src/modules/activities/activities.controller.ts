@@ -47,6 +47,12 @@ export class ActivitiesController {
     return this.activitiesService.getNextActivity(userId);
   }
 
+  @Get('tree')
+  @ApiOperation({ summary: 'Get ontology-based activity tree for the current child' })
+  getActivityTree(@CurrentUser('userId') userId: string) {
+    return this.activitiesService.getActivityTree(userId);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.activitiesService.findById(id);

@@ -15,7 +15,7 @@ export function useSession() {
   const [session, setSession] = useState<SessionState | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activitiesCompleted, setActivitiesCompleted] = useState(0);
+  const activitiesCompletedRef = useRef(0);
   const startedRef = useRef(false);
 
   const startSession = useCallback(async () => {
@@ -56,11 +56,12 @@ export function useSession() {
       const rawAnswer = payload.answer;
       const normalizedAnswer =
         rawAnswer?.arrangement ??
+        rawAnswer?.selectedText ??
         rawAnswer?.selectedOption ??
         rawAnswer?.count ??
         rawAnswer;
 
-      const result = await api.post<{ attempt: any; feedback: any; nextActivity?: any }>(
+      const result = await api.post<{ attempt: any; feedback: any; nextActivity?: any; adeDecision?: any }>(
         "/activities/attempts",
         {
           activityId: payload.activityId,
@@ -71,29 +72,72 @@ export function useSession() {
         token ?? undefined,
       );
 
-      const completed = activitiesCompleted + 1;
-      setActivitiesCompleted(completed);
+      const isCorrect = result.attempt?.isCorrect ?? false;
 
-      if (session) {
+      // ADE / next activity debug log for DevTools Console
+      if (result.adeDecision) {
+        const ade = result.adeDecision;
+        console.groupCollapsed(
+          `%c🤖 ADE — próxima atividade via IA`,
+          "color: #7c3aed; font-weight: bold; font-size: 13px"
+        );
+        console.log("📊 Dificuldade recomendada:", ade.recommendedDifficulty);
+        console.log("🎨 Modalidade recomendada:", ade.recommendedModality);
+        console.log("📚 Habilidade BNCC:", ade.recommendedBnccSkill);
+        if (ade.xaiLog) {
+          console.groupCollapsed("🔍 Raciocínio (XAI)");
+          console.log("Resumo:", ade.xaiLog.finalReason);
+          console.log("Confiança:", (ade.xaiLog.confidence * 100).toFixed(0) + "%");
+          console.log("Ontologia — inferências:", ade.xaiLog.ontologyInferences);
+          console.log("Regras disparadas:", ade.xaiLog.rulesFired);
+          console.log("ML — mastery:", ade.xaiLog.mlPredictions?.masteryProbability?.toFixed(2),
+            "| engagement:", ade.xaiLog.mlPredictions?.engagementScore?.toFixed(2),
+            "| fallback ML?", ade.xaiLog.mlPredictions?.fallback ? "✅ sim" : "❌ não");
+          console.groupEnd();
+        }
+        console.log("➡️ Próxima atividade:", result.nextActivity?.title ?? "(nenhuma)");
+        console.groupEnd();
+      } else if (result.nextActivity) {
+        console.log(
+          `%c🎲 Próxima atividade via FALLBACK aleatório: ${result.nextActivity.title}`,
+          "color: #d97706; font-weight: bold"
+        );
+      } else {
+        console.warn("⚠️ Nenhuma próxima atividade retornada pelo backend");
+      }
+
+      if (isCorrect) {
+        activitiesCompletedRef.current += 1;
+        const completed = activitiesCompletedRef.current;
         const nextActivity = result.nextActivity ?? null;
-        setSession({
-          ...session,
-          currentActivity: nextActivity ?? session.currentActivity,
-          progress: Math.min(completed * 10, 100),
-          activityStartTime: Date.now(),
+        setSession((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            currentActivity: nextActivity ?? prev.currentActivity,
+            progress: Math.min(completed * 10, 100),
+            activityStartTime: Date.now(),
+          };
         });
       }
 
-      return { isCorrect: result.attempt.isCorrect, feedback: result.feedback };
+      return { isCorrect, feedback: result.feedback };
     } catch (err) {
       console.error("Failed to submit answer:", err);
       return { isCorrect: false, feedback: null };
     }
   };
 
+  const stopSession = useCallback(() => {
+    startedRef.current = false;
+    setSession(null);
+    activitiesCompletedRef.current = 0;
+  }, []);
+
   return {
     session,
     startSession,
+    stopSession,
     submitAnswer,
     isLoading,
     error,

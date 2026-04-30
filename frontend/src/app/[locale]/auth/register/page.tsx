@@ -39,6 +39,7 @@ export default function RegisterPage() {
   const [step, setStep] = useState<1 | 2>(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showTermModal, setShowTermModal] = useState(false);
 
   function update(field: keyof RegisterForm, value: any) {
     setForm((f) => ({ ...f, [field]: value }));
@@ -224,11 +225,18 @@ export default function RegisterPage() {
               {/* LGPD Consent */}
               <div className="bg-gray-50 rounded-2xl p-4 border border-gray-200">
                 <h3 className="font-semibold text-gray-800 text-sm mb-2">
-                  📋 {t("lgpdTitle")}
+                  📋 Termo de Consentimento e Uso
                 </h3>
-                <p className="text-xs text-gray-600 mb-3 leading-relaxed">
-                  {t("lgpdDescription")}
+                <p className="text-xs text-gray-600 mb-2 leading-relaxed">
+                  Esta plataforma coleta dados educacionais para fins de pesquisa acadêmica. Todos os dados são protegidos pela LGPD (Lei 13.709/2018).
                 </p>
+                <button
+                  type="button"
+                  onClick={() => setShowTermModal(true)}
+                  className="text-xs text-blue-600 underline mb-3 hover:text-blue-700"
+                >
+                  📄 Ler o Termo Completo
+                </button>
                 <label className="flex items-start gap-3 cursor-pointer">
                   <input
                     type="checkbox"
@@ -238,7 +246,7 @@ export default function RegisterPage() {
                     aria-required="true"
                   />
                   <span className="text-xs text-gray-700">
-                    {t("lgpdConsentText")}
+                    Li e aceito o Termo de Consentimento, a Política de Privacidade e autorizo o uso dos dados para fins de pesquisa acadêmica.
                   </span>
                 </label>
               </div>
@@ -278,6 +286,76 @@ export default function RegisterPage() {
           </Link>
         </p>
       </motion.div>
+
+      {/* Term modal */}
+      {showTermModal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-xl w-full overflow-hidden">
+            <div className="bg-blue-600 px-6 py-4 text-white flex items-center justify-between">
+              <h2 className="font-bold text-lg">📋 Termo de Consentimento Livre e Esclarecido</h2>
+              <button onClick={() => setShowTermModal(false)} className="text-white/70 hover:text-white text-xl">✕</button>
+            </div>
+            <div className="p-6 space-y-4 max-h-[65vh] overflow-y-auto text-sm text-gray-700">
+              <p className="font-semibold text-gray-900">Plataforma MathASD — Pesquisa de Mestrado</p>
+
+              <section>
+                <p className="font-semibold mb-1">1. Identificação da Pesquisa</p>
+                <p>Esta pesquisa tem como objetivo desenvolver e avaliar um sistema educacional adaptativo para o ensino de matemática voltado a crianças com Transtorno do Espectro Autista (TEA), nos anos iniciais do Ensino Fundamental.</p>
+              </section>
+
+              <section>
+                <p className="font-semibold mb-1">2. Dados Coletados</p>
+                <p>A plataforma coleta: dados de cadastro (nome, e-mail), dados de desempenho (tentativas, acertos, tempo por atividade), dados de interação e perfil educacional. Nenhum dado sensível de saúde é coletado diretamente.</p>
+              </section>
+
+              <section>
+                <p className="font-semibold mb-1">3. Uso dos Dados</p>
+                <p>Os dados são utilizados exclusivamente para: personalização das atividades educacionais, geração de relatórios de progresso e análise acadêmica. Os dados não serão vendidos, compartilhados com terceiros para fins comerciais ou utilizados para publicidade.</p>
+              </section>
+
+              <section>
+                <p className="font-semibold mb-1">4. Proteção de Dados (LGPD)</p>
+                <p>Em conformidade com a Lei 13.709/2018 (LGPD), você tem direito a: acesso, correção, exclusão e portabilidade dos seus dados. Para exercer esses direitos, entre em contato pelo e-mail de pesquisa.</p>
+              </section>
+
+              <section>
+                <p className="font-semibold mb-1">5. Participação Voluntária</p>
+                <p>A participação é voluntária. Você pode revogar este consentimento a qualquer momento, sem penalidades, solicitando a exclusão de sua conta e dados.</p>
+              </section>
+
+              <section>
+                <p className="font-semibold mb-1">6. Responsabilidade</p>
+                <p>O pesquisador responsável não se responsabiliza por uso indevido da plataforma por terceiros não autorizados nem por interpretações dos relatórios gerados fora do contexto educacional e de pesquisa para o qual foram concebidos.</p>
+              </section>
+
+              <section>
+                <p className="font-semibold mb-1">7. Contato</p>
+                <p>Dúvidas sobre o uso dos dados ou sobre esta pesquisa podem ser encaminhadas ao pesquisador responsável via e-mail institucional ou ao Comitê de Ética em Pesquisa (CEP) da instituição.</p>
+              </section>
+
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+                <p className="text-xs text-amber-700">
+                  <strong>Ao aceitar este termo</strong>, você declara ter lido, compreendido e concordado com as condições descritas, autorizando o uso dos dados conforme especificado.
+                </p>
+              </div>
+            </div>
+            <div className="px-6 pb-5 flex gap-3">
+              <button
+                onClick={() => setShowTermModal(false)}
+                className="flex-1 py-3 border-2 border-gray-300 rounded-2xl text-gray-700 font-semibold hover:bg-gray-50"
+              >
+                Fechar
+              </button>
+              <button
+                onClick={() => { update("lgpdConsent", true); setShowTermModal(false); }}
+                className="flex-[2] py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700"
+              >
+                ✅ Aceitar e Continuar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

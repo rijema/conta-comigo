@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { BullModule } from '@nestjs/bull';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
@@ -29,6 +30,33 @@ import { EducatorModule } from './modules/educator/educator.module';
         autoLoadEntities: true,
         synchronize: configService.get<string>('NODE_ENV') !== 'production',
         logging: configService.get<string>('LOG_LEVEL') === 'debug' ? ['query', 'error'] : ['error'],
+      }),
+      inject: [ConfigService],
+    }),
+
+    // Bull / Redis Queue
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        redis: configService.get<string>('REDIS_URL', 'redis://localhost:6379'),
+        settings: {
+          maxStalledCount: 0,
+        },
+        defaultJobOptions: {
+          attempts: 1,
+          removeOnComplete: true,
+          removeOnFail: true,
+        },
+        // Prevent ioredis from crashing the process when Redis is unavailable
+        createClient: () => {
+          const IORedis = require('ioredis');
+          const url = configService.get<string>('REDIS_URL', 'redis://localhost:6379');
+          return new IORedis(url, {
+            maxRetriesPerRequest: null,
+            enableReadyCheck: false,
+            lazyConnect: true,
+          });
+        },
       }),
       inject: [ConfigService],
     }),
