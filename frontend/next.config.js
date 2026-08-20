@@ -1,5 +1,9 @@
 const withNextIntl = require('next-intl/plugin')('./src/i18n/request.ts');
 
+if (process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_API_URL) {
+  throw new Error('NEXT_PUBLIC_API_URL is required for a production build');
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",

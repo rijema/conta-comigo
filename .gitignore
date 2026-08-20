@@ -5,7 +5,6 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 .pnpm-debug.log*
-package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
@@ -63,6 +62,11 @@ coverage/
 # Misc
 .cache/
 .turbo/
+
+# Local environment files
+.env
+.env.*
+!.env.example
 
 # Source files documentation (read-only)
 docs/source-files/

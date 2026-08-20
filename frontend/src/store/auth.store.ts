@@ -10,6 +10,7 @@ export interface AuthUser {
   name: string;
   role: UserRole;
   learnerId?: string; // for child role
+  guardianChildren?: Array<{ id: string; name: string }>;
 }
 
 interface AuthState {

@@ -1,4 +1,4 @@
-Engagement Classification Model
+"""Engagement Classification Model
 Uses gradient boosting (XGBoost/sklearn) to classify learner engagement level.
 
 Features:

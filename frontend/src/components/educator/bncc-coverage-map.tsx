@@ -20,7 +20,7 @@ export function BNCCCoverageMap({ learnerId }: Props) {
 
   useEffect(() => {
     api
-      .get(`/reports/bncc-coverage/${learnerId}`)
+      .get<Record<string, number>>(`/reports/bncc-coverage/${learnerId}`)
       .then((data) => setCoverage(data));
   }, [learnerId]);
 

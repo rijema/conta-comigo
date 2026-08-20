@@ -1,4 +1,4 @@
-Bayesian Knowledge Tracing (BKT) Model
+"""Bayesian Knowledge Tracing (BKT) Model
 Implementation based on Corbett & Anderson (1994)
 
 Parameters:

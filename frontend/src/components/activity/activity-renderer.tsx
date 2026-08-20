@@ -33,7 +33,7 @@ export function ActivityRenderer({
   }, [activity.id]);
 
   const renderActivity = () => {
-    const hasOptions = activity.content?.options?.length > 0;
+    const hasOptions = (activity.content?.options?.length ?? 0) > 0;
 
     switch (activity.type) {
       case "quiz":

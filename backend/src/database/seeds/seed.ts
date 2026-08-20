@@ -2,6 +2,7 @@ import { DataSource } from 'typeorm';
 import { BnccSkillsSeed } from './bncc-skills.seed';
 import { ActivitiesSeed } from './activities.seed';
 import * as dotenv from 'dotenv';
+import { join } from 'path';
 
 dotenv.config();
 
@@ -14,7 +15,7 @@ async function runSeeds() {
     dataSourceConfig = {
       type: 'postgres',
       url: databaseUrl,
-      entities: ['src/**/*.entity.ts'],
+      entities: [join(__dirname, '../../**/*.entity.js')],
       synchronize: false,
       logging: false,
     };
@@ -26,7 +27,7 @@ async function runSeeds() {
       username: process.env.DB_USER || 'postgres',
       password: process.env.DB_PASSWORD || 'postgres',
       database: process.env.DB_NAME || 'mathasd',
-      entities: ['src/**/*.entity.ts'],
+      entities: [join(__dirname, '../../**/*.entity.js')],
       synchronize: false,
       logging: false,
     };
