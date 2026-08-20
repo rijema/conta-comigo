@@ -17,9 +17,8 @@ export default function GuardianPage() {
   const [selectedChild, setSelectedChild] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user?.guardianChildren?.length > 0) {
-      setSelectedChild(user.guardianChildren[0].id);
-    }
+    const firstChild = user?.guardianChildren?.[0];
+    if (firstChild) setSelectedChild(firstChild.id);
   }, [user]);
 
   useEffect(() => {
@@ -62,9 +61,9 @@ export default function GuardianPage() {
 
       <main className="max-w-6xl mx-auto p-6 space-y-6">
         {/* Child selector */}
-        {user?.guardianChildren?.length > 1 && (
+        {(user?.guardianChildren?.length ?? 0) > 1 && (
           <div className="flex gap-2">
-            {user.guardianChildren.map((child: any) => (
+            {user?.guardianChildren?.map((child) => (
               <button
                 key={child.id}
                 onClick={() => setSelectedChild(child.id)}

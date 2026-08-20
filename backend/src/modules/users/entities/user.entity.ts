@@ -21,7 +21,7 @@ export class User {
   @Column({ unique: true, length: 255 })
   email: string;
 
-  @Column({ select: false })
+  @Column({ select: false, name: 'password_hash' })
   password: string;
 
   @Column({ type: 'enum', enum: UserRole, default: UserRole.GUARDIAN })

@@ -72,6 +72,12 @@ export interface LearnerReport {
   skillMastery: Record<string, number>;
   recentSessions: SessionRecord[];
   bnccCoverage: Record<string, boolean>;
+  todayActivities?: number;
+  totalStars?: number;
+  streakDays?: number;
+  alerts?: Array<{ type: "info" | "warning" | "success"; message: string }>;
+  weeklyProgress?: Array<{ date: string; score: number; activities: number }>;
+  bnccSkills?: Array<{ code: string; name: string; mastery: number }>;
 }
 
 export interface SessionRecord {

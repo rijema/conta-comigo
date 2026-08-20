@@ -32,8 +32,8 @@ export default function ProgressPage() {
     if (!user) { router.push("/auth/login"); return; }
 
     apiClient
-      .get<ProgressData>(`/analytics/progress/${user.childProfileId}`)
-      .then(({ data }) => setData(data))
+      .get<ProgressData>(`/analytics/progress/${user.childProfileId || user.id}`)
+      .then(setData)
       .catch(() => {
         // Placeholder for demo
         setData({

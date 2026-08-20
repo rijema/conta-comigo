@@ -14,6 +14,7 @@ interface User {
   name: string;
   email: string;
   role: "child" | "guardian" | "educator" | "admin";
+  childProfileId?: string;
 }
 
 interface AuthContextType {

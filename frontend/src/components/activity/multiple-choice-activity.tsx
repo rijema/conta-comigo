@@ -5,7 +5,7 @@ import type { Activity, SensoryProfile } from "@/types";
 
 interface Props {
   activity: Activity;
-  onAnswer: (answer: { selectedOption: string; isCorrect: boolean }) => void;
+  onAnswer: (answer: { selectedOption: string; selectedText?: string; isCorrect: boolean }) => void;
   sensoryProfile?: SensoryProfile;
 }
 

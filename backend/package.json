@@ -4,15 +4,15 @@
   "description": "MathASD Backend — NestJS adaptive learning platform",
   "scripts": {
     "build": "nest build",
-    "start": "node dist/main",
+    "start": "npm run db:migrate && npm run db:seed && node dist/main.js",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
-    "db:migrate": "psql $DATABASE_URL -f src/database/migrations/schema.sql",
-    "db:seed": "ts-node src/database/seeds/seed.ts"
+    "db:migrate": "node dist/database/migrate.js",
+    "db:seed": "node dist/database/seeds/seed.js"
   },
   "dependencies": {
     "@nestjs/axios": "^3.0.1",

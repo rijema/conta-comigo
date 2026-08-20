@@ -12,6 +12,25 @@ import { KafkaModule } from './modules/kafka/kafka.module';
 import { OntologyModule } from './modules/ontology/ontology.module';
 import { GuardianModule } from './modules/guardian/guardian.module';
 import { EducatorModule } from './modules/educator/educator.module';
+import { HealthController } from './health.controller';
+
+function validateEnvironment(config: Record<string, unknown>) {
+  if (config.NODE_ENV === 'production') {
+    const required = [
+      'DATABASE_URL',
+      'REDIS_URL',
+      'ML_SERVICE_URL',
+      'JWT_SECRET',
+      'JWT_REFRESH_SECRET',
+      'ALLOWED_ORIGINS',
+    ];
+    const missing = required.filter((name) => !config[name]);
+    if (missing.length) {
+      throw new Error(`Missing required production variables: ${missing.join(', ')}`);
+    }
+  }
+  return config;
+}
 
 @Module({
   imports: [
@@ -19,6 +38,7 @@ import { EducatorModule } from './modules/educator/educator.module';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+      validate: validateEnvironment,
     }),
 
     // Database
@@ -28,7 +48,7 @@ import { EducatorModule } from './modules/educator/educator.module';
         type: 'postgres',
         url: configService.get<string>('DATABASE_URL'),
         autoLoadEntities: true,
-        synchronize: configService.get<string>('NODE_ENV') !== 'production',
+        synchronize: false,
         logging: configService.get<string>('LOG_LEVEL') === 'debug' ? ['query', 'error'] : ['error'],
       }),
       inject: [ConfigService],
@@ -52,6 +72,7 @@ import { EducatorModule } from './modules/educator/educator.module';
           const IORedis = require('ioredis');
           const url = configService.get<string>('REDIS_URL', 'redis://localhost:6379');
           return new IORedis(url, {
+            family: 0,
             maxRetriesPerRequest: null,
             enableReadyCheck: false,
             lazyConnect: true,
@@ -78,7 +99,7 @@ import { EducatorModule } from './modules/educator/educator.module';
     GuardianModule,
     EducatorModule,
   ],
-  controllers: [],
+  controllers: [HealthController],
   providers: [],
 })
 export class AppModule {}
