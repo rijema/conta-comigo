@@ -1,5 +1,5 @@
 {
   "$schema": "https://railway.com/railway.schema.json",
-  "build": { "builder": "DOCKERFILE", "dockerfilePath": "Dockerfile" },
-  "deploy": { "healthcheckPath": "/pt", "healthcheckTimeout": 180, "restartPolicyType": "ON_FAILURE", "restartPolicyMaxRetries": 5 }
+  "build": { "builder": "RAILPACK", "buildCommand": "npm run build" },
+  "deploy": { "startCommand": "npm start -- --hostname 0.0.0.0 --port ${PORT:-3000}", "healthcheckPath": "/pt", "healthcheckTimeout": 180, "restartPolicyType": "ON_FAILURE", "restartPolicyMaxRetries": 5 }
 }
