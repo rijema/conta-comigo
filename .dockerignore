@@ -10,9 +10,6 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 .pnpm-debug.log*
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
 
 # Python
 __pycache__/
