@@ -5,6 +5,8 @@
   "private": true,
   "packageManager": "npm@10.8.2",
   "scripts": {
+    "build": "npm --prefix frontend ci && npm --prefix frontend run build",
+    "start": "npm --prefix frontend start -- --hostname 0.0.0.0 --port ${PORT:-3000}",
     "backend:build": "cd backend && npm run build",
     "backend:start": "cd backend && npm start",
     "backend:dev": "cd backend && npm run start:dev",
