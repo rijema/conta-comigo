@@ -2,6 +2,7 @@
   "name": "mathasd-backend",
   "version": "1.0.0",
   "description": "MathASD Backend — NestJS adaptive learning platform",
+  "packageManager": "npm@10.8.2",
   "scripts": {
     "build": "nest build",
     "start": "npm run db:migrate && npm run db:seed && node dist/main.js",
