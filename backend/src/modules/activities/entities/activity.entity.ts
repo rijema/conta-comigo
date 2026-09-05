@@ -58,6 +58,7 @@ export class Activity {
     audioUrl?: string;
     videoUrl?: string;
     correctAnswer?: any;
+    correctOrder?: string[];
     options?: any[];
     timeLimit?: number; // seconds
   };
