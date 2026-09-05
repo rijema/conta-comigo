@@ -313,10 +313,14 @@ export class ActivitiesService {
   private evaluateAnswer(activity: Activity, answer: any): boolean {
     // Drag-drop: compare arrangement array against correctOrder
     if (activity.type === 'drag_drop') {
-      const correctOrder: string[] = activity.content?.correctAnswer || [];
+      const rawCorrectOrder =
+        activity.content?.correctOrder ?? activity.content?.correctAnswer ?? [];
+      const correctOrder: string[] = Array.isArray(rawCorrectOrder)
+        ? rawCorrectOrder.map(String)
+        : String(rawCorrectOrder).split(',').map((id) => id.trim());
       const arrangement: string[] = Array.isArray(answer)
-        ? answer
-        : String(answer).split(',');
+        ? answer.map(String)
+        : String(answer).split(',').map((id) => id.trim());
       return (
         arrangement.length === correctOrder.length &&
         arrangement.every((id, i) => id === correctOrder[i])
