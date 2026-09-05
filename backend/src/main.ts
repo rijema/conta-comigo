@@ -14,13 +14,20 @@ async function bootstrap() {
   const allowedOrigins =
     process.env.ALLOWED_ORIGINS
       ?.split(',')
-      .map(origin => origin.trim())
+      .map(origin => origin.trim().replace(/\/$/, ''))
       .filter(Boolean) ?? ['http://localhost:3000'];
 
-  console.log('ALLOWED_ORIGINS:', allowedOrigins);
+  console.table('ALLOWED_ORIGINS:', allowedOrigins);
 
   app.enableCors({
     origin: allowedOrigins,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type', 
+      'Authorization', 
+      'X-Requested-With', 
+      'Accept'
+    ],
     credentials: true,
   });
 
