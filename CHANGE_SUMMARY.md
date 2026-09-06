@@ -1,5 +1,15 @@
 # Change Summary
 
+## Batch B1.4 — Deterministic Learning Analytics aggregations
+
+- Added `LearningAnalyticsMetricsService` with deterministic event-derived calculations and explicit zero-denominator behavior.
+- Added student, session, BNCC skill, and activity-type metric endpoints.
+- Counted distinct student/session/activity instances so repeated attempts do not inflate lifecycle counts.
+- Added unit coverage for every metric, zero denominators, duplicate lifecycle events, and missing event fields.
+- Documented the exact formulas and explicitly avoided a combined engagement score.
+
+No database migration is required because this batch reads the existing learning-event and activity tables.
+
 ## Batch B1.3 — Assistance and skip interaction signals
 
 - Instrumented explicit help requests, tutorial openings, repeated tutorial instructions, and activity skips in the active learning flow.
