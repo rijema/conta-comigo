@@ -3,7 +3,8 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { apiClient } from "@/lib/api-client";
+import { useModalFocus } from "@/hooks/use-modal-focus";
+import { authService } from "@/lib/auth";
 
 export type AuthView = "login" | "register";
 
@@ -17,9 +18,8 @@ const fieldClass = "w-full rounded-2xl border-2 border-slate-200 bg-white px-4 p
 
 export function AuthDialog({ open, initialView, onClose }: Props) {
   const { login } = useAuth();
-  const dialogRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
-  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const dialogRef = useModalFocus<HTMLElement>(open, onClose, closeRef);
   const [view, setView] = useState<AuthView>(initialView);
   const [childLogin, setChildLogin] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
@@ -34,39 +34,10 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
 
   useEffect(() => {
     if (!open) return;
-    previousFocusRef.current = document.activeElement as HTMLElement | null;
     setView(initialView);
     setError("");
     setSuccess("");
-    requestAnimationFrame(() => closeRef.current?.focus());
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-        return;
-      }
-      if (event.key !== "Tab") return;
-      const focusable = dialogRef.current?.querySelectorAll<HTMLElement>(
-        'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
-      );
-      if (!focusable?.length) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-    document.addEventListener("keydown", onKeyDown);
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = "";
-      previousFocusRef.current?.focus();
-    };
-  }, [open, initialView, onClose]);
+  }, [open, initialView]);
 
   if (!open) return null;
   const update = (field: keyof typeof form, value: string | boolean) =>
@@ -91,7 +62,7 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
     if (!form.consent) { setError("Aceite o termo de consentimento para continuar."); return; }
     setLoading(true); setError("");
     try {
-      await apiClient.post("/auth/register", {
+      await authService.register({
         name: form.name, email: form.email, password: form.password, role: form.role,
         childProfile: form.role === "guardian" && form.childName
           ? { name: form.childName, age: Number(form.childAge) } : undefined,
@@ -129,9 +100,9 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
             </h2>
           </div>
 
-          <div className="mb-5 grid grid-cols-2 rounded-2xl bg-slate-100 p-1" role="tablist" aria-label="Acesso">
+          <div className="mb-5 grid grid-cols-2 rounded-2xl bg-slate-100 p-1" role="group" aria-label="Tipo de acesso">
             {(["login", "register"] as AuthView[]).map((item) => (
-              <button key={item} type="button" role="tab" aria-selected={view === item}
+              <button key={item} type="button" aria-pressed={view === item}
                 onClick={() => { setView(item); setError(""); setSuccess(""); }}
                 className={`rounded-xl px-4 py-2.5 font-bold ${view === item ? "bg-white text-violet-700 shadow-sm" : "text-slate-600"}`}>
                 {item === "login" ? "Entrar" : "Cadastrar"}
@@ -165,7 +136,7 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
                 <Field label="Senha (mínimo de 8 caracteres)"><input type="password" minLength={8} autoComplete="new-password" className={fieldClass} required value={form.password} onChange={(e) => update("password", e.target.value)} /></Field>
                 <fieldset><legend className="mb-2 font-semibold text-slate-700">Eu sou</legend><div className="grid grid-cols-2 gap-2">
                   {[{ value: "guardian", label: "Responsável" }, { value: "professional", label: "Educador" }].map(({ value, label }) =>
-                    <button key={value} type="button" onClick={() => update("role", value)}
+                    <button key={value} type="button" aria-pressed={form.role === value} onClick={() => update("role", value)}
                       className={`rounded-2xl border-2 p-3 font-bold ${form.role === value ? "border-violet-500 bg-violet-50 text-violet-700" : "border-slate-200 text-slate-600"}`}>{label}</button>)}
                 </div></fieldset>
                 <SubmitButton loading={false}>Continuar</SubmitButton>

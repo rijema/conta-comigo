@@ -17,8 +17,15 @@ export interface RegisterPayload {
   name: string;
   email: string;
   password: string;
-  role: "CHILD" | "GUARDIAN" | "EDUCATOR";
+  role: "guardian" | "professional";
   lgpdConsent: boolean;
+  consentTimestamp?: string;
+  language?: string;
+  childProfile?: {
+    name: string;
+    age: number;
+  };
+  childPassword?: string;
 }
 
 export const authService = {

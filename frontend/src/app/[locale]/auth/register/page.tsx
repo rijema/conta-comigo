@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
-import { apiClient } from "@/lib/api-client";
+import { authService } from "@/lib/auth";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 type Role = "guardian" | "professional";
@@ -54,7 +54,7 @@ export default function RegisterPage() {
     setLoading(true);
     setError(null);
     try {
-      await apiClient.post("/auth/register", {
+      await authService.register({
         name: form.name,
         email: form.email,
         password: form.password,
@@ -69,7 +69,7 @@ export default function RegisterPage() {
       });
       router.push("/auth/login?registered=1");
     } catch (err: any) {
-      setError(err?.response?.data?.message ?? tCommon("error"));
+      setError(err?.message ?? tCommon("error"));
     } finally {
       setLoading(false);
     }
