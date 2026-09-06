@@ -1,5 +1,17 @@
 # Change Summary
 
+## Batch B2.2E — Activity and Learning Analytics semantics
+
+- Added a distinct activity semantic root, reusable family profiles, representations, interaction types, difficulty profiles, and activity affordances.
+- Mapped the current Counting, Multiple Choice, Quiz, Drag and Drop, and Number Line implementations, plus incomplete backend enum placeholders, without adding new activity families.
+- Connected family profiles to current BNCC claims and mathematical concepts while keeping inconsistent mappings explicitly partial, review-required, or incomplete.
+- Added developer-provenance multidimensional difficulty vocabulary while preserving easy/medium/hard compatibility and leaving content-specific numeric values unassigned.
+- Added aggregate Learning Analytics evidence types and source-event provenance hints without embedding raw events, attempts, BKT mastery, or runtime child/session instances in OWL.
+- Documented the B2.3 materialization contract, hybrid-recommender feature boundaries, competency questions, hypotheses, and limitations.
+- Added structural and query-fixture coverage for activity separation, metadata, incomplete mappings, and the Learning Analytics bridge.
+
+No database schema, activity seed, runtime recommendation behavior, BKT calculation, interface, or historical LASDONT artifact changed in this batch.
+
 ## Batch B2.2D — BNCC early-mathematics curriculum layer
 
 - Added six officially sourced first-year BNCC skill individuals with exact codes, descriptions, grade, curriculum, and thematic-domain context.
