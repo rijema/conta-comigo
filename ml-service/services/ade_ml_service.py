@@ -20,6 +20,9 @@ from services.engagement_service import EngagementService
 
 logger = logging.getLogger(__name__)
 
+# TODO(B2.2D): Replace this unverified skill-code graph with professionally
+# validated concept-level prerequisite relations before reactivating this
+# deprecated pipeline. BNCC code ordering is not prerequisite evidence.
 # BNCC skill prerequisite graph (simplified - Anos Iniciais focus)
 # Format: skill_id -> list of prerequisite skill_ids
 BNCC_PREREQ_GRAPH: Dict[str, List[str]] = {

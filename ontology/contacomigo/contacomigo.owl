@@ -15,7 +15,7 @@
   <owl:Ontology rdf:about="https://contacomigo.org/ontology">
     <rdfs:label xml:lang="pt-BR">Ontologia ContaComigo</rdfs:label>
     <rdfs:comment xml:lang="pt-BR">Fundação semântica educacional para matemática inicial. Esta versão não importa nem executa a OntoMathEdu.</rdfs:comment>
-    <owl:versionInfo>0.2.0</owl:versionInfo>
+    <owl:versionInfo>0.3.0</owl:versionInfo>
     <dcterms:source rdf:resource="http://ontomathpro.org/ontomathedu#"/>
     <dcterms:source rdf:resource="https://github.com/CLLKazan/OntoMathEdu"/>
     <dcterms:source rdf:resource="https://ceur-ws.org/Vol-2634/WiP1.pdf"/>
@@ -30,6 +30,7 @@
     <dcterms:source rdf:resource="https://www.w3.org/TR/wcag/"/>
     <dcterms:source rdf:resource="https://www.w3.org/TR/prov-o/"/>
     <dcterms:source rdf:resource="https://doi.org/10.3102/00346543211020116"/>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:Ontology>
 
   <!-- Provenance annotations. Values for alignmentRelation are restricted by
@@ -60,6 +61,10 @@
   <owl:AnnotationProperty rdf:about="https://contacomigo.org/ontology#historicalMappingType">
     <rdfs:label xml:lang="en">historical mapping type</rdfs:label>
     <rdfs:comment xml:lang="en">Allowed values: historical predecessor, adapted from, narrower than, broader than, related to, deprecated historical concept, and no longer used.</rdfs:comment>
+  </owl:AnnotationProperty>
+  <owl:AnnotationProperty rdf:about="https://contacomigo.org/ontology#mappingOrigin">
+    <rdfs:label xml:lang="en">mapping origin</rdfs:label>
+    <rdfs:comment xml:lang="en">Provenance category for a curriculum-to-mathematics mapping.</rdfs:comment>
   </owl:AnnotationProperty>
 
   <!-- Knowledge-layer partition. -->
@@ -207,14 +212,33 @@
     <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#CurricularKnowledge"/>
     <rdfs:label xml:lang="en">Curriculum skill</rdfs:label>
     <rdfs:label xml:lang="pt-BR">Habilidade curricular</rdfs:label>
+    <rdfs:comment xml:lang="en">A skill defined by a curriculum; it is not a mathematical concept or learner characteristic.</rdfs:comment>
+    <cc:conceptOrigin>engineering concept</cc:conceptOrigin>
   </owl:Class>
   <owl:Class rdf:about="https://contacomigo.org/ontology#BNCCSkill">
     <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#CurriculumSkill"/>
     <rdfs:label xml:lang="pt-BR">Habilidade BNCC</rdfs:label>
+    <rdfs:label xml:lang="en">BNCC skill</rdfs:label>
+    <rdfs:comment xml:lang="en">A curriculum skill whose code and official description are sourced from the Brazilian National Common Core Curriculum.</rdfs:comment>
+    <cc:conceptOrigin>aligned ontology concept</cc:conceptOrigin>
+    <cc:sourceOntology rdf:resource="https://basenacionalcomum.mec.gov.br/"/>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#Curriculum">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#CurricularKnowledge"/>
+    <rdfs:label xml:lang="en">Curriculum</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Currículo</rdfs:label>
+    <cc:conceptOrigin>engineering concept</cc:conceptOrigin>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#CurriculumDomain">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#CurricularKnowledge"/>
+    <rdfs:label xml:lang="en">Curriculum domain</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Unidade temática curricular</rdfs:label>
+    <cc:conceptOrigin>engineering concept</cc:conceptOrigin>
   </owl:Class>
   <owl:Class rdf:about="https://contacomigo.org/ontology#CurriculumLevel">
     <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#CurricularKnowledge"/>
     <rdfs:label xml:lang="en">Curriculum level</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Etapa ou ano curricular</rdfs:label>
     <cc:sourceOntology rdf:resource="http://ontomathpro.org/ontomathedu#"/>
     <cc:sourceIRI rdf:resource="http://ontomathpro.org/ontomathedu#EducationalLevel"/>
     <cc:alignmentRelation>adapted</cc:alignmentRelation>
@@ -701,5 +725,195 @@
     <rdfs:label xml:lang="en">evidence reason</rdfs:label>
     <rdfs:comment xml:lang="en">A human-readable explanation such as sparse, stale, untested, absent, or conflicting evidence.</rdfs:comment>
   </owl:DatatypeProperty>
+
+  <!-- BNCC curriculum layer. Official skill descriptions are preserved as
+       literals; mathematical mappings are local semantic analyses. -->
+  <owl:ObjectProperty rdf:about="https://contacomigo.org/ontology#belongsToCurriculum">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#CurriculumSkill"/>
+    <rdfs:range rdf:resource="https://contacomigo.org/ontology#Curriculum"/>
+    <rdfs:label xml:lang="en">belongs to curriculum</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://contacomigo.org/ontology#belongsToGrade">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#CurriculumSkill"/>
+    <rdfs:range rdf:resource="https://contacomigo.org/ontology#CurriculumLevel"/>
+    <rdfs:label xml:lang="en">belongs to grade</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://contacomigo.org/ontology#belongsToCurriculumDomain">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#CurriculumSkill"/>
+    <rdfs:range rdf:resource="https://contacomigo.org/ontology#CurriculumDomain"/>
+    <rdfs:label xml:lang="en">belongs to curriculum domain</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://contacomigo.org/ontology#addressesCurriculumSkill">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#LearningActivity"/>
+    <rdfs:range rdf:resource="https://contacomigo.org/ontology#CurriculumSkill"/>
+    <owl:inverseOf rdf:resource="https://contacomigo.org/ontology#isAddressedByActivity"/>
+    <rdfs:label xml:lang="en">addresses curriculum skill</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://contacomigo.org/ontology#isAddressedByActivity">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#CurriculumSkill"/>
+    <rdfs:range rdf:resource="https://contacomigo.org/ontology#LearningActivity"/>
+    <rdfs:label xml:lang="en">is addressed by activity</rdfs:label>
+  </owl:ObjectProperty>
+
+  <owl:DatatypeProperty rdf:about="https://contacomigo.org/ontology#hasCurriculumCode">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#CurriculumSkill"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label xml:lang="en">has curriculum code</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://contacomigo.org/ontology#hasOfficialDescription">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#CurriculumSkill"/>
+    <rdfs:range rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"/>
+    <rdfs:label xml:lang="en">has official description</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://contacomigo.org/ontology#conceptMappingStatus">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#CurriculumSkill"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label xml:lang="en">concept mapping status</rdfs:label>
+    <rdfs:comment xml:lang="en">Allowed values in this version: mapped, partial, and pending_review.</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://contacomigo.org/ontology#currentActivityCoverageStatus">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#CurriculumSkill"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label xml:lang="en">current activity coverage status</rdfs:label>
+    <rdfs:comment xml:lang="en">Snapshot classification: COVERED, PARTIALLY_COVERED, NOT_COVERED, or NEEDS_REVIEW.</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://contacomigo.org/ontology#currentActivityCount">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#CurriculumSkill"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#nonNegativeInteger"/>
+    <rdfs:label xml:lang="en">current activity count</rdfs:label>
+    <rdfs:comment xml:lang="en">Number of seed activities currently claiming the skill code; this is coverage metadata, not evidence of pedagogical alignment.</rdfs:comment>
+  </owl:DatatypeProperty>
+
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#Curriculum"/>
+    <rdfs:label xml:lang="pt-BR">Base Nacional Comum Curricular</rdfs:label>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCCElementaryYear1">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#CurriculumLevel"/>
+    <rdfs:label xml:lang="pt-BR">1º ano do Ensino Fundamental</rdfs:label>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCCNumbersDomain">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#CurriculumDomain"/>
+    <rdfs:label xml:lang="pt-BR">Números</rdfs:label>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCCGeometryDomain">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#CurriculumDomain"/>
+    <rdfs:label xml:lang="pt-BR">Geometria</rdfs:label>
+  </owl:NamedIndividual>
+
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF01MA01">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF01MA01</rdfs:label>
+    <cc:hasCurriculumCode>EF01MA01</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Utilizar números naturais como indicador de quantidade ou de ordem em diferentes situações cotidianas e reconhecer situações em que os números não indicam contagem nem ordem, mas sim código de identificação.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear1"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#NumberConcept"/>
+    <cc:conceptMappingStatus>mapped</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">3</cc:currentActivityCount>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF01MA03">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF01MA03</rdfs:label>
+    <cc:hasCurriculumCode>EF01MA03</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Estimar e comparar quantidades de objetos de dois conjuntos (em torno de 20 elementos), por estimativa e/ou por correspondência (um a um, dois a dois) para indicar “tem mais”, “tem menos” ou “tem a mesma quantidade”.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear1"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#CountingConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#ComparisonConcept"/>
+    <cc:conceptMappingStatus>mapped</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>NEEDS_REVIEW</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">4</cc:currentActivityCount>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF01MA06">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF01MA06</rdfs:label>
+    <cc:hasCurriculumCode>EF01MA06</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Construir fatos básicos da adição e utilizá-los em procedimentos de cálculo para resolver problemas.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear1"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#EarlyProblemSolvingConcept"/>
+    <cc:conceptMappingStatus>mapped</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">4</cc:currentActivityCount>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF01MA07">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF01MA07</rdfs:label>
+    <cc:hasCurriculumCode>EF01MA07</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Compor e decompor número de até duas ordens, por meio de diferentes adições, com o suporte de material manipulável, contribuindo para a compreensão de características do sistema de numeração decimal e o desenvolvimento de estratégias de cálculo.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear1"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#NumberConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/>
+    <cc:conceptMappingStatus>mapped</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>NEEDS_REVIEW</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF01MA08">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF01MA08</rdfs:label>
+    <cc:hasCurriculumCode>EF01MA08</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Resolver e elaborar problemas de adição e de subtração, envolvendo números de até dois algarismos, com os significados de juntar, acrescentar, separar e retirar, com o suporte de imagens e/ou material manipulável, utilizando estratégias e formas de registro pessoais.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear1"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#SubtractionConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#EarlyProblemSolvingConcept"/>
+    <cc:conceptMappingStatus>mapped</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF01MA14">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF01MA14</rdfs:label>
+    <cc:hasCurriculumCode>EF01MA14</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Identificar e nomear figuras planas (círculo, quadrado, retângulo e triângulo) em desenhos apresentados em diferentes disposições ou em contornos de faces de sólidos geométricos.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear1"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCGeometryDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#BasicGeometryConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#SquareConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#RectangleConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
+    <rdfs:comment xml:lang="en">Circle and triangle concepts are not yet represented in the ContaComigo mathematical layer; the mapping is therefore partial.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+
+  <!-- Each curriculum-to-mathematics assertion is a ContaComigo semantic
+       analysis grounded in, but not directly asserted by, the official BNCC. -->
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF01MA01"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#NumberConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF01MA03"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#CountingConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF01MA03"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#ComparisonConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF01MA06"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF01MA06"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#EarlyProblemSolvingConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF01MA07"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#NumberConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF01MA07"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF01MA08"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF01MA08"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#SubtractionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF01MA08"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#EarlyProblemSolvingConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF01MA14"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#BasicGeometryConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF01MA14"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#SquareConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF01MA14"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#RectangleConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
 
 </rdf:RDF>

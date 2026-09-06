@@ -12,7 +12,11 @@ logger = logging.getLogger(__name__)
 
 
 def _get_next_skill(current_code: str, mastery: float) -> str:
-    """Simple skill progression based on BNCC sequence."""
+    """Simple skill progression based on BNCC sequence.
+
+    TODO(B2.2D): Do not reactivate this deprecated numeric progression. Replace
+    it with professionally validated concept-level prerequisite semantics.
+    """
     # Extract year and number
     match = re.match(r"EF(\d{2})MA(\d{2})", current_code)
     if not match:
