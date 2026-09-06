@@ -15,7 +15,7 @@
   <owl:Ontology rdf:about="https://contacomigo.org/ontology">
     <rdfs:label xml:lang="pt-BR">Ontologia ContaComigo</rdfs:label>
     <rdfs:comment xml:lang="pt-BR">Fundação semântica educacional para matemática inicial. Esta versão não importa nem executa a OntoMathEdu.</rdfs:comment>
-    <owl:versionInfo>0.3.0</owl:versionInfo>
+    <owl:versionInfo>0.4.0</owl:versionInfo>
     <dcterms:source rdf:resource="http://ontomathpro.org/ontomathedu#"/>
     <dcterms:source rdf:resource="https://github.com/CLLKazan/OntoMathEdu"/>
     <dcterms:source rdf:resource="https://ceur-ws.org/Vol-2634/WiP1.pdf"/>
@@ -65,6 +65,10 @@
   <owl:AnnotationProperty rdf:about="https://contacomigo.org/ontology#mappingOrigin">
     <rdfs:label xml:lang="en">mapping origin</rdfs:label>
     <rdfs:comment xml:lang="en">Provenance category for a curriculum-to-mathematics mapping.</rdfs:comment>
+  </owl:AnnotationProperty>
+  <owl:AnnotationProperty rdf:about="https://contacomigo.org/ontology#analyticsSourceEventType">
+    <rdfs:label xml:lang="en">analytics source event type</rdfs:label>
+    <rdfs:comment xml:lang="en">LearningEvent type that may contribute to an aggregate; it never asserts a learner characteristic from one event.</rdfs:comment>
   </owl:AnnotationProperty>
 
   <!-- Knowledge-layer partition. -->
@@ -250,9 +254,23 @@
     <rdfs:comment xml:lang="en">Semantic reference to the current skill-mastery state whose calculation remains owned by Bayesian Knowledge Tracing.</rdfs:comment>
     <cc:conceptOrigin>engineering concept</cc:conceptOrigin>
   </owl:Class>
-  <owl:Class rdf:about="https://contacomigo.org/ontology#LearningActivity">
+  <owl:Class rdf:about="https://contacomigo.org/ontology#Activity">
     <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#ActivityKnowledge"/>
+    <rdfs:label xml:lang="en">Activity</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Atividade</rdfs:label>
+    <rdfs:comment xml:lang="en">Semantic root for concrete learning activities and reusable activity-family profiles.</rdfs:comment>
+    <cc:conceptOrigin>engineering concept</cc:conceptOrigin>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#LearningActivity">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#Activity"/>
     <rdfs:label xml:lang="en">Learning activity</rdfs:label>
+    <cc:conceptOrigin>engineering concept</cc:conceptOrigin>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#ActivityFamilyProfile">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#Activity"/>
+    <rdfs:label xml:lang="en">Activity family profile</rdfs:label>
+    <rdfs:comment xml:lang="en">A partial developer-authored summary of a current implementation family; concrete activities require their own materialized metadata.</rdfs:comment>
+    <cc:conceptOrigin>engineering concept</cc:conceptOrigin>
   </owl:Class>
   <owl:Class rdf:about="https://contacomigo.org/ontology#LearningEventEvidence">
     <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#LearningAnalyticsEvidence"/>
@@ -286,7 +304,7 @@
     <rdfs:label xml:lang="en">addresses mathematical concept</rdfs:label>
   </owl:ObjectProperty>
   <owl:ObjectProperty rdf:about="https://contacomigo.org/ontology#developsMathematicalConcept">
-    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#LearningActivity"/>
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#Activity"/>
     <rdfs:range rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
     <rdfs:label xml:lang="en">develops mathematical concept</rdfs:label>
   </owl:ObjectProperty>
@@ -443,6 +461,30 @@
     <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#ActivityCharacteristic"/>
     <rdfs:label xml:lang="en">Modality</rdfs:label>
     <rdfs:comment xml:lang="en">A presentation or interaction modality; it is not a learner type.</rdfs:comment>
+    <cc:conceptOrigin>engineering concept</cc:conceptOrigin>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#Representation">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#ActivityCharacteristic"/>
+    <rdfs:label xml:lang="en">Representation</rdfs:label>
+    <rdfs:comment xml:lang="en">A form in which activity content is presented, kept separate from learner preference.</rdfs:comment>
+    <cc:conceptOrigin>engineering concept</cc:conceptOrigin>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#InteractionType">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#ActivityCharacteristic"/>
+    <rdfs:label xml:lang="en">Interaction type</rdfs:label>
+    <rdfs:comment xml:lang="en">The input or manipulation pattern exposed by an activity.</rdfs:comment>
+    <cc:conceptOrigin>engineering concept</cc:conceptOrigin>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#DifficultyProfile">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#ActivityCharacteristic"/>
+    <rdfs:label xml:lang="en">Difficulty profile</rdfs:label>
+    <rdfs:comment xml:lang="en">A multidimensional developer or expert annotation. It does not replace legacy easy/medium/hard labels and is not learned or clinically validated.</rdfs:comment>
+    <cc:conceptOrigin>experimental construct</cc:conceptOrigin>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#ActivityAffordance">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#ActivityCharacteristic"/>
+    <rdfs:label xml:lang="en">Activity affordance</rdfs:label>
+    <rdfs:comment xml:lang="en">An interaction or accessibility capability made available by an activity implementation.</rdfs:comment>
     <cc:conceptOrigin>engineering concept</cc:conceptOrigin>
   </owl:Class>
 
@@ -611,6 +653,59 @@
     <cc:conceptOrigin>engineering concept</cc:conceptOrigin>
   </owl:Class>
 
+  <!-- Semantic aggregates materialized from Learning Analytics in B2.3.
+       Event names are provenance hints, never single-event inference rules. -->
+  <owl:Class rdf:about="https://contacomigo.org/ontology#ActivityPerformanceEvidence">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#LearningEvidence"/>
+    <rdfs:label xml:lang="en">Activity performance evidence</rdfs:label>
+    <rdfs:comment xml:lang="en">An aggregate of validated performance observations scoped by learner, activity, skill, and evidence window.</rdfs:comment>
+    <cc:analyticsSourceEventType>ANSWER_SUBMITTED</cc:analyticsSourceEventType>
+    <cc:analyticsSourceEventType>ACTIVITY_COMPLETED</cc:analyticsSourceEventType>
+    <cc:conceptOrigin>engineering concept</cc:conceptOrigin>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#AssistanceUsageEvidence">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#InteractionEvidence"/>
+    <rdfs:label xml:lang="en">Assistance usage evidence</rdfs:label>
+    <rdfs:comment xml:lang="en">An aggregate of explicit assistance interactions; it is not direct evidence of inability or disengagement.</rdfs:comment>
+    <cc:analyticsSourceEventType>HINT_REQUESTED</cc:analyticsSourceEventType>
+    <cc:analyticsSourceEventType>TUTORIAL_OPENED</cc:analyticsSourceEventType>
+    <cc:analyticsSourceEventType>INSTRUCTION_REPLAYED</cc:analyticsSourceEventType>
+    <cc:conceptOrigin>engineering concept</cc:conceptOrigin>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#ActivityLifecycleEvidence">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#InteractionEvidence"/>
+    <rdfs:label xml:lang="en">Activity lifecycle evidence</rdfs:label>
+    <rdfs:comment xml:lang="en">An aggregate over presentation, start, completion, and skip transitions.</rdfs:comment>
+    <cc:analyticsSourceEventType>ACTIVITY_PRESENTED</cc:analyticsSourceEventType>
+    <cc:analyticsSourceEventType>ACTIVITY_STARTED</cc:analyticsSourceEventType>
+    <cc:analyticsSourceEventType>ACTIVITY_COMPLETED</cc:analyticsSourceEventType>
+    <cc:analyticsSourceEventType>ACTIVITY_SKIPPED</cc:analyticsSourceEventType>
+    <cc:conceptOrigin>engineering concept</cc:conceptOrigin>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#ResponseTimingEvidence">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#InteractionEvidence"/>
+    <rdfs:label xml:lang="en">Response timing evidence</rdfs:label>
+    <rdfs:comment xml:lang="en">A contextual timing aggregate. Slow or fast response alone has no psychological, clinical, or mastery meaning.</rdfs:comment>
+    <cc:analyticsSourceEventType>ANSWER_SUBMITTED</cc:analyticsSourceEventType>
+    <cc:conceptOrigin>engineering concept</cc:conceptOrigin>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#ActivitySkipHistoryEvidence">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#InteractionEvidence"/>
+    <rdfs:label xml:lang="en">Activity skip history evidence</rdfs:label>
+    <rdfs:comment xml:lang="en">A contextual history of skips. A skip is an interaction signal and is not intrinsically disengagement or rejection.</rdfs:comment>
+    <cc:analyticsSourceEventType>ACTIVITY_SKIPPED</cc:analyticsSourceEventType>
+    <cc:conceptOrigin>engineering concept</cc:conceptOrigin>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#RecommendationHistoryEvidence">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#InteractionEvidence"/>
+    <rdfs:label xml:lang="en">Recommendation history evidence</rdfs:label>
+    <rdfs:comment xml:lang="en">An aggregate connecting recommendations to presentation and completion history without calculating a recommendation score.</rdfs:comment>
+    <cc:analyticsSourceEventType>RECOMMENDATION_GENERATED</cc:analyticsSourceEventType>
+    <cc:analyticsSourceEventType>RECOMMENDATION_PRESENTED</cc:analyticsSourceEventType>
+    <cc:analyticsSourceEventType>RECOMMENDATION_COMPLETED</cc:analyticsSourceEventType>
+    <cc:conceptOrigin>engineering concept</cc:conceptOrigin>
+  </owl:Class>
+
   <!-- Learner/evidence relations. PROV-O properties are reused by
        subproperty alignment without owl:imports. -->
   <owl:ObjectProperty rdf:about="https://contacomigo.org/ontology#hasObservedCharacteristic">
@@ -726,6 +821,191 @@
     <rdfs:comment xml:lang="en">A human-readable explanation such as sparse, stale, untested, absent, or conflicting evidence.</rdfs:comment>
   </owl:DatatypeProperty>
 
+  <!-- Activity semantics and developer-authored family profiles. -->
+  <owl:ObjectProperty rdf:about="https://contacomigo.org/ontology#addressesBNCCSkill">
+    <rdfs:subPropertyOf rdf:resource="https://contacomigo.org/ontology#addressesCurriculumSkill"/>
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#Activity"/>
+    <rdfs:range rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="en">addresses BNCC skill</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://contacomigo.org/ontology#hasActivityType">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#Activity"/>
+    <rdfs:range rdf:resource="https://contacomigo.org/ontology#ActivityType"/>
+    <rdfs:label xml:lang="en">has activity type</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://contacomigo.org/ontology#hasRepresentation">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#Activity"/>
+    <rdfs:range rdf:resource="https://contacomigo.org/ontology#Representation"/>
+    <rdfs:label xml:lang="en">has representation</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://contacomigo.org/ontology#hasInteractionType">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#Activity"/>
+    <rdfs:range rdf:resource="https://contacomigo.org/ontology#InteractionType"/>
+    <rdfs:label xml:lang="en">has interaction type</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://contacomigo.org/ontology#hasDifficultyProfile">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#Activity"/>
+    <rdfs:range rdf:resource="https://contacomigo.org/ontology#DifficultyProfile"/>
+    <rdfs:label xml:lang="en">has difficulty profile</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://contacomigo.org/ontology#hasActivityAffordance">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#Activity"/>
+    <rdfs:range rdf:resource="https://contacomigo.org/ontology#ActivityAffordance"/>
+    <rdfs:label xml:lang="en">has activity affordance</rdfs:label>
+  </owl:ObjectProperty>
+
+  <owl:DatatypeProperty rdf:about="https://contacomigo.org/ontology#conceptualComplexity">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#DifficultyProfile"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label xml:lang="en">conceptual complexity</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://contacomigo.org/ontology#numericalMagnitude">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#DifficultyProfile"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#nonNegativeInteger"/>
+    <rdfs:label xml:lang="en">numerical magnitude</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://contacomigo.org/ontology#abstractionLevel">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#DifficultyProfile"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label xml:lang="en">abstraction level</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://contacomigo.org/ontology#stepCount">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#DifficultyProfile"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#nonNegativeInteger"/>
+    <rdfs:label xml:lang="en">step count</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://contacomigo.org/ontology#distractorSimilarity">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#DifficultyProfile"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label xml:lang="en">distractor similarity</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://contacomigo.org/ontology#languageLoad">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#DifficultyProfile"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label xml:lang="en">language load</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://contacomigo.org/ontology#motorDemand">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#DifficultyProfile"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label xml:lang="en">motor demand</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://contacomigo.org/ontology#sensoryLoad">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#DifficultyProfile"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label xml:lang="en">sensory load</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://contacomigo.org/ontology#scaffoldingLevel">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#DifficultyProfile"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label xml:lang="en">scaffolding level</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://contacomigo.org/ontology#legacyDifficultyLabel">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#LearningActivity"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label xml:lang="en">legacy difficulty label</rdfs:label>
+    <rdfs:comment xml:lang="en">Compatibility value from the current easy, medium, or hard enum; it does not determine the multidimensional profile.</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://contacomigo.org/ontology#requiresDragging">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#Activity"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+    <rdfs:label xml:lang="en">requires dragging</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://contacomigo.org/ontology#requiresReading">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#Activity"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+    <rdfs:label xml:lang="en">requires reading</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://contacomigo.org/ontology#usesAudio">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#Activity"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+    <rdfs:label xml:lang="en">uses audio</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://contacomigo.org/ontology#usesPictograms">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#Activity"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+    <rdfs:label xml:lang="en">uses pictograms</rdfs:label>
+    <rdfs:comment xml:lang="en">For an activity-family profile, true means the inspected implementation currently supports or uses pictograms; concrete activity materialization must provide its own value.</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://contacomigo.org/ontology#activityMappingStatus">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#ActivityFamilyProfile"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label xml:lang="en">activity mapping status</rdfs:label>
+    <rdfs:comment xml:lang="en">Allowed family-profile values: PARTIAL, NEEDS_REVIEW, and INCOMPLETE.</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://contacomigo.org/ontology#annotationProvenance">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#ActivityCharacteristic"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label xml:lang="en">annotation provenance</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://contacomigo.org/ontology#unannotatedDimension">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#DifficultyProfile"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label xml:lang="en">unannotated dimension</rdfs:label>
+  </owl:DatatypeProperty>
+
+  <!-- Reusable activity characteristics. -->
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#CountingActivityType"><rdf:type rdf:resource="https://contacomigo.org/ontology#ActivityType"/><rdfs:label xml:lang="en">Counting</rdfs:label></owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#MultipleChoiceActivityType"><rdf:type rdf:resource="https://contacomigo.org/ontology#ActivityType"/><rdfs:label xml:lang="en">Multiple choice</rdfs:label></owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#QuizActivityType"><rdf:type rdf:resource="https://contacomigo.org/ontology#ActivityType"/><rdfs:label xml:lang="en">Quiz</rdfs:label></owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#DragAndDropActivityType"><rdf:type rdf:resource="https://contacomigo.org/ontology#ActivityType"/><rdfs:label xml:lang="en">Drag and drop</rdfs:label></owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#NumberLineActivityType"><rdf:type rdf:resource="https://contacomigo.org/ontology#ActivityType"/><rdfs:label xml:lang="en">Number line</rdfs:label></owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#VisualPuzzleActivityType"><rdf:type rdf:resource="https://contacomigo.org/ontology#ActivityType"/><rdfs:label xml:lang="en">Visual puzzle</rdfs:label></owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#VideoQuestionActivityType"><rdf:type rdf:resource="https://contacomigo.org/ontology#ActivityType"/><rdfs:label xml:lang="en">Video question</rdfs:label></owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#YesNoActivityType"><rdf:type rdf:resource="https://contacomigo.org/ontology#ActivityType"/><rdfs:label xml:lang="en">Yes or no</rdfs:label></owl:NamedIndividual>
+
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#PictorialRepresentation"><rdf:type rdf:resource="https://contacomigo.org/ontology#Representation"/><rdfs:label xml:lang="en">Pictorial representation</rdfs:label></owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#SymbolicRepresentation"><rdf:type rdf:resource="https://contacomigo.org/ontology#Representation"/><rdfs:label xml:lang="en">Symbolic representation</rdfs:label></owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#TextualRepresentation"><rdf:type rdf:resource="https://contacomigo.org/ontology#Representation"/><rdfs:label xml:lang="en">Textual representation</rdfs:label></owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#NumberLineRepresentation"><rdf:type rdf:resource="https://contacomigo.org/ontology#Representation"/><rdfs:label xml:lang="en">Number-line representation</rdfs:label></owl:NamedIndividual>
+
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#RepeatedSelectionInteraction"><rdf:type rdf:resource="https://contacomigo.org/ontology#InteractionType"/><rdfs:label xml:lang="en">Repeated selection</rdfs:label></owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#OptionSelectionInteraction"><rdf:type rdf:resource="https://contacomigo.org/ontology#InteractionType"/><rdfs:label xml:lang="en">Option selection</rdfs:label></owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#DragAndDropInteraction"><rdf:type rdf:resource="https://contacomigo.org/ontology#InteractionType"/><rdfs:label xml:lang="en">Drag and drop interaction</rdfs:label></owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#AlternativePlacementInteraction"><rdf:type rdf:resource="https://contacomigo.org/ontology#InteractionType"/><rdfs:label xml:lang="en">Alternative placement interaction</rdfs:label></owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#RangeSelectionInteraction"><rdf:type rdf:resource="https://contacomigo.org/ontology#InteractionType"/><rdfs:label xml:lang="en">Range selection</rdfs:label></owl:NamedIndividual>
+
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#PictogramAffordance"><rdf:type rdf:resource="https://contacomigo.org/ontology#ActivityAffordance"/><rdfs:label xml:lang="en">Pictogram affordance</rdfs:label></owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#DraggingAffordance"><rdf:type rdf:resource="https://contacomigo.org/ontology#ActivityAffordance"/><rdfs:label xml:lang="en">Dragging affordance</rdfs:label></owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#KeyboardAlternativeAffordance"><rdf:type rdf:resource="https://contacomigo.org/ontology#ActivityAffordance"/><rdfs:label xml:lang="en">Keyboard alternative affordance</rdfs:label></owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#PointerSelectionAffordance"><rdf:type rdf:resource="https://contacomigo.org/ontology#ActivityAffordance"/><rdfs:label xml:lang="en">Pointer selection affordance</rdfs:label></owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#AudioPresentationAffordance"><rdf:type rdf:resource="https://contacomigo.org/ontology#ActivityAffordance"/><rdfs:label xml:lang="en">Audio presentation affordance</rdfs:label></owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#ReadingRequirementAffordance"><rdf:type rdf:resource="https://contacomigo.org/ontology#ActivityAffordance"/><rdfs:label xml:lang="en">Reading requirement affordance</rdfs:label></owl:NamedIndividual>
+
+  <!-- Family-level difficulty annotations are partial developer inspections,
+       not learned values or clinical classifications. -->
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#CountingFamilyDifficulty"><rdf:type rdf:resource="https://contacomigo.org/ontology#DifficultyProfile"/><cc:conceptualComplexity>CONTENT_DEPENDENT</cc:conceptualComplexity><cc:abstractionLevel>LOW_TO_MEDIUM</cc:abstractionLevel><cc:distractorSimilarity>CONTENT_DEPENDENT</cc:distractorSimilarity><cc:languageLoad>LOW_TO_MEDIUM</cc:languageLoad><cc:motorDemand>LOW</cc:motorDemand><cc:sensoryLoad>LOW_IN_CURRENT_SEEDS</cc:sensoryLoad><cc:scaffoldingLevel>MEDIUM</cc:scaffoldingLevel><cc:unannotatedDimension>numericalMagnitude</cc:unannotatedDimension><cc:unannotatedDimension>stepCount</cc:unannotatedDimension><cc:annotationProvenance>DEVELOPER_INSPECTION</cc:annotationProvenance></owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#MultipleChoiceFamilyDifficulty"><rdf:type rdf:resource="https://contacomigo.org/ontology#DifficultyProfile"/><cc:conceptualComplexity>CONTENT_DEPENDENT</cc:conceptualComplexity><cc:abstractionLevel>CONTENT_DEPENDENT</cc:abstractionLevel><cc:distractorSimilarity>CONTENT_DEPENDENT</cc:distractorSimilarity><cc:languageLoad>CONTENT_DEPENDENT</cc:languageLoad><cc:motorDemand>LOW</cc:motorDemand><cc:sensoryLoad>CONTENT_DEPENDENT</cc:sensoryLoad><cc:scaffoldingLevel>CONTENT_DEPENDENT</cc:scaffoldingLevel><cc:unannotatedDimension>numericalMagnitude</cc:unannotatedDimension><cc:unannotatedDimension>stepCount</cc:unannotatedDimension><cc:annotationProvenance>DEVELOPER_INSPECTION</cc:annotationProvenance></owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#QuizFamilyDifficulty"><rdf:type rdf:resource="https://contacomigo.org/ontology#DifficultyProfile"/><cc:conceptualComplexity>CONTENT_DEPENDENT</cc:conceptualComplexity><cc:abstractionLevel>CONTENT_DEPENDENT</cc:abstractionLevel><cc:distractorSimilarity>CONTENT_DEPENDENT</cc:distractorSimilarity><cc:languageLoad>MEDIUM</cc:languageLoad><cc:motorDemand>LOW</cc:motorDemand><cc:sensoryLoad>LOW_TO_MEDIUM_IN_CURRENT_SEEDS</cc:sensoryLoad><cc:scaffoldingLevel>LOW</cc:scaffoldingLevel><cc:unannotatedDimension>numericalMagnitude</cc:unannotatedDimension><cc:unannotatedDimension>stepCount</cc:unannotatedDimension><cc:annotationProvenance>DEVELOPER_INSPECTION</cc:annotationProvenance></owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#DragAndDropFamilyDifficulty"><rdf:type rdf:resource="https://contacomigo.org/ontology#DifficultyProfile"/><cc:conceptualComplexity>CONTENT_DEPENDENT</cc:conceptualComplexity><cc:abstractionLevel>LOW_TO_MEDIUM</cc:abstractionLevel><cc:distractorSimilarity>CONTENT_DEPENDENT</cc:distractorSimilarity><cc:languageLoad>LOW_TO_MEDIUM</cc:languageLoad><cc:motorDemand>MEDIUM_WITH_LOW_MOTOR_ALTERNATIVE</cc:motorDemand><cc:sensoryLoad>LOW_IN_CURRENT_SEEDS</cc:sensoryLoad><cc:scaffoldingLevel>MEDIUM</cc:scaffoldingLevel><cc:unannotatedDimension>numericalMagnitude</cc:unannotatedDimension><cc:unannotatedDimension>stepCount</cc:unannotatedDimension><cc:annotationProvenance>DEVELOPER_INSPECTION</cc:annotationProvenance></owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#NumberLineFamilyDifficulty"><rdf:type rdf:resource="https://contacomigo.org/ontology#DifficultyProfile"/><cc:conceptualComplexity>CONTENT_DEPENDENT</cc:conceptualComplexity><cc:abstractionLevel>MEDIUM</cc:abstractionLevel><cc:distractorSimilarity>NOT_APPLICABLE</cc:distractorSimilarity><cc:languageLoad>LOW</cc:languageLoad><cc:motorDemand>MEDIUM_WITH_KEYBOARD_ALTERNATIVE</cc:motorDemand><cc:sensoryLoad>UNANNOTATED</cc:sensoryLoad><cc:scaffoldingLevel>MEDIUM</cc:scaffoldingLevel><cc:unannotatedDimension>numericalMagnitude</cc:unannotatedDimension><cc:unannotatedDimension>stepCount</cc:unannotatedDimension><cc:annotationProvenance>DEVELOPER_INSPECTION</cc:annotationProvenance></owl:NamedIndividual>
+
+  <!-- Current activity-family capability mappings. Concrete B2.3 instances
+       must carry activity-specific values instead of inheriting this union. -->
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#CountingActivityFamily">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#ActivityFamilyProfile"/><cc:hasActivityType rdf:resource="https://contacomigo.org/ontology#CountingActivityType"/><cc:hasRepresentation rdf:resource="https://contacomigo.org/ontology#PictorialRepresentation"/><cc:hasRepresentation rdf:resource="https://contacomigo.org/ontology#SymbolicRepresentation"/><cc:hasInteractionType rdf:resource="https://contacomigo.org/ontology#RepeatedSelectionInteraction"/><cc:hasInteractionType rdf:resource="https://contacomigo.org/ontology#OptionSelectionInteraction"/><cc:hasDifficultyProfile rdf:resource="https://contacomigo.org/ontology#CountingFamilyDifficulty"/><cc:hasActivityAffordance rdf:resource="https://contacomigo.org/ontology#PictogramAffordance"/><cc:hasActivityAffordance rdf:resource="https://contacomigo.org/ontology#KeyboardAlternativeAffordance"/><cc:hasActivityAffordance rdf:resource="https://contacomigo.org/ontology#PointerSelectionAffordance"/><cc:addressesBNCCSkill rdf:resource="https://contacomigo.org/ontology#BNCC_EF01MA01"/><cc:addressesBNCCSkill rdf:resource="https://contacomigo.org/ontology#BNCC_EF01MA06"/><cc:developsMathematicalConcept rdf:resource="https://contacomigo.org/ontology#NumberConcept"/><cc:developsMathematicalConcept rdf:resource="https://contacomigo.org/ontology#CountingConcept"/><cc:developsMathematicalConcept rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/><cc:requiresDragging rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</cc:requiresDragging><cc:usesAudio rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</cc:usesAudio><cc:usesPictograms rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</cc:usesPictograms><cc:activityMappingStatus>PARTIAL</cc:activityMappingStatus>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#MultipleChoiceActivityFamily">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#ActivityFamilyProfile"/><cc:hasActivityType rdf:resource="https://contacomigo.org/ontology#MultipleChoiceActivityType"/><cc:hasRepresentation rdf:resource="https://contacomigo.org/ontology#TextualRepresentation"/><cc:hasRepresentation rdf:resource="https://contacomigo.org/ontology#PictorialRepresentation"/><cc:hasRepresentation rdf:resource="https://contacomigo.org/ontology#SymbolicRepresentation"/><cc:hasInteractionType rdf:resource="https://contacomigo.org/ontology#OptionSelectionInteraction"/><cc:hasDifficultyProfile rdf:resource="https://contacomigo.org/ontology#MultipleChoiceFamilyDifficulty"/><cc:hasActivityAffordance rdf:resource="https://contacomigo.org/ontology#PictogramAffordance"/><cc:hasActivityAffordance rdf:resource="https://contacomigo.org/ontology#KeyboardAlternativeAffordance"/><cc:hasActivityAffordance rdf:resource="https://contacomigo.org/ontology#PointerSelectionAffordance"/><cc:requiresDragging rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</cc:requiresDragging><cc:usesAudio rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</cc:usesAudio><cc:usesPictograms rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</cc:usesPictograms><cc:activityMappingStatus>INCOMPLETE</cc:activityMappingStatus><rdfs:comment xml:lang="en">Frontend renderer family without a corresponding backend enum or persisted seed type; BNCC and mathematical mappings are content-specific.</rdfs:comment>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#QuizActivityFamily">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#ActivityFamilyProfile"/><cc:hasActivityType rdf:resource="https://contacomigo.org/ontology#QuizActivityType"/><cc:hasRepresentation rdf:resource="https://contacomigo.org/ontology#TextualRepresentation"/><cc:hasRepresentation rdf:resource="https://contacomigo.org/ontology#PictorialRepresentation"/><cc:hasRepresentation rdf:resource="https://contacomigo.org/ontology#SymbolicRepresentation"/><cc:hasInteractionType rdf:resource="https://contacomigo.org/ontology#OptionSelectionInteraction"/><cc:hasDifficultyProfile rdf:resource="https://contacomigo.org/ontology#QuizFamilyDifficulty"/><cc:hasActivityAffordance rdf:resource="https://contacomigo.org/ontology#PictogramAffordance"/><cc:hasActivityAffordance rdf:resource="https://contacomigo.org/ontology#KeyboardAlternativeAffordance"/><cc:hasActivityAffordance rdf:resource="https://contacomigo.org/ontology#PointerSelectionAffordance"/><cc:addressesBNCCSkill rdf:resource="https://contacomigo.org/ontology#BNCC_EF01MA03"/><cc:addressesBNCCSkill rdf:resource="https://contacomigo.org/ontology#BNCC_EF01MA06"/><cc:addressesBNCCSkill rdf:resource="https://contacomigo.org/ontology#BNCC_EF01MA07"/><cc:developsMathematicalConcept rdf:resource="https://contacomigo.org/ontology#ComparisonConcept"/><cc:developsMathematicalConcept rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/><cc:developsMathematicalConcept rdf:resource="https://contacomigo.org/ontology#SubtractionConcept"/><cc:developsMathematicalConcept rdf:resource="https://contacomigo.org/ontology#BasicGeometryConcept"/><cc:requiresDragging rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</cc:requiresDragging><cc:usesAudio rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</cc:usesAudio><cc:usesPictograms rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</cc:usesPictograms><cc:activityMappingStatus>NEEDS_REVIEW</cc:activityMappingStatus>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#DragAndDropActivityFamily">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#ActivityFamilyProfile"/><cc:hasActivityType rdf:resource="https://contacomigo.org/ontology#DragAndDropActivityType"/><cc:hasRepresentation rdf:resource="https://contacomigo.org/ontology#PictorialRepresentation"/><cc:hasRepresentation rdf:resource="https://contacomigo.org/ontology#SymbolicRepresentation"/><cc:hasInteractionType rdf:resource="https://contacomigo.org/ontology#DragAndDropInteraction"/><cc:hasInteractionType rdf:resource="https://contacomigo.org/ontology#AlternativePlacementInteraction"/><cc:hasDifficultyProfile rdf:resource="https://contacomigo.org/ontology#DragAndDropFamilyDifficulty"/><cc:hasActivityAffordance rdf:resource="https://contacomigo.org/ontology#DraggingAffordance"/><cc:hasActivityAffordance rdf:resource="https://contacomigo.org/ontology#KeyboardAlternativeAffordance"/><cc:hasActivityAffordance rdf:resource="https://contacomigo.org/ontology#PointerSelectionAffordance"/><cc:hasActivityAffordance rdf:resource="https://contacomigo.org/ontology#PictogramAffordance"/><cc:addressesBNCCSkill rdf:resource="https://contacomigo.org/ontology#BNCC_EF01MA01"/><cc:addressesBNCCSkill rdf:resource="https://contacomigo.org/ontology#BNCC_EF01MA03"/><cc:addressesBNCCSkill rdf:resource="https://contacomigo.org/ontology#BNCC_EF01MA06"/><cc:developsMathematicalConcept rdf:resource="https://contacomigo.org/ontology#NumberConcept"/><cc:developsMathematicalConcept rdf:resource="https://contacomigo.org/ontology#ComparisonConcept"/><cc:developsMathematicalConcept rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/><cc:developsMathematicalConcept rdf:resource="https://contacomigo.org/ontology#SequencePatternConcept"/><cc:requiresDragging rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</cc:requiresDragging><cc:usesAudio rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</cc:usesAudio><cc:usesPictograms rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</cc:usesPictograms><cc:activityMappingStatus>NEEDS_REVIEW</cc:activityMappingStatus><rdfs:comment xml:lang="en">Dragging is available, but the inspected component also supports tap selection and keyboard placement; dragging is therefore not strictly required.</rdfs:comment>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#NumberLineActivityFamily">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#ActivityFamilyProfile"/><cc:hasActivityType rdf:resource="https://contacomigo.org/ontology#NumberLineActivityType"/><cc:hasRepresentation rdf:resource="https://contacomigo.org/ontology#NumberLineRepresentation"/><cc:hasRepresentation rdf:resource="https://contacomigo.org/ontology#SymbolicRepresentation"/><cc:hasInteractionType rdf:resource="https://contacomigo.org/ontology#RangeSelectionInteraction"/><cc:hasDifficultyProfile rdf:resource="https://contacomigo.org/ontology#NumberLineFamilyDifficulty"/><cc:hasActivityAffordance rdf:resource="https://contacomigo.org/ontology#KeyboardAlternativeAffordance"/><cc:hasActivityAffordance rdf:resource="https://contacomigo.org/ontology#PointerSelectionAffordance"/><cc:developsMathematicalConcept rdf:resource="https://contacomigo.org/ontology#NumberConcept"/><cc:developsMathematicalConcept rdf:resource="https://contacomigo.org/ontology#ComparisonConcept"/><cc:requiresDragging rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</cc:requiresDragging><cc:usesAudio rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</cc:usesAudio><cc:usesPictograms rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</cc:usesPictograms><cc:activityMappingStatus>INCOMPLETE</cc:activityMappingStatus><rdfs:comment xml:lang="en">Frontend-only family with no backend enum, seed instance, or current BNCC mapping.</rdfs:comment>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#VisualPuzzleActivityFamily">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#ActivityFamilyProfile"/><cc:hasActivityType rdf:resource="https://contacomigo.org/ontology#VisualPuzzleActivityType"/><cc:activityMappingStatus>INCOMPLETE</cc:activityMappingStatus><rdfs:comment xml:lang="en">Backend enum value without a dedicated current renderer or seed instance; no representation, interaction, curriculum, or concept metadata is assigned.</rdfs:comment>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#VideoQuestionActivityFamily">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#ActivityFamilyProfile"/><cc:hasActivityType rdf:resource="https://contacomigo.org/ontology#VideoQuestionActivityType"/><cc:activityMappingStatus>INCOMPLETE</cc:activityMappingStatus><rdfs:comment xml:lang="en">Backend enum value without a dedicated current renderer or seed instance; no audio or video affordance is inferred from its name.</rdfs:comment>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#YesNoActivityFamily">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#ActivityFamilyProfile"/><cc:hasActivityType rdf:resource="https://contacomigo.org/ontology#YesNoActivityType"/><cc:activityMappingStatus>INCOMPLETE</cc:activityMappingStatus><rdfs:comment xml:lang="en">Backend enum value without a dedicated current renderer or seed instance; it currently falls back to multiple choice.</rdfs:comment>
+  </owl:NamedIndividual>
+
   <!-- BNCC curriculum layer. Official skill descriptions are preserved as
        literals; mathematical mappings are local semantic analyses. -->
   <owl:ObjectProperty rdf:about="https://contacomigo.org/ontology#belongsToCurriculum">
@@ -744,7 +1024,7 @@
     <rdfs:label xml:lang="en">belongs to curriculum domain</rdfs:label>
   </owl:ObjectProperty>
   <owl:ObjectProperty rdf:about="https://contacomigo.org/ontology#addressesCurriculumSkill">
-    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#LearningActivity"/>
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#Activity"/>
     <rdfs:range rdf:resource="https://contacomigo.org/ontology#CurriculumSkill"/>
     <owl:inverseOf rdf:resource="https://contacomigo.org/ontology#isAddressedByActivity"/>
     <rdfs:label xml:lang="en">addresses curriculum skill</rdfs:label>

@@ -16,6 +16,18 @@ function mappedConcepts(skillBody) {
     .map((match) => match[1]);
 }
 
+function activityFamilyBlocks(ontology) {
+  return [...ontology.matchAll(
+    /<owl:NamedIndividual rdf:about="https:\/\/contacomigo\.org\/ontology#([A-Za-z]+ActivityFamily)">([\s\S]*?)<\/owl:NamedIndividual>/g,
+  )].map((match) => ({ name: match[1], body: match[2] }));
+}
+
+function namedIndividualBody(ontology, name) {
+  return ontology.match(
+    new RegExp(`<owl:NamedIndividual rdf:about="https://contacomigo\\.org/ontology#${name}">([\\s\\S]*?)</owl:NamedIndividual>`),
+  )?.[1];
+}
+
 test('ContaComigo ontology establishes the requested knowledge layers and concepts', async () => {
   const ontology = await readFile(ontologyUrl, 'utf8');
 
@@ -161,6 +173,19 @@ test('every learner-model class records its scientific or engineering origin', a
     'ReasoningSupportNeed',
     'MathematicalDifficultyEvidence',
     'InteractionDifficultyEvidence',
+    'Activity',
+    'LearningActivity',
+    'ActivityFamilyProfile',
+    'Representation',
+    'InteractionType',
+    'DifficultyProfile',
+    'ActivityAffordance',
+    'ActivityPerformanceEvidence',
+    'AssistanceUsageEvidence',
+    'ActivityLifecycleEvidence',
+    'ResponseTimingEvidence',
+    'ActivitySkipHistoryEvidence',
+    'RecommendationHistoryEvidence',
   ];
 
   for (const concept of concepts) {
@@ -240,4 +265,127 @@ test('BNCC competency-query fixtures return the expected curriculum answers', as
     activitySkillCodes.filter((code) => !byCode.has(code)).sort(),
     ['EF01MA15', 'EF02MA01', 'EF02MA05', 'EF03MA07'],
   );
+});
+
+test('activity semantics remain separate and expose representation, interaction, and difficulty metadata', async () => {
+  const ontology = await readFile(ontologyUrl, 'utf8');
+  const activityClass = ontology.match(
+    /<owl:Class rdf:about="https:\/\/contacomigo\.org\/ontology#Activity">([\s\S]*?)<\/owl:Class>/,
+  );
+
+  assert.ok(activityClass);
+  assert.doesNotMatch(activityClass[1], /CurriculumSkill|MathematicalConcept|LearnerCharacteristic/);
+  for (const concept of ['Representation', 'InteractionType', 'DifficultyProfile', 'ActivityAffordance']) {
+    assert.match(ontology, new RegExp(`#${concept}\\b`));
+  }
+  for (const relation of [
+    'addressesBNCCSkill',
+    'developsMathematicalConcept',
+    'hasRepresentation',
+    'hasInteractionType',
+    'hasDifficultyProfile',
+    'hasActivityAffordance',
+  ]) {
+    assert.match(ontology, new RegExp(`#${relation}\\b`));
+  }
+  for (const dimension of [
+    'conceptualComplexity',
+    'numericalMagnitude',
+    'abstractionLevel',
+    'stepCount',
+    'distractorSimilarity',
+    'languageLoad',
+    'motorDemand',
+    'sensoryLoad',
+    'scaffoldingLevel',
+  ]) {
+    assert.match(ontology, new RegExp(`#${dimension}\\b`));
+  }
+  assert.match(ontology, /#legacyDifficultyLabel/);
+  assert.doesNotMatch(ontology, /asdSupportLevel|ASDSupportLevel/);
+});
+
+test('activity-family competency queries expose mappings and incomplete profiles', async () => {
+  const ontology = await readFile(ontologyUrl, 'utf8');
+  const families = activityFamilyBlocks(ontology);
+  const names = families.map(({ name }) => name);
+
+  assert.deepEqual(names, [
+    'CountingActivityFamily',
+    'MultipleChoiceActivityFamily',
+    'QuizActivityFamily',
+    'DragAndDropActivityFamily',
+    'NumberLineActivityFamily',
+    'VisualPuzzleActivityFamily',
+    'VideoQuestionActivityFamily',
+    'YesNoActivityFamily',
+  ]);
+  assert.deepEqual(
+    families.filter(({ body }) => body.includes('#BNCC_EF01MA06')).map(({ name }) => name),
+    ['CountingActivityFamily', 'QuizActivityFamily', 'DragAndDropActivityFamily'],
+  );
+  assert.deepEqual(
+    families.filter(({ body }) => body.includes('#AdditionConcept')).map(({ name }) => name),
+    ['CountingActivityFamily', 'QuizActivityFamily', 'DragAndDropActivityFamily'],
+  );
+  const additionInteractions = families
+    .filter(({ body }) => body.includes('#AdditionConcept'))
+    .map(({ body }) => [...body.matchAll(/<cc:hasInteractionType rdf:resource="[^"]+#([^"]+)"\/>/g)].map((match) => match[1]).join(','));
+  assert.equal(new Set(additionInteractions).size, 3);
+  assert.deepEqual(
+    families
+      .filter(({ body }) => {
+        const profileName = body.match(/<cc:hasDifficultyProfile rdf:resource="[^"]+#([^"]+)"\/>/)?.[1];
+        const profileBody = profileName ? namedIndividualBody(ontology, profileName) : undefined;
+        return profileBody?.includes('<cc:motorDemand>LOW</cc:motorDemand>');
+      })
+      .map(({ name }) => name),
+    ['CountingActivityFamily', 'MultipleChoiceActivityFamily', 'QuizActivityFamily'],
+  );
+  assert.deepEqual(
+    families.filter(({ body }) => body.includes('#PictorialRepresentation')).map(({ name }) => name),
+    ['CountingActivityFamily', 'MultipleChoiceActivityFamily', 'QuizActivityFamily', 'DragAndDropActivityFamily'],
+  );
+  assert.deepEqual(
+    families.filter(({ body }) => /<cc:requiresDragging[^>]*>true<\/cc:requiresDragging>/.test(body)).map(({ name }) => name),
+    [],
+  );
+  assert.deepEqual(
+    families.filter(({ body }) => /<cc:activityMappingStatus>(?:PARTIAL|INCOMPLETE|NEEDS_REVIEW)<\/cc:activityMappingStatus>/.test(body)).map(({ name }) => name),
+    [
+      'CountingActivityFamily',
+      'MultipleChoiceActivityFamily',
+      'QuizActivityFamily',
+      'DragAndDropActivityFamily',
+      'NumberLineActivityFamily',
+      'VisualPuzzleActivityFamily',
+      'VideoQuestionActivityFamily',
+      'YesNoActivityFamily',
+    ],
+  );
+});
+
+test('Learning Analytics bridge declares aggregate evidence without runtime child instances', async () => {
+  const ontology = await readFile(ontologyUrl, 'utf8');
+
+  for (const evidence of [
+    'ActivityPerformanceEvidence',
+    'AssistanceUsageEvidence',
+    'ActivityLifecycleEvidence',
+    'ResponseTimingEvidence',
+    'ActivitySkipHistoryEvidence',
+    'RecommendationHistoryEvidence',
+  ]) {
+    assert.match(ontology, new RegExp(`#${evidence}\\b`));
+  }
+  for (const eventType of [
+    'ANSWER_SUBMITTED',
+    'HINT_REQUESTED',
+    'ACTIVITY_SKIPPED',
+    'RECOMMENDATION_COMPLETED',
+  ]) {
+    assert.match(ontology, new RegExp(`<cc:analyticsSourceEventType>${eventType}</cc:analyticsSourceEventType>`));
+  }
+  assert.doesNotMatch(ontology, /Learner_123|ObservedVisualStrength_xyz|VisualInteractionEvidence_abc|Activity_45/);
+  assert.doesNotMatch(ontology, /<cc:(?:studentId|sessionId|responseTimeMs|attempts|hints|skip|completion)>/);
 });
