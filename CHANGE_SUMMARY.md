@@ -1,5 +1,16 @@
 # Change Summary
 
+## Batch B2.2C — Neuroinclusive evidence-based learner model
+
+- Extended the ContaComigo OWL vocabulary with contextual observed characteristics, interaction and learning evidence, evidence windows, sufficiency assessments, and temporal/provenance properties.
+- Reinterpreted the five historical LASDONT dimensions as distinct strengths, preferences, support needs, compatibility, or reasoning evidence without importing legacy classes or asserting equivalence.
+- Kept mathematical mastery under BKT ownership and separated mathematical difficulty from interaction difficulty.
+- Added conservative PROV-O alignments without `owl:imports`, runtime individuals, inference thresholds, or diagnosis-based axioms.
+- Documented the scientific basis, current-runtime conflicts, provenance, historical mappings, competency questions, experimental hypotheses, and privacy limitations in Portuguese.
+- Added structural regression tests for semantic separation, longitudinal evidence, historical traceability, and absence of fixed learning-style or threshold axioms.
+
+No production behavior, database schema, recommendation formula, or historical LASDONT artifact changed in this batch.
+
 ## Batch B2.2B — OntoMathEdu educational mathematics foundation
 
 - Added an independent ContaComigo OWL foundation partitioning mathematical, curricular, learner, activity, and Learning Analytics knowledge.
