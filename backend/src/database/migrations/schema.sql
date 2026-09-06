@@ -59,8 +59,43 @@ CREATE TABLE IF NOT EXISTS analytics_snapshots (
   "rawEventData" JSONB, "createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
+DO $$ BEGIN
+  CREATE TYPE learning_event_type_enum AS ENUM (
+    'SESSION_STARTED', 'SESSION_COMPLETED', 'ACTIVITY_PRESENTED',
+    'ACTIVITY_STARTED', 'ANSWER_SUBMITTED', 'ACTIVITY_COMPLETED',
+    'ACTIVITY_SKIPPED', 'HINT_REQUESTED', 'TUTORIAL_OPENED',
+    'INSTRUCTION_REPLAYED', 'RECOMMENDATION_GENERATED',
+    'RECOMMENDATION_PRESENTED', 'RECOMMENDATION_COMPLETED',
+    'DIFFICULTY_ADJUSTED', 'TITIA_INTERACTION'
+  );
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+CREATE TABLE IF NOT EXISTS learning_events (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(), "studentId" UUID NOT NULL,
+  "sessionId" VARCHAR NOT NULL, "eventType" learning_event_type_enum NOT NULL,
+  "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, "activityId" UUID,
+  "bnccSkillId" UUID, attempt INTEGER, "responseTimeMs" INTEGER, correct BOOLEAN,
+  "hintsUsed" INTEGER, "recommendationId" VARCHAR, metadata JSONB
+);
+
+CREATE OR REPLACE FUNCTION prevent_learning_event_mutation() RETURNS trigger AS $$
+BEGIN
+  RAISE EXCEPTION 'learning_events is append-only';
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_learning_events_append_only ON learning_events;
+CREATE TRIGGER trg_learning_events_append_only
+BEFORE UPDATE OR DELETE ON learning_events
+FOR EACH ROW EXECUTE FUNCTION prevent_learning_event_mutation();
+
 CREATE INDEX IF NOT EXISTS idx_child_profiles_guardian ON child_profiles("guardianId");
 CREATE INDEX IF NOT EXISTS idx_attempts_user ON activity_attempts("userId");
 CREATE INDEX IF NOT EXISTS idx_attempts_activity ON activity_attempts("activityId");
 CREATE INDEX IF NOT EXISTS idx_ade_user ON ade_decisions("userId");
 CREATE INDEX IF NOT EXISTS idx_analytics_user ON analytics_snapshots("userId");
+CREATE INDEX IF NOT EXISTS idx_learning_events_student_timestamp ON learning_events("studentId", "timestamp");
+CREATE INDEX IF NOT EXISTS idx_learning_events_session_timestamp ON learning_events("sessionId", "timestamp");
+CREATE INDEX IF NOT EXISTS idx_learning_events_type_timestamp ON learning_events("eventType", "timestamp");
