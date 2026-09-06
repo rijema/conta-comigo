@@ -25,7 +25,7 @@ export class UsersService {
 
   async createChildAccount(guardianId: string, childName: string, hashedPassword: string, age: number): Promise<User> {
     const slug = childName.toLowerCase().replace(/\s+/g, '.');
-    const email = `${slug}.filho.${guardianId.substring(0, 6)}@mathasd.internal`;
+    const email = `${slug}.filho.${guardianId.substring(0, 6)}@contacomigo.internal`;
 
     const child = this.userRepo.create({
       name: childName,

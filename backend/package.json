@@ -1,7 +1,7 @@
 {
-  "name": "mathasd-backend",
+  "name": "conta-comigo-backend",
   "version": "1.0.0",
-  "description": "MathASD Backend — NestJS adaptive learning platform",
+  "description": "Conta Comigo Backend — NestJS adaptive learning platform",
   "packageManager": "npm@10.8.2",
   "scripts": {
     "build": "nest build",

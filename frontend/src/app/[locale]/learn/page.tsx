@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale } from "next-intl";
+import Image from "next/image";
 import { useAuth } from "@/hooks/use-auth";
 import { useSession } from "@/hooks/use-session";
 import { ActivityRenderer } from "@/components/activity/activity-renderer";
@@ -136,7 +137,7 @@ function LearnPageInner() {
       {showReward && (
         <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-50">
           <div className="flex flex-col items-center gap-2">
-            <div className="text-9xl" style={{ animation: "bounceIn 0.4s ease-out" }}>⭐</div>
+            <Image src="/assets/correctanswer.png" width={300} height={225} alt="TitiA comemorando o acerto" className="h-52 w-auto object-contain" style={{ animation: "bounceIn 0.4s ease-out" }} />
             <p className="text-3xl font-extrabold text-yellow-600 drop-shadow-lg" style={{ animation: "fadeInUp 0.3s ease-out" }}>
               Muito bem! 🎉
             </p>
@@ -145,7 +146,7 @@ function LearnPageInner() {
       )}
       {rewardWrong && (
         <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-50">
-          <div className="text-7xl" style={{ animation: "shake 0.4s ease-out" }}>💙</div>
+          <Image src="/assets/tryagain.png" width={260} height={195} alt="TitiA incentivando uma nova tentativa" className="h-44 w-auto object-contain" style={{ animation: "shake 0.4s ease-out" }} />
         </div>
       )}
 

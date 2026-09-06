@@ -504,7 +504,7 @@ function ReportView({ report, onPrint }: { report: any; onPrint: () => void }) {
 
         {/* Print header */}
         <div className="hidden print:block mb-6 text-center border-b pb-4">
-          <h1 className="text-2xl font-bold">MathASD — Relatório de Aprendizagem</h1>
+          <h1 className="text-2xl font-bold">Conta Comigo — Relatório de Aprendizagem</h1>
           <p className="text-slate-500 text-sm">Gerado em: {new Date(report.generatedAt).toLocaleString("pt-BR")}</p>
         </div>
 
@@ -580,7 +580,7 @@ function ReportView({ report, onPrint }: { report: any; onPrint: () => void }) {
         )}
 
         <p className="text-xs text-slate-400 mt-6 text-center print:block hidden">
-          MathASD — Sistema Adaptativo para Ensino de Matemática com TEA | Relatório gerado automaticamente
+          Conta Comigo — Sistema Adaptativo para Ensino de Matemática com TEA | Relatório gerado automaticamente
         </p>
       </div>
     </div>

@@ -296,7 +296,7 @@ export default function RegisterPage() {
               <button onClick={() => setShowTermModal(false)} className="text-white/70 hover:text-white text-xl">✕</button>
             </div>
             <div className="p-6 space-y-4 max-h-[65vh] overflow-y-auto text-sm text-gray-700">
-              <p className="font-semibold text-gray-900">Plataforma MathASD — Pesquisa de Mestrado</p>
+              <p className="font-semibold text-gray-900">Plataforma Conta Comigo — Pesquisa de Mestrado</p>
 
               <section>
                 <p className="font-semibold mb-1">1. Identificação da Pesquisa</p>

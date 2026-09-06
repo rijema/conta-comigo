@@ -304,7 +304,7 @@ ${question}
 
   async addChild(guardianId: string, childName: string, childPassword: string, age: number) {
     const slug = childName.toLowerCase().replace(/\s+/g, '.');
-    const email = `${slug}.filho.${guardianId.substring(0, 6)}@mathasd.internal`;
+    const email = `${slug}.filho.${guardianId.substring(0, 6)}@contacomigo.internal`;
 
     const hashedPassword = await bcrypt.hash(childPassword, 12);
 

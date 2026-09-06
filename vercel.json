@@ -4,7 +4,7 @@
   "outputDirectory": "frontend/.next",
   "installCommand": "cd frontend && npm ci",
   "env": {
-    "NEXT_PUBLIC_API_URL": "@mathasd_api_url"
+    "NEXT_PUBLIC_API_URL": "@contacomigo_api_url"
   },
   "headers": [
     {

@@ -16,6 +16,7 @@ import {
   type DragStartEvent,
 } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
+import Image from "next/image";
 import type { Activity, SensoryProfile } from "@/types";
 
 interface Props {
@@ -338,7 +339,13 @@ export function DragDropActivity({ activity, onAnswer }: Props) {
             <div className={`flex flex-col items-center gap-3 px-10 py-8 rounded-3xl
               shadow-2xl text-center pointer-events-auto
               ${feedback === "correct" ? "bg-green-500 text-white" : "bg-orange-400 text-white"}`}>
-              <span className="text-6xl">{feedback === "correct" ? "🎉" : "💙"}</span>
+              <Image
+                src={feedback === "correct" ? "/assets/correctanswer.png" : "/assets/tryagain.png"}
+                width={210}
+                height={158}
+                alt={feedback === "correct" ? "TitiA comemorando o acerto" : "TitiA incentivando uma nova tentativa"}
+                className="h-36 w-auto object-contain"
+              />
               <p className="text-2xl font-extrabold">
                 {feedback === "correct" ? "Muito bem!" : "Quase lá!"}
               </p>

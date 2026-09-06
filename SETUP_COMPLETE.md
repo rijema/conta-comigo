@@ -1,4 +1,4 @@
-# 🚀 MathASD — Setup Completo
+# 🚀 Conta Comigo — Setup Completo
 
 ## ✅ Status: Pronto para Rodar
 
@@ -64,9 +64,9 @@ As credenciais são configuradas no `docker-compose.yml`:
 
 ```
 PostgreSQL:
-  User: mathasd_user
-  Password: mathasd_pass
-  Database: mathasd
+  User: contacomigo_user
+  Password: contacomigo_pass
+  Database: contacomigo
 ```
 
 ## 📋 Verificações Feitas
@@ -94,11 +94,11 @@ docker-compose down
 ## 📊 Estrutura de Containers
 
 ```
-mathasd_postgres    → PostgreSQL 15
-mathasd_redpanda    → Redpanda (Kafka)
-mathasd_backend     → NestJS API
-mathasd_ml          → FastAPI ML Service
-mathasd_frontend    → Next.js Frontend
+contacomigo_postgres    → PostgreSQL 15
+contacomigo_redpanda    → Redpanda (Kafka)
+contacomigo_backend     → NestJS API
+contacomigo_ml          → FastAPI ML Service
+contacomigo_frontend    → Next.js Frontend
 ```
 
 ## ⚠️ Notas Importantes

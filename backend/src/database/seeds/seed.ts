@@ -26,7 +26,7 @@ async function runSeeds() {
       port: parseInt(process.env.DB_PORT || '5432'),
       username: process.env.DB_USER || 'postgres',
       password: process.env.DB_PASSWORD || 'postgres',
-      database: process.env.DB_NAME || 'mathasd',
+      database: process.env.DB_NAME || 'contacomigo',
       entities: [join(__dirname, '../../**/*.entity.js')],
       synchronize: false,
       logging: false,

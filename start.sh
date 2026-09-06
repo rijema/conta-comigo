@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# MathASD Startup Script
+# Conta Comigo Startup Script
 
 set -e
 
-echo "🚀 MathASD — Starting Application"
+echo "🚀 Conta Comigo — Starting Application"
 echo "=================================="
 echo ""
 
