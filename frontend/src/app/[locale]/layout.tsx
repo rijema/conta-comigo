@@ -4,10 +4,14 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 
 export const metadata: Metadata = {
-  title: "MathASD — Plataforma Adaptativa de Matemática",
+  title: "Conta Comigo — Matemática que aprende com cada criança",
   description:
     "Plataforma adaptativa de ensino de matemática para crianças com TEA, alinhada à BNCC.",
-  authors: [{ name: "MathASD Team" }],
+  authors: [{ name: "Conta Comigo" }],
+  icons: {
+    icon: "/assets/iconbrowser.png",
+    apple: "/assets/iconbrowser.png",
+  },
 };
 
 export const viewport: Viewport = {

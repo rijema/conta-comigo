@@ -86,8 +86,8 @@ export function ConsentManager() {
 
       <div className="mt-4 text-xs text-gray-400">
         Para exportar ou excluir seus dados, entre em contato:{" "}
-        <a href="mailto:privacidade@mathasd.edu.br" className="underline">
-          privacidade@mathasd.edu.br
+        <a href="mailto:privacidade@contacomigo.com" className="underline">
+          privacidade@contacomigo.com
         </a>
       </div>
     </div>

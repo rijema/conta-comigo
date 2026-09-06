@@ -42,7 +42,7 @@ export function ArasaacSection({ locale }: Props) {
           🗣️ Comunicação Aumentativa e Alternativa (CAA)
         </div>
         <h2 className="text-3xl font-extrabold text-slate-800 mb-3">
-          MathASD usa <span className="text-orange-500">ARASAAC</span>
+          Conta Comigo usa <span className="text-orange-500">ARASAAC</span>
         </h2>
         <p className="text-slate-600 max-w-2xl mx-auto leading-relaxed">
           O método ARASAAC (Sistema de Comunicação por Pictogramas) é adotado mundialmente para suporte à comunicação de crianças com autismo, dificuldades de linguagem e outras necessidades de comunicação. Os pictogramas transformam conceitos abstratos em imagens claras, reduzindo a sobrecarga sensorial e facilitando a compreensão.
@@ -95,7 +95,7 @@ export function ArasaacSection({ locale }: Props) {
             title: "Na plataforma",
             bg: "bg-green-50 border-green-200",
             titleColor: "text-green-800",
-            desc: "O MathASD utiliza pictogramas ARASAAC para ilustrar enunciados, opções de resposta e instruções de atividades. Isso reduz a dependência de leitura e torna as atividades mais acessíveis para crianças não-verbais ou com dificuldades de leitura.",
+            desc: "O Conta Comigo utiliza pictogramas ARASAAC para ilustrar enunciados, opções de resposta e instruções de atividades. Isso reduz a dependência de leitura e torna as atividades mais acessíveis para crianças não-verbais ou com dificuldades de leitura.",
           },
         ].map((c) => (
           <div key={c.title} className={`rounded-2xl border-2 p-5 ${c.bg}`}>

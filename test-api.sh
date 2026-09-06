@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script para testar os endpoints de autenticação da MathASD API
+# Script para testar os endpoints de autenticação da Conta Comigo API
 # Requer: curl, jq (opcional para formatação)
 
 API_URL="http://localhost:3001/api"

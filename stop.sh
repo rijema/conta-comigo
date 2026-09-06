@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# MathASD Stop Script
+# Conta Comigo Stop Script
 
-echo "🛑 Stopping MathASD Application..."
+echo "🛑 Stopping Conta Comigo Application..."
 echo ""
 
 docker-compose down

@@ -1,27 +1,25 @@
-version: "3.9"
-
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: mathasd_postgres
+    container_name: contacomigo_postgres
     environment:
-      POSTGRES_DB: mathasd
-      POSTGRES_USER: mathasd_user
-      POSTGRES_PASSWORD: mathasd_pass
+      POSTGRES_DB: contacomigo
+      POSTGRES_USER: contacomigo_user
+      POSTGRES_PASSWORD: contacomigo_pass
     ports:
       - "55432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/src/database/migrations/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mathasd_user -d mathasd"]
+      test: ["CMD-SHELL", "pg_isready -U contacomigo_user -d contacomigo"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   redis:
     image: redis:7-alpine
-    container_name: mathasd_redis
+    container_name: contacomigo_redis
     ports:
       - "6379:6379"
     healthcheck:
@@ -32,7 +30,7 @@ services:
 
   redpanda:
     image: redpandadata/redpanda:latest
-    container_name: mathasd_redpanda
+    container_name: contacomigo_redpanda
     command:
       - redpanda
       - start
@@ -56,10 +54,10 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.dev
-    container_name: mathasd_backend
+    container_name: contacomigo_backend
     environment:
       NODE_ENV: development
-      DATABASE_URL: postgresql://mathasd_user:mathasd_pass@postgres:5432/mathasd
+      DATABASE_URL: postgresql://contacomigo_user:contacomigo_pass@postgres:5432/contacomigo
       KAFKA_BROKERS: redpanda:29092
       JWT_SECRET: your-super-secret-jwt-key-change-this-in-production-12345678901234567890
       JWT_REFRESH_SECRET: your-super-secret-refresh-key-change-this-in-production-12345678901234567890
@@ -86,9 +84,9 @@ services:
     build:
       context: ./ml-service
       dockerfile: Dockerfile
-    container_name: mathasd_ml
+    container_name: contacomigo_ml
     environment:
-      DATABASE_URL: postgresql://mathasd_user:mathasd_pass@postgres:5432/mathasd
+      DATABASE_URL: postgresql://contacomigo_user:contacomigo_pass@postgres:5432/contacomigo
       MODEL_PATH: /app/models
     ports:
       - "8000:8000"
@@ -106,7 +104,7 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_API_URL: http://localhost:3001/api
-    container_name: mathasd_frontend
+    container_name: contacomigo_frontend
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:3001/api
     ports:

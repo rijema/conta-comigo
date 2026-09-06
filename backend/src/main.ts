@@ -40,7 +40,7 @@ async function bootstrap() {
 
   // Swagger Documentation
   const config = new DocumentBuilder()
-    .setTitle('MathASD API')
+    .setTitle('Conta Comigo API')
     .setDescription('Adaptive learning platform for children with ASD')
     .setVersion('1.0')
     .addBearerAuth()

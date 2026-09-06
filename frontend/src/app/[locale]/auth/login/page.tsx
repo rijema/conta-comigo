@@ -49,7 +49,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="text-6xl mb-4" role="img" aria-label="Planeta com estrelas">🌍✨</div>
-          <h1 className="text-3xl font-bold text-blue-800">MathASD</h1>
+          <h1 className="text-3xl font-bold text-blue-800">Conta Comigo</h1>
           <p className="text-gray-500 mt-2">{t("loginSubtitle")}</p>
         </div>
 

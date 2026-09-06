@@ -1,7 +1,7 @@
 {
-  "name": "mathasd",
+  "name": "conta-comigo",
   "version": "1.0.0",
-  "description": "MathASD - Adaptive Learning Platform for ASD",
+  "description": "Conta Comigo - Adaptive Learning Platform for ASD",
   "private": true,
   "packageManager": "npm@10.8.2",
   "scripts": {
