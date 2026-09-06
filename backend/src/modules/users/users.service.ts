@@ -112,19 +112,15 @@ export class UsersService {
     return this.childProfileRepo.save(profile);
   }
 
+  /** @deprecated KnowledgeTracingService is the only canonical mastery writer. */
   async updateSkillMastery(
     userId: string,
     skillCode: string,
     masteryProbability: number,
   ): Promise<void> {
-    const profile = await this.childProfileRepo.findOne({ where: { userId } });
-    if (!profile) return;
-
-    const current = profile.skillMastery || {};
-    current[skillCode] = masteryProbability;
-    profile.skillMastery = current;
-
-    await this.childProfileRepo.save(profile);
+    this.logger.warn(
+      `Ignored deprecated mastery write for user ${userId}, skill ${skillCode}, value ${masteryProbability}; use KnowledgeTracingService.observe`,
+    );
   }
 
   async updateBnccProgress(

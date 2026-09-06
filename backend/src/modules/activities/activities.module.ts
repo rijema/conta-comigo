@@ -8,6 +8,7 @@ import { KafkaModule } from '../kafka/kafka.module';
 import { AdeModule } from '../ade/ade.module';
 import { UsersModule } from '../users/users.module';
 import { LearningEventsModule } from '../learning-events/learning-events.module';
+import { KnowledgeTracingModule } from '../knowledge-tracing/knowledge-tracing.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { LearningEventsModule } from '../learning-events/learning-events.module'
     AdeModule,
     UsersModule,
     LearningEventsModule,
+    KnowledgeTracingModule,
   ],
   controllers: [ActivitiesController],
   providers: [ActivitiesService],

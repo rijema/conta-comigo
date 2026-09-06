@@ -1,4 +1,8 @@
-"""Bayesian Knowledge Tracing (BKT) Model
+"""Deprecated Bayesian Knowledge Tracing implementation.
+
+Use services.bkt_service.BKTService through KnowledgeTracingService instead.
+
+Bayesian Knowledge Tracing (BKT) Model
 Implementation based on Corbett & Anderson (1994)
 
 Parameters:

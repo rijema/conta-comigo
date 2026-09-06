@@ -12,6 +12,7 @@ import {
 import { ArrowLeft, TrendingUp, BookOpen, Clock } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiClient } from "@/lib/api-client";
+import { authService } from "@/lib/auth";
 
 interface ProgressData {
   weeklyAccuracy: Array<{ day: string; accuracy: number; attempts: number }>;
@@ -32,7 +33,10 @@ export default function ProgressPage() {
     if (!user) { router.push("/auth/login"); return; }
 
     apiClient
-      .get<ProgressData>(`/analytics/progress/${user.childProfileId || user.id}`)
+      .get<ProgressData>(
+        `/analytics/progress/${user.childProfileId || user.id}`,
+        authService.getStoredToken() ?? undefined,
+      )
       .then(setData)
       .catch(() => {
         // Placeholder for demo
@@ -46,13 +50,7 @@ export default function ProgressPage() {
             { day: "Sáb", accuracy: 75, attempts: 9 },
             { day: "Dom", accuracy: 88, attempts: 11 },
           ],
-          skillMastery: [
-            { skill: t("skill.addition"), mastery: 85, bnccCode: "EF01MA06" },
-            { skill: t("skill.subtraction"), mastery: 72, bnccCode: "EF02MA05" },
-            { skill: t("skill.counting"), mastery: 95, bnccCode: "EF01MA04" },
-            { skill: t("skill.shapes"), mastery: 60, bnccCode: "EF01MA14" },
-            { skill: t("skill.patterns"), mastery: 45, bnccCode: "EF02MA10" },
-          ],
+          skillMastery: [],
           totalSessions: 24,
           totalMinutes: 180,
           currentLevel: 3,

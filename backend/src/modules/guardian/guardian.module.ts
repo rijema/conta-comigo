@@ -7,9 +7,13 @@ import { AdeDecision } from '../ade/entities/ade-decision.entity';
 import { ActivityAttempt } from '../activities/entities/activity-attempt.entity';
 import { GuardianController } from './guardian.controller';
 import { GuardianService } from './guardian.service';
+import { KnowledgeTracingModule } from '../knowledge-tracing/knowledge-tracing.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, ChildProfile, AnalyticsSnapshot, AdeDecision, ActivityAttempt])],
+  imports: [
+    TypeOrmModule.forFeature([User, ChildProfile, AnalyticsSnapshot, AdeDecision, ActivityAttempt]),
+    KnowledgeTracingModule,
+  ],
   controllers: [GuardianController],
   providers: [GuardianService],
 })

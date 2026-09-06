@@ -19,4 +19,9 @@ export class AnalyticsController {
   getLatest(@Param('userId') userId: string) {
     return this.analyticsService.getLatestSnapshot(userId);
   }
+
+  @Get('progress/:userId')
+  getProgress(@Param('userId') userId: string) {
+    return this.analyticsService.getProgress(userId);
+  }
 }

@@ -8,9 +8,13 @@ import { ActivityAttempt } from '../activities/entities/activity-attempt.entity'
 import { Activity } from '../activities/entities/activity.entity';
 import { EducatorController } from './educator.controller';
 import { EducatorService } from './educator.service';
+import { KnowledgeTracingModule } from '../knowledge-tracing/knowledge-tracing.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, ChildProfile, AnalyticsSnapshot, AdeDecision, ActivityAttempt, Activity])],
+  imports: [
+    TypeOrmModule.forFeature([User, ChildProfile, AnalyticsSnapshot, AdeDecision, ActivityAttempt, Activity]),
+    KnowledgeTracingModule,
+  ],
   controllers: [EducatorController],
   providers: [EducatorService],
 })

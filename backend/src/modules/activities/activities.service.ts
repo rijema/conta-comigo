@@ -11,6 +11,7 @@ import { UsersService } from '../users/users.service';
 import { LearningEventService } from '../learning-events/learning-event.service';
 import { LearningEventType } from '../learning-events/entities/learning-event.entity';
 import { TrackActivityLifecycleDto } from './dto/track-activity-lifecycle.dto';
+import { KnowledgeTracingService } from '../knowledge-tracing/knowledge-tracing.service';
 
 @Injectable()
 export class ActivitiesService {
@@ -26,6 +27,7 @@ export class ActivitiesService {
     private readonly usersService: UsersService,
     private readonly learningEventService: LearningEventService,
     private readonly dataSource: DataSource,
+    private readonly knowledgeTracingService: KnowledgeTracingService,
   ) {}
 
   async create(dto: CreateActivityDto): Promise<Activity> {
@@ -155,6 +157,7 @@ export class ActivitiesService {
 
     // Learning analytics is best-effort and must not delay attempt processing.
     void this.trackAnswerEvents(userId, dto, activity, isCorrect);
+    void this.updateMasteryFromAttempt(userId, activity, isCorrect);
 
     // Publish Kafka event (async, non-blocking)
     this.kafkaProducer.publishActivityEvent({
@@ -327,6 +330,29 @@ export class ActivitiesService {
       [code],
     );
     return rows[0]?.id ?? null;
+  }
+
+  private async updateMasteryFromAttempt(
+    studentId: string,
+    activity: Activity,
+    correct: boolean,
+  ): Promise<void> {
+    const skillCode = activity.bnccSkills?.[0];
+    if (!skillCode) return;
+
+    try {
+      const skillId = await this.resolveBnccSkillId(activity);
+      if (!skillId) return;
+      await this.knowledgeTracingService.observe({
+        studentId,
+        skillId,
+        skillCode,
+        correct,
+      });
+    } catch (error) {
+      const details = error instanceof Error ? error.stack : String(error);
+      this.logger.error(`Knowledge tracing failed for skill ${skillCode}`, details);
+    }
   }
 
   async getActivityTree(userId: string): Promise<any> {

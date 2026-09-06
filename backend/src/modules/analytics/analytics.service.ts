@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AnalyticsSnapshot } from './entities/analytics-snapshot.entity';
 import { UsersService } from '../users/users.service';
+import { KnowledgeTracingService } from '../knowledge-tracing/knowledge-tracing.service';
 
 export interface ActivityEvent {
   type: string;
@@ -25,6 +26,7 @@ export class AnalyticsService {
     @InjectRepository(AnalyticsSnapshot)
     private readonly snapshotRepo: Repository<AnalyticsSnapshot>,
     private readonly usersService: UsersService,
+    private readonly knowledgeTracingService: KnowledgeTracingService,
   ) {}
 
   /**
@@ -55,16 +57,10 @@ export class AnalyticsService {
       }
     }
 
-    // Update skill mastery (simplified BKT update — full BKT is in ML service)
-    const skillMastery = { ...(existing?.skillMasterySnapshot || {}) };
-    for (const skill of event.bnccSkills || []) {
-      const current = skillMastery[skill] || 0.3;
-      // Bayesian update approximation
-      const updated = event.isCorrect
-        ? current + (1 - current) * 0.3
-        : current * 0.7;
-      skillMastery[skill] = Math.min(0.99, Math.max(0.01, updated));
-    }
+    // @deprecated Snapshot field retained for compatibility; canonical values
+    // are read from StudentSkillState and are never calculated here.
+    const skillMastery = await this.knowledgeTracingService
+      .getMasteryMapBySkillCode(event.userId);
 
     // Save snapshot
     const snapshot = this.snapshotRepo.create({
@@ -83,12 +79,8 @@ export class AnalyticsService {
 
     await this.snapshotRepo.save(snapshot);
 
-    // Update user's skill mastery in profile
+    // Preserve the legacy BNCC progress field without writing mastery.
     for (const skill of event.bnccSkills || []) {
-      await this.usersService
-        .updateSkillMastery(event.userId, skill, skillMastery[skill])
-        .catch((err) => this.logger.error('Failed to update skill mastery', err));
-
       await this.usersService
         .updateBnccProgress(event.userId, skill, event.isCorrect)
         .catch((err) => this.logger.error('Failed to update BNCC progress', err));
@@ -100,10 +92,15 @@ export class AnalyticsService {
   }
 
   async getLatestSnapshot(userId: string): Promise<AnalyticsSnapshot | null> {
-    return this.snapshotRepo.findOne({
-      where: { userId },
-      order: { createdAt: 'DESC' },
-    });
+    const [snapshot, canonicalMastery] = await Promise.all([
+      this.snapshotRepo.findOne({
+        where: { userId },
+        order: { createdAt: 'DESC' },
+      }),
+      this.knowledgeTracingService.getMasteryMapBySkillCode(userId),
+    ]);
+    if (snapshot) snapshot.skillMasterySnapshot = canonicalMastery;
+    return snapshot;
   }
 
   async getUserAnalytics(userId: string): Promise<{
@@ -119,7 +116,6 @@ export class AnalyticsService {
         take: 50,
       }),
     ]);
-
     const summary = latest
       ? {
           totalActivities: latest.totalActivitiesCompleted,
@@ -133,6 +129,36 @@ export class AnalyticsService {
       : null;
 
     return { latest, history, summary };
+  }
+
+  async getProgress(userId: string) {
+    const [skillMastery, snapshots, profile] = await Promise.all([
+      this.knowledgeTracingService.getMasteryMapBySkillCode(userId),
+      this.snapshotRepo.find({
+        where: { userId },
+        order: { createdAt: 'ASC' },
+        take: 30,
+      }),
+      this.usersService.getChildProfile(userId).catch(() => null),
+    ]);
+
+    return {
+      weeklyAccuracy: snapshots.slice(-7).map((snapshot) => ({
+        day: snapshot.createdAt.toISOString().split('T')[0],
+        accuracy: Math.round(snapshot.overallAccuracy * 100),
+        attempts: snapshot.totalActivitiesCompleted,
+      })),
+      skillMastery: Object.entries(skillMastery).map(([bnccCode, mastery]) => ({
+        skill: bnccCode,
+        mastery: Math.round(mastery * 100),
+        bnccCode,
+      })),
+      totalSessions: new Set(snapshots.map((snapshot) => snapshot.sessionId).filter(Boolean)).size,
+      totalMinutes: Math.round(
+        snapshots.reduce((sum, snapshot) => sum + snapshot.averageTimePerActivity, 0) / 60,
+      ),
+      currentLevel: profile?.currentLevel ?? 1,
+    };
   }
 
   private calculateEngagementIndex(event: ActivityEvent): number {

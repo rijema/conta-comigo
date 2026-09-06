@@ -13,6 +13,7 @@ import { OntologyModule } from './modules/ontology/ontology.module';
 import { GuardianModule } from './modules/guardian/guardian.module';
 import { EducatorModule } from './modules/educator/educator.module';
 import { LearningEventsModule } from './modules/learning-events/learning-events.module';
+import { KnowledgeTracingModule } from './modules/knowledge-tracing/knowledge-tracing.module';
 import { HealthController } from './health.controller';
 
 function validateEnvironment(config: Record<string, unknown>) {
@@ -100,6 +101,7 @@ function validateEnvironment(config: Record<string, unknown>) {
     GuardianModule,
     EducatorModule,
     LearningEventsModule,
+    KnowledgeTracingModule,
   ],
   controllers: [HealthController],
   providers: [],

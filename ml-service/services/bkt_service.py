@@ -9,21 +9,29 @@ Parameters (per skill, defaults used if not trained):
 """
 
 import logging
+import os
 from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
 
-# Default BKT parameters (can be trained per skill with more data)
+def _configured_probability(name: str, default: float) -> float:
+    value = float(os.getenv(name, str(default)))
+    if not 0.0 <= value <= 1.0:
+        raise ValueError(f"{name} must be between 0 and 1")
+    return value
+
+
+# Experimental defaults. Every canonical parameter can be overridden by env.
 DEFAULT_BKT_PARAMS: Dict[str, Dict[str, float]] = {
     "default": {
-        "p_learn": 0.20,
-        "p_guess": 0.25,
-        "p_slip": 0.10,
-        "p_init": 0.10,
+        "p_learn": _configured_probability("BKT_LEARNING_RATE", 0.20),
+        "p_guess": _configured_probability("BKT_GUESS_RATE", 0.25),
+        "p_slip": _configured_probability("BKT_SLIP_RATE", 0.10),
+        "p_init": _configured_probability("BKT_PRIOR_KNOWLEDGE", 0.10),
     }
 }
 
-# BNCC-aligned skill-specific parameters (tuned from literature)
+# @deprecated Unvalidated legacy skill-specific values. Disabled by default.
 SKILL_BKT_PARAMS: Dict[str, Dict[str, float]] = {
     # 1st year
     "EF01MA01": {"p_learn": 0.18, "p_guess": 0.20, "p_slip": 0.08, "p_init": 0.15},
@@ -41,7 +49,10 @@ SKILL_BKT_PARAMS: Dict[str, Dict[str, float]] = {
     "EF05MA01": {"p_learn": 0.13, "p_guess": 0.16, "p_slip": 0.07, "p_init": 0.30},
 }
 
-MASTERY_THRESHOLD = 0.80
+USE_LEGACY_SKILL_PARAMS = os.getenv("BKT_USE_LEGACY_SKILL_PARAMS", "false").lower() == "true"
+MASTERY_THRESHOLD = _configured_probability("BKT_MASTERY_THRESHOLD", 0.80)
+MEDIUM_DIFFICULTY_THRESHOLD = _configured_probability("BKT_MEDIUM_DIFFICULTY_THRESHOLD", 0.50)
+HARD_DIFFICULTY_THRESHOLD = _configured_probability("BKT_HARD_DIFFICULTY_THRESHOLD", 0.80)
 
 
 class BKTService:
@@ -51,7 +62,9 @@ class BKTService:
     """
 
     def _get_params(self, skill_id: str) -> Dict[str, float]:
-        return SKILL_BKT_PARAMS.get(skill_id, DEFAULT_BKT_PARAMS["default"])
+        if USE_LEGACY_SKILL_PARAMS:
+            return SKILL_BKT_PARAMS.get(skill_id, DEFAULT_BKT_PARAMS["default"])
+        return DEFAULT_BKT_PARAMS["default"]
 
     def update(
         self,
@@ -98,9 +111,9 @@ class BKTService:
         is_mastered = p_ln1 >= MASTERY_THRESHOLD
 
         # Difficulty recommendation based on mastery
-        if p_ln1 >= 0.80:
+        if p_ln1 >= HARD_DIFFICULTY_THRESHOLD:
             next_difficulty = "hard"
-        elif p_ln1 >= 0.50:
+        elif p_ln1 >= MEDIUM_DIFFICULTY_THRESHOLD:
             next_difficulty = "medium"
         else:
             next_difficulty = "easy"

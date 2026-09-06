@@ -8,6 +8,7 @@ import { MlEngineService } from './ml/ml-engine.service';
 import { KafkaProducerService } from '../kafka/kafka-producer.service';
 import { ChildProfile } from '../users/entities/child-profile.entity';
 import { ActivityAttempt } from '../activities/entities/activity-attempt.entity';
+import { KnowledgeTracingService } from '../knowledge-tracing/knowledge-tracing.service';
 
 export interface AdeInput {
   userId: string;
@@ -27,6 +28,7 @@ export class AdeService {
     private readonly ruleEngine: RuleEngineService,
     private readonly mlEngine: MlEngineService,
     private readonly kafkaProducer: KafkaProducerService,
+    private readonly knowledgeTracingService: KnowledgeTracingService,
   ) {}
 
   /**
@@ -43,7 +45,6 @@ export class AdeService {
     const { profile, recentAttempts } = input;
     const strengths = profile.strengths || {};
     const weaknesses = profile.weaknesses || {};
-    const skillMastery = profile.skillMastery || {};
 
     // === STEP 1: Ontology Reasoning ===
     const ontologyResult = this.ontologyReasoner.inferRecommendedModalities(
@@ -56,7 +57,10 @@ export class AdeService {
 
     // === STEP 2: ML Predictions ===
     const currentSkillCode = this.pickCurrentSkillCode(profile, recentAttempts);
-    const currentMastery = skillMastery[currentSkillCode] || 0.3;
+    const currentMastery = await this.knowledgeTracingService.getMasteryBySkillCode(
+      input.userId,
+      currentSkillCode,
+    );
 
     const mlPredictions = await this.mlEngine.predict({
       userId: input.userId,
@@ -67,6 +71,7 @@ export class AdeService {
         interactionSignals: a.interactionSignals || {},
       })),
       currentSkillCode,
+      currentMastery,
       bnccSkills: Object.keys(profile.bnccProgress || {}),
       asdSupportLevel: profile.asdSupportLevel || 'moderate',
       strengths,
@@ -82,7 +87,7 @@ export class AdeService {
       recentAccuracy,
       averageTimeSeconds: avgTime,
       hintsUsed: totalHints,
-      currentSkillMastery: mlPredictions.masteryProbability,
+      currentSkillMastery: currentMastery,
       asdSupportLevel: profile.asdSupportLevel || 'moderate',
       streakCount: profile.currentStreak || 0,
       engagementScore: mlPredictions.engagementScore,
@@ -98,12 +103,12 @@ export class AdeService {
       ontologyInferences: ontologyResult.inferences,
       rulesFired: ruleResult.rulesFired,
       mlPredictions: {
-        masteryProbability: mlPredictions.masteryProbability,
+        masteryProbability: currentMastery,
         engagementScore: mlPredictions.engagementScore,
         confidence: mlPredictions.confidence,
         fallback: mlPredictions.fallback || false,
       },
-      finalReason: `Ontology(${ontologyResult.inferences.length} inferences) + Rules(${ruleResult.rulesFired.length} fired) + ML(mastery=${mlPredictions.masteryProbability.toFixed(2)})`,
+      finalReason: `Ontology(${ontologyResult.inferences.length} inferences) + Rules(${ruleResult.rulesFired.length} fired) + BKT(mastery=${currentMastery.toFixed(2)})`,
       confidence: mlPredictions.confidence,
     };
 

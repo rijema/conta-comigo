@@ -7,12 +7,14 @@ import { OntologyReasonerService } from './ontology/ontology-reasoner.service';
 import { RuleEngineService } from './rules/rule-engine.service';
 import { MlEngineService } from './ml/ml-engine.service';
 import { KafkaModule } from '../kafka/kafka.module';
+import { KnowledgeTracingModule } from '../knowledge-tracing/knowledge-tracing.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([AdeDecision]),
     HttpModule,
     KafkaModule,
+    KnowledgeTracingModule,
   ],
   providers: [
     AdeService,

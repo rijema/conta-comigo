@@ -80,6 +80,15 @@ CREATE TABLE IF NOT EXISTS learning_events (
   "hintsUsed" INTEGER, "recommendationId" VARCHAR, metadata JSONB
 );
 
+CREATE TABLE IF NOT EXISTS student_skill_states (
+  "studentId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  "skillId" UUID NOT NULL REFERENCES bncc_skills(id) ON DELETE CASCADE,
+  "masteryProbability" DOUBLE PRECISION NOT NULL CHECK ("masteryProbability" BETWEEN 0 AND 1),
+  observations INTEGER NOT NULL DEFAULT 0 CHECK (observations >= 0),
+  "lastUpdatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  PRIMARY KEY ("studentId", "skillId")
+);
+
 CREATE OR REPLACE FUNCTION prevent_learning_event_mutation() RETURNS trigger AS $$
 BEGIN
   RAISE EXCEPTION 'learning_events is append-only';
@@ -99,3 +108,5 @@ CREATE INDEX IF NOT EXISTS idx_analytics_user ON analytics_snapshots("userId");
 CREATE INDEX IF NOT EXISTS idx_learning_events_student_timestamp ON learning_events("studentId", "timestamp");
 CREATE INDEX IF NOT EXISTS idx_learning_events_session_timestamp ON learning_events("sessionId", "timestamp");
 CREATE INDEX IF NOT EXISTS idx_learning_events_type_timestamp ON learning_events("eventType", "timestamp");
+CREATE INDEX IF NOT EXISTS idx_student_skill_states_student ON student_skill_states("studentId");
+CREATE INDEX IF NOT EXISTS idx_student_skill_states_skill ON student_skill_states("skillId");

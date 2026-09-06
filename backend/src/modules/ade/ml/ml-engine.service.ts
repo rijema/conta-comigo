@@ -6,6 +6,7 @@ import { timeout, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
 export interface MlPredictions {
+  /** @deprecated Canonical mastery is read from StudentSkillState. */
   masteryProbability: number;
   engagementScore: number;
   modalityRecommendation: string;
@@ -37,6 +38,7 @@ export class MlEngineService {
       interactionSignals: any;
     }>;
     currentSkillCode: string;
+    currentMastery: number;
     bnccSkills: string[];
     asdSupportLevel: string;
     strengths: Record<string, boolean>;
@@ -71,13 +73,10 @@ export class MlEngineService {
     const attempts = input.recentAttempts || [];
     const correct = attempts.filter((a: any) => a.isCorrect).length;
     const accuracy = attempts.length > 0 ? correct / attempts.length : 0.5;
-
-    // Simple BKT fallback: accuracy approximation
-    const masteryProbability = Math.min(0.9, 0.3 + accuracy * 0.6);
     const engagementScore = accuracy > 0.6 ? 0.7 : 0.4;
 
     return {
-      masteryProbability,
+      masteryProbability: input.currentMastery,
       engagementScore,
       modalityRecommendation: 'visual',
       confidence: 0.3,
