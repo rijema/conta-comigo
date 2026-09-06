@@ -33,7 +33,7 @@ def _get_next_skill(current_code: str, mastery: float) -> str:
         return current_code
 
 
-@router.post("/next-activity", response_model=ActivityRecommendationResponse)
+@router.post("/next-activity", response_model=ActivityRecommendationResponse, deprecated=True)
 async def recommend_next_activity(
     request: Request, body: ActivityRecommendationRequest
 ):

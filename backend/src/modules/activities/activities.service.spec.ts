@@ -9,6 +9,7 @@ describe('ActivitiesService answer evaluation', () => {
     {} as any,
     {} as any,
     {} as any,
+    {} as any,
   );
 
   const evaluateAnswer = (activity: any, answer: any) =>

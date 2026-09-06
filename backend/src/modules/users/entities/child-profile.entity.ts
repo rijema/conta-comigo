@@ -63,7 +63,7 @@ export class ChildProfile {
     preferredModality?: 'visual' | 'auditive' | 'mixed';
   };
 
-  // BKT skill mastery map: { skillCode: masteryProbability }
+  /** @deprecated Read current mastery from StudentSkillState. */
   @Column({ type: 'jsonb', nullable: true })
   skillMastery: Record<string, number>;
 

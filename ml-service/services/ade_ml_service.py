@@ -1,4 +1,8 @@
-"""ADE ML Service - Full Adaptive Decision Engine ML Pipeline
+"""Deprecated standalone ADE mastery pipeline.
+
+Runtime recommendations use StudentSkillState through the NestJS ADE service.
+
+ADE ML Service - Full Adaptive Decision Engine ML Pipeline
 
 Orchestrates:
 1. BKT mastery update across all attempted skills

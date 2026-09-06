@@ -1,5 +1,16 @@
 # Change Summary
 
+## Batch B2.1 — Canonical Bayesian Knowledge Tracing
+
+- Added the canonical `StudentSkillState` model and transactional `KnowledgeTracingService` writer.
+- Connected validated activity attempts to the existing Python BKT equations for correct and incorrect observations.
+- Switched runtime ADE mastery reads and dashboard-facing mastery maps to `StudentSkillState`.
+- Preserved and deprecated legacy profile/snapshot mastery fields and removed their heuristic update path.
+- Repaired the registered Python BKT adapter and made canonical BKT parameters and thresholds configurable.
+- Added backend and Python tests plus Portuguese research documentation of inputs, outputs, equations, parameters, and limitations.
+
+The additive migration creates only `student_skill_states`; legacy mastery columns remain intact.
+
 ## Batch B1.4 — Deterministic Learning Analytics aggregations
 
 - Added `LearningAnalyticsMetricsService` with deterministic event-derived calculations and explicit zero-denominator behavior.

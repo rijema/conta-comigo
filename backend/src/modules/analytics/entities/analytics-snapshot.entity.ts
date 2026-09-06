@@ -32,6 +32,7 @@ export class AnalyticsSnapshot {
   totalCorrect: number;
 
   @Column({ type: 'jsonb', nullable: true })
+  /** @deprecated Read current mastery from StudentSkillState. */
   skillMasterySnapshot: Record<string, number>;
 
   @Column({ type: 'jsonb', nullable: true })

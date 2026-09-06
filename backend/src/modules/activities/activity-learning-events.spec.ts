@@ -28,6 +28,7 @@ describe('ActivitiesService learning event instrumentation', () => {
     {} as any,
     learningEventService as any,
     dataSource as any,
+    { observe: jest.fn().mockResolvedValue({}) } as any,
   );
 
   beforeEach(() => {
@@ -153,6 +154,7 @@ describe('ActivitiesService learning event instrumentation', () => {
       { getChildProfile: jest.fn().mockResolvedValue({}) } as any,
       learningEventService as any,
       dataSource as any,
+      { observe: jest.fn().mockResolvedValue({}) } as any,
     );
     const trackAnswerEvents = jest
       .spyOn(serviceWithAttempt as any, 'trackAnswerEvents')

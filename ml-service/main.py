@@ -81,6 +81,7 @@ class BackendPredictionRequest(BaseModel):
     userId: str
     recentAttempts: List[BackendAttempt] = Field(default_factory=list)
     currentSkillCode: str
+    currentMastery: float = Field(ge=0.0, le=1.0)
     bnccSkills: List[str] = Field(default_factory=list)
     asdSupportLevel: str = "moderate"
     strengths: Dict[str, bool] = Field(default_factory=dict)
@@ -89,15 +90,14 @@ class BackendPredictionRequest(BaseModel):
 
 @app.post("/predict")
 async def backend_prediction(body: BackendPredictionRequest):
-    """Compatibility endpoint consumed by the NestJS adaptive engine."""
+    """Deprecated compatibility prediction; it is not a mastery state writer."""
     attempts = body.recentAttempts
     accuracy = sum(1 for attempt in attempts if attempt.isCorrect) / len(attempts) if attempts else 0.5
     hint_penalty = min(0.2, sum(attempt.hintsUsed for attempt in attempts) * 0.02)
-    mastery = max(0.05, min(0.95, 0.3 + accuracy * 0.65 - hint_penalty))
     engagement = max(0.1, min(0.95, 0.35 + accuracy * 0.55 - hint_penalty))
     modality = next((name for name, enabled in body.strengths.items() if enabled), "visual")
     return {
-        "masteryProbability": mastery,
+        "masteryProbability": body.currentMastery,
         "engagementScore": engagement,
         "modalityRecommendation": modality,
         "confidence": 0.75 if attempts else 0.4,

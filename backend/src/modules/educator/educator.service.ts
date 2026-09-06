@@ -8,6 +8,7 @@ import { AdeDecision } from '../ade/entities/ade-decision.entity';
 import { ActivityAttempt } from '../activities/entities/activity-attempt.entity';
 import { Activity } from '../activities/entities/activity.entity';
 import { UserRole } from '../users/enums/user-role.enum';
+import { KnowledgeTracingService } from '../knowledge-tracing/knowledge-tracing.service';
 
 @Injectable()
 export class EducatorService {
@@ -24,6 +25,7 @@ export class EducatorService {
     private readonly attemptRepo: Repository<ActivityAttempt>,
     @InjectRepository(Activity)
     private readonly activityRepo: Repository<Activity>,
+    private readonly knowledgeTracingService: KnowledgeTracingService,
   ) {}
 
   async getStats() {
@@ -99,10 +101,11 @@ export class EducatorService {
     });
     if (!profile) throw new NotFoundException('Learner not found');
 
-    const [recentAttempts, recentAde, snapshot] = await Promise.all([
+    const [recentAttempts, recentAde, snapshot, skillMastery] = await Promise.all([
       this.attemptRepo.find({ where: { userId: learnerId }, order: { createdAt: 'DESC' }, take: 20 }),
       this.adeDecisionRepo.find({ where: { userId: learnerId }, order: { createdAt: 'DESC' }, take: 10 }),
       this.snapshotRepo.findOne({ where: { userId: learnerId }, order: { createdAt: 'DESC' } }),
+      this.knowledgeTracingService.getMasteryMapBySkillCode(learnerId),
     ]);
 
     const totalAttempts = recentAttempts.length;
@@ -118,7 +121,7 @@ export class EducatorService {
       strengths: profile.strengths ?? {},
       weaknesses: profile.weaknesses ?? {},
       uiPreferences: profile.uiPreferences ?? {},
-      skillMastery: profile.skillMastery ?? {},
+      skillMastery,
       bnccProgress: profile.bnccProgress ?? {},
       totalPoints: profile.totalPoints,
       currentLevel: profile.currentLevel,

@@ -8,6 +8,7 @@ import { AnalyticsSnapshot } from '../analytics/entities/analytics-snapshot.enti
 import { AdeDecision } from '../ade/entities/ade-decision.entity';
 import { ActivityAttempt } from '../activities/entities/activity-attempt.entity';
 import { UserRole } from '../users/enums/user-role.enum';
+import { KnowledgeTracingService } from '../knowledge-tracing/knowledge-tracing.service';
 
 @Injectable()
 export class GuardianService {
@@ -22,6 +23,7 @@ export class GuardianService {
     private readonly adeDecisionRepo: Repository<AdeDecision>,
     @InjectRepository(ActivityAttempt)
     private readonly attemptRepo: Repository<ActivityAttempt>,
+    private readonly knowledgeTracingService: KnowledgeTracingService,
   ) {}
 
   async getChildrenSummary(guardianId: string) {
@@ -52,7 +54,7 @@ export class GuardianService {
             activities: s.totalActivitiesCompleted ?? 0,
           }));
 
-        const [recentAde, recentAttempts] = await Promise.all([
+        const [recentAde, recentAttempts, skillMastery] = await Promise.all([
           this.adeDecisionRepo.find({
             where: { userId: child.id },
             order: { createdAt: 'DESC' },
@@ -63,6 +65,7 @@ export class GuardianService {
             order: { createdAt: 'DESC' },
             take: 20,
           }),
+          this.knowledgeTracingService.getMasteryMapBySkillCode(child.id),
         ]);
 
         const totalAttempts = recentAttempts.length;
@@ -82,6 +85,7 @@ export class GuardianService {
           strengths: profile.strengths ?? {},
           weaknesses: profile.weaknesses ?? {},
           bnccProgress: profile.bnccProgress ?? {},
+          skillMastery,
           totalSessions: latest?.totalActivitiesCompleted ?? 0,
           averageScore: latest?.overallAccuracy ?? 0,
           engagementIndex: latest?.engagementIndex ?? 0,
@@ -106,10 +110,11 @@ export class GuardianService {
     });
     if (!profile) throw new ForbiddenException('Child not found or not linked to this guardian');
 
-    const [adeHistory, attempts, snapshots] = await Promise.all([
+    const [adeHistory, attempts, snapshots, skillMastery] = await Promise.all([
       this.adeDecisionRepo.find({ where: { userId: childId }, order: { createdAt: 'DESC' }, take: 30 }),
       this.attemptRepo.find({ where: { userId: childId }, order: { createdAt: 'DESC' }, take: 50 }),
       this.snapshotRepo.find({ where: { userId: childId }, order: { createdAt: 'ASC' }, take: 30 }),
+      this.knowledgeTracingService.getMasteryMapBySkillCode(childId),
     ]);
 
     const progressOverTime = snapshots.map((s) => ({
@@ -130,6 +135,7 @@ export class GuardianService {
       strengths: profile.strengths ?? {},
       weaknesses: profile.weaknesses ?? {},
       bnccProgress: profile.bnccProgress ?? {},
+      skillMastery,
       totalPoints: profile.totalPoints ?? 0,
       currentStreak: profile.currentStreak ?? 0,
       stats: {
@@ -172,7 +178,8 @@ export class GuardianService {
     const correct = attempts.filter((a) => a.isCorrect).length;
     const accuracy = attempts.length > 0 ? Math.round((correct / attempts.length) * 100) : 0;
 
-    const skillMastery = latest?.skillMasterySnapshot ?? {};
+    const skillMastery = await this.knowledgeTracingService
+      .getMasteryMapBySkillCode(childId);
     const bnccCoverage = latest?.bnccCoverage ?? {};
     const strengths = profile.strengths ?? {};
     const weaknesses = profile.weaknesses ?? {};

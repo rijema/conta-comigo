@@ -5,11 +5,13 @@ import { AnalyticsController } from './analytics.controller';
 import { AnalyticsService } from './analytics.service';
 import { BullModule } from '@nestjs/bull';
 import { UsersModule } from '../users/users.module';
+import { KnowledgeTracingModule } from '../knowledge-tracing/knowledge-tracing.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([AnalyticsSnapshot]),
     UsersModule,
+    KnowledgeTracingModule,
     BullModule.registerQueue({
       name: 'analytics',
     }),

@@ -30,6 +30,7 @@ export class AnalyticsConsumer {
           sessionId: event.sessionId,
           overallAccuracy: (payload.masteryProbability as number) ?? 0,
           engagementIndex: (payload.engagementIndex as number) ?? 0.5,
+          // @deprecated Compatibility snapshot only. Dashboards read StudentSkillState.
           skillMasterySnapshot: { [payload.bnccSkillCode as string]: (payload.masteryProbability as number) },
           rawEventData: payload.metrics as Record<string, unknown>,
         });

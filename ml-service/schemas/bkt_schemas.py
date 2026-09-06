@@ -6,7 +6,12 @@ class BKTUpdateRequest(BaseModel):
     skill_code: str = Field(..., description="BNCC skill code e.g. EF01MA01")
     current_mastery: float = Field(..., ge=0.0, le=1.0, description="Current P(L)")
     is_correct: bool = Field(..., description="Whether the response was correct")
-    mastery_threshold: float = Field(0.95, ge=0.5, le=1.0, description="Mastery threshold")
+    mastery_threshold: Optional[float] = Field(
+        None,
+        ge=0.0,
+        le=1.0,
+        description="Deprecated request override; canonical threshold comes from service configuration",
+    )
     learner_id: Optional[str] = Field(None, description="Learner UUID for logging")
 
     @validator("skill_code")
