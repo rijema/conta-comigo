@@ -1,5 +1,21 @@
 # Change Summary
 
+## Batch B2.2B — OntoMathEdu educational mathematics foundation
+
+- Added an independent ContaComigo OWL foundation partitioning mathematical, curricular, learner, activity, and Learning Analytics knowledge.
+- Introduced early-mathematics concepts plus reified didactic and prerequisite relations without importing OntoMathEdu.
+- Recorded source ontology, source IRI, and conservative `related` or `adapted` provenance for every OntoMathEdu alignment.
+- Documented the inspected OntoMathEdu artifact, literature-only or planned elements, distributed plane-geometry limitation, LASDONT's historical role, and competency questions.
+- Added structural regression coverage ensuring the required layers, provenance, and absence of OWL imports/equivalence claims.
+
+No runtime service, LASDONT artifact, or database schema changed in this batch.
+
+## LearningEvent PostgreSQL metadata fix
+
+- Declared `recommendationId` explicitly as nullable `varchar` so TypeORM does not infer the unsupported `Object` type during database initialization.
+- Added a metadata regression test covering the PostgreSQL column type.
+- No database migration is required because the existing migration and production schema already define `recommendationId` as `VARCHAR`.
+
 ## Batch B2.2A — Historical LASDONT ontology baseline
 
 - Preserved the supplied LASDONT 1.0 OWL/XML artifact under `ontology/lasdont` for historical traceability only.

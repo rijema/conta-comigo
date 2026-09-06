@@ -139,6 +139,12 @@ O bloqueio de atualização e exclusão protege a integridade analítica, mas po
 
 TODO(referência): verificar e documentar a base legal, os prazos de retenção e os requisitos aplicáveis ao tratamento de dados educacionais de crianças.
 
+## Correção de metadados PostgreSQL
+
+[DECISÃO DE ENGENHARIA]
+
+`recommendationId` é declarado explicitamente como `varchar` na entidade TypeORM. A anotação explícita evita que o compilador de metadados infira `Object` para a propriedade anulável, tipo que não é suportado pelo driver PostgreSQL. A migração e o `schema.sql` já utilizavam `VARCHAR`, portanto a correção alinha o modelo de runtime ao esquema existente e não exige migração de dados.
+
 ## Texto potencial para a dissertação
 
 ### Metodologia

@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+    xmlns="https://contacomigo.org/ontology#"
+    xml:base="https://contacomigo.org/ontology"
+    xmlns:cc="https://contacomigo.org/ontology#"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+
+  <owl:Ontology rdf:about="https://contacomigo.org/ontology">
+    <rdfs:label xml:lang="pt-BR">Ontologia ContaComigo</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Fundação semântica educacional para matemática inicial. Esta versão não importa nem executa a OntoMathEdu.</rdfs:comment>
+    <owl:versionInfo>0.1.0</owl:versionInfo>
+    <dcterms:source rdf:resource="http://ontomathpro.org/ontomathedu#"/>
+    <dcterms:source rdf:resource="https://github.com/CLLKazan/OntoMathEdu"/>
+    <dcterms:source rdf:resource="https://ceur-ws.org/Vol-2634/WiP1.pdf"/>
+    <dcterms:source rdf:resource="https://ceur-ws.org/Vol-2784/spaper07.pdf"/>
+    <dcterms:source rdf:resource="http://www.semanticweb.org/ricma/ontologies/2024/11/LASDONT.owl"/>
+  </owl:Ontology>
+
+  <!-- Provenance annotations. Values for alignmentRelation are restricted by
+       project convention to imported, equivalent, narrower, broader, related,
+       or adapted. This ontology currently uses neither imported nor equivalent. -->
+  <owl:AnnotationProperty rdf:about="https://contacomigo.org/ontology#sourceOntology">
+    <rdfs:label xml:lang="en">source ontology</rdfs:label>
+  </owl:AnnotationProperty>
+  <owl:AnnotationProperty rdf:about="https://contacomigo.org/ontology#sourceIRI">
+    <rdfs:label xml:lang="en">source IRI</rdfs:label>
+  </owl:AnnotationProperty>
+  <owl:AnnotationProperty rdf:about="https://contacomigo.org/ontology#alignmentRelation">
+    <rdfs:label xml:lang="en">alignment relation</rdfs:label>
+  </owl:AnnotationProperty>
+  <owl:AnnotationProperty rdf:about="https://contacomigo.org/ontology#alignmentNote">
+    <rdfs:label xml:lang="en">alignment note</rdfs:label>
+  </owl:AnnotationProperty>
+
+  <!-- Knowledge-layer partition. -->
+  <owl:Class rdf:about="https://contacomigo.org/ontology#KnowledgeEntity">
+    <rdfs:label xml:lang="en">Knowledge entity</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Entidade de conhecimento</rdfs:label>
+  </owl:Class>
+
+  <owl:Class rdf:about="https://contacomigo.org/ontology#MathematicalKnowledge">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#KnowledgeEntity"/>
+    <rdfs:label xml:lang="en">Mathematical knowledge</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conhecimento matemático</rdfs:label>
+  </owl:Class>
+
+  <owl:Class rdf:about="https://contacomigo.org/ontology#CurricularKnowledge">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#KnowledgeEntity"/>
+    <rdfs:label xml:lang="en">Curricular knowledge</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conhecimento curricular</rdfs:label>
+  </owl:Class>
+
+  <owl:Class rdf:about="https://contacomigo.org/ontology#LearnerKnowledge">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#KnowledgeEntity"/>
+    <rdfs:label xml:lang="en">Learner knowledge</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conhecimento sobre o estudante</rdfs:label>
+  </owl:Class>
+
+  <owl:Class rdf:about="https://contacomigo.org/ontology#ActivityKnowledge">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#KnowledgeEntity"/>
+    <rdfs:label xml:lang="en">Activity knowledge</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conhecimento sobre atividades</rdfs:label>
+  </owl:Class>
+
+  <owl:Class rdf:about="https://contacomigo.org/ontology#LearningAnalyticsEvidence">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#KnowledgeEntity"/>
+    <rdfs:label xml:lang="en">Learning Analytics evidence</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Evidência de Learning Analytics</rdfs:label>
+  </owl:Class>
+
+  <!-- Mathematical and didactic foundation. -->
+  <owl:Class rdf:about="https://contacomigo.org/ontology#MathematicalConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#MathematicalKnowledge"/>
+    <rdfs:label xml:lang="en">Mathematical concept</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conceito matemático</rdfs:label>
+    <cc:sourceOntology rdf:resource="http://ontomathpro.org/ontomathedu#"/>
+    <cc:sourceIRI rdf:resource="http://ontomathpro.org/ontomathedu#"/>
+    <cc:alignmentRelation>adapted</cc:alignmentRelation>
+    <cc:alignmentNote xml:lang="pt-BR">Classe local adaptada do princípio de camada de domínio matemático da OntoMathEdu; não existe classe nomeada MathematicalConcept no artefato distribuído.</cc:alignmentNote>
+  </owl:Class>
+
+  <owl:Class rdf:about="https://contacomigo.org/ontology#DidacticRelation">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#MathematicalKnowledge"/>
+    <rdfs:label xml:lang="en">Didactic relation</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Relação didática</rdfs:label>
+    <cc:sourceOntology rdf:resource="http://ontomathpro.org/ontomathedu#"/>
+    <cc:sourceIRI rdf:resource="http://ontomathpro.org/ontomathedu#hasPrerequisite"/>
+    <cc:alignmentRelation>adapted</cc:alignmentRelation>
+    <cc:alignmentNote xml:lang="pt-BR">Relação reificada local inspirada na dimensão didática descrita pela OntoMathEdu; o artefato distribui hasPrerequisite como propriedade de anotação.</cc:alignmentNote>
+  </owl:Class>
+
+  <owl:Class rdf:about="https://contacomigo.org/ontology#PrerequisiteRelation">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#DidacticRelation"/>
+    <rdfs:label xml:lang="en">Prerequisite relation</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Relação de pré-requisito</rdfs:label>
+    <cc:sourceOntology rdf:resource="http://ontomathpro.org/ontomathedu#"/>
+    <cc:sourceIRI rdf:resource="http://ontomathpro.org/ontomathedu#hasPrerequisite"/>
+    <cc:alignmentRelation>adapted</cc:alignmentRelation>
+    <cc:alignmentNote xml:lang="pt-BR">Adaptação reificada e ligada por IRIs; não é equivalente à propriedade de anotação textual da distribuição OntoMathEdu.</cc:alignmentNote>
+  </owl:Class>
+
+  <!-- ContaComigo early-mathematics scope. These local concepts do not claim
+       that corresponding OntoMathEdu classes exist. -->
+  <owl:Class rdf:about="https://contacomigo.org/ontology#NumberConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
+    <rdfs:label xml:lang="en">Number concept</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conceito de número</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#CountingConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#NumberConcept"/>
+    <rdfs:label xml:lang="en">Counting concept</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conceito de contagem</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#ComparisonConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
+    <rdfs:label xml:lang="en">Comparison concept</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conceito de comparação</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#AdditionConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
+    <rdfs:label xml:lang="en">Addition concept</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conceito de adição</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#SubtractionConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
+    <rdfs:label xml:lang="en">Subtraction concept</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conceito de subtração</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#SequencePatternConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
+    <rdfs:label xml:lang="en">Sequence and pattern concept</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conceito de sequência e padrão</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#EarlyProblemSolvingConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
+    <rdfs:label xml:lang="en">Early problem-solving concept</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conceito inicial de resolução de problemas</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#BasicGeometryConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
+    <rdfs:label xml:lang="en">Basic geometry concept</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conceito de geometria básica</rdfs:label>
+  </owl:Class>
+
+  <!-- Conservative links to confirmed OntoMathEdu classes. -->
+  <owl:Class rdf:about="https://contacomigo.org/ontology#PointConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#BasicGeometryConcept"/>
+    <rdfs:label xml:lang="en">Point concept</rdfs:label>
+    <cc:sourceOntology rdf:resource="http://ontomathpro.org/ontomathedu#"/>
+    <cc:sourceIRI rdf:resource="http://ontomathpro.org/ontomathedu#R71GKMyesTQoOWWvX1M74EE"/>
+    <cc:alignmentRelation>related</cc:alignmentRelation>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#AngleConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#BasicGeometryConcept"/>
+    <rdfs:label xml:lang="en">Angle concept</rdfs:label>
+    <cc:sourceOntology rdf:resource="http://ontomathpro.org/ontomathedu#"/>
+    <cc:sourceIRI rdf:resource="http://ontomathpro.org/ontomathedu#R9lMyAYbMeEYN0OdD7cbwZ6"/>
+    <cc:alignmentRelation>related</cc:alignmentRelation>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#SquareConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#BasicGeometryConcept"/>
+    <rdfs:label xml:lang="en">Square concept</rdfs:label>
+    <cc:sourceOntology rdf:resource="http://ontomathpro.org/ontomathedu#"/>
+    <cc:sourceIRI rdf:resource="http://ontomathpro.org/ontomathedu#R81puoDaG8DotyXihsGWNY6"/>
+    <cc:alignmentRelation>related</cc:alignmentRelation>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#RectangleConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#BasicGeometryConcept"/>
+    <rdfs:label xml:lang="en">Rectangle concept</rdfs:label>
+    <cc:sourceOntology rdf:resource="http://ontomathpro.org/ontomathedu#"/>
+    <cc:sourceIRI rdf:resource="http://ontomathpro.org/ontomathedu#R9x3QFCyHrHe0SoE3ZCZr94"/>
+    <cc:alignmentRelation>related</cc:alignmentRelation>
+  </owl:Class>
+
+  <!-- Curricular, learner, activity, and evidence bridge concepts. -->
+  <owl:Class rdf:about="https://contacomigo.org/ontology#CurriculumSkill">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#CurricularKnowledge"/>
+    <rdfs:label xml:lang="en">Curriculum skill</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Habilidade curricular</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#BNCCSkill">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#CurriculumSkill"/>
+    <rdfs:label xml:lang="pt-BR">Habilidade BNCC</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#CurriculumLevel">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#CurricularKnowledge"/>
+    <rdfs:label xml:lang="en">Curriculum level</rdfs:label>
+    <cc:sourceOntology rdf:resource="http://ontomathpro.org/ontomathedu#"/>
+    <cc:sourceIRI rdf:resource="http://ontomathpro.org/ontomathedu#EducationalLevel"/>
+    <cc:alignmentRelation>adapted</cc:alignmentRelation>
+    <cc:alignmentNote xml:lang="pt-BR">Adaptado para permitir níveis curriculares brasileiros; não equivale aos níveis russos ou britânicos distribuídos.</cc:alignmentNote>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#LearnerSkillState">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#LearnerKnowledge"/>
+    <rdfs:label xml:lang="en">Learner skill state</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#LearningActivity">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#ActivityKnowledge"/>
+    <rdfs:label xml:lang="en">Learning activity</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#LearningEventEvidence">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#LearningAnalyticsEvidence"/>
+    <rdfs:label xml:lang="en">Learning-event evidence</rdfs:label>
+  </owl:Class>
+
+  <!-- Queryable semantic relations for the competency questions. -->
+  <owl:ObjectProperty rdf:about="https://contacomigo.org/ontology#hasDidacticRelation">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
+    <rdfs:range rdf:resource="https://contacomigo.org/ontology#DidacticRelation"/>
+    <rdfs:label xml:lang="en">has didactic relation</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://contacomigo.org/ontology#prerequisiteConcept">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#PrerequisiteRelation"/>
+    <rdfs:range rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
+    <rdfs:label xml:lang="en">prerequisite concept</rdfs:label>
+    <cc:sourceOntology rdf:resource="http://ontomathpro.org/ontomathedu#"/>
+    <cc:sourceIRI rdf:resource="http://ontomathpro.org/ontomathedu#hasPrerequisite"/>
+    <cc:alignmentRelation>adapted</cc:alignmentRelation>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://contacomigo.org/ontology#dependentConcept">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#PrerequisiteRelation"/>
+    <rdfs:range rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
+    <rdfs:label xml:lang="en">dependent concept</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://contacomigo.org/ontology#addressesMathematicalConcept">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#CurriculumSkill"/>
+    <rdfs:range rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
+    <rdfs:label xml:lang="en">addresses mathematical concept</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://contacomigo.org/ontology#developsMathematicalConcept">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#LearningActivity"/>
+    <rdfs:range rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
+    <rdfs:label xml:lang="en">develops mathematical concept</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://contacomigo.org/ontology#requiresPrerequisite">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#LearningActivity"/>
+    <rdfs:range rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
+    <rdfs:label xml:lang="en">requires prerequisite</rdfs:label>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://contacomigo.org/ontology#providesEvidenceFor">
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#LearningAnalyticsEvidence"/>
+    <rdfs:range rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
+    <rdfs:label xml:lang="en">provides evidence for</rdfs:label>
+  </owl:ObjectProperty>
+
+</rdf:RDF>

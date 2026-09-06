@@ -53,7 +53,7 @@ export class LearningEvent {
   @Column({ type: 'integer', nullable: true })
   hintsUsed: number | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   recommendationId: string | null;
 
   @Column({ type: 'jsonb', nullable: true })
