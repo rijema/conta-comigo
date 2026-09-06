@@ -67,6 +67,14 @@ O conteúdo da resposta não é copiado para o evento nem para `metadata`. As ch
 
 Fluxo implementado: `ACTIVITY_PRESENTED` → `ACTIVITY_STARTED` → `ANSWER_SUBMITTED` → `ACTIVITY_COMPLETED`. Uma resposta incorreta conclui a tentativa observada, embora a interface possa manter a mesma atividade para outra tentativa.
 
+Também foram instrumentadas ações explícitas de assistência e navegação. Ao acionar “Como resolver?”, são emitidos `HINT_REQUESTED` e `TUTORIAL_OPENED`. Se o tutorial for aberto novamente para a mesma atividade, a reapresentação das instruções também produz `INSTRUCTION_REPLAYED`. Ao sair da atividade atual pelo botão “Mapa”, é emitido `ACTIVITY_SKIPPED` antes da navegação.
+
+Quando disponíveis no cliente, `ACTIVITY_SKIPPED` inclui em `metadata` o tempo observado desde o início da atividade (`timeBeforeSkipMs`), a quantidade de submissões iniciadas (`attemptsBeforeSkip`) e a quantidade de solicitações de ajuda (`hintsBeforeSkip`). Esses campos não incluem o texto da resposta nem o conteúdo apresentado à criança.
+
+[PROPOSTA CONTA COMIGO]
+
+`HINT_REQUESTED`, `TUTORIAL_OPENED`, `INSTRUCTION_REPLAYED` e `ACTIVITY_SKIPPED` são indicadores observacionais de interação. Em particular, `ACTIVITY_SKIPPED` não é classificado como desengajamento. Isoladamente ou em conjunto, esses eventos não constituem diagnóstico clínico, psicológico, comportamental ou de qualquer condição da pessoa participante. Qualquer interpretação sobre necessidade de apoio, experiência ou aprendizagem permanece como hipótese a validar com protocolo e evidência apropriados.
+
 ## Métricas deriváveis
 
 [PROPOSTA CONTA COMIGO]
@@ -97,6 +105,7 @@ A preservação da sequência bruta pode permitir reconstruir métricas e audita
 - `metadata` permite evolução, mas exige governança para não se tornar um depósito de dados sem contrato.
 - Falhas são registradas e contidas; sem uma fila transacional ou mecanismo de repetição, um evento pode ser perdido.
 - O modelo registra observações técnicas e não comprova engajamento, aprendizagem, causalidade ou eficácia pedagógica.
+- Solicitar ajuda, reabrir instruções ou pular uma atividade pode ter múltiplas razões; os eventos não determinam motivação, atenção ou estado psicológico.
 
 ## Implicações de privacidade
 

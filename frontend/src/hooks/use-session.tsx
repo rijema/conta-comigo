@@ -11,7 +11,26 @@ export interface SessionState {
   activityStartTime: number;
 }
 
-type ActivityLifecycleEventType = "ACTIVITY_PRESENTED" | "ACTIVITY_STARTED";
+type ActivityLifecycleEventType =
+  | "ACTIVITY_PRESENTED"
+  | "ACTIVITY_STARTED"
+  | "HINT_REQUESTED"
+  | "TUTORIAL_OPENED"
+  | "INSTRUCTION_REPLAYED"
+  | "ACTIVITY_SKIPPED";
+
+interface ActivityInteractionCounters {
+  activityId: string | null;
+  attempts: number;
+  hints: number;
+  tutorialOpens: number;
+}
+
+interface SkipContext {
+  timeBeforeSkipMs: number;
+  attemptsBeforeSkip: number;
+  hintsBeforeSkip: number;
+}
 
 export function useSession() {
   const [session, setSession] = useState<SessionState | null>(null);
@@ -20,20 +39,42 @@ export function useSession() {
   const activitiesCompletedRef = useRef(0);
   const startedRef = useRef(false);
   const trackedLifecycleEventsRef = useRef(new Set<string>());
+  const interactionCountersRef = useRef<ActivityInteractionCounters>({
+    activityId: null,
+    attempts: 0,
+    hints: 0,
+    tutorialOpens: 0,
+  });
+
+  const getInteractionCounters = useCallback((activityId: string) => {
+    if (interactionCountersRef.current.activityId !== activityId) {
+      interactionCountersRef.current = {
+        activityId,
+        attempts: 0,
+        hints: 0,
+        tutorialOpens: 0,
+      };
+    }
+    return interactionCountersRef.current;
+  }, []);
 
   const trackActivityLifecycle = useCallback((
     sessionId: string,
     activityId: string,
     eventType: ActivityLifecycleEventType,
+    context?: Partial<SkipContext>,
   ) => {
-    const eventKey = `${sessionId}:${activityId}:${eventType}`;
-    if (trackedLifecycleEventsRef.current.has(eventKey)) return;
-    trackedLifecycleEventsRef.current.add(eventKey);
+    const isRenderTransition = eventType === "ACTIVITY_PRESENTED" || eventType === "ACTIVITY_STARTED";
+    if (isRenderTransition) {
+      const eventKey = `${sessionId}:${activityId}:${eventType}`;
+      if (trackedLifecycleEventsRef.current.has(eventKey)) return;
+      trackedLifecycleEventsRef.current.add(eventKey);
+    }
 
     const token = authService.getStoredToken();
     void api.post(
       `/activities/${activityId}/lifecycle-events`,
-      { sessionId, eventType },
+      { sessionId, eventType, ...context },
       token ?? undefined,
     ).catch((err) => {
       console.error(`Failed to track ${eventType}:`, err);
@@ -60,6 +101,7 @@ export function useSession() {
         activityStartTime: Date.now(),
       });
       trackActivityLifecycle(sessionId, activity.id, "ACTIVITY_PRESENTED");
+      getInteractionCounters(activity.id);
     } catch (err: any) {
       console.error("Failed to start session:", err);
       setError(err?.message ?? "Erro ao carregar atividade");
@@ -67,12 +109,37 @@ export function useSession() {
     } finally {
       setIsLoading(false);
     }
-  }, [trackActivityLifecycle]);
+  }, [getInteractionCounters, trackActivityLifecycle]);
 
   const markActivityStarted = useCallback((activityId: string) => {
     if (!session?.id) return;
     trackActivityLifecycle(session.id, activityId, "ACTIVITY_STARTED");
   }, [session?.id, trackActivityLifecycle]);
+
+  const requestActivityHelp = useCallback((activityId: string) => {
+    if (!session?.id) return;
+    const counters = getInteractionCounters(activityId);
+    const isReplay = counters.tutorialOpens > 0;
+    counters.hints += 1;
+    counters.tutorialOpens += 1;
+
+    trackActivityLifecycle(session.id, activityId, "HINT_REQUESTED");
+    trackActivityLifecycle(session.id, activityId, "TUTORIAL_OPENED");
+    if (isReplay) {
+      trackActivityLifecycle(session.id, activityId, "INSTRUCTION_REPLAYED");
+    }
+  }, [getInteractionCounters, session?.id, trackActivityLifecycle]);
+
+  const skipCurrentActivity = useCallback(() => {
+    if (!session?.id || !session.currentActivity?.id) return;
+    const activityId = session.currentActivity.id;
+    const counters = getInteractionCounters(activityId);
+    trackActivityLifecycle(session.id, activityId, "ACTIVITY_SKIPPED", {
+      timeBeforeSkipMs: Math.max(0, Date.now() - session.activityStartTime),
+      attemptsBeforeSkip: counters.attempts,
+      hintsBeforeSkip: counters.hints,
+    });
+  }, [getInteractionCounters, session, trackActivityLifecycle]);
 
   const submitAnswer = async (payload: {
     activityId: string;
@@ -80,6 +147,7 @@ export function useSession() {
     timeSpentMs: number;
   }) => {
     const token = authService.getStoredToken();
+    getInteractionCounters(payload.activityId).attempts += 1;
     try {
       const rawAnswer = payload.answer;
       const normalizedAnswer =
@@ -141,6 +209,7 @@ export function useSession() {
         const nextActivity = result.nextActivity ?? null;
         if (nextActivity && session?.id) {
           trackActivityLifecycle(session.id, nextActivity.id, "ACTIVITY_PRESENTED");
+          getInteractionCounters(nextActivity.id);
         }
         setSession((prev) => {
           if (!prev) return prev;
@@ -163,6 +232,12 @@ export function useSession() {
   const stopSession = useCallback(() => {
     startedRef.current = false;
     trackedLifecycleEventsRef.current.clear();
+    interactionCountersRef.current = {
+      activityId: null,
+      attempts: 0,
+      hints: 0,
+      tutorialOpens: 0,
+    };
     setSession(null);
     activitiesCompletedRef.current = 0;
   }, []);
@@ -173,6 +248,8 @@ export function useSession() {
     stopSession,
     submitAnswer,
     markActivityStarted,
+    requestActivityHelp,
+    skipCurrentActivity,
     isLoading,
     error,
   };

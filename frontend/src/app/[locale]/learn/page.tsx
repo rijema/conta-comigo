@@ -50,7 +50,7 @@ function playStart() {
 
 function LearnPageInner() {
   const { user, isLoading: authLoading, logout } = useAuth();
-  const { session, startSession, stopSession, submitAnswer, markActivityStarted, isLoading: sessionLoading, error: sessionError } = useSession();
+  const { session, startSession, stopSession, submitAnswer, markActivityStarted, requestActivityHelp, skipCurrentActivity, isLoading: sessionLoading, error: sessionError } = useSession();
   const [stars, setStars] = useState(0);
   const [showReward, setShowReward] = useState(false);
   const [rewardWrong, setRewardWrong] = useState(false);
@@ -98,7 +98,17 @@ function LearnPageInner() {
     }
   }, [session, submitAnswer]);
 
-  const handleGoToMenu = () => { stopSession(); router.push(`/${locale}/learn/menu`); };
+  const handleGoToMenu = () => {
+    skipCurrentActivity();
+    stopSession();
+    router.push(`/${locale}/learn/menu`);
+  };
+
+  const handleOpenTutorial = () => {
+    if (!session?.currentActivity) return;
+    requestActivityHelp(session.currentActivity.id);
+    setShowTutorial(true);
+  };
 
   const activity = session?.currentActivity;
   const progress = session?.progress ?? 0;
@@ -188,7 +198,7 @@ function LearnPageInner() {
 
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setShowTutorial(true)}
+              onClick={handleOpenTutorial}
               className="w-10 h-10 rounded-2xl bg-orange-100 border-2 border-orange-200 hover:bg-orange-200 flex items-center justify-center text-lg transition-colors"
               title="Como resolver?"
             >💡</button>

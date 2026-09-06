@@ -38,7 +38,7 @@ describe('ActivitiesService learning event instrumentation', () => {
     dataSource.query.mockResolvedValue([{ id: skillId }]);
   });
 
-  it('accepts only client-owned presentation and start transitions', async () => {
+  it('rejects answer events whose correctness must be calculated by the backend', async () => {
     const dto = Object.assign(new TrackActivityLifecycleDto(), {
       sessionId: 'session-1',
       eventType: LearningEventType.ANSWER_SUBMITTED,
@@ -47,6 +47,26 @@ describe('ActivitiesService learning event instrumentation', () => {
     await expect(validate(dto)).resolves.toEqual(expect.arrayContaining([
       expect.objectContaining({ property: 'eventType' }),
     ]));
+  });
+
+  it('stores available pre-skip observations without labeling their meaning', async () => {
+    await service.trackLifecycleEvent('student-1', activity.id, {
+      sessionId: 'session-1',
+      eventType: LearningEventType.ACTIVITY_SKIPPED,
+      timeBeforeSkipMs: 4200,
+      attemptsBeforeSkip: 2,
+      hintsBeforeSkip: 1,
+    });
+
+    expect(learningEventService.track).toHaveBeenCalledWith(expect.objectContaining({
+      eventType: LearningEventType.ACTIVITY_SKIPPED,
+      hintsUsed: 1,
+      metadata: {
+        timeBeforeSkipMs: 4200,
+        attemptsBeforeSkip: 2,
+        hintsBeforeSkip: 1,
+      },
+    }));
   });
 
   it.each(Object.values(ACTIVITY_LIFECYCLE_EVENT_TYPES))(
