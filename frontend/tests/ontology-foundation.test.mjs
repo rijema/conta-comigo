@@ -3,6 +3,18 @@ import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
 
 const ontologyUrl = new URL('../../ontology/contacomigo/contacomigo.owl', import.meta.url);
+const activitiesSeedUrl = new URL('../../backend/src/database/seeds/activities.seed.ts', import.meta.url);
+
+function bnccSkillBlocks(ontology) {
+  return [...ontology.matchAll(
+    /<owl:NamedIndividual rdf:about="https:\/\/contacomigo\.org\/ontology#BNCC_(EF\d{2}MA\d{2})">([\s\S]*?)<\/owl:NamedIndividual>/g,
+  )].map((match) => ({ code: match[1], body: match[2] }));
+}
+
+function mappedConcepts(skillBody) {
+  return [...skillBody.matchAll(/<cc:addressesMathematicalConcept rdf:resource="[^"]+#([^"]+)"\/>/g)]
+    .map((match) => match[1]);
+}
 
 test('ContaComigo ontology establishes the requested knowledge layers and concepts', async () => {
   const ontology = await readFile(ontologyUrl, 'utf8');
@@ -158,4 +170,74 @@ test('every learner-model class records its scientific or engineering origin', a
     assert.ok(classBlock, `Missing class ${concept}`);
     assert.match(classBlock[1], /<cc:conceptOrigin>/, `Missing conceptOrigin for ${concept}`);
   }
+});
+
+test('represented BNCC skills are unique, official-source attributed, and concept mapped', async () => {
+  const ontology = await readFile(ontologyUrl, 'utf8');
+  const skills = bnccSkillBlocks(ontology);
+  const codes = skills.map(({ code }) => code);
+
+  assert.deepEqual(codes, ['EF01MA01', 'EF01MA03', 'EF01MA06', 'EF01MA07', 'EF01MA08', 'EF01MA14']);
+  assert.equal(new Set(codes).size, codes.length);
+
+  for (const { code, body } of skills) {
+    assert.match(body, new RegExp(`<cc:hasCurriculumCode>${code}</cc:hasCurriculumCode>`));
+    assert.match(body, /<cc:hasOfficialDescription xml:lang="pt-BR">[^<]+<\/cc:hasOfficialDescription>/);
+    assert.match(body, /basenacionalcomum\.mec\.gov\.br/);
+    assert.ok(
+      mappedConcepts(body).length > 0 || body.includes('<cc:conceptMappingStatus>pending_review</cc:conceptMappingStatus>'),
+      `${code} must have a concept mapping or be pending review`,
+    );
+  }
+});
+
+test('BNCC skills remain curriculum individuals without numeric prerequisite assertions', async () => {
+  const ontology = await readFile(ontologyUrl, 'utf8');
+  const skills = bnccSkillBlocks(ontology);
+
+  assert.match(ontology, /#BNCCSkill[\s\S]*#CurriculumSkill/);
+  assert.doesNotMatch(ontology, /<owl:equivalentClass\b/);
+  for (const { code, body } of skills) {
+    assert.doesNotMatch(body, /prerequisiteConcept|requiresPrerequisite/, `${code} has an unsafe prerequisite assertion`);
+    assert.doesNotMatch(body, /LearnerCharacteristic|LearnerSkillState/);
+  }
+});
+
+test('BNCC competency-query fixtures return the expected curriculum answers', async () => {
+  const ontology = await readFile(ontologyUrl, 'utf8');
+  const activitiesSeed = await readFile(activitiesSeedUrl, 'utf8');
+  const skills = bnccSkillBlocks(ontology);
+  const byCode = new Map(skills.map((skill) => [skill.code, skill]));
+
+  assert.deepEqual(mappedConcepts(byCode.get('EF01MA08').body), [
+    'AdditionConcept',
+    'SubtractionConcept',
+    'EarlyProblemSolvingConcept',
+  ]);
+  assert.deepEqual(
+    skills.filter(({ body }) => mappedConcepts(body).includes('AdditionConcept')).map(({ code }) => code),
+    ['EF01MA06', 'EF01MA07', 'EF01MA08'],
+  );
+  assert.equal((activitiesSeed.match(/bnccSkills: \['EF01MA06'\]/g) ?? []).length, 4);
+  assert.deepEqual(
+    skills
+      .filter(({ body }) => body.includes('<cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>'))
+      .map(({ code }) => code),
+    ['EF01MA08', 'EF01MA14'],
+  );
+  assert.deepEqual(
+    skills
+      .filter(({ body }) => body.includes('<cc:currentActivityCoverageStatus>NEEDS_REVIEW</cc:currentActivityCoverageStatus>'))
+      .map(({ code }) => code),
+    ['EF01MA03', 'EF01MA07'],
+  );
+  assert.equal((activitiesSeed.match(/bnccSkills: \['EF01MA15'\]/g) ?? []).length, 2);
+  assert.equal(byCode.has('EF01MA15'), false);
+  const activitySkillCodes = [
+    ...new Set([...activitiesSeed.matchAll(/bnccSkills: \['(EF\d{2}MA\d{2})'\]/g)].map((match) => match[1])),
+  ];
+  assert.deepEqual(
+    activitySkillCodes.filter((code) => !byCode.has(code)).sort(),
+    ['EF01MA15', 'EF02MA01', 'EF02MA05', 'EF03MA07'],
+  );
 });

@@ -1,5 +1,17 @@
 # Change Summary
 
+## Batch B2.2D — BNCC early-mathematics curriculum layer
+
+- Added six officially sourced first-year BNCC skill individuals with exact codes, descriptions, grade, curriculum, and thematic-domain context.
+- Added provenance-annotated mappings from curriculum skills to existing mathematical concepts without equivalence or skill-to-skill prerequisite assertions.
+- Recorded seed-derived activity counts and explicit partial, missing, or review-required coverage statuses.
+- Added curriculum, domain, grade, activity-link, code, description, mapping-status, and coverage vocabulary.
+- Documented incomplete seed descriptions, missing skill records, suspicious activity claims, and unsafe deprecated numeric-progression implementations.
+- Added TODO markers to the two deprecated ML progression paths without changing their behavior.
+- Added structural and query-fixture tests for uniqueness, official descriptions, concept mappings, semantic separation, coverage gaps, and suspicious activity claims.
+
+No database schema, seed data, BKT logic, recommendation behavior, interface, or historical LASDONT artifact changed in this batch.
+
 ## Batch B2.2C — Neuroinclusive evidence-based learner model
 
 - Extended the ContaComigo OWL vocabulary with contextual observed characteristics, interaction and learning evidence, evidence windows, sufficiency assessments, and temporal/provenance properties.
