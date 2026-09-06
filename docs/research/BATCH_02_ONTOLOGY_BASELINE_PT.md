@@ -65,6 +65,7 @@ As atividades atuais possuem tipo, dificuldade, códigos de habilidades BNCC, mo
 | `Percentage`, `Mild_Learning_Percentage`, `Moderated_Percentage`, `Strong_Percentage` | `asdSupportLevel`; regras de dificuldade | partially preserved | Renomear e redefinir. Não equiparar “percentual de aprendizagem”, nível de suporte e domínio BKT. |
 | `Easy_Content`, `Mid_Content`, `Hard_Content` | `Activity.difficulty` (`easy`, `medium`, `hard`) | preserved | Manter dificuldade como atributo configurável da atividade e decisão, sem vínculo fixo com nível de suporte. |
 | `Evaluation_Class`, formulários e `Initial_Evaluation` | Perfil da criança e tentativas de atividade | replaced | Manter fora do núcleo ontológico até haver requisitos atuais e consentimento/proveniência definidos. |
+| `hasActorsResponses` / `hasContentValidation` | Nenhum mecanismo semântico atual equivalente foi identificado | missing | Não recriar sem um requisito atual; se necessário, definir participantes e validação com proveniência explícita. |
 | `Activity_Feedback` / `Learned_Topic` | `ActivityAttempt`, `LearningEvent` e `StudentSkillState` | replaced | Usar observações e estado probabilístico atuais; não inferir “tópico aprendido” de um único evento. |
 | Indivíduos de exemplo (`Activity_*`, `Strength_*`, `Weakness_*`) | Não há indivíduos ontológicos equivalentes | obsolete | Manter somente no arquivo histórico; criar fixtures novas apenas se uma futura ontologia exigir exemplos validados. |
 
