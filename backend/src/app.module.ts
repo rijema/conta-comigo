@@ -12,6 +12,7 @@ import { KafkaModule } from './modules/kafka/kafka.module';
 import { OntologyModule } from './modules/ontology/ontology.module';
 import { GuardianModule } from './modules/guardian/guardian.module';
 import { EducatorModule } from './modules/educator/educator.module';
+import { LearningEventsModule } from './modules/learning-events/learning-events.module';
 import { HealthController } from './health.controller';
 
 function validateEnvironment(config: Record<string, unknown>) {
@@ -98,6 +99,7 @@ function validateEnvironment(config: Record<string, unknown>) {
     OntologyModule,
     GuardianModule,
     EducatorModule,
+    LearningEventsModule,
   ],
   controllers: [HealthController],
   providers: [],

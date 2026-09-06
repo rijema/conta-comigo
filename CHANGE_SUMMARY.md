@@ -1,5 +1,15 @@
 # Change Summary
 
+## Batch B1.1 — Append-only Learning Analytics events
+
+- Added the `LearningEvent` entity and its initial event-type vocabulary without replacing existing attempts, analytics snapshots, or ADE decisions.
+- Added `LearningEventsModule` and failure-contained `LearningEventService.track()` persistence with error logging.
+- Added an additive database migration, production `schema.sql` support, query indexes, and database-level rejection of historical updates and deletes.
+- Added unit coverage for successful persistence and non-propagating persistence failures.
+- Documented the model, derivable metrics, limitations, and privacy implications in `docs/research/BATCH_01_LEARNING_ANALYTICS_PT.md`.
+
+The migration is additive. Its rollback removes only the learning-event table, enum, indexes, trigger, and trigger function.
+
 ## Conta Comigo visual identity and public asset delivery
 
 - Preserved the existing Next.js, NestJS, and Python service architecture.
