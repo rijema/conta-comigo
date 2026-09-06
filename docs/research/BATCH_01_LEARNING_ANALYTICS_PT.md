@@ -55,6 +55,18 @@ O log fornece a camada de observação para análises posteriores. Processadores
 
 O método `LearningEventService.track()` contém erros de persistência, registra a falha no log e devolve `null`. Isso impede que indisponibilidade analítica transforme uma interação de aprendizagem em erro funcional. A aplicação chamadora ainda deve tratar o evento como telemetria auxiliar, não como condição para concluir a atividade.
 
+## Fluxo de Eventos Implementado
+
+[DECISÃO DE ENGENHARIA]
+
+O ciclo de atividade atualmente ativo foi instrumentado sem redesenhar seus componentes. A sessão criada por `useSession` mantém o mesmo `sessionId` até ser encerrada. Quando uma atividade é recebida, o frontend envia `ACTIVITY_PRESENTED`; depois que ela é renderizada, envia `ACTIVITY_STARTED`. Uma chave composta por sessão, atividade e tipo, mantida fora do estado de renderização, evita novas emissões causadas por re-renderizações React.
+
+Ao submeter uma resposta, o comportamento existente de `ActivityAttempt` permanece como registro operacional. Depois de salvá-lo, o backend inicia em paralelo e sem espera na resposta HTTP a criação de `ANSWER_SUBMITTED` e `ACTIVITY_COMPLETED`. `ANSWER_SUBMITTED` contém o resultado calculado no servidor, o ordinal da tentativa, o tempo em milissegundos, o UUID da atividade e o UUID da primeira habilidade BNCC associada, quando resolvida.
+
+O conteúdo da resposta não é copiado para o evento nem para `metadata`. As chamadas de apresentação e início também enviam apenas sessão, tipo e identificador da atividade; o UUID da habilidade BNCC é resolvido no backend. Falhas de rede, resolução da habilidade ou persistência são registradas e não interrompem a atividade.
+
+Fluxo implementado: `ACTIVITY_PRESENTED` → `ACTIVITY_STARTED` → `ANSWER_SUBMITTED` → `ACTIVITY_COMPLETED`. Uma resposta incorreta conclui a tentativa observada, embora a interface possa manter a mesma atividade para outra tentativa.
+
 ## Métricas deriváveis
 
 [PROPOSTA CONTA COMIGO]

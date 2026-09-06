@@ -7,6 +7,7 @@ import { ActivitiesController } from './activities.controller';
 import { KafkaModule } from '../kafka/kafka.module';
 import { AdeModule } from '../ade/ade.module';
 import { UsersModule } from '../users/users.module';
+import { LearningEventsModule } from '../learning-events/learning-events.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { UsersModule } from '../users/users.module';
     KafkaModule,
     AdeModule,
     UsersModule,
+    LearningEventsModule,
   ],
   controllers: [ActivitiesController],
   providers: [ActivitiesService],

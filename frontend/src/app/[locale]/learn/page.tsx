@@ -50,7 +50,7 @@ function playStart() {
 
 function LearnPageInner() {
   const { user, isLoading: authLoading, logout } = useAuth();
-  const { session, startSession, stopSession, submitAnswer, isLoading: sessionLoading, error: sessionError } = useSession();
+  const { session, startSession, stopSession, submitAnswer, markActivityStarted, isLoading: sessionLoading, error: sessionError } = useSession();
   const [stars, setStars] = useState(0);
   const [showReward, setShowReward] = useState(false);
   const [rewardWrong, setRewardWrong] = useState(false);
@@ -75,8 +75,9 @@ function LearnPageInner() {
   useEffect(() => {
     if (session?.currentActivity) {
       setBgIdx((i) => (i + 1) % BG_THEMES.length);
+      markActivityStarted(session.currentActivity.id);
     }
-  }, [session?.currentActivity?.id]);
+  }, [session?.currentActivity?.id, markActivityStarted]);
 
   const handleAnswer = useCallback(async (answer: any) => {
     if (!session?.currentActivity) return;

@@ -15,6 +15,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { UserRole } from '../users/enums/user-role.enum';
 import { CreateActivityDto } from './dto/create-activity.dto';
 import { SubmitAttemptDto } from './dto/submit-attempt.dto';
+import { TrackActivityLifecycleDto } from './dto/track-activity-lifecycle.dto';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 
 @ApiTags('activities')
@@ -65,6 +66,16 @@ export class ActivitiesController {
     @Body() dto: SubmitAttemptDto,
   ) {
     return this.activitiesService.submitAttempt(userId, dto);
+  }
+
+  @Post(':id/lifecycle-events')
+  @ApiOperation({ summary: 'Track a non-blocking activity lifecycle transition' })
+  trackLifecycleEvent(
+    @CurrentUser('userId') userId: string,
+    @Param('id') activityId: string,
+    @Body() dto: TrackActivityLifecycleDto,
+  ) {
+    return this.activitiesService.trackLifecycleEvent(userId, activityId, dto);
   }
 
   @Get('attempts/history')

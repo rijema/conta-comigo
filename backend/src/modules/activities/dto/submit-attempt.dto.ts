@@ -30,6 +30,11 @@ export class SubmitAttemptDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsNumber()
+  responseTimeMs?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
   hintsUsed?: number;
 
   @ApiPropertyOptional()
