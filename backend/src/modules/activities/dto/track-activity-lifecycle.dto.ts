@@ -1,10 +1,14 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
 import { LearningEventType } from '../../learning-events/entities/learning-event.entity';
 
 export const ACTIVITY_LIFECYCLE_EVENT_TYPES = {
   ACTIVITY_PRESENTED: LearningEventType.ACTIVITY_PRESENTED,
   ACTIVITY_STARTED: LearningEventType.ACTIVITY_STARTED,
+  HINT_REQUESTED: LearningEventType.HINT_REQUESTED,
+  TUTORIAL_OPENED: LearningEventType.TUTORIAL_OPENED,
+  INSTRUCTION_REPLAYED: LearningEventType.INSTRUCTION_REPLAYED,
+  ACTIVITY_SKIPPED: LearningEventType.ACTIVITY_SKIPPED,
 } as const;
 
 export class TrackActivityLifecycleDto {
@@ -16,4 +20,22 @@ export class TrackActivityLifecycleDto {
   @ApiProperty({ enum: Object.values(ACTIVITY_LIFECYCLE_EVENT_TYPES) })
   @IsEnum(ACTIVITY_LIFECYCLE_EVENT_TYPES)
   eventType: typeof ACTIVITY_LIFECYCLE_EVENT_TYPES[keyof typeof ACTIVITY_LIFECYCLE_EVENT_TYPES];
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  timeBeforeSkipMs?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  attemptsBeforeSkip?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  hintsBeforeSkip?: number;
 }

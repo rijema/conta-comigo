@@ -1,5 +1,15 @@
 # Change Summary
 
+## Batch B1.3 — Assistance and skip interaction signals
+
+- Instrumented explicit help requests, tutorial openings, repeated tutorial instructions, and activity skips in the active learning flow.
+- Added available `timeBeforeSkipMs`, `attemptsBeforeSkip`, and `hintsBeforeSkip` observations to skip-event metadata.
+- Kept repeatable click-driven events separate from render-transition deduplication.
+- Documented that skips and assistance actions are observational interaction signals, not disengagement labels or clinical/psychological diagnoses.
+- Added backend payload/validation coverage and frontend instrumentation regression tests.
+
+No database migration is required because skip context uses the existing nullable JSONB metadata field.
+
 ## Batch B1.2 — Activity lifecycle instrumentation
 
 - Instrumented the active learning-session flow with `ACTIVITY_PRESENTED`, `ACTIVITY_STARTED`, `ANSWER_SUBMITTED`, and `ACTIVITY_COMPLETED` events.

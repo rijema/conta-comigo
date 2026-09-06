@@ -247,6 +247,7 @@ export class ActivitiesService {
     try {
       const activity = await this.findById(activityId);
       const bnccSkillId = await this.resolveBnccSkillId(activity);
+      const isSkip = dto.eventType === LearningEventType.ACTIVITY_SKIPPED;
       await this.learningEventService.track({
         studentId: userId,
         sessionId: dto.sessionId,
@@ -254,6 +255,12 @@ export class ActivitiesService {
         timestamp: new Date(),
         activityId,
         bnccSkillId,
+        hintsUsed: isSkip ? dto.hintsBeforeSkip ?? null : null,
+        metadata: isSkip ? {
+          timeBeforeSkipMs: dto.timeBeforeSkipMs ?? null,
+          attemptsBeforeSkip: dto.attemptsBeforeSkip ?? null,
+          hintsBeforeSkip: dto.hintsBeforeSkip ?? null,
+        } : null,
       });
     } catch (error) {
       const details = error instanceof Error ? error.stack : String(error);
