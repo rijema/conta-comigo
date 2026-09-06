@@ -42,7 +42,7 @@ export default function HomePage() {
       <main id="conteudo" className="pt-24">
         <section className="relative mx-auto grid min-h-[calc(100svh-6rem)] max-w-6xl items-center gap-4 px-5 py-6 lg:grid-cols-[1fr_1.05fr] lg:px-6">
           <div className="relative z-10 text-center lg:text-left">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-violet-200 bg-white/75 px-4 py-2 text-sm font-bold text-violet-700 shadow-sm"><span aria-hidden>🦋</span> Aprender juntos sempre faz sentido</div>
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-violet-200 bg-white/75 px-4 py-2 text-sm font-bold text-violet-700 shadow-sm"><span aria-hidden className="motion-safe:animate-pulse">🦋</span> Aprender juntos sempre faz sentido <span aria-hidden className="motion-safe:animate-bounce">⭐</span></div>
             <h1 className="text-5xl font-black leading-[.95] tracking-tight text-indigo-950 sm:text-6xl lg:text-7xl">Conta<br className="hidden lg:block" /> Comigo</h1>
             <p className="mt-4 text-xl font-extrabold text-violet-700 sm:text-2xl">Matemática que aprende com cada criança.</p>
             <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-slate-600 lg:mx-0">Uma jornada adaptativa, acolhedora e visual para crianças com TEA, acompanhada pela TitiA em cada descoberta.</p>
@@ -57,8 +57,10 @@ export default function HomePage() {
 
           <div className="relative mx-auto h-[48svh] min-h-[360px] w-full max-w-2xl lg:h-[72svh]">
             <div className="absolute inset-8 rounded-full bg-gradient-to-br from-yellow-200 via-pink-200 to-violet-300 blur-3xl opacity-60" />
-            <Image src="/assets/rainbowGiff.gif" width={480} height={480} alt="" unoptimized className="absolute right-0 top-2 h-28 w-28 opacity-80 sm:h-36 sm:w-36" />
-            <Image src="/assets/mainiconfirstpage.png" alt="TitiA sorrindo e dando boas-vindas" fill priority sizes="(max-width: 1024px) 100vw, 55vw" className="object-contain object-bottom drop-shadow-2xl" />
+            <span aria-hidden className="absolute left-[8%] top-[18%] z-20 text-4xl drop-shadow motion-safe:animate-bounce">⭐</span>
+            <span aria-hidden className="absolute right-[16%] top-[32%] z-20 text-2xl drop-shadow motion-safe:animate-pulse">✨</span>
+            <Image src="/assets/rainbowGiff.gif" width={480} height={480} alt="" unoptimized className="absolute right-0 top-2 z-10 h-28 w-28 opacity-90 motion-safe:animate-pulse sm:h-36 sm:w-36" />
+            <Image src="/assets/mainiconfirstpage.png" alt="TitiA sorrindo e dando boas-vindas" fill priority sizes="(max-width: 1024px) 100vw, 55vw" className="object-contain object-bottom drop-shadow-2xl motion-safe:animate-[pulse_5s_ease-in-out_infinite]" />
             <div className="absolute bottom-3 left-1/2 w-[92%] -translate-x-1/2 rounded-3xl border border-white/80 bg-white/80 p-4 text-center shadow-xl backdrop-blur sm:w-auto sm:min-w-80">
               <p className="text-lg font-black text-indigo-950">Olá! Eu sou a TitiA.</p><p className="text-sm text-slate-600">Estou aqui para aprender com você.</p>
             </div>
