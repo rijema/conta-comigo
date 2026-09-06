@@ -1,0 +1,680 @@
+<?xml version="1.0"?>
+<Ontology xmlns="http://www.w3.org/2002/07/owl#"
+     xml:base="http://www.semanticweb.org/ricma/ontologies/2024/11/LASDONT.owl"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     ontologyIRI="http://www.semanticweb.org/ricma/ontologies/2024/11/LASDONT.owl">
+    <Prefix name="" IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/LASDONT.owl/"/>
+    <Prefix name="owl" IRI="http://www.w3.org/2002/07/owl#"/>
+    <Prefix name="rdf" IRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+    <Prefix name="xml" IRI="http://www.w3.org/XML/1998/namespace"/>
+    <Prefix name="xsd" IRI="http://www.w3.org/2001/XMLSchema#"/>
+    <Prefix name="rdfs" IRI="http://www.w3.org/2000/01/rdf-schema#"/>
+    <Annotation>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <Literal>Uma ontologia que descreve ambientes de aprendizagem baseado no nivel de suporte da crianca autista</Literal>
+    </Annotation>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Activity_Feedback"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Auditive_Strength"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Auditive_Weakness"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#DIY"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Evaluation_Class"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Formal_Child_Form"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Formal_Form"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Formal_Professional_Form"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#IA_Sandbox_DIY"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Learned_Topic"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Learning_Partition_Class"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Logical_Strength"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Logical_Weakness"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Mild_Learning_Percentage"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Moderated_Percentage"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Motor_Strength"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Motor_Weakness"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Percentage"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Puzzles"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Question_Videos"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Quizzes"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Sensory_Strength"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Sensory_Weakness"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Strength_and_Weakness_Class"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Strengths"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Strong_Percentage"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Textual_Quizzes"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Treatments_Class"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Videos"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Visual_Puzzles"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Visual_Quizzes"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Visual_Strength"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Visual_Weakness"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Weaknesses"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Yes_No_Videos"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasActorsResponses"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasContentConnection"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasContentValidation"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasStrength"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasWeakness"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#isAdaptiveContent"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#isRelatedToStrength"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#isRelatedToWeakness"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#Strength_Logical"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#Strength_Sensory"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Activity_IA_Sandbox_DIY"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Activity_Question_Videos"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Activity_Visual_Puzzle"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Child"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Child_Initial_Form"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Easy_Content"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Hard_Content"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Initial_Evaluation"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Learned_Topic"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Mid_Content"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Mild_Support_Level_User"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Moderated_Support_Level_User"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Professional"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Professional_Initial_Form"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Strength_Visual"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Strong_Support_Level_User"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Weakness_Logical"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Weakness_Motor"/>
+    </Declaration>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Activity_Feedback"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Evaluation_Class"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Auditive_Strength"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Strengths"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Auditive_Weakness"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Weaknesses"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#DIY"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Treatments_Class"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Formal_Child_Form"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Formal_Form"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Formal_Form"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Evaluation_Class"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Formal_Professional_Form"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Formal_Form"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#IA_Sandbox_DIY"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#DIY"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#IA_Sandbox_DIY"/>
+        <ObjectIntersectionOf>
+            <ObjectSomeValuesFrom>
+                <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasStrength"/>
+                <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Sensory_Strength"/>
+            </ObjectSomeValuesFrom>
+            <ObjectSomeValuesFrom>
+                <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasStrength"/>
+                <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Visual_Strength"/>
+            </ObjectSomeValuesFrom>
+        </ObjectIntersectionOf>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Learned_Topic"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Activity_Feedback"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Learning_Partition_Class"/>
+        <Class abbreviatedIRI="owl:Thing"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Logical_Strength"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Strengths"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Logical_Weakness"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Weaknesses"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Mild_Learning_Percentage"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Percentage"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Moderated_Percentage"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Percentage"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Motor_Strength"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Strengths"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Motor_Weakness"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Weaknesses"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Percentage"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Learning_Partition_Class"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Puzzles"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Treatments_Class"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Question_Videos"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Videos"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Question_Videos"/>
+        <ObjectUnionOf>
+            <ObjectIntersectionOf>
+                <ObjectSomeValuesFrom>
+                    <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasStrength"/>
+                    <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Visual_Strength"/>
+                </ObjectSomeValuesFrom>
+                <ObjectSomeValuesFrom>
+                    <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasWeakness"/>
+                    <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Motor_Weakness"/>
+                </ObjectSomeValuesFrom>
+            </ObjectIntersectionOf>
+            <ObjectSomeValuesFrom>
+                <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasWeakness"/>
+                <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Logical_Weakness"/>
+            </ObjectSomeValuesFrom>
+        </ObjectUnionOf>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Quizzes"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Treatments_Class"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Sensory_Strength"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Strengths"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Sensory_Weakness"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Weaknesses"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Strengths"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Strength_and_Weakness_Class"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Strong_Percentage"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Percentage"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Textual_Quizzes"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Quizzes"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Textual_Quizzes"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasStrength"/>
+            <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Logical_Strength"/>
+        </ObjectSomeValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Videos"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Treatments_Class"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Visual_Puzzles"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Puzzles"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Visual_Puzzles"/>
+        <ObjectIntersectionOf>
+            <ObjectSomeValuesFrom>
+                <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasStrength"/>
+                <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Logical_Strength"/>
+            </ObjectSomeValuesFrom>
+            <ObjectSomeValuesFrom>
+                <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasStrength"/>
+                <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Sensory_Strength"/>
+            </ObjectSomeValuesFrom>
+            <ObjectSomeValuesFrom>
+                <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasStrength"/>
+                <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Visual_Strength"/>
+            </ObjectSomeValuesFrom>
+        </ObjectIntersectionOf>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Visual_Quizzes"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Quizzes"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Visual_Quizzes"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasStrength"/>
+            <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Visual_Strength"/>
+        </ObjectSomeValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Visual_Strength"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Strengths"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Visual_Weakness"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Weaknesses"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Weaknesses"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Strength_and_Weakness_Class"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Yes_No_Videos"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Videos"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Yes_No_Videos"/>
+        <ObjectUnionOf>
+            <ObjectSomeValuesFrom>
+                <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasWeakness"/>
+                <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Logical_Weakness"/>
+            </ObjectSomeValuesFrom>
+            <ObjectSomeValuesFrom>
+                <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasWeakness"/>
+                <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Motor_Weakness"/>
+            </ObjectSomeValuesFrom>
+        </ObjectUnionOf>
+    </SubClassOf>
+    <DisjointClasses>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Auditive_Strength"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Auditive_Weakness"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Formal_Child_Form"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Formal_Professional_Form"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Logical_Strength"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Logical_Weakness"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Mild_Learning_Percentage"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Moderated_Percentage"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Strong_Percentage"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Motor_Strength"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Motor_Weakness"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Question_Videos"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Yes_No_Videos"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Sensory_Strength"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Sensory_Weakness"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Textual_Quizzes"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Visual_Quizzes"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Visual_Strength"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Visual_Weakness"/>
+    </DisjointClasses>
+    <ClassAssertion>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Logical_Strength"/>
+        <NamedIndividual IRI="#Strength_Logical"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Sensory_Strength"/>
+        <NamedIndividual IRI="#Strength_Sensory"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#IA_Sandbox_DIY"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Activity_IA_Sandbox_DIY"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Question_Videos"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Activity_Question_Videos"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Visual_Puzzles"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Activity_Visual_Puzzle"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Formal_Child_Form"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Child_Initial_Form"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Learned_Topic"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Learned_Topic"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Mild_Learning_Percentage"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Mild_Support_Level_User"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Moderated_Percentage"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Moderated_Support_Level_User"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Formal_Professional_Form"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Professional_Initial_Form"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Visual_Strength"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Strength_Visual"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Strong_Percentage"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Strong_Support_Level_User"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Logical_Weakness"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Weakness_Logical"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Motor_Weakness"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Weakness_Motor"/>
+    </ClassAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasContentConnection"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Activity_IA_Sandbox_DIY"/>
+        <NamedIndividual IRI="#Strength_Sensory"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasContentConnection"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Activity_IA_Sandbox_DIY"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Strength_Visual"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasContentConnection"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Activity_Question_Videos"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Strength_Visual"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasContentConnection"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Activity_Question_Videos"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Weakness_Logical"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasContentConnection"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Activity_Question_Videos"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Weakness_Motor"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasContentConnection"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Activity_Visual_Puzzle"/>
+        <NamedIndividual IRI="#Strength_Logical"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasContentConnection"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Activity_Visual_Puzzle"/>
+        <NamedIndividual IRI="#Strength_Sensory"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasContentConnection"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Activity_Visual_Puzzle"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Strength_Visual"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasContentConnection"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Easy_Content"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Strong_Support_Level_User"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasContentConnection"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Hard_Content"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Mild_Support_Level_User"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasActorsResponses"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Initial_Evaluation"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Child"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasActorsResponses"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Initial_Evaluation"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Professional"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasContentValidation"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Initial_Evaluation"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Child_Initial_Form"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasContentValidation"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Initial_Evaluation"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Professional_Initial_Form"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasContentConnection"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Mid_Content"/>
+        <NamedIndividual IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Moderated_Support_Level_User"/>
+    </ObjectPropertyAssertion>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasActorsResponses"/>
+        <ObjectProperty abbreviatedIRI="owl:topObjectProperty"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasContentConnection"/>
+        <ObjectProperty abbreviatedIRI="owl:topObjectProperty"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasContentValidation"/>
+        <ObjectProperty abbreviatedIRI="owl:topObjectProperty"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasStrength"/>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasContentConnection"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasWeakness"/>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasContentConnection"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#isAdaptiveContent"/>
+        <ObjectProperty abbreviatedIRI="owl:topObjectProperty"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#isRelatedToStrength"/>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#isAdaptiveContent"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#isRelatedToWeakness"/>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#isAdaptiveContent"/>
+    </SubObjectPropertyOf>
+    <InverseObjectProperties>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasStrength"/>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#isRelatedToStrength"/>
+    </InverseObjectProperties>
+    <InverseObjectProperties>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasWeakness"/>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#isRelatedToWeakness"/>
+    </InverseObjectProperties>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasContentConnection"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Strength_and_Weakness_Class"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasStrength"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Strengths"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#isAdaptiveContent"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Treatments_Class"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#isRelatedToStrength"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Treatments_Class"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#isRelatedToWeakness"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Treatments_Class"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasActorsResponses"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Formal_Form"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasContentConnection"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Treatments_Class"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasContentValidation"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Activity_Feedback"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasStrength"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Treatments_Class"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#isAdaptiveContent"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Strength_and_Weakness_Class"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#isRelatedToStrength"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Strengths"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#isRelatedToWeakness"/>
+        <Class IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#Weaknesses"/>
+    </ObjectPropertyRange>
+    <DisjointObjectProperties>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasStrength"/>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#hasWeakness"/>
+    </DisjointObjectProperties>
+    <DisjointObjectProperties>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#isRelatedToStrength"/>
+        <ObjectProperty IRI="http://www.semanticweb.org/ricma/ontologies/2024/11/OntoPizza01.owl#isRelatedToWeakness"/>
+    </DisjointObjectProperties>
+</Ontology>
+
+
+
+<!-- Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi -->

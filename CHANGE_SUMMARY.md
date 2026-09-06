@@ -1,5 +1,15 @@
 # Change Summary
 
+## Batch B2.2A — Historical LASDONT ontology baseline
+
+- Preserved the supplied LASDONT 1.0 OWL/XML artifact under `ontology/lasdont` for historical traceability only.
+- Compared its declared concepts and axioms with the current profile, activity, recommendation, mastery, and Learning Analytics implementations.
+- Documented concept-level statuses and recommended actions without asserting unsupported inheritance or equivalence.
+- Identified current concepts absent from LASDONT and recorded concrete divergences between historical axioms and current TypeScript rules.
+- Explicitly excluded legacy agents, messaging, JDBC configuration, and OWL runtime integration.
+
+No production behavior, database schema, or runtime dependency changed in this batch.
+
 ## Batch B2.1 — Canonical Bayesian Knowledge Tracing
 
 - Added the canonical `StudentSkillState` model and transactional `KnowledgeTracingService` writer.
