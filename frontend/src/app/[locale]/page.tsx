@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import { useLocale } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AuthDialog, type AuthView } from "@/components/home/auth-dialog";
 import { ArasaacSection } from "@/components/arasaac/arasaac-section";
+import { useModalFocus } from "@/hooks/use-modal-focus";
 
 export default function HomePage() {
   const locale = useLocale();
@@ -13,6 +14,9 @@ export default function HomePage() {
   const [showArasaac, setShowArasaac] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const closeAuth = useCallback(() => setAuth(null), []);
+  const closeAbout = useCallback(() => setShowAbout(false), []);
+  const aboutCloseRef = useRef<HTMLButtonElement>(null);
+  const aboutDialogRef = useModalFocus<HTMLElement>(showAbout, closeAbout, aboutCloseRef);
 
   useEffect(() => {
     const update = () => setCompact(window.scrollY > 36);
@@ -85,7 +89,32 @@ export default function HomePage() {
 
       <footer className="border-t border-white/80 bg-indigo-950 px-5 py-6 text-center text-sm text-indigo-100"><strong className="text-white">Conta Comigo</strong> · Matemática que aprende com cada criança. · Pesquisa acadêmica</footer>
 
-      {showAbout && <div className="fixed inset-0 z-[90] grid place-items-center bg-slate-950/55 p-4 backdrop-blur" onMouseDown={(e) => e.target === e.currentTarget && setShowAbout(false)}><section role="dialog" aria-modal="true" aria-labelledby="about-title" className="relative grid max-h-[90vh] max-w-3xl overflow-hidden rounded-[2rem] bg-white shadow-2xl md:grid-cols-2"><div className="relative min-h-64 bg-violet-50"><Image src="/assets/wildcard.png" alt="TitiA apresentando o Conta Comigo" fill className="object-contain object-bottom" /></div><div className="overflow-y-auto p-7"><button onClick={() => setShowAbout(false)} aria-label="Fechar" className="float-right text-2xl text-slate-500">×</button><h2 id="about-title" className="text-3xl font-black text-indigo-950">Prazer, TitiA!</h2><p className="mt-4 leading-relaxed text-slate-600">Sou a companheira de aprendizagem do Conta Comigo. Acolho, oriento, incentivo e celebro cada conquista sem apressar ninguém.</p><ul className="mt-5 space-y-3 text-sm font-semibold text-slate-700"><li>💜 Escuta com empatia</li><li>⭐ Incentiva sem pressionar</li><li>🌱 Respeita o tempo de cada criança</li><li>🧩 Celebra todas as conquistas</li></ul><button onClick={() => { setShowAbout(false); setAuth("register"); }} className="mt-7 w-full rounded-2xl bg-violet-600 px-5 py-3 font-black text-white">Começar com a TitiA</button></div></section></div>}
+      {showAbout && (
+        <div
+          className="fixed inset-0 z-[90] grid place-items-center bg-slate-950/55 p-4 backdrop-blur"
+          onMouseDown={(event) => event.target === event.currentTarget && closeAbout()}
+        >
+          <section
+            ref={aboutDialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="about-title"
+            aria-describedby="about-description"
+            className="relative grid max-h-[90vh] max-w-3xl overflow-hidden rounded-[2rem] bg-white shadow-2xl md:grid-cols-2"
+          >
+            <div className="relative min-h-64 bg-violet-50">
+              <Image src="/assets/wildcard.png" alt="TitiA apresentando o Conta Comigo" fill className="object-contain object-bottom" />
+            </div>
+            <div className="overflow-y-auto p-7">
+              <button ref={aboutCloseRef} type="button" onClick={closeAbout} aria-label="Fechar" className="float-right text-2xl text-slate-500">×</button>
+              <h2 id="about-title" className="text-3xl font-black text-indigo-950">Prazer, TitiA!</h2>
+              <p id="about-description" className="mt-4 leading-relaxed text-slate-600">Sou a companheira de aprendizagem do Conta Comigo. Acolho, oriento, incentivo e celebro cada conquista sem apressar ninguém.</p>
+              <ul className="mt-5 space-y-3 text-sm font-semibold text-slate-700"><li>💜 Escuta com empatia</li><li>⭐ Incentiva sem pressionar</li><li>🌱 Respeita o tempo de cada criança</li><li>🧩 Celebra todas as conquistas</li></ul>
+              <button type="button" onClick={() => { closeAbout(); setAuth("register"); }} className="mt-7 w-full rounded-2xl bg-violet-600 px-5 py-3 font-black text-white">Começar com a TitiA</button>
+            </div>
+          </section>
+        </div>
+      )}
       <AuthDialog open={auth !== null} initialView={auth ?? "login"} onClose={closeAuth} />
     </div>
   );
