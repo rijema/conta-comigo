@@ -1,5 +1,15 @@
 # Change Summary
 
+## Batch B1.2 — Activity lifecycle instrumentation
+
+- Instrumented the active learning-session flow with `ACTIVITY_PRESENTED`, `ACTIVITY_STARTED`, `ANSWER_SUBMITTED`, and `ACTIVITY_COMPLETED` events.
+- Reused one frontend-generated session ID until the current session is stopped and deduplicated presentation/start transitions across React re-renders.
+- Kept `ActivityAttempt` persistence unchanged and started answer analytics only after the attempt is saved.
+- Added exact response time, server-calculated correctness, attempt number, activity ID, and resolved BNCC skill ID without copying raw child answers into analytics metadata.
+- Added backend event-payload tests, frontend instrumentation regression tests, and the documented implemented event flow.
+
+No database migration is required for this batch because it uses the append-only schema introduced in B1.1.
+
 ## Batch B1.1 — Append-only Learning Analytics events
 
 - Added the `LearningEvent` entity and its initial event-type vocabulary without replacing existing attempts, analytics snapshots, or ADE decisions.

@@ -1,6 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Activity, DifficultyLevel, ActivityType } from './entities/activity.entity';
 import { ActivityAttempt } from './entities/activity-attempt.entity';
 import { CreateActivityDto } from './dto/create-activity.dto';
@@ -8,6 +8,9 @@ import { SubmitAttemptDto } from './dto/submit-attempt.dto';
 import { KafkaProducerService } from '../kafka/kafka-producer.service';
 import { AdeService } from '../ade/ade.service';
 import { UsersService } from '../users/users.service';
+import { LearningEventService } from '../learning-events/learning-event.service';
+import { LearningEventType } from '../learning-events/entities/learning-event.entity';
+import { TrackActivityLifecycleDto } from './dto/track-activity-lifecycle.dto';
 
 @Injectable()
 export class ActivitiesService {
@@ -21,6 +24,8 @@ export class ActivitiesService {
     private readonly kafkaProducer: KafkaProducerService,
     private readonly adeService: AdeService,
     private readonly usersService: UsersService,
+    private readonly learningEventService: LearningEventService,
+    private readonly dataSource: DataSource,
   ) {}
 
   async create(dto: CreateActivityDto): Promise<Activity> {
@@ -148,6 +153,9 @@ export class ActivitiesService {
 
     await this.attemptRepo.save(attempt);
 
+    // Learning analytics is best-effort and must not delay attempt processing.
+    void this.trackAnswerEvents(userId, dto, activity, isCorrect);
+
     // Publish Kafka event (async, non-blocking)
     this.kafkaProducer.publishActivityEvent({
       eventId: `activity-${attempt.id}`,
@@ -229,6 +237,89 @@ export class ActivitiesService {
     }
 
     return { attempt, feedback, nextActivity, adeDecision };
+  }
+
+  async trackLifecycleEvent(
+    userId: string,
+    activityId: string,
+    dto: TrackActivityLifecycleDto,
+  ): Promise<void> {
+    try {
+      const activity = await this.findById(activityId);
+      const bnccSkillId = await this.resolveBnccSkillId(activity);
+      await this.learningEventService.track({
+        studentId: userId,
+        sessionId: dto.sessionId,
+        eventType: dto.eventType,
+        timestamp: new Date(),
+        activityId,
+        bnccSkillId,
+      });
+    } catch (error) {
+      const details = error instanceof Error ? error.stack : String(error);
+      this.logger.error(
+        `Failed to track ${dto.eventType} for activity ${activityId}`,
+        details,
+      );
+    }
+  }
+
+  private async trackAnswerEvents(
+    userId: string,
+    dto: SubmitAttemptDto,
+    activity: Activity,
+    isCorrect: boolean,
+  ): Promise<void> {
+    try {
+      const [attemptNumber, bnccSkillId] = await Promise.all([
+        this.attemptRepo.count({
+          where: {
+            userId,
+            activityId: dto.activityId,
+            sessionId: dto.sessionId,
+          },
+        }),
+        this.resolveBnccSkillId(activity),
+      ]);
+      const event = {
+        studentId: userId,
+        sessionId: dto.sessionId ?? '',
+        timestamp: new Date(),
+        activityId: dto.activityId,
+        bnccSkillId,
+        attempt: attemptNumber,
+        responseTimeMs: dto.responseTimeMs ?? Math.round((dto.timeSpentSeconds ?? 0) * 1000),
+        correct: isCorrect,
+        hintsUsed: dto.hintsUsed ?? 0,
+      };
+
+      await this.learningEventService.track({
+        ...event,
+        eventType: LearningEventType.ANSWER_SUBMITTED,
+      });
+      await this.learningEventService.track({
+        ...event,
+        timestamp: new Date(),
+        eventType: LearningEventType.ACTIVITY_COMPLETED,
+      });
+    } catch (error) {
+      const details = error instanceof Error ? error.stack : String(error);
+      this.logger.error(
+        `Failed to track answer events for activity ${dto.activityId}`,
+        details,
+      );
+    }
+  }
+
+  private async resolveBnccSkillId(activity: Activity): Promise<string | null> {
+    const code = activity.bnccSkills?.[0];
+    if (!code) return null;
+
+    const rows: Array<{ id: string }> = await this.dataSource.query(
+      'SELECT id FROM bncc_skills WHERE code = $1 LIMIT 1',
+      [code],
+    );
+    return rows[0]?.id ?? null;
   }
 
   async getActivityTree(userId: string): Promise<any> {

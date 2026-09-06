@@ -11,12 +11,34 @@ export interface SessionState {
   activityStartTime: number;
 }
 
+type ActivityLifecycleEventType = "ACTIVITY_PRESENTED" | "ACTIVITY_STARTED";
+
 export function useSession() {
   const [session, setSession] = useState<SessionState | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const activitiesCompletedRef = useRef(0);
   const startedRef = useRef(false);
+  const trackedLifecycleEventsRef = useRef(new Set<string>());
+
+  const trackActivityLifecycle = useCallback((
+    sessionId: string,
+    activityId: string,
+    eventType: ActivityLifecycleEventType,
+  ) => {
+    const eventKey = `${sessionId}:${activityId}:${eventType}`;
+    if (trackedLifecycleEventsRef.current.has(eventKey)) return;
+    trackedLifecycleEventsRef.current.add(eventKey);
+
+    const token = authService.getStoredToken();
+    void api.post(
+      `/activities/${activityId}/lifecycle-events`,
+      { sessionId, eventType },
+      token ?? undefined,
+    ).catch((err) => {
+      console.error(`Failed to track ${eventType}:`, err);
+    });
+  }, []);
 
   const startSession = useCallback(async () => {
     if (startedRef.current) return;
@@ -37,6 +59,7 @@ export function useSession() {
         progress: 0,
         activityStartTime: Date.now(),
       });
+      trackActivityLifecycle(sessionId, activity.id, "ACTIVITY_PRESENTED");
     } catch (err: any) {
       console.error("Failed to start session:", err);
       setError(err?.message ?? "Erro ao carregar atividade");
@@ -44,7 +67,12 @@ export function useSession() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [trackActivityLifecycle]);
+
+  const markActivityStarted = useCallback((activityId: string) => {
+    if (!session?.id) return;
+    trackActivityLifecycle(session.id, activityId, "ACTIVITY_STARTED");
+  }, [session?.id, trackActivityLifecycle]);
 
   const submitAnswer = async (payload: {
     activityId: string;
@@ -67,6 +95,7 @@ export function useSession() {
           activityId: payload.activityId,
           answer: normalizedAnswer,
           timeSpentSeconds: Math.round(payload.timeSpentMs / 1000),
+          responseTimeMs: payload.timeSpentMs,
           sessionId: session?.id,
         },
         token ?? undefined,
@@ -110,6 +139,9 @@ export function useSession() {
         activitiesCompletedRef.current += 1;
         const completed = activitiesCompletedRef.current;
         const nextActivity = result.nextActivity ?? null;
+        if (nextActivity && session?.id) {
+          trackActivityLifecycle(session.id, nextActivity.id, "ACTIVITY_PRESENTED");
+        }
         setSession((prev) => {
           if (!prev) return prev;
           return {
@@ -130,6 +162,7 @@ export function useSession() {
 
   const stopSession = useCallback(() => {
     startedRef.current = false;
+    trackedLifecycleEventsRef.current.clear();
     setSession(null);
     activitiesCompletedRef.current = 0;
   }, []);
@@ -139,6 +172,7 @@ export function useSession() {
     startSession,
     stopSession,
     submitAnswer,
+    markActivityStarted,
     isLoading,
     error,
   };
