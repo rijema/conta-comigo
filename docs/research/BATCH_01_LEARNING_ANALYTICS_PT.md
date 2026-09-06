@@ -89,9 +89,31 @@ Sem fixar interpretações científicas, a sequência pode fornecer insumos para
 - funil entre recomendação gerada, apresentada e concluída;
 - frequência de ajustes de dificuldade e interações com a TitiA.
 
+## Agregações determinísticas implementadas
+
+[DECISÃO DE ENGENHARIA]
+
+As métricas são calculadas diretamente de `LearningEvent`, sem usar o índice de engajamento dos snapshots. Uma instância de atividade é identificada pela combinação `studentId + sessionId + activityId`. Contagens de atividades usam instâncias distintas, de modo que eventos duplicados ou várias respostas à mesma atividade não dupliquem apresentações, inícios, conclusões, pulos ou solicitações de ajuda. Eventos que não possuem `activityId` são ignorados nas métricas que dependem de uma instância de atividade.
+
+As fórmulas exatas são:
+
+- `accuracy = quantidade de ANSWER_SUBMITTED com correct = true / quantidade total de ANSWER_SUBMITTED`;
+- `completionRate = quantidade de instâncias distintas com ACTIVITY_COMPLETED / quantidade de instâncias distintas com ACTIVITY_STARTED`;
+- `skipRate = quantidade de instâncias distintas com ACTIVITY_SKIPPED / quantidade de instâncias distintas com ACTIVITY_PRESENTED`;
+- `averageAttempts = quantidade de ANSWER_SUBMITTED associados a uma instância / quantidade de instâncias distintas com ao menos um ANSWER_SUBMITTED`;
+- `averageResponseTimeMs = soma de responseTimeMs disponíveis em ANSWER_SUBMITTED / quantidade de ANSWER_SUBMITTED com responseTimeMs disponível`;
+- `hintRate = quantidade de instâncias distintas com ao menos um HINT_REQUESTED / quantidade de instâncias distintas com ACTIVITY_STARTED`;
+- `instructionReplayRate = quantidade de instâncias distintas com ao menos um INSTRUCTION_REPLAYED / quantidade de instâncias distintas com ACTIVITY_STARTED`;
+- `activitiesCompleted = quantidade de instâncias distintas com ACTIVITY_COMPLETED`;
+- `activitiesPresented = quantidade de instâncias distintas com ACTIVITY_PRESENTED`.
+
+Quando o denominador de qualquer fórmula é zero, o resultado definido é `0`. Um `ANSWER_SUBMITTED` sem `correct = true` permanece no denominador de `accuracy`, mas somente `correct = true` entra no numerador. Tempos ausentes não entram na soma nem no denominador de `averageResponseTimeMs`.
+
+O mesmo cálculo pode ser filtrado por estudante, sessão, UUID de habilidade BNCC ou tipo de atividade. O recorte por tipo consulta somente a associação técnica entre `LearningEvent.activityId` e `Activity.type`. Nenhuma dessas métricas é combinada em um escore único de engajamento.
+
 [PARÂMETRO EXPERIMENTAL]
 
-Janelas temporais, regras de associação entre eventos, tratamento de duplicatas, limites de latência, critérios de sessão abandonada e fórmulas de agregação ainda não foram definidos. Esses valores devem ser configuráveis e registrados no protocolo experimental.
+Janelas temporais, limites de latência, critérios de sessão abandonada e interpretações pedagógicas ainda não foram definidos. Esses valores devem ser configuráveis e registrados no protocolo experimental. As fórmulas técnicas deste lote estão fixadas acima para permitir reprodução dos resultados.
 
 [HIPÓTESE A VALIDAR]
 
