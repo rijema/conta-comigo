@@ -11,6 +11,10 @@ export interface AccessibilitySettings {
   theme: "light" | "dark";
   fontSize: "small" | "medium" | "large";
   soundEnabled: boolean;
+  voiceEnabled: boolean;
+  speechRate: number;
+  automaticInstructionSpeech: boolean;
+  speechLanguage: string;
   lowStimulationMode: boolean;
   highContrast: boolean;
   language: string;
@@ -21,6 +25,10 @@ const defaultSettings: AccessibilitySettings = {
   theme: "light",
   fontSize: "medium",
   soundEnabled: true,
+  voiceEnabled: true,
+  speechRate: 0.85,
+  automaticInstructionSpeech: false,
+  speechLanguage: "pt-BR",
   lowStimulationMode: false,
   highContrast: false,
   language: "pt",
@@ -30,6 +38,7 @@ const defaultSettings: AccessibilitySettings = {
 interface AccessibilityContextType {
   settings: AccessibilitySettings;
   updateSettings: (partial: Partial<AccessibilitySettings>) => void;
+  settingsLoaded: boolean;
 }
 
 const AccessibilityContext = createContext<AccessibilityContextType | null>(null);
@@ -41,6 +50,7 @@ export function AccessibilityProvider({
 }) {
   const [settings, setSettings] =
     useState<AccessibilitySettings>(defaultSettings);
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem("a11y_settings");
@@ -51,9 +61,11 @@ export function AccessibilityProvider({
         /* ignore */
       }
     }
+    setSettingsLoaded(true);
   }, []);
 
   useEffect(() => {
+    if (!settingsLoaded) return;
     // Apply theme to document
     const root = document.documentElement;
     root.classList.toggle("dark", settings.theme === "dark");
@@ -72,14 +84,14 @@ export function AccessibilityProvider({
     );
 
     localStorage.setItem("a11y_settings", JSON.stringify(settings));
-  }, [settings]);
+  }, [settings, settingsLoaded]);
 
   const updateSettings = (partial: Partial<AccessibilitySettings>) => {
     setSettings((prev) => ({ ...prev, ...partial }));
   };
 
   return (
-    <AccessibilityContext.Provider value={{ settings, updateSettings }}>
+    <AccessibilityContext.Provider value={{ settings, updateSettings, settingsLoaded }}>
       {children}
     </AccessibilityContext.Provider>
   );

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "../globals.css";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
+import { AccessibilityProvider } from "@/contexts/AccessibilityContext";
 
 export const metadata: Metadata = {
   title: "Conta Comigo — Matemática que aprende com cada criança",
@@ -32,7 +33,7 @@ export default async function RootLayout({
     <html lang={locale}>
       <body className="antialiased">
         <NextIntlClientProvider locale={locale} messages={messages}>
-          {children}
+          <AccessibilityProvider>{children}</AccessibilityProvider>
         </NextIntlClientProvider>
       </body>
     </html>

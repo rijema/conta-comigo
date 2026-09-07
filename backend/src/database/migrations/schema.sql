@@ -104,7 +104,9 @@ DO $$ BEGIN
     'INSTRUCTION_REPLAYED', 'RECOMMENDATION_GENERATED',
     'RECOMMENDATION_PRESENTED', 'RECOMMENDATION_COMPLETED',
     'DIFFICULTY_ADJUSTED', 'TITIA_INTERACTION',
-    'pictogram_opened', 'visual_library_opened', 'visual_library_item_selected'
+    'pictogram_opened', 'visual_library_opened', 'visual_library_item_selected',
+    'instruction_spoken', 'instruction_replayed', 'hint_spoken',
+    'pictogram_spoken', 'speech_disabled'
   );
 EXCEPTION
   WHEN duplicate_object THEN NULL;
@@ -113,6 +115,11 @@ END $$;
 ALTER TYPE learning_event_type_enum ADD VALUE IF NOT EXISTS 'pictogram_opened';
 ALTER TYPE learning_event_type_enum ADD VALUE IF NOT EXISTS 'visual_library_opened';
 ALTER TYPE learning_event_type_enum ADD VALUE IF NOT EXISTS 'visual_library_item_selected';
+ALTER TYPE learning_event_type_enum ADD VALUE IF NOT EXISTS 'instruction_spoken';
+ALTER TYPE learning_event_type_enum ADD VALUE IF NOT EXISTS 'instruction_replayed';
+ALTER TYPE learning_event_type_enum ADD VALUE IF NOT EXISTS 'hint_spoken';
+ALTER TYPE learning_event_type_enum ADD VALUE IF NOT EXISTS 'pictogram_spoken';
+ALTER TYPE learning_event_type_enum ADD VALUE IF NOT EXISTS 'speech_disabled';
 
 CREATE TABLE IF NOT EXISTS learning_events (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(), "studentId" UUID NOT NULL,

@@ -1,5 +1,18 @@
 # Change Summary
 
+## Batch B4.2 — TitiA speech and guided instructions
+
+- Added a replaceable `TitiaSpeechService` that centralizes browser TTS, sequential instructions, cancellation, replay, rate, language, hints, feedback, and pictogram speech.
+- Added optional authored speech fields and a visible step-by-step guidance panel with listen, replay, and stop controls.
+- Added persisted voice, speech-rate, automatic-instruction, language, and sound controls through the application accessibility provider.
+- Reused the current learning-session ID and deduplicated automatic speech per session/activity across React remounts.
+- Added spoken pictograms to the ARASAAC library and learning menu without automatically speaking every interaction.
+- Added five sanitized append-only speech event types and an authenticated endpoint without storing spoken or child-entered text.
+- Added explicit short speech sequences to two parametric seed examples while retaining sentence-based fallback for existing activities.
+- Added behavioral service tests plus frontend/backend integration and migration coverage.
+
+The migration only extends the LearningEvent enum. No speech replay is interpreted as inability, and no voice recording, recognition, recommendation change, or adaptive threshold was added.
+
 ## Batch B4.1 — ARASAAC visual communication and learning library
 
 - Added a centralized, extensible `PictogramConcept`/`PictogramRegistry` vocabulary, including numbers 0–20 and backward-compatible activity aliases.

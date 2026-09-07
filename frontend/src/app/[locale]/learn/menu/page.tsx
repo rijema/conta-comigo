@@ -9,8 +9,8 @@ import { authService } from "@/lib/auth";
 import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
 import { ArasaacAttribution } from "@/components/arasaac/arasaac-attribution";
 import { useVisualCommunicationAnalytics } from "@/hooks/use-visual-communication-analytics";
-import { speakPortuguese } from "@/lib/speech";
 import { pictogramRegistry } from "@/lib/pictograms";
+import { useTitiaSpeech } from "@/hooks/use-titia-speech";
 
 /* ── Island themes — thematic name + skill subtitle ── */
 const ISLAND_THEMES = [
@@ -84,6 +84,7 @@ export default function ActivityMenuPage() {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
   const trackVisualCommunication = useVisualCommunicationAnalytics();
+  const speech = useTitiaSpeech();
 
   useEffect(() => {
     const token = authService.getStoredToken();
@@ -488,7 +489,7 @@ export default function ActivityMenuPage() {
                 {NUMBER_PICTOS.map((p) => (
                   <button key={p.conceptId} onClick={() => {
                     const label = pictogramRegistry.get(p.conceptId)?.labelPt ?? p.conceptId.split(".")[1];
-                    speakPortuguese(label);
+                    speech.speakPictogram(label, p.conceptId);
                     trackVisualCommunication("pictogram_opened", { pictogramConceptId: p.conceptId, category: "Números" });
                     trackVisualCommunication("visual_library_item_selected", { pictogramConceptId: p.conceptId, category: "Números" });
                   }}
@@ -502,7 +503,7 @@ export default function ActivityMenuPage() {
                 {MATH_PICTOS.map((p) => (
                   <button key={p.conceptId} onClick={() => {
                     const label = pictogramRegistry.get(p.conceptId)?.labelPt;
-                    if (label) speakPortuguese(label);
+                    if (label) speech.speakPictogram(label, p.conceptId);
                     trackVisualCommunication("pictogram_opened", { pictogramConceptId: p.conceptId, category: "Matemática" });
                     trackVisualCommunication("visual_library_item_selected", { pictogramConceptId: p.conceptId, category: "Matemática" });
                   }}

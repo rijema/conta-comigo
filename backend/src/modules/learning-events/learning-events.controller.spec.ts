@@ -5,6 +5,7 @@ import {
 } from './dto/track-visual-communication-event.dto';
 import { LearningEventType } from './entities/learning-event.entity';
 import { LearningEventsController } from './learning-events.controller';
+import { SPEECH_EVENT_TYPES, TrackSpeechEventDto } from './dto/track-speech-event.dto';
 
 describe('LearningEventsController visual communication tracking', () => {
   it.each(VISUAL_COMMUNICATION_EVENT_TYPES)('accepts the supported %s event', async (eventType) => {
@@ -70,5 +71,47 @@ describe('LearningEventsController visual communication tracking', () => {
       sessionId: 'learning-session-1',
       eventType: LearningEventType.VISUAL_LIBRARY_OPENED,
     })).resolves.toEqual({ tracked: false });
+  });
+});
+
+describe('LearningEventsController speech tracking', () => {
+  it.each(SPEECH_EVENT_TYPES)('accepts the supported %s event', async (eventType) => {
+    const dto = Object.assign(new TrackSpeechEventDto(), {
+      sessionId: 'learning-session-1',
+      eventType,
+      activityId: '85797b0f-0292-4d91-986f-995bc86b8506',
+    });
+    await expect(validate(dto)).resolves.toHaveLength(0);
+  });
+
+  it('rejects spoken text and invalid pictogram identifiers as metadata', async () => {
+    const dto = Object.assign(new TrackSpeechEventDto(), {
+      sessionId: 'learning-session-1',
+      eventType: LearningEventType.PICTOGRAM_SPOKEN,
+      pictogramConceptId: 'the child said unrestricted words',
+    });
+    await expect(validate(dto)).resolves.toEqual(expect.arrayContaining([
+      expect.objectContaining({ property: 'pictogramConceptId' }),
+    ]));
+  });
+
+  it('stores only activity and bounded speech metadata', async () => {
+    const track = jest.fn().mockResolvedValue({ id: 'event-1' });
+    const controller = new LearningEventsController({ track } as any);
+    const activityId = '85797b0f-0292-4d91-986f-995bc86b8506';
+
+    await controller.trackSpeech('student-1', {
+      sessionId: 'learning-session-1',
+      eventType: LearningEventType.INSTRUCTION_SPOKEN,
+      activityId,
+      stepCount: 4,
+    });
+
+    expect(track).toHaveBeenCalledWith(expect.objectContaining({
+      studentId: 'student-1',
+      activityId,
+      eventType: LearningEventType.INSTRUCTION_SPOKEN,
+      metadata: { stepCount: 4 },
+    }));
   });
 });

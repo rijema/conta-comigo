@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, Suspense } from "react";
+import { useEffect, useState, useCallback, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale } from "next-intl";
 import Image from "next/image";
@@ -8,6 +8,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { useSession } from "@/hooks/use-session";
 import { ActivityRenderer } from "@/components/activity/activity-renderer";
 import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
+import { useAccessibility } from "@/contexts/AccessibilityContext";
+import { useTitiaSpeech } from "@/hooks/use-titia-speech";
 
 /* ── Rotating colourful backgrounds per activity ── */
 const BG_THEMES = [
@@ -58,9 +60,12 @@ function LearnPageInner() {
   const [mounted, setMounted] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const [bgIdx, setBgIdx] = useState(0);
+  const startCuePlayedRef = useRef(false);
   const router = useRouter();
   const locale = useLocale();
   const searchParams = useSearchParams();
+  const { settings } = useAccessibility();
+  const speech = useTitiaSpeech({ activityId: session?.currentActivity?.id });
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -69,8 +74,11 @@ function LearnPageInner() {
     if (authLoading) return;
     if (!user) { router.replace(`/${locale}/auth/login`); return; }
     startSession();
-    playStart();
-  }, [mounted, user, authLoading]);
+    if (settings.soundEnabled && !startCuePlayedRef.current) {
+      startCuePlayedRef.current = true;
+      playStart();
+    }
+  }, [mounted, user, authLoading, settings.soundEnabled]);
 
   /* rotate background on each new activity */
   useEffect(() => {
@@ -88,16 +96,22 @@ function LearnPageInner() {
       timeSpentMs: Date.now() - (session.activityStartTime || Date.now()),
     });
     if (result.isCorrect) {
-      playCorrect();
+      if (settings.soundEnabled) playCorrect();
+      speech.speakFeedback(
+        session.currentActivity.content?.spokenSuccessFeedback || "Muito bem! Você conseguiu.",
+      );
       setStars((s) => s + 1);
       setShowReward(true);
       setTimeout(() => setShowReward(false), 2200);
     } else {
-      playWrong();
+      if (settings.soundEnabled) playWrong();
+      speech.speakFeedback(
+        session.currentActivity.content?.spokenRetryFeedback || "Tudo bem. Vamos tentar novamente.",
+      );
       setRewardWrong(true);
       setTimeout(() => setRewardWrong(false), 1800);
     }
-  }, [session, submitAnswer]);
+  }, [session, settings.soundEnabled, speech, submitAnswer]);
 
   const handleGoToMenu = () => {
     skipCurrentActivity();
@@ -263,7 +277,10 @@ function LearnPageInner() {
               </div>
             )}
             <button
-              onClick={() => { setShowTutorial(false); playStart(); }}
+              onClick={() => {
+                setShowTutorial(false);
+                if (settings.soundEnabled) playStart();
+              }}
               className="w-full py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-extrabold rounded-2xl hover:opacity-90 transition-opacity text-base shadow-lg"
             >
               <ArasaacPictogram conceptId="navigation.start" showLabel={false} imageClassName="w-7 h-7" />

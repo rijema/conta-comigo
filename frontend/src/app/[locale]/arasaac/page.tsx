@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArasaacAttribution } from "@/components/arasaac/arasaac-attribution";
 import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
 import { useVisualCommunicationAnalytics } from "@/hooks/use-visual-communication-analytics";
-import { speakPortuguese } from "@/lib/speech";
+import { useTitiaSpeech } from "@/hooks/use-titia-speech";
 import {
   VISUAL_LEARNING_LIBRARY,
   type VisualLearningItem,
@@ -16,6 +16,7 @@ export default function ArasaacPage() {
   const router = useRouter();
   const locale = useLocale();
   const track = useVisualCommunicationAnalytics();
+  const speech = useTitiaSpeech();
   const openedTracked = useRef(false);
   const [selected, setSelected] = useState<VisualLearningItem | null>(null);
   const [activeTab, setActiveTab] = useState(0);
@@ -29,7 +30,7 @@ export default function ArasaacPage() {
 
   const selectItem = (item: VisualLearningItem) => {
     setSelected(item);
-    speakPortuguese(item.label);
+    speech.speakPictogram(item.label, item.conceptId);
     track("visual_library_item_selected", {
       pictogramConceptId: item.conceptId,
       category: category.name,
@@ -84,7 +85,7 @@ export default function ArasaacPage() {
               {selected.example && <p className="text-sm text-slate-600 mt-0.5">{selected.example}</p>}
             </div>
             <button onClick={() => {
-              speakPortuguese(selected.label);
+              speech.speakPictogram(selected.label, selected.conceptId);
               track("pictogram_opened", { pictogramConceptId: selected.conceptId, category: category.name });
             }} aria-label={`Ouvir ${selected.label}`}
               className="min-h-14 px-3 bg-gradient-to-br from-purple-500 to-pink-500 text-white rounded-2xl flex items-center gap-2 font-bold">

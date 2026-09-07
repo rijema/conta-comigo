@@ -4,11 +4,13 @@ import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, Sun, Moon, Volume2, VolumeX, Type, Globe } from "lucide-react";
 import { useAccessibility } from "@/contexts/AccessibilityContext";
+import { useTitiaSpeech } from "@/hooks/use-titia-speech";
 
 export default function SettingsPage() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const { settings, updateSettings } = useAccessibility();
+  const { setVoiceEnabled, speakFeedback, stopSpeech } = useTitiaSpeech();
 
   const toggleTheme = () => {
     updateSettings({ theme: settings.theme === "light" ? "dark" : "light" });
@@ -111,6 +113,72 @@ export default function SettingsPage() {
                     settings.soundEnabled ? "translate-x-8" : "translate-x-1"
                   }`}
                 />
+              </button>
+            </div>
+          </div>
+
+          {/* TitiA voice */}
+          <div className="bg-card rounded-2xl p-5 border border-border space-y-5">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                {settings.voiceEnabled ? (
+                  <Volume2 className="w-6 h-6 text-purple-500" />
+                ) : (
+                  <VolumeX className="w-6 h-6 text-muted-foreground" />
+                )}
+                <div>
+                  <p className="font-semibold">Voz da TitiA</p>
+                  <p className="text-sm text-muted-foreground">Leitura opcional de instruções, dicas e pictogramas.</p>
+                </div>
+              </div>
+              <button type="button" role="switch" aria-checked={settings.voiceEnabled}
+                onClick={() => setVoiceEnabled(!settings.voiceEnabled)}
+                className={`relative w-14 h-7 rounded-full transition-colors ${settings.voiceEnabled ? "bg-primary" : "bg-muted"}`}
+                aria-label={settings.voiceEnabled ? "Desativar voz da TitiA" : "Ativar voz da TitiA"}>
+                <span className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-transform ${settings.voiceEnabled ? "translate-x-8" : "translate-x-1"}`} />
+              </button>
+            </div>
+
+            <label className="block">
+              <span className="font-semibold">Velocidade da fala: {settings.speechRate.toFixed(2)}×</span>
+              <input type="range" min="0.6" max="1.2" step="0.05"
+                value={settings.speechRate}
+                onChange={(event) => updateSettings({ speechRate: Number(event.target.value) })}
+                className="w-full mt-2" aria-label="Velocidade da fala da TitiA" />
+            </label>
+
+            <label className="block font-semibold">
+              Idioma da fala
+              <select value={settings.speechLanguage}
+                onChange={(event) => updateSettings({ speechLanguage: event.target.value })}
+                className="block w-full mt-2 rounded-xl border-2 border-border bg-background px-3 py-2">
+                <option value="pt-BR">Português do Brasil</option>
+                <option value="en-US">English (US)</option>
+              </select>
+            </label>
+
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="font-semibold">Falar instruções automaticamente</p>
+                <p className="text-sm text-muted-foreground">Uma vez ao abrir cada atividade.</p>
+              </div>
+              <button type="button" role="switch" aria-checked={settings.automaticInstructionSpeech}
+                onClick={() => updateSettings({ automaticInstructionSpeech: !settings.automaticInstructionSpeech })}
+                className={`relative w-14 h-7 rounded-full transition-colors ${settings.automaticInstructionSpeech ? "bg-primary" : "bg-muted"}`}
+                aria-label="Alternar fala automática das instruções">
+                <span className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-transform ${settings.automaticInstructionSpeech ? "translate-x-8" : "translate-x-1"}`} />
+              </button>
+            </div>
+
+            <div className="flex gap-3">
+              <button type="button" disabled={!settings.voiceEnabled}
+                onClick={() => speakFeedback("Oi! Eu sou a TitiA.")}
+                className="flex-1 rounded-xl border-2 border-purple-200 px-3 py-2 font-bold text-purple-700 disabled:opacity-40">
+                Testar voz
+              </button>
+              <button type="button" onClick={stopSpeech}
+                className="flex-1 rounded-xl border-2 border-slate-200 px-3 py-2 font-bold text-slate-700">
+                Parar fala
               </button>
             </div>
           </div>
