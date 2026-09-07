@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import type { Activity, SensoryProfile } from "@/types";
+import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
 
 interface Props {
   activity: Activity;
@@ -101,7 +102,8 @@ export function MultipleChoiceActivity({
 
       {/* Instruction label */}
       <p className="text-sm font-semibold text-blue-700 mb-3 text-center tracking-wide uppercase">
-        👇 Toque na resposta certa
+        <ArasaacPictogram conceptId="activity.touch" showLabel={false} imageClassName="w-6 h-6" />
+        <span className="ml-2">Toque na resposta certa</span>
       </p>
 
       {/* Options */}
@@ -153,7 +155,8 @@ export function MultipleChoiceActivity({
                      focus:ring-4 focus:ring-blue-300 transition-colors"
           aria-label="Confirmar resposta"
         >
-          Confirmar ✓
+          <ArasaacPictogram conceptId="activity.complete" showLabel={false} imageClassName="w-7 h-7" />
+          <span className="ml-2">Confirmar</span>
         </button>
       )}
 

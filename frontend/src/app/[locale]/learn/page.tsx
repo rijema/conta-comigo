@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useAuth } from "@/hooks/use-auth";
 import { useSession } from "@/hooks/use-session";
 import { ActivityRenderer } from "@/components/activity/activity-renderer";
+import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
 
 /* ── Rotating colourful backgrounds per activity ── */
 const BG_THEMES = [
@@ -124,7 +125,8 @@ function LearnPageInner() {
               <p className="text-gray-500 mt-2 text-sm">{sessionError}</p>
               <button onClick={() => window.location.reload()}
                 className="mt-4 px-6 py-3 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700">
-                Tentar novamente
+                <ArasaacPictogram conceptId="navigation.try_again" showLabel={false} imageClassName="w-7 h-7" />
+                <span className="ml-2">Tentar novamente</span>
               </button>
             </>
           ) : (
@@ -174,7 +176,8 @@ function LearnPageInner() {
             onClick={handleGoToMenu}
             className="flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-gradient-to-r from-purple-100 to-pink-100 border-2 border-purple-200 hover:border-purple-300 transition-colors text-sm font-extrabold text-purple-700"
           >
-            🗺️ Mapa
+            <ArasaacPictogram conceptId="navigation.change_activity" showLabel={false} imageClassName="w-6 h-6" />
+            <span>Mapa</span>
           </button>
 
           {/* Stars */}
@@ -199,9 +202,12 @@ function LearnPageInner() {
           <div className="flex items-center gap-2">
             <button
               onClick={handleOpenTutorial}
-              className="w-10 h-10 rounded-2xl bg-orange-100 border-2 border-orange-200 hover:bg-orange-200 flex items-center justify-center text-lg transition-colors"
-              title="Como resolver?"
-            >💡</button>
+              className="min-h-10 rounded-2xl bg-orange-100 border-2 border-orange-200 hover:bg-orange-200 flex items-center gap-1 px-2 text-sm font-bold transition-colors"
+              aria-label="Abrir ajuda: como resolver"
+            >
+              <ArasaacPictogram conceptId="navigation.help" showLabel={false} imageClassName="w-6 h-6" />
+              <span className="hidden sm:inline">Ajuda</span>
+            </button>
             <button onClick={logout} className="text-xs text-gray-400 hover:text-red-500 px-2 py-1 rounded-lg">Sair</button>
           </div>
         </div>
@@ -260,7 +266,8 @@ function LearnPageInner() {
               onClick={() => { setShowTutorial(false); playStart(); }}
               className="w-full py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-extrabold rounded-2xl hover:opacity-90 transition-opacity text-base shadow-lg"
             >
-              Entendi! Vamos jogar! 🚀
+              <ArasaacPictogram conceptId="navigation.start" showLabel={false} imageClassName="w-7 h-7" />
+              <span className="ml-2">Entendi! Vamos jogar!</span>
             </button>
           </div>
         </div>

@@ -1,21 +1,12 @@
 "use client";
 
 import Link from "next/link";
-
-/* ── ARASAAC pictograms via public CDN ────────────────────────────
-   Base URL: https://static.arasaac.org/pictograms/{id}/{id}_500.png
-   IDs below are real ARASAAC pictogram IDs for math/school concepts ── */
-const PICTO_CDN = "https://static.arasaac.org/pictograms";
+import { ArasaacAttribution } from "./arasaac-attribution";
+import { ArasaacPictogram } from "./arasaac-pictogram";
 
 const MATH_PICTOS = [
-  { id: 2822,  label: "Contar" },
-  { id: 6200,  label: "Somar" },
-  { id: 6201,  label: "Subtrair" },
-  { id: 6198,  label: "Número" },
-  { id: 6199,  label: "Matemática" },
-  { id: 4686,  label: "Escola" },
-  { id: 9812,  label: "Aprender" },
-  { id: 38228, label: "Jogar" },
+  "mathematics.count", "mathematics.addition", "mathematics.subtraction",
+  "mathematics.numbers", "library.math", "library.learn", "library.play", "activity.choose",
 ];
 
 const COLORS = [
@@ -45,30 +36,18 @@ export function ArasaacSection({ locale }: Props) {
           Conta Comigo usa <span className="text-orange-500">ARASAAC</span>
         </h2>
         <p className="text-slate-600 max-w-2xl mx-auto leading-relaxed">
-          O método ARASAAC (Sistema de Comunicação por Pictogramas) é adotado mundialmente para suporte à comunicação de crianças com autismo, dificuldades de linguagem e outras necessidades de comunicação. Os pictogramas transformam conceitos abstratos em imagens claras, reduzindo a sobrecarga sensorial e facilitando a compreensão.
+          O Conta Comigo oferece pictogramas ARASAAC como apoio visual, sempre acompanhados por texto legível e alternativa acessível.
         </p>
       </div>
 
       {/* Pictogram grid */}
       <div className="grid grid-cols-4 md:grid-cols-8 gap-3 mb-10">
-        {MATH_PICTOS.map((p, i) => (
+        {MATH_PICTOS.map((conceptId, i) => (
           <div
-            key={p.id}
+            key={conceptId}
             className={`rounded-2xl border-2 p-2 flex flex-col items-center gap-1 ${COLORS[i % COLORS.length]}`}
           >
-            <div className="w-full aspect-square rounded-xl bg-white flex items-center justify-center overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={`${PICTO_CDN}/${p.id}/${p.id}_500.png`}
-                alt={p.label}
-                className="w-full h-full object-contain p-1"
-                loading="lazy"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = "none";
-                }}
-              />
-            </div>
-            <span className="text-xs font-bold text-slate-600 text-center leading-tight">{p.label}</span>
+            <ArasaacPictogram conceptId={conceptId} className="w-full" imageClassName="w-full aspect-square" />
           </div>
         ))}
       </div>
@@ -88,14 +67,14 @@ export function ArasaacSection({ locale }: Props) {
             title: "ARASAAC",
             bg: "bg-orange-50 border-orange-200",
             titleColor: "text-orange-800",
-            desc: "O ARASAAC (Centro Aragonês para a Comunicação Aumentativa e Alternativa) disponibiliza mais de 25.000 pictogramas gratuitos em múltiplos idiomas. É amplamente utilizado por terapeutas, educadores e famílias em mais de 100 países.",
+            desc: "O ARASAAC disponibiliza recursos de Comunicação Aumentativa e Alternativa. O Conta Comigo usa uma seleção pequena e registrada de pictogramas, sem copiar o catálogo inteiro.",
           },
           {
             emoji: "📚",
             title: "Na plataforma",
             bg: "bg-green-50 border-green-200",
             titleColor: "text-green-800",
-            desc: "O Conta Comigo utiliza pictogramas ARASAAC para ilustrar enunciados, opções de resposta e instruções de atividades. Isso reduz a dependência de leitura e torna as atividades mais acessíveis para crianças não-verbais ou com dificuldades de leitura.",
+            desc: "O Conta Comigo usa pictogramas em ações, conceitos e atividades quando há correspondência semântica, mantendo texto e descrição alternativa.",
           },
         ].map((c) => (
           <div key={c.title} className={`rounded-2xl border-2 p-5 ${c.bg}`}>
@@ -106,15 +85,23 @@ export function ArasaacSection({ locale }: Props) {
         ))}
       </div>
 
+      <div className="mb-8 text-center">
+        <Link href={`/${locale}/arasaac`}
+          className="inline-flex items-center gap-3 rounded-2xl bg-orange-100 border-2 border-orange-300 px-5 py-3 font-extrabold text-orange-800 hover:bg-orange-200">
+          <ArasaacPictogram conceptId="library.learn" showLabel={false} imageClassName="w-10 h-10" />
+          <span>Abrir “Aprender com a TitiA”</span>
+        </Link>
+      </div>
+
       {/* Benefits banner */}
       <div className="bg-gradient-to-r from-orange-500 to-pink-500 rounded-3xl p-6 text-white text-center">
-        <h3 className="text-xl font-extrabold mb-3">Por que pictogramas fazem diferença para crianças com TEA?</h3>
+        <h3 className="text-xl font-extrabold mb-3">Como oferecemos apoio visual</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
           {[
-            { icon: "🎨", text: "Processamento visual mais natural" },
-            { icon: "🔇", text: "Menor sobrecarga auditiva" },
-            { icon: "⚡", text: "Respostas mais rápidas" },
-            { icon: "😊", text: "Menos ansiedade e frustração" },
+            { icon: "🎨", text: "Imagem com texto" },
+            { icon: "🔇", text: "Alternativa à instrução falada" },
+            { icon: "🔊", text: "Fala opcional" },
+            { icon: "✅", text: "Fallback acessível" },
           ].map((b) => (
             <div key={b.text} className="bg-white/20 rounded-2xl p-3">
               <div className="text-2xl mb-1">{b.icon}</div>
@@ -122,18 +109,7 @@ export function ArasaacSection({ locale }: Props) {
             </div>
           ))}
         </div>
-        <p className="mt-4 text-white/80 text-xs">
-          Pictogramas fornecidos gratuitamente pelo{" "}
-          <a
-            href="https://arasaac.org"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline hover:text-white font-semibold"
-          >
-            Portal ARASAAC
-          </a>{" "}
-          sob licença Creative Commons BY-NC-SA · © Governo de Aragão (Espanha)
-        </p>
+        <ArasaacAttribution className="mt-4 text-white/80" />
       </div>
     </section>
   );

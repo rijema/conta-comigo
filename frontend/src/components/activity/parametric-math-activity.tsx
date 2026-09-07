@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { Activity, ActivityOption, SensoryProfile } from "@/types";
-import { resolvePictogram } from "@/lib/pictograms";
+import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
 
 interface ParametricOption extends ActivityOption {
   value?: unknown;
@@ -19,16 +19,6 @@ interface Props {
   onAnswer: (answer: unknown) => void;
   onRequestHint?: () => void;
   sensoryProfile?: SensoryProfile;
-}
-
-function Pictogram({ conceptId }: { conceptId: string }) {
-  const pictogram = resolvePictogram(conceptId);
-  if (!pictogram) return null;
-  return (
-    <span role="img" aria-label={pictogram.labelPt} className="text-4xl">
-      {pictogram.symbol}
-    </span>
-  );
 }
 
 export function ParametricMathActivity({
@@ -111,7 +101,7 @@ export function ParametricMathActivity({
           >
             {option.pictogramConceptId && (
               <span className="block mb-1" aria-hidden="true">
-                <Pictogram conceptId={option.pictogramConceptId} />
+                <ArasaacPictogram conceptId={option.pictogramConceptId} showLabel={false} />
               </span>
             )}
             {option.emoji && <span className="block text-4xl mb-1">{option.emoji}</span>}
@@ -127,7 +117,7 @@ export function ParametricMathActivity({
       {pictogramConceptIds.length > 0 && (
         <div className="flex justify-center gap-3 mb-4" aria-label="Apoios visuais">
           {pictogramConceptIds.map((conceptId) => (
-            <Pictogram key={conceptId} conceptId={conceptId} />
+            <ArasaacPictogram key={conceptId} conceptId={conceptId} />
           ))}
         </div>
       )}
@@ -170,7 +160,9 @@ export function ParametricMathActivity({
         <div className="mt-5 space-y-2" role="status" aria-live="polite">
           {hints.slice(0, visibleHints).map((hint, index) => (
             <div key={index} className="rounded-xl bg-yellow-50 border-2 border-yellow-200 p-3">
-              {hint.pictogramConceptId && <Pictogram conceptId={hint.pictogramConceptId} />}
+              {hint.pictogramConceptId && (
+                <ArasaacPictogram conceptId={hint.pictogramConceptId} showLabel={false} />
+              )}
               <span className="ml-2">{hint.textLabel}</span>
             </div>
           ))}
@@ -186,7 +178,8 @@ export function ParametricMathActivity({
             data-spoken-label="Mostrar uma dica"
             className="flex-1 py-3 rounded-xl border-2 border-yellow-300 bg-yellow-50 font-bold"
           >
-            💡 Dica
+            <ArasaacPictogram conceptId="navigation.help" showLabel={false} imageClassName="w-6 h-6" />
+            <span className="ml-2">Dica</span>
           </button>
         )}
         <button
@@ -198,7 +191,8 @@ export function ParametricMathActivity({
           className="flex-1 py-3 bg-blue-600 text-white font-bold rounded-xl
             hover:bg-blue-700 disabled:bg-gray-300 focus:ring-4 focus:ring-blue-300"
         >
-          Confirmar ✓
+          <ArasaacPictogram conceptId="activity.complete" showLabel={false} imageClassName="w-6 h-6" />
+          <span className="ml-2">Confirmar</span>
         </button>
       </div>
     </div>

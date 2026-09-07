@@ -16,6 +16,9 @@ export enum LearningEventType {
   RECOMMENDATION_COMPLETED = 'RECOMMENDATION_COMPLETED',
   DIFFICULTY_ADJUSTED = 'DIFFICULTY_ADJUSTED',
   TITIA_INTERACTION = 'TITIA_INTERACTION',
+  PICTOGRAM_OPENED = 'pictogram_opened',
+  VISUAL_LIBRARY_OPENED = 'visual_library_opened',
+  VISUAL_LIBRARY_ITEM_SELECTED = 'visual_library_item_selected',
 }
 
 @Entity('learning_events')
