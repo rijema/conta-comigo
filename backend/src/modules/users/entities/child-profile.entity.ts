@@ -60,6 +60,10 @@ export class ChildProfile {
     fontSize?: 'small' | 'medium' | 'large';
     animationsEnabled?: boolean;
     soundEnabled?: boolean;
+    voiceEnabled?: boolean;
+    speechRate?: number;
+    automaticInstructionSpeech?: boolean;
+    speechLanguage?: string;
     preferredModality?: 'visual' | 'auditive' | 'mixed';
   };
 

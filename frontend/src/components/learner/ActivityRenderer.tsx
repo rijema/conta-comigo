@@ -9,6 +9,7 @@ import { useAccessibility } from "@/contexts/AccessibilityContext";
 import { useSession } from "@/contexts/SessionContext";
 import { apiClient } from "@/lib/api-client";
 import type { Activity, ActivityAttempt } from "@/types/activity";
+import { titiaSpeechService } from "@/lib/titia-speech-service";
 
 interface ActivityRendererProps {
   activity: Activity;
@@ -46,14 +47,7 @@ function playSound(type: "correct" | "incorrect") {
 }
 
 function speakText(text: string) {
-  if (typeof window !== "undefined" && window.speechSynthesis) {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "pt-BR";
-    utterance.rate = 0.85;
-    utterance.pitch = 1.1;
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utterance);
-  }
+  titiaSpeechService.speakInstruction({ steps: [text] });
 }
 
 // ─── Multiple Choice Activity ───────────────────────────────────────────────
@@ -366,6 +360,14 @@ export function ActivityRenderer({ activity, onComplete, onSkip }: ActivityRende
   const [phase, setPhase] = useState<"intro" | "active" | "feedback">("intro");
   const [lastResult, setLastResult] = useState<{ isCorrect: boolean; responseTimeMs: number } | null>(null);
   const startTimeRef = useRef(Date.now());
+
+  useEffect(() => {
+    titiaSpeechService.configure({
+      enabled: settings.voiceEnabled,
+      rate: settings.speechRate,
+      language: settings.speechLanguage,
+    });
+  }, [settings.voiceEnabled, settings.speechLanguage, settings.speechRate]);
 
   // Auto-advance from intro after 1.5s (ASD-friendly: no sudden changes)
   useEffect(() => {

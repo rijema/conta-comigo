@@ -7,6 +7,7 @@ import { CountingActivity } from "./counting-activity";
 import { NumberLineActivity } from "./number-line-activity";
 import { ParametricMathActivity } from "./parametric-math-activity";
 import type { Activity, SensoryProfile } from "@/types";
+import { GuidedInstructions } from "./guided-instructions";
 
 interface ActivityRendererProps {
   activity: Activity;
@@ -141,6 +142,7 @@ export function ActivityRenderer({
       </div>
 
       {/* Activity Content */}
+      <GuidedInstructions activity={activity} />
       <div className="bg-white rounded-2xl shadow-md p-6 border-2 border-blue-50">
         {renderActivity()}
       </div>

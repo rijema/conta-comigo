@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Activity, ActivityOption, SensoryProfile } from "@/types";
 import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
+import { useTitiaSpeech } from "@/hooks/use-titia-speech";
 
 interface ParametricOption extends ActivityOption {
   value?: unknown;
@@ -31,6 +32,7 @@ export function ParametricMathActivity({
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
   const [numericAnswer, setNumericAnswer] = useState("");
   const [visibleHints, setVisibleHints] = useState(0);
+  const speech = useTitiaSpeech({ activityId: activity.id });
   const content = activity.content ?? {};
   const options = (content.options ?? []) as ParametricOption[];
   const reasonOptions = (content.reasonOptions ?? []) as ParametricOption[];
@@ -49,8 +51,10 @@ export function ParametricMathActivity({
 
   const showNextHint = () => {
     if (visibleHints >= hints.length) return;
+    const hint = hints[visibleHints];
     setVisibleHints((current) => current + 1);
     onRequestHint?.();
+    speech.speakHint(activity.content?.spokenHint || hint.textLabel);
   };
 
   const submit = () => {

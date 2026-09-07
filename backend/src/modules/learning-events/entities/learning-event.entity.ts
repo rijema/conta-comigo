@@ -19,6 +19,11 @@ export enum LearningEventType {
   PICTOGRAM_OPENED = 'pictogram_opened',
   VISUAL_LIBRARY_OPENED = 'visual_library_opened',
   VISUAL_LIBRARY_ITEM_SELECTED = 'visual_library_item_selected',
+  INSTRUCTION_SPOKEN = 'instruction_spoken',
+  INSTRUCTION_REPLAYED_SPEECH = 'instruction_replayed',
+  HINT_SPOKEN = 'hint_spoken',
+  PICTOGRAM_SPOKEN = 'pictogram_spoken',
+  SPEECH_DISABLED = 'speech_disabled',
 }
 
 @Entity('learning_events')

@@ -630,6 +630,17 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       content: {
         instructionsPt: 'TitiA pensa que 3 + 2 = 6. Ela está certa? Escolha também o motivo.',
         instructions: 'TitiA thinks 3 + 2 = 6. Is she right? Also choose the reason.',
+        spokenIntroduction: 'Oi! A TitiA vai te explicar.',
+        spokenSteps: [
+          'Olhe a conta.',
+          'Conte três objetos.',
+          'Agora conte mais dois.',
+          'Escolha sim ou não.',
+          'Depois escolha o motivo.',
+        ],
+        spokenHint: 'Conte três objetos. Depois conte mais dois.',
+        spokenSuccessFeedback: 'Muito bem! Três mais dois é igual a cinco.',
+        spokenRetryFeedback: 'Tudo bem. Conte os objetos mais uma vez.',
         question: '3 + 2 = 6?',
         pictogramConceptIds: ['character.titia'],
         options: [
@@ -684,6 +695,16 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       content: {
         instructionsPt: 'Havia 3 maçãs. Colocaram mais 2. Quantas maçãs há agora?',
         instructions: 'There were 3 apples. Two more were added. How many are there now?',
+        spokenIntroduction: 'Oi! A TitiA vai te explicar.',
+        spokenSteps: [
+          'Olhe as três maçãs.',
+          'Agora olhe mais duas.',
+          'Junte os grupos.',
+          'Quantas maçãs temos?',
+        ],
+        spokenHint: 'Junte as maçãs. Depois conte todas.',
+        spokenSuccessFeedback: 'Muito bem! Temos cinco maçãs.',
+        spokenRetryFeedback: 'Tudo bem. Junte os grupos e conte novamente.',
         question: '🍎🍎🍎 + 🍎🍎 = ?',
         context: { operationMeaning: 'join' },
         pictogramConceptIds: ['object.apple', 'math.addition'],
@@ -721,15 +742,31 @@ export async function ActivitiesSeed(dataSource: DataSource) {
     },
   ];
 
-  const existingRecords = await repo.find({ select: ['title'] });
+  const existingRecords = await repo.find({ select: ['id', 'title', 'content'] });
   const existingTitles = new Set(existingRecords.map((record: any) => record.title));
+  const existingByTitle = new Map(existingRecords.map((record: any) => [record.title, record]));
   let created = 0;
+  let speechMetadataUpdated = 0;
   for (const activity of activities) {
-    if (existingTitles.has(activity.title)) continue;
+    if (existingTitles.has(activity.title)) {
+      const existing = existingByTitle.get(activity.title) as any;
+      const activityContent = activity.content as Record<string, any>;
+      const authoredSpeech = Object.fromEntries(
+        ['spokenIntroduction', 'spokenSteps', 'spokenHint', 'spokenSuccessFeedback', 'spokenRetryFeedback']
+          .filter((key) => activityContent[key] !== undefined)
+          .map((key) => [key, activityContent[key]]),
+      );
+      if (Object.keys(authoredSpeech).length > 0 && !existing.content?.spokenSteps) {
+        existing.content = { ...existing.content, ...authoredSpeech };
+        await repo.save(existing);
+        speechMetadataUpdated += 1;
+      }
+      continue;
+    }
     const record = repo.create(activity);
     await repo.save(record);
     created += 1;
   }
 
-  console.log(`✅ ${created} new activities seeded (${activities.length} defined)`);
+  console.log(`✅ ${created} new activities seeded; ${speechMetadataUpdated} speech metadata records updated (${activities.length} defined)`);
 }

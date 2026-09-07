@@ -6,6 +6,10 @@ export interface SensoryProfile {
   highContrast?: boolean;
   animationsEnabled?: boolean;
   soundEnabled?: boolean;
+  voiceEnabled?: boolean;
+  speechRate?: number;
+  automaticInstructionSpeech?: boolean;
+  speechLanguage?: string;
   [key: string]: any;
 }
 
@@ -26,6 +30,11 @@ export interface ActivityContent {
   options?: ActivityOption[];
   correctAnswer?: any;
   example?: string;
+  spokenIntroduction?: string;
+  spokenSteps?: string[];
+  spokenHint?: string;
+  spokenSuccessFeedback?: string;
+  spokenRetryFeedback?: string;
   imageUrl?: string;
   imageAlt?: string;
   correctOrder?: string[];
