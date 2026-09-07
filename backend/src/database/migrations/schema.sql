@@ -21,13 +21,24 @@ CREATE TABLE IF NOT EXISTS child_profiles (
 
 CREATE TABLE IF NOT EXISTS activities (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(), title VARCHAR(255) NOT NULL, description TEXT,
-  type VARCHAR NOT NULL CHECK (type IN ('visual_puzzle', 'quiz', 'video_question', 'yes_no', 'counting', 'drag_drop')),
+  type VARCHAR NOT NULL CHECK (type IN (
+    'visual_puzzle', 'quiz', 'video_question', 'yes_no', 'counting', 'drag_drop',
+    'composition_decomposition', 'missing_number', 'pattern_completion',
+    'representation_matching', 'error_detection', 'contextual_problem_solving'
+  )),
   difficulty VARCHAR NOT NULL DEFAULT 'easy' CHECK (difficulty IN ('easy', 'medium', 'hard')),
   "bnccSkills" JSONB NOT NULL DEFAULT '[]', "targetModalities" JSONB NOT NULL DEFAULT '[]',
   content JSONB NOT NULL, accessibility JSONB, "isActive" BOOLEAN NOT NULL DEFAULT TRUE,
   "pointsReward" INTEGER NOT NULL DEFAULT 0, "prerequisiteSkillCode" VARCHAR,
   "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(), "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE activities DROP CONSTRAINT IF EXISTS activities_type_check;
+ALTER TABLE activities ADD CONSTRAINT activities_type_check CHECK (type IN (
+  'visual_puzzle', 'quiz', 'video_question', 'yes_no', 'counting', 'drag_drop',
+  'composition_decomposition', 'missing_number', 'pattern_completion',
+  'representation_matching', 'error_detection', 'contextual_problem_solving'
+));
 
 CREATE TABLE IF NOT EXISTS bncc_skills (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(), code VARCHAR(20) UNIQUE NOT NULL,

@@ -14,6 +14,8 @@ export interface ActivityOption {
   text: string;
   emoji?: string;
   isCorrect: boolean;
+  value?: unknown;
+  pictogramConceptId?: string;
 }
 
 export interface ActivityContent {
@@ -28,6 +30,73 @@ export interface ActivityContent {
   imageAlt?: string;
   correctOrder?: string[];
   [key: string]: any;
+}
+
+export type SemanticActivityType =
+  | 'counting'
+  | 'multiple_choice'
+  | 'quiz'
+  | 'drag_drop'
+  | 'number_line'
+  | 'composition_decomposition'
+  | 'missing_number'
+  | 'pattern_completion'
+  | 'representation_matching'
+  | 'error_detection'
+  | 'contextual_problem_solving'
+  | 'unmapped';
+
+export type Representation =
+  | 'pictorial'
+  | 'symbolic'
+  | 'textual'
+  | 'number_line'
+  | 'contextual'
+  | 'object_based';
+
+export type InteractionType =
+  | 'repeated_selection'
+  | 'option_selection'
+  | 'drag_and_drop'
+  | 'alternative_placement'
+  | 'range_selection'
+  | 'composition_building'
+  | 'missing_value_entry'
+  | 'pattern_completion'
+  | 'representation_matching'
+  | 'error_evaluation'
+  | 'contextual_response'
+  | 'unmapped';
+
+export interface ActivityDifficultyProfile {
+  conceptualComplexity: string | number | null;
+  numericalMagnitude: number | null;
+  abstractionLevel: string | number | null;
+  stepCount: number | null;
+  distractorSimilarity: string | number | null;
+  languageLoad: string | number | null;
+  motorDemand: string | number | null;
+  sensoryLoad: string | number | null;
+  scaffoldingLevel: string | number | null;
+  annotationProvenance:
+    | 'EXPLICIT_ACTIVITY_METADATA'
+    | 'DEVELOPER_INSPECTION'
+    | 'UNANNOTATED';
+  unannotatedDimensions: string[];
+}
+
+export interface ActivityAffordance {
+  requiresDragging: boolean;
+  requiresReading: boolean;
+  usesAudio: boolean;
+  usesPictograms: boolean;
+}
+
+export interface ChildCommunicationSupport {
+  textLabel: string;
+  pictogram: string | null;
+  spokenExplanationText: string;
+  nonReaderAlternatives: Array<'audio' | 'pictogram' | 'symbolic'>;
 }
 
 export interface Activity {
@@ -45,6 +114,19 @@ export interface Activity {
   options?: ActivityOption[];
   instructions?: string;
   accessibility?: Record<string, any>;
+  activityType?: SemanticActivityType;
+  bnccSkillId?: string | null;
+  mathematicalConcepts?: string[];
+  representation?: Representation[];
+  interactionType?: InteractionType[];
+  difficultyProfile?: ActivityDifficultyProfile;
+  affordances?: ActivityAffordance;
+  communication?: ChildCommunicationSupport;
+  scaffoldingOptions?: Record<string, unknown> | null;
+  semanticAnnotation?: {
+    source: 'CURRENT_ACTIVITY_CONTENT_AND_REPOSITORY_ONTOLOGY';
+    conceptMappingStatus: 'MAPPED' | 'PARTIAL' | 'NEEDS_REVIEW' | 'UNMAPPED';
+  };
 }
 
 export interface User {

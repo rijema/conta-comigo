@@ -3,12 +3,6 @@ import { DataSource } from 'typeorm';
 export async function ActivitiesSeed(dataSource: DataSource) {
   const repo = dataSource.getRepository('activities');
 
-  const existing = await repo.count();
-  if (existing > 0) {
-    console.log('⏩ Activities already seeded, skipping');
-    return;
-  }
-
   const activities = [
     // ── EF01MA01: Counting 1–10 ─────────────────────────────────────────
     {
@@ -472,12 +466,270 @@ export async function ActivitiesSeed(dataSource: DataSource) {
         correctAnswer: 'Círculo',
       },
     },
+    // ── PARAMETRIC FAMILIES: coverage-driven additions ─────────────────
+    {
+      title: 'Decomponha o número 7',
+      description: 'Forme o todo a partir de duas partes',
+      type: 'composition_decomposition',
+      difficulty: 'easy',
+      bnccSkills: ['EF01MA07'],
+      targetModalities: ['visual', 'logical'],
+      pointsReward: 20,
+      isActive: true,
+      accessibility: { hasVisual: true, sensoryLoad: 'low' },
+      content: {
+        instructionsPt: 'O número 7 pode ser formado por 4 e quanto?',
+        instructions: 'The number 7 can be composed of 4 and what number?',
+        question: '7 = 4 + ?',
+        pictogramConceptIds: ['math.whole', 'math.part'],
+        options: [
+          { id: 'part-2', text: '2', value: '2', isCorrect: false },
+          { id: 'part-3', text: '3', value: '3', isCorrect: true },
+          { id: 'part-4', text: '4', value: '4', isCorrect: false },
+        ],
+        correctAnswer: '3',
+        validation: { kind: 'exact' },
+        scaffolding: {
+          hints: [
+            { textLabel: 'Comece com 4 partes e conte até 7.', pictogramConceptId: 'math.part' },
+          ],
+          workedExample: '5 = 2 + 3',
+          allowManipulatives: true,
+        },
+        semantic: {
+          mathematicalConcepts: ['NumberConcept', 'AdditionConcept'],
+          conceptMappingStatus: 'MAPPED',
+          representation: ['object_based', 'pictorial', 'symbolic'],
+          interactionType: ['composition_building'],
+          difficultyProfile: {
+            conceptualComplexity: null,
+            numericalMagnitude: 7,
+            abstractionLevel: null,
+            stepCount: 2,
+            distractorSimilarity: null,
+            languageLoad: null,
+            motorDemand: 'LOW',
+            sensoryLoad: 'LOW',
+            scaffoldingLevel: 'OPTIONAL',
+          },
+          affordances: {
+            requiresDragging: false,
+            requiresReading: true,
+            usesAudio: false,
+            usesPictograms: true,
+          },
+        },
+      },
+    },
+    {
+      title: 'Descubra o número que falta',
+      description: 'Complete um fato básico da adição',
+      type: 'missing_number',
+      difficulty: 'easy',
+      bnccSkills: ['EF01MA06'],
+      targetModalities: ['logical'],
+      pointsReward: 20,
+      isActive: true,
+      accessibility: { sensoryLoad: 'low' },
+      content: {
+        instructionsPt: 'Qual número completa a igualdade?',
+        instructions: 'Which number completes the equation?',
+        question: '5 + ? = 8',
+        inputMode: 'numeric',
+        correctAnswer: 3,
+        validation: { kind: 'numeric' },
+        scaffolding: {
+          hints: [{ textLabel: 'Conte do 5 até o 8.', pictogramConceptId: 'math.number_line' }],
+          workedExample: '2 + ? = 5; o número que falta é 3.',
+        },
+        semantic: {
+          mathematicalConcepts: ['AdditionConcept'],
+          conceptMappingStatus: 'MAPPED',
+          representation: ['symbolic'],
+          interactionType: ['missing_value_entry'],
+          difficultyProfile: {
+            conceptualComplexity: null,
+            numericalMagnitude: 8,
+            abstractionLevel: null,
+            stepCount: 1,
+            distractorSimilarity: null,
+            languageLoad: null,
+            motorDemand: 'LOW',
+            sensoryLoad: 'LOW',
+            scaffoldingLevel: 'OPTIONAL',
+          },
+          affordances: {
+            requiresDragging: false,
+            requiresReading: true,
+            usesAudio: false,
+            usesPictograms: false,
+          },
+        },
+      },
+    },
+    {
+      title: 'Combine a forma com o nome',
+      description: 'Relacione representações de uma figura plana',
+      type: 'representation_matching',
+      difficulty: 'easy',
+      bnccSkills: ['EF01MA14'],
+      targetModalities: ['visual'],
+      pointsReward: 20,
+      isActive: true,
+      accessibility: { hasVisual: true, sensoryLoad: 'low' },
+      content: {
+        instructionsPt: 'Qual nome combina com esta forma?',
+        instructions: 'Which name matches this shape?',
+        question: '⬜',
+        pictogramConceptIds: ['shape.square'],
+        options: [
+          { id: 'shape-circle', text: 'Círculo', value: 'circle', pictogramConceptId: 'shape.circle', isCorrect: false },
+          { id: 'shape-square', text: 'Quadrado', value: 'square', pictogramConceptId: 'shape.square', isCorrect: true },
+          { id: 'shape-triangle', text: 'Triângulo', value: 'triangle', pictogramConceptId: 'shape.triangle', isCorrect: false },
+        ],
+        correctAnswer: 'square',
+        validation: { kind: 'exact' },
+        scaffolding: {
+          hints: [{ textLabel: 'Observe os quatro lados iguais.', pictogramConceptId: 'shape.square' }],
+        },
+        semantic: {
+          mathematicalConcepts: ['BasicGeometryConcept', 'SquareConcept'],
+          conceptMappingStatus: 'PARTIAL',
+          representation: ['pictorial', 'object_based'],
+          interactionType: ['representation_matching'],
+          difficultyProfile: {
+            conceptualComplexity: null,
+            numericalMagnitude: null,
+            abstractionLevel: null,
+            stepCount: 1,
+            distractorSimilarity: null,
+            languageLoad: null,
+            motorDemand: 'LOW',
+            sensoryLoad: 'LOW',
+            scaffoldingLevel: 'OPTIONAL',
+          },
+          affordances: {
+            requiresDragging: false,
+            requiresReading: true,
+            usesAudio: false,
+            usesPictograms: true,
+          },
+        },
+      },
+    },
+    {
+      title: 'A conta da TitiA está certa?',
+      description: 'Avalie uma afirmação e escolha uma justificativa',
+      type: 'error_detection',
+      difficulty: 'medium',
+      bnccSkills: ['EF01MA06'],
+      targetModalities: ['logical'],
+      pointsReward: 25,
+      isActive: true,
+      accessibility: { hasVisual: true, sensoryLoad: 'low' },
+      content: {
+        instructionsPt: 'TitiA pensa que 3 + 2 = 6. Ela está certa? Escolha também o motivo.',
+        instructions: 'TitiA thinks 3 + 2 = 6. Is she right? Also choose the reason.',
+        question: '3 + 2 = 6?',
+        pictogramConceptIds: ['character.titia'],
+        options: [
+          { id: 'verdict-yes', text: 'Sim', value: true, pictogramConceptId: 'action.yes', isCorrect: false },
+          { id: 'verdict-no', text: 'Não', value: false, pictogramConceptId: 'action.no', isCorrect: true },
+        ],
+        reasonOptions: [
+          { id: 'reason-five', text: 'Porque 3 + 2 = 5', value: 'sum_is_five', isCorrect: true },
+          { id: 'reason-six', text: 'Porque 3 + 2 = 6', value: 'sum_is_six', isCorrect: false },
+        ],
+        correctAnswer: { value: false, reason: 'sum_is_five' },
+        validation: { kind: 'compound' },
+        scaffolding: {
+          hints: [{ textLabel: 'Conte três objetos e depois mais dois.', pictogramConceptId: 'math.addition' }],
+          requireReason: true,
+        },
+        semantic: {
+          mathematicalConcepts: ['AdditionConcept'],
+          conceptMappingStatus: 'MAPPED',
+          representation: ['contextual', 'symbolic', 'pictorial'],
+          interactionType: ['error_evaluation'],
+          difficultyProfile: {
+            conceptualComplexity: null,
+            numericalMagnitude: 6,
+            abstractionLevel: null,
+            stepCount: 2,
+            distractorSimilarity: null,
+            languageLoad: null,
+            motorDemand: 'LOW',
+            sensoryLoad: 'LOW',
+            scaffoldingLevel: 'OPTIONAL',
+          },
+          affordances: {
+            requiresDragging: false,
+            requiresReading: true,
+            usesAudio: false,
+            usesPictograms: true,
+          },
+        },
+      },
+    },
+    {
+      title: 'Maçãs para o lanche',
+      description: 'Resolva uma situação de juntar quantidades',
+      type: 'contextual_problem_solving',
+      difficulty: 'easy',
+      bnccSkills: ['EF01MA08'],
+      targetModalities: ['visual', 'logical'],
+      pointsReward: 25,
+      isActive: true,
+      accessibility: { hasVisual: true, sensoryLoad: 'low' },
+      content: {
+        instructionsPt: 'Havia 3 maçãs. Colocaram mais 2. Quantas maçãs há agora?',
+        instructions: 'There were 3 apples. Two more were added. How many are there now?',
+        question: '🍎🍎🍎 + 🍎🍎 = ?',
+        context: { operationMeaning: 'join' },
+        pictogramConceptIds: ['object.apple', 'math.addition'],
+        inputMode: 'numeric',
+        correctAnswer: 5,
+        validation: { kind: 'numeric' },
+        scaffolding: {
+          hints: [{ textLabel: 'Junte os dois grupos de maçãs e conte.', pictogramConceptId: 'object.apple' }],
+          allowManipulatives: true,
+        },
+        semantic: {
+          mathematicalConcepts: ['AdditionConcept', 'EarlyProblemSolvingConcept'],
+          conceptMappingStatus: 'PARTIAL',
+          representation: ['contextual', 'object_based', 'pictorial'],
+          interactionType: ['contextual_response'],
+          difficultyProfile: {
+            conceptualComplexity: null,
+            numericalMagnitude: 5,
+            abstractionLevel: null,
+            stepCount: 2,
+            distractorSimilarity: null,
+            languageLoad: null,
+            motorDemand: 'LOW',
+            sensoryLoad: 'LOW',
+            scaffoldingLevel: 'OPTIONAL',
+          },
+          affordances: {
+            requiresDragging: false,
+            requiresReading: true,
+            usesAudio: false,
+            usesPictograms: true,
+          },
+        },
+      },
+    },
   ];
 
+  const existingRecords = await repo.find({ select: ['title'] });
+  const existingTitles = new Set(existingRecords.map((record: any) => record.title));
+  let created = 0;
   for (const activity of activities) {
+    if (existingTitles.has(activity.title)) continue;
     const record = repo.create(activity);
     await repo.save(record);
+    created += 1;
   }
 
-  console.log(`✅ ${activities.length} activities seeded`);
+  console.log(`✅ ${created} new activities seeded (${activities.length} defined)`);
 }

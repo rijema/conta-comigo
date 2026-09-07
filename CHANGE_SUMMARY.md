@@ -152,3 +152,24 @@ No database migration is required because this batch only changes client-side in
 - Added an automated documentation test that enforces the classification labels and final dissertation structure for every Markdown document under `docs/research/`.
 
 No database migration is required because this batch changes research documentation and its validation only.
+## Batch B3.1 — Adaptive activity framework consolidation
+
+- Added one runtime semantic contract for Counting, Multiple Choice, Quiz, Drag and Drop, and Number Line.
+- Exposed normalized activity type, resolved BNCC skill ID, documented mathematical concepts, representations, interactions, multidimensional difficulty, affordances, and child-communication cues.
+- Preserved the persisted `easy`/`medium`/`hard` label and existing answer/rendering behavior.
+- Kept unsupported values explicit through nulls, unannotated dimensions, mapping status, and engineering provenance.
+- Reused the repository's existing BNCC and activity-ontology mappings without deriving difficulty from ASD support level.
+- Added backend unit coverage and matching frontend TypeScript contracts.
+
+No database migration is required because the semantic fields are derived response metadata and no persisted schema changed.
+## Batch B3.2 — Parametric mathematics activity families
+
+- Added six configurable activity families: composition/decomposition, missing number, pattern completion, representation matching, error detection, and contextual problem solving.
+- Added one shared frontend renderer, centralized pictogram concept registry, optional scaffolding, and two-stage error reasoning.
+- Added configurable backend answer validation while preserving legacy answer behavior.
+- Added five coverage-driven seed instances for EF01MA07, EF01MA06, EF01MA14, and EF01MA08; Pattern Completion remains unseeded until its curriculum mapping is verified.
+- Added the missing officially documented EF01MA07 and EF01MA14 seed records.
+- Added an additive activity-type migration and made activity seeding incremental for existing installations.
+- Updated semantic coverage snapshots and added backend/frontend regression tests, including Learning Analytics tracking.
+
+No recommendation ranking, Generalization Score, full ARASAAC integration, learner mastery logic, or legacy activity remapping changed in this batch.

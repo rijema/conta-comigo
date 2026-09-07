@@ -12,6 +12,8 @@ import { LearningEventService } from '../learning-events/learning-event.service'
 import { LearningEventType } from '../learning-events/entities/learning-event.entity';
 import { TrackActivityLifecycleDto } from './dto/track-activity-lifecycle.dto';
 import { KnowledgeTracingService } from '../knowledge-tracing/knowledge-tracing.service';
+import { buildActivitySemanticContract } from './activity-semantic-contract';
+import { validateActivityAnswer } from './activity-answer-validator';
 
 @Injectable()
 export class ActivitiesService {
@@ -32,7 +34,7 @@ export class ActivitiesService {
 
   async create(dto: CreateActivityDto): Promise<Activity> {
     const activity = this.activityRepo.create(dto);
-    return this.activityRepo.save(activity);
+    return this.attachSemanticContract(await this.activityRepo.save(activity));
   }
 
   async findAll(filters?: {
@@ -59,13 +61,16 @@ export class ActivitiesService {
       });
     }
 
-    return query.getMany();
+    const activities = await query.getMany();
+    return Promise.all(
+      activities.map((activity) => this.attachSemanticContract(activity)),
+    );
   }
 
   async findById(id: string): Promise<Activity> {
     const activity = await this.activityRepo.findOne({ where: { id } });
     if (!activity) throw new NotFoundException(`Activity ${id} not found`);
-    return activity;
+    return this.attachSemanticContract(activity);
   }
 
   async getNextActivity(userId: string): Promise<{
@@ -105,7 +110,10 @@ export class ActivitiesService {
         where: { difficulty: DifficultyLevel.EASY, isActive: true },
       });
       if (!fallback) throw new Error('No activities available');
-      return { activity: fallback, adeDecision: null };
+      return {
+        activity: await this.attachSemanticContract(fallback),
+        adeDecision: null,
+      };
     }
 
     // 3. Find matching activity
@@ -125,7 +133,10 @@ export class ActivitiesService {
       `Next activity for user ${userId}: ${activity.id} (ADE decision: ${adeDecision?.id ?? 'fallback'})`,
     );
 
-    return { activity, adeDecision };
+    return {
+      activity: await this.attachSemanticContract(activity),
+      adeDecision,
+    };
   }
 
   async submitAttempt(userId: string, dto: SubmitAttemptDto): Promise<{
@@ -239,6 +250,10 @@ export class ActivitiesService {
       }
     }
 
+    if (nextActivity) {
+      nextActivity = await this.attachSemanticContract(nextActivity);
+    }
+
     return { attempt, feedback, nextActivity, adeDecision };
   }
 
@@ -332,6 +347,24 @@ export class ActivitiesService {
     return rows[0]?.id ?? null;
   }
 
+  private async attachSemanticContract(activity: Activity): Promise<Activity> {
+    let bnccSkillId: string | null = null;
+    try {
+      bnccSkillId = await this.resolveBnccSkillId(activity);
+    } catch (error) {
+      const details = error instanceof Error ? error.stack : String(error);
+      this.logger.error(
+        `Failed to resolve BNCC skill for semantic activity ${activity.id}`,
+        details,
+      );
+    }
+
+    return Object.assign(
+      activity,
+      buildActivitySemanticContract(activity, bnccSkillId),
+    );
+  }
+
   private async updateMasteryFromAttempt(
     studentId: string,
     activity: Activity,
@@ -368,7 +401,10 @@ export class ActivitiesService {
       recentAttempts.filter((a) => a.isCorrect).map((a) => a.activityId)
     );
 
-    const allActivities = await this.activityRepo.find({ where: { isActive: true } });
+    const storedActivities = await this.activityRepo.find({ where: { isActive: true } });
+    const allActivities = await Promise.all(
+      storedActivities.map((activity) => this.attachSemanticContract(activity)),
+    );
 
     // Group by BNCC skill
     const bySkill: Record<string, any[]> = {};
@@ -383,6 +419,15 @@ export class ActivitiesService {
         completed: completedActivityIds.has(act.id),
         bnccSkills: act.bnccSkills,
         targetModalities: act.targetModalities,
+        activityType: act.activityType,
+        bnccSkillId: act.bnccSkillId,
+        mathematicalConcepts: act.mathematicalConcepts,
+        representation: act.representation,
+        interactionType: act.interactionType,
+        difficultyProfile: act.difficultyProfile,
+        affordances: act.affordances,
+        communication: act.communication,
+        semanticAnnotation: act.semanticAnnotation,
       });
     });
 
@@ -435,38 +480,10 @@ export class ActivitiesService {
   }
 
   private evaluateAnswer(activity: Activity, answer: any): boolean {
-    // Drag-drop: compare arrangement array against correctOrder
-    if (activity.type === 'drag_drop') {
-      const rawCorrectOrder =
-        activity.content?.correctOrder ?? activity.content?.correctAnswer ?? [];
-      const correctOrder: string[] = Array.isArray(rawCorrectOrder)
-        ? rawCorrectOrder.map(String)
-        : String(rawCorrectOrder).split(',').map((id) => id.trim());
-      const arrangement: string[] = Array.isArray(answer)
-        ? answer.map(String)
-        : String(answer).split(',').map((id) => id.trim());
-      return (
-        arrangement.length === correctOrder.length &&
-        arrangement.every((id, i) => id === correctOrder[i])
-      );
-    }
-
-    const correct = activity.content?.correctAnswer;
-    if (correct === null || correct === undefined) return false;
-
-    if (typeof correct === 'string') {
-      return String(answer).toLowerCase().trim() === correct.toLowerCase().trim();
-    }
-
-    if (typeof correct === 'number') {
-      return Number(answer) === correct;
-    }
-
-    if (Array.isArray(correct)) {
-      return JSON.stringify(answer) === JSON.stringify(correct);
-    }
-
-    return answer === correct;
+    const content = activity.type === ActivityType.DRAG_DROP && !activity.content.validation
+      ? { ...activity.content, validation: { kind: 'sequence' as const } }
+      : activity.content;
+    return validateActivityAnswer(content, answer);
   }
 
   private generateFeedback(

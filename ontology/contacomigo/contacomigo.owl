@@ -1125,7 +1125,7 @@
     <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#EarlyProblemSolvingConcept"/>
     <cc:conceptMappingStatus>mapped</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
-    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">4</cc:currentActivityCount>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">6</cc:currentActivityCount>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
 
@@ -1141,7 +1141,7 @@
     <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/>
     <cc:conceptMappingStatus>mapped</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NEEDS_REVIEW</cc:currentActivityCoverageStatus>
-    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">3</cc:currentActivityCount>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
 
@@ -1157,8 +1157,8 @@
     <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#SubtractionConcept"/>
     <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#EarlyProblemSolvingConcept"/>
     <cc:conceptMappingStatus>mapped</cc:conceptMappingStatus>
-    <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
-    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
 
@@ -1174,8 +1174,8 @@
     <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#SquareConcept"/>
     <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#RectangleConcept"/>
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
-    <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
-    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
     <rdfs:comment xml:lang="en">Circle and triangle concepts are not yet represented in the ContaComigo mathematical layer; the mapping is therefore partial.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>

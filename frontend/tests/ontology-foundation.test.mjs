@@ -243,12 +243,12 @@ test('BNCC competency-query fixtures return the expected curriculum answers', as
     skills.filter(({ body }) => mappedConcepts(body).includes('AdditionConcept')).map(({ code }) => code),
     ['EF01MA06', 'EF01MA07', 'EF01MA08'],
   );
-  assert.equal((activitiesSeed.match(/bnccSkills: \['EF01MA06'\]/g) ?? []).length, 4);
+  assert.equal((activitiesSeed.match(/bnccSkills: \['EF01MA06'\]/g) ?? []).length, 6);
   assert.deepEqual(
     skills
       .filter(({ body }) => body.includes('<cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>'))
       .map(({ code }) => code),
-    ['EF01MA08', 'EF01MA14'],
+    [],
   );
   assert.deepEqual(
     skills
