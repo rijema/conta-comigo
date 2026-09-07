@@ -1,5 +1,17 @@
 # Change Summary
 
+## Batch B4.1 — ARASAAC visual communication and learning library
+
+- Added a centralized, extensible `PictogramConcept`/`PictogramRegistry` vocabulary, including numbers 0–20 and backward-compatible activity aliases.
+- Added one accessible `ArasaacPictogram` component with text-by-default behavior and remote-image fallback.
+- Restored the six-section “Aprender com a TitiA” visual library with optional examples and browser speech actions, explicitly outside adaptive recommendation.
+- Removed ARASAAC CDN construction and numeric IDs from React components and reused the registry in activities, the learning menu, and the public ARASAAC section.
+- Added official in-application attribution and documented CC BY-NC-SA provenance from ARASAAC terms.
+- Added three sanitized append-only visual interaction event types, an authenticated endpoint, and non-blocking frontend tracking using the current learning-session ID.
+- Added backend and frontend regression coverage for the enum migration, metadata boundary, registry, fallback, alt text, visible labels, categories, and tracking.
+
+The database migration only extends the existing learning-event enum. It does not alter recommendation behavior, download the ARASAAC catalog, or make the visual library adaptive.
+
 ## Batch B2.2E — Activity and Learning Analytics semantics
 
 - Added a distinct activity semantic root, reusable family profiles, representations, interaction types, difficulty profiles, and activity affordances.

@@ -33,6 +33,32 @@ CREATE TABLE IF NOT EXISTS activities (
   "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(), "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
+DO $$
+DECLARE
+  activity_type_name TEXT;
+  activity_type_value TEXT;
+BEGIN
+  SELECT udt_name INTO activity_type_name
+  FROM information_schema.columns
+  WHERE table_schema = current_schema()
+    AND table_name = 'activities'
+    AND column_name = 'type'
+    AND data_type = 'USER-DEFINED';
+
+  IF activity_type_name IS NOT NULL THEN
+    FOREACH activity_type_value IN ARRAY ARRAY[
+      'composition_decomposition', 'missing_number', 'pattern_completion',
+      'representation_matching', 'error_detection', 'contextual_problem_solving'
+    ] LOOP
+      EXECUTE format(
+        'ALTER TYPE %I ADD VALUE IF NOT EXISTS %L',
+        activity_type_name,
+        activity_type_value
+      );
+    END LOOP;
+  END IF;
+END $$;
+
 ALTER TABLE activities DROP CONSTRAINT IF EXISTS activities_type_check;
 ALTER TABLE activities ADD CONSTRAINT activities_type_check CHECK (type IN (
   'visual_puzzle', 'quiz', 'video_question', 'yes_no', 'counting', 'drag_drop',
@@ -77,11 +103,16 @@ DO $$ BEGIN
     'ACTIVITY_SKIPPED', 'HINT_REQUESTED', 'TUTORIAL_OPENED',
     'INSTRUCTION_REPLAYED', 'RECOMMENDATION_GENERATED',
     'RECOMMENDATION_PRESENTED', 'RECOMMENDATION_COMPLETED',
-    'DIFFICULTY_ADJUSTED', 'TITIA_INTERACTION'
+    'DIFFICULTY_ADJUSTED', 'TITIA_INTERACTION',
+    'pictogram_opened', 'visual_library_opened', 'visual_library_item_selected'
   );
 EXCEPTION
   WHEN duplicate_object THEN NULL;
 END $$;
+
+ALTER TYPE learning_event_type_enum ADD VALUE IF NOT EXISTS 'pictogram_opened';
+ALTER TYPE learning_event_type_enum ADD VALUE IF NOT EXISTS 'visual_library_opened';
+ALTER TYPE learning_event_type_enum ADD VALUE IF NOT EXISTS 'visual_library_item_selected';
 
 CREATE TABLE IF NOT EXISTS learning_events (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(), "studentId" UUID NOT NULL,

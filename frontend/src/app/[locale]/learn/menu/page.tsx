@@ -6,6 +6,11 @@ import { useLocale } from "next-intl";
 import { useAuth } from "@/hooks/use-auth";
 import { api } from "@/lib/api-client";
 import { authService } from "@/lib/auth";
+import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
+import { ArasaacAttribution } from "@/components/arasaac/arasaac-attribution";
+import { useVisualCommunicationAnalytics } from "@/hooks/use-visual-communication-analytics";
+import { speakPortuguese } from "@/lib/speech";
+import { pictogramRegistry } from "@/lib/pictograms";
 
 /* ── Island themes — thematic name + skill subtitle ── */
 const ISLAND_THEMES = [
@@ -41,34 +46,27 @@ const AI_QUESTIONS = [
   "Como a matemática me ajuda no dia a dia? 🏠",
 ];
 
-/* ARASAAC CDN — IDs verificados via api.arasaac.org */
-const PICTO_CDN = "https://static.arasaac.org/pictograms";
-
 const NUMBER_PICTOS = [
-  { id: 2627, label: "Um",   color: "bg-red-50 border-red-200" },
-  { id: 2628, label: "Dois",  color: "bg-orange-50 border-orange-200" },
-  { id: 2629, label: "Três",  color: "bg-yellow-50 border-yellow-200" },
-  { id: 2630, label: "Quatro",color: "bg-green-50 border-green-200" },
-  { id: 2631, label: "Cinco", color: "bg-teal-50 border-teal-200" },
-  { id: 2632, label: "Seis",  color: "bg-blue-50 border-blue-200" },
-  { id: 2633, label: "Sete",  color: "bg-indigo-50 border-indigo-200" },
-  { id: 2634, label: "Oito",  color: "bg-purple-50 border-purple-200" },
-  { id: 29254,label: "Dez",   color: "bg-pink-50 border-pink-200" },
+  { conceptId: "number.1", color: "bg-red-50 border-red-200" },
+  { conceptId: "number.2", color: "bg-orange-50 border-orange-200" },
+  { conceptId: "number.3", color: "bg-yellow-50 border-yellow-200" },
+  { conceptId: "number.4", color: "bg-green-50 border-green-200" },
+  { conceptId: "number.5", color: "bg-teal-50 border-teal-200" },
+  { conceptId: "number.6", color: "bg-blue-50 border-blue-200" },
+  { conceptId: "number.7", color: "bg-indigo-50 border-indigo-200" },
+  { conceptId: "number.8", color: "bg-purple-50 border-purple-200" },
+  { conceptId: "number.10", color: "bg-pink-50 border-pink-200" },
 ];
 
 const MATH_PICTOS = [
-  { id: 5868,  label: "Somar",     color: "bg-green-50 border-green-200" },
-  { id: 5841,  label: "Subtrair",  color: "bg-blue-50 border-blue-200" },
-  { id: 5798,  label: "Multiplicar",color: "bg-purple-50 border-purple-200" },
-  { id: 5707,  label: "Dividir",   color: "bg-orange-50 border-orange-200" },
-  { id: 2714,  label: "Contar",    color: "bg-yellow-50 border-yellow-200" },
-  { id: 8518,  label: "Calcular",  color: "bg-teal-50 border-teal-200" },
-  { id: 32554, label: "Matemática",color: "bg-red-50 border-red-200" },
-  { id: 36405, label: "Aprender",  color: "bg-indigo-50 border-indigo-200" },
-  { id: 9810,  label: "Jogo",      color: "bg-pink-50 border-pink-200" },
-  { id: 37810, label: "Aprender",  color: "bg-cyan-50 border-cyan-200" },
-  { id: 23392, label: "Jogar",     color: "bg-amber-50 border-amber-200" },
-  { id: 24731, label: "Quantos?",  color: "bg-lime-50 border-lime-200" },
+  { conceptId: "mathematics.addition", color: "bg-green-50 border-green-200" },
+  { conceptId: "mathematics.subtraction", color: "bg-blue-50 border-blue-200" },
+  { conceptId: "mathematics.count", color: "bg-yellow-50 border-yellow-200" },
+  { conceptId: "mathematics.compare", color: "bg-teal-50 border-teal-200" },
+  { conceptId: "library.math", color: "bg-red-50 border-red-200" },
+  { conceptId: "library.learn", color: "bg-indigo-50 border-indigo-200" },
+  { conceptId: "library.board_game", color: "bg-pink-50 border-pink-200" },
+  { conceptId: "library.play", color: "bg-amber-50 border-amber-200" },
 ];
 
 export default function ActivityMenuPage() {
@@ -85,6 +83,7 @@ export default function ActivityMenuPage() {
   const [aiAnswer, setAiAnswer] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+  const trackVisualCommunication = useVisualCommunicationAnalytics();
 
   useEffect(() => {
     const token = authService.getStoredToken();
@@ -116,13 +115,9 @@ export default function ActivityMenuPage() {
     }
   };
 
-  const speak = (text: string) => {
-    if (typeof window !== "undefined" && window.speechSynthesis) {
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = "pt-BR"; u.rate = 0.85;
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(u);
-    }
+  const openVisualLibrary = () => {
+    setShowArasaac(true);
+    trackVisualCommunication("visual_library_opened");
   };
 
   if (isLoading) {
@@ -159,8 +154,11 @@ export default function ActivityMenuPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => router.push(`/${locale}/learn`)}
-              className="w-10 h-10 rounded-2xl bg-blue-100 hover:bg-blue-200 flex items-center justify-center text-xl transition-colors"
-            >▶️</button>
+              className="min-h-10 rounded-2xl bg-blue-100 hover:bg-blue-200 flex items-center gap-1 px-2 transition-colors"
+            >
+              <ArasaacPictogram conceptId="navigation.start" showLabel={false} imageClassName="w-6 h-6" />
+              <span className="text-xs font-bold">Jogar</span>
+            </button>
             <div>
               <h1 className="text-base font-extrabold text-blue-700 leading-tight">🗺️ Meu Mapa de Aventuras</h1>
               <p className="text-xs text-gray-500">Olá, <strong>{firstName}</strong>! Escolha uma ilha!</p>
@@ -169,10 +167,12 @@ export default function ActivityMenuPage() {
           <div className="flex items-center gap-2">
             <span className="text-sm font-bold text-blue-600 whitespace-nowrap">{totalDone}/{totalAll} 🌟</span>
             <button
-              onClick={() => setShowArasaac(true)}
-              className="hidden sm:flex w-10 h-10 rounded-2xl bg-gradient-to-br from-orange-400 to-yellow-400 items-center justify-center text-xl shadow-sm hover:scale-105 transition-transform"
-              title="Aprender com pictogramas"
-            >🗣️</button>
+              onClick={openVisualLibrary}
+              className="hidden sm:flex min-h-10 rounded-2xl bg-gradient-to-br from-orange-400 to-yellow-400 items-center gap-1 px-2 shadow-sm hover:scale-105 transition-transform"
+            >
+              <ArasaacPictogram conceptId="library.learn" showLabel={false} imageClassName="w-6 h-6" />
+              <span className="text-xs font-bold text-white">Figuras</span>
+            </button>
             <button
               onClick={() => { setShowAI(true); setAiAnswer(null); setAiQuestion(""); }}
               className="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-xl shadow-sm hover:scale-105 transition-transform"
@@ -216,18 +216,18 @@ export default function ActivityMenuPage() {
       {/* ── ARASAAC quick strip ── */}
       <div className="max-w-5xl mx-auto px-4 mt-4">
         <button
-          onClick={() => setShowArasaac(true)}
+          onClick={openVisualLibrary}
           className="w-full bg-gradient-to-r from-orange-100 to-yellow-100 border-2 border-orange-200 rounded-3xl px-5 py-3 flex items-center gap-4 hover:shadow-md transition-shadow"
         >
           <div className="flex gap-1.5 flex-shrink-0">
-            {[2627,2628,2629,2630,2631].map((id) => (
-              <div key={id} className="w-8 h-8 rounded-lg bg-white border border-orange-200 flex items-center justify-center overflow-hidden">
-                <img src={`${PICTO_CDN}/${id}/${id}_500.png`} alt="" className="w-full h-full object-contain" loading="lazy" />
+            {[1, 2, 3, 4, 5].map((value) => (
+              <div key={value} className="w-8 h-8 rounded-lg bg-white border border-orange-200 flex items-center justify-center overflow-hidden">
+                <ArasaacPictogram conceptId={`number.${value}`} showLabel={false} imageClassName="w-7 h-7" />
               </div>
             ))}
           </div>
           <div className="flex-1 text-left min-w-0">
-            <p className="font-extrabold text-orange-700 text-sm">🗣️ Aprender com Pictogramas!</p>
+            <p className="font-extrabold text-orange-700 text-sm">Aprender com a TitiA</p>
             <p className="text-orange-500 text-xs hidden sm:block">Toque para ver os números e símbolos matemáticos</p>
           </div>
           <span className="text-orange-500 text-lg flex-shrink-0">→</span>
@@ -355,10 +355,13 @@ export default function ActivityMenuPage() {
                                   {!act.completed ? (
                                     <button
                                       onClick={() => router.push(`/${locale}/learn?activityId=${act.id}`)}
-                                      className={`flex-shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center text-white text-lg shadow-md active:scale-95 transition-transform ${
+                                      className={`flex-shrink-0 min-h-11 rounded-2xl flex items-center gap-1 px-2 text-white text-sm font-bold shadow-md active:scale-95 transition-transform ${
                                         isRec ? "bg-gradient-to-br from-purple-500 to-pink-500" : "bg-gradient-to-br from-blue-400 to-blue-600"
                                       }`}
-                                    >▶</button>
+                                    >
+                                      <ArasaacPictogram conceptId="navigation.start" showLabel={false} imageClassName="w-5 h-5" />
+                                      <span>Começar</span>
+                                    </button>
                                   ) : (
                                     <div className="w-11 h-11 rounded-2xl bg-green-100 flex items-center justify-center text-2xl flex-shrink-0">🌟</div>
                                   )}
@@ -483,30 +486,34 @@ export default function ActivityMenuPage() {
               <p className="text-xs font-extrabold text-slate-400 uppercase mb-3">🔢 Números</p>
               <div className="grid grid-cols-5 gap-2 mb-5">
                 {NUMBER_PICTOS.map((p) => (
-                  <button key={p.id} onClick={() => speak(p.label)}
+                  <button key={p.conceptId} onClick={() => {
+                    const label = pictogramRegistry.get(p.conceptId)?.labelPt ?? p.conceptId.split(".")[1];
+                    speakPortuguese(label);
+                    trackVisualCommunication("pictogram_opened", { pictogramConceptId: p.conceptId, category: "Números" });
+                    trackVisualCommunication("visual_library_item_selected", { pictogramConceptId: p.conceptId, category: "Números" });
+                  }}
                     className={`rounded-2xl border-2 p-1.5 flex flex-col items-center gap-1 hover:scale-105 active:scale-95 transition-transform ${p.color}`}>
-                    <div className="w-full aspect-square rounded-xl bg-white flex items-center justify-center overflow-hidden border border-white shadow-sm">
-                      <img src={`${PICTO_CDN}/${p.id}/${p.id}_500.png`} alt={p.label} className="w-full h-full object-contain p-0.5" loading="lazy" />
-                    </div>
-                    <span className="text-xs font-extrabold text-slate-700">{p.label}</span>
+                    <ArasaacPictogram conceptId={p.conceptId} className="w-full" imageClassName="w-full aspect-square" />
                   </button>
                 ))}
               </div>
               <p className="text-xs font-extrabold text-slate-400 uppercase mb-3">➕ Matemática, Aprender e Jogar</p>
               <div className="grid grid-cols-4 gap-2 mb-4">
                 {MATH_PICTOS.map((p) => (
-                  <button key={p.id} onClick={() => speak(p.label)}
+                  <button key={p.conceptId} onClick={() => {
+                    const label = pictogramRegistry.get(p.conceptId)?.labelPt;
+                    if (label) speakPortuguese(label);
+                    trackVisualCommunication("pictogram_opened", { pictogramConceptId: p.conceptId, category: "Matemática" });
+                    trackVisualCommunication("visual_library_item_selected", { pictogramConceptId: p.conceptId, category: "Matemática" });
+                  }}
                     className={`rounded-2xl border-2 p-1.5 flex flex-col items-center gap-1 hover:scale-105 active:scale-95 transition-transform ${p.color}`}>
-                    <div className="w-full aspect-square rounded-xl bg-white flex items-center justify-center overflow-hidden border border-white shadow-sm">
-                      <img src={`${PICTO_CDN}/${p.id}/${p.id}_500.png`} alt={p.label} className="w-full h-full object-contain p-0.5" loading="lazy" />
-                    </div>
-                    <span className="text-xs font-extrabold text-slate-700">{p.label}</span>
+                    <ArasaacPictogram conceptId={p.conceptId} className="w-full" imageClassName="w-full aspect-square" />
                   </button>
                 ))}
               </div>
               <div className="bg-orange-50 border border-orange-200 rounded-2xl p-3 text-center">
                 <p className="text-xs text-orange-600">🔊 Toque em qualquer figura para ouvir o nome!</p>
-                <p className="text-xs text-orange-400 mt-1">Pictogramas © ARASAAC · Licença CC BY-NC-SA</p>
+                <ArasaacAttribution className="text-orange-500 mt-1" />
               </div>
             </div>
           </div>

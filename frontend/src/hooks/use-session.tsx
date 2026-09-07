@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef } from "react";
 import { api } from "@/lib/api-client";
 import { authService } from "@/lib/auth";
+import { setCurrentLearningSessionId } from "@/lib/learning-session";
 
 export interface SessionState {
   id: string;
@@ -90,6 +91,7 @@ export function useSession() {
     setError(null);
     try {
       const sessionId = `session-${Date.now()}`;
+      setCurrentLearningSessionId(sessionId);
       const { activity } = await api.get<{ activity: any; adeDecision: any }>(
         "/activities/next",
         token,

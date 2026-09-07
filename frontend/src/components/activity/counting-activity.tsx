@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { Activity, SensoryProfile } from "@/types";
+import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
 
 interface Props {
   activity: Activity;
@@ -88,14 +89,16 @@ export function CountingActivity({ activity, onAnswer, sensoryProfile }: Props) 
           disabled={submitted}
           className="flex-1 py-3 border-2 border-gray-300 text-gray-600 rounded-xl hover:bg-gray-50"
         >
-          Recomeçar
+          <ArasaacPictogram conceptId="navigation.try_again" showLabel={false} imageClassName="w-6 h-6" />
+          <span className="ml-2">Recomeçar</span>
         </button>
         <button
           onClick={handleSubmit}
           disabled={submitted || count === 0}
           className="flex-1 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 disabled:bg-gray-300"
         >
-          Confirmar ✓
+          <ArasaacPictogram conceptId="activity.complete" showLabel={false} imageClassName="w-6 h-6" />
+          <span className="ml-2">Confirmar</span>
         </button>
       </div>
     </div>

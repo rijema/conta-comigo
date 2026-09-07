@@ -18,6 +18,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import Image from "next/image";
 import type { Activity, SensoryProfile } from "@/types";
+import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
 
 interface Props {
   activity: Activity;
@@ -329,7 +330,8 @@ export function DragDropActivity({ activity, onAnswer }: Props) {
               hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed
               focus:ring-4 focus:ring-blue-300 transition-colors"
           >
-            Confirmar ✓
+            <ArasaacPictogram conceptId="activity.complete" showLabel={false} imageClassName="w-7 h-7" />
+            <span className="ml-2">Confirmar</span>
           </button>
         )}
 
