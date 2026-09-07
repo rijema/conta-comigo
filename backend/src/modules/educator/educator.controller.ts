@@ -4,6 +4,9 @@ import { IsString, IsOptional, IsObject } from 'class-validator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { EducatorService } from './educator.service';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { UserRole } from '../users/enums/user-role.enum';
 
 export class UpdateSkillLevelsDto {
   @IsOptional()
@@ -25,7 +28,8 @@ export class UpdateSkillLevelsDto {
 
 @ApiTags('educator')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(UserRole.PROFESSIONAL, UserRole.ADMIN)
 @Controller('educator')
 export class EducatorController {
   constructor(private readonly educatorService: EducatorService) {}
@@ -61,6 +65,15 @@ export class EducatorController {
   @ApiOperation({ summary: 'Get ADE decision history for a learner' })
   getAdeHistory(@Param('learnerId') learnerId: string) {
     return this.educatorService.getAdeHistory(learnerId);
+  }
+
+  @Get('learners/:learnerId/ade-history/:decisionId/research-explanation')
+  @ApiOperation({ summary: 'Get an authorized technical recommendation trace' })
+  getResearchExplanation(
+    @Param('learnerId') learnerId: string,
+    @Param('decisionId') decisionId: string,
+  ) {
+    return this.educatorService.getResearchExplanation(learnerId, decisionId);
   }
 
   @Get('learners/:learnerId/attempts')

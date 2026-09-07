@@ -9,11 +9,13 @@ import { Activity } from '../activities/entities/activity.entity';
 import { EducatorController } from './educator.controller';
 import { EducatorService } from './educator.service';
 import { KnowledgeTracingModule } from '../knowledge-tracing/knowledge-tracing.module';
+import { AdeModule } from '../ade/ade.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, ChildProfile, AnalyticsSnapshot, AdeDecision, ActivityAttempt, Activity]),
     KnowledgeTracingModule,
+    AdeModule,
   ],
   controllers: [EducatorController],
   providers: [EducatorService],

@@ -8,11 +8,13 @@ import { ActivityAttempt } from '../activities/entities/activity-attempt.entity'
 import { GuardianController } from './guardian.controller';
 import { GuardianService } from './guardian.service';
 import { KnowledgeTracingModule } from '../knowledge-tracing/knowledge-tracing.module';
+import { AdeModule } from '../ade/ade.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, ChildProfile, AnalyticsSnapshot, AdeDecision, ActivityAttempt]),
     KnowledgeTracingModule,
+    AdeModule,
   ],
   controllers: [GuardianController],
   providers: [GuardianService],

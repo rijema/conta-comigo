@@ -651,24 +651,10 @@ export default function GuardianDashboardPage() {
                               {new Date(dec.createdAt).toLocaleString("pt-BR")}
                             </span>
                           </div>
-                          {dec.xaiLog?.finalReason && (
+                          {dec.guardianExplanation && (
                             <p className="text-xs text-slate-600 bg-slate-50 rounded-xl p-2">
-                              💬 {dec.xaiLog.finalReason}
+                              💬 {dec.guardianExplanation}
                             </p>
-                          )}
-                          {dec.xaiLog?.confidence != null && (
-                            <div className="mt-2 flex items-center gap-2">
-                              <span className="text-xs text-slate-500">Confiança:</span>
-                              <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-                                <div
-                                  className="h-full bg-gradient-to-r from-purple-400 to-indigo-400 rounded-full"
-                                  style={{ width: `${Math.round((dec.xaiLog.confidence ?? 0) * 100)}%` }}
-                                />
-                              </div>
-                              <span className="text-xs font-semibold text-slate-600">
-                                {Math.round((dec.xaiLog.confidence ?? 0) * 100)}%
-                              </span>
-                            </div>
                           )}
                         </div>
                       ))}
