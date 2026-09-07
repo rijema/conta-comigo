@@ -7,6 +7,14 @@ import {
   OneToMany,
 } from 'typeorm';
 import { ActivityAttempt } from './activity-attempt.entity';
+import type {
+  ActivityAffordance,
+  ActivityDifficultyProfile,
+  ChildCommunicationSupport,
+  InteractionType,
+  Representation,
+  SemanticActivityType,
+} from '../activity-semantic-contract';
 
 export enum ActivityType {
   VISUAL_PUZZLE = 'visual_puzzle',
@@ -15,6 +23,12 @@ export enum ActivityType {
   YES_NO = 'yes_no',
   COUNTING = 'counting',
   DRAG_DROP = 'drag_drop',
+  COMPOSITION_DECOMPOSITION = 'composition_decomposition',
+  MISSING_NUMBER = 'missing_number',
+  PATTERN_COMPLETION = 'pattern_completion',
+  REPRESENTATION_MATCHING = 'representation_matching',
+  ERROR_DETECTION = 'error_detection',
+  CONTEXTUAL_PROBLEM_SOLVING = 'contextual_problem_solving',
 }
 
 export enum DifficultyLevel {
@@ -61,6 +75,13 @@ export class Activity {
     correctOrder?: string[];
     options?: any[];
     timeLimit?: number; // seconds
+    validation?: {
+      kind: 'exact' | 'numeric' | 'boolean' | 'sequence' | 'set' | 'compound';
+      tolerance?: number;
+    };
+    semantic?: Record<string, any>;
+    scaffolding?: Record<string, any>;
+    pictogramConceptIds?: string[];
   };
 
   // Accessibility metadata
@@ -89,4 +110,20 @@ export class Activity {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  // Transient response fields. They are derived from existing persisted content
+  // and do not replace the legacy difficulty column.
+  activityType?: SemanticActivityType;
+  bnccSkillId?: string | null;
+  mathematicalConcepts?: string[];
+  representation?: Representation[];
+  interactionType?: InteractionType[];
+  difficultyProfile?: ActivityDifficultyProfile;
+  affordances?: ActivityAffordance;
+  communication?: ChildCommunicationSupport;
+  scaffoldingOptions?: Record<string, unknown> | null;
+  semanticAnnotation?: {
+    source: 'CURRENT_ACTIVITY_CONTENT_AND_REPOSITORY_ONTOLOGY';
+    conceptMappingStatus: 'MAPPED' | 'PARTIAL' | 'NEEDS_REVIEW' | 'UNMAPPED';
+  };
 }

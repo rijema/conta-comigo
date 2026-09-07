@@ -50,7 +50,7 @@ function playStart() {
 
 function LearnPageInner() {
   const { user, isLoading: authLoading, logout } = useAuth();
-  const { session, startSession, stopSession, submitAnswer, markActivityStarted, requestActivityHelp, skipCurrentActivity, isLoading: sessionLoading, error: sessionError } = useSession();
+  const { session, startSession, stopSession, submitAnswer, markActivityStarted, requestActivityHelp, requestHint, skipCurrentActivity, isLoading: sessionLoading, error: sessionError } = useSession();
   const [stars, setStars] = useState(0);
   const [showReward, setShowReward] = useState(false);
   const [rewardWrong, setRewardWrong] = useState(false);
@@ -281,6 +281,7 @@ function LearnPageInner() {
             <ActivityRenderer
               activity={activity}
               onAnswer={handleAnswer}
+              onRequestHint={() => requestHint(activity.id)}
               sensoryProfile={undefined}
             />
           </div>

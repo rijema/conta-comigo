@@ -130,6 +130,12 @@ export function useSession() {
     }
   }, [getInteractionCounters, session?.id, trackActivityLifecycle]);
 
+  const requestHint = useCallback((activityId: string) => {
+    if (!session?.id) return;
+    getInteractionCounters(activityId).hints += 1;
+    trackActivityLifecycle(session.id, activityId, "HINT_REQUESTED");
+  }, [getInteractionCounters, session?.id, trackActivityLifecycle]);
+
   const skipCurrentActivity = useCallback(() => {
     if (!session?.id || !session.currentActivity?.id) return;
     const activityId = session.currentActivity.id;
@@ -249,6 +255,7 @@ export function useSession() {
     submitAnswer,
     markActivityStarted,
     requestActivityHelp,
+    requestHint,
     skipCurrentActivity,
     isLoading,
     error,

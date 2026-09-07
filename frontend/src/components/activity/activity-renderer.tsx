@@ -5,18 +5,21 @@ import { MultipleChoiceActivity } from "./multiple-choice-activity";
 import { DragDropActivity } from "./drag-drop-activity";
 import { CountingActivity } from "./counting-activity";
 import { NumberLineActivity } from "./number-line-activity";
+import { ParametricMathActivity } from "./parametric-math-activity";
 import type { Activity, SensoryProfile } from "@/types";
 
 interface ActivityRendererProps {
   activity: Activity;
   onAnswer: (answer: any) => void;
   sensoryProfile?: SensoryProfile;
+  onRequestHint?: () => void;
 }
 
 export function ActivityRenderer({
   activity,
   onAnswer,
   sensoryProfile,
+  onRequestHint,
 }: ActivityRendererProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -80,6 +83,21 @@ export function ActivityRenderer({
             key={activity.id}
             activity={activity}
             onAnswer={onAnswer}
+            sensoryProfile={sensoryProfile}
+          />
+        );
+      case "composition_decomposition":
+      case "missing_number":
+      case "pattern_completion":
+      case "representation_matching":
+      case "error_detection":
+      case "contextual_problem_solving":
+        return (
+          <ParametricMathActivity
+            key={activity.id}
+            activity={activity}
+            onAnswer={onAnswer}
+            onRequestHint={onRequestHint}
             sensoryProfile={sensoryProfile}
           />
         );

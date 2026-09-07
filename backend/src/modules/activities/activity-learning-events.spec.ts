@@ -122,6 +122,41 @@ describe('ActivitiesService learning event instrumentation', () => {
     }
   });
 
+  it.each([
+    'composition_decomposition',
+    'missing_number',
+    'pattern_completion',
+    'representation_matching',
+    'error_detection',
+    'contextual_problem_solving',
+  ])('tracks answer analytics for the %s family', async (type) => {
+    await (service as any).trackAnswerEvents(
+      'student-1',
+      {
+        activityId: activity.id,
+        sessionId: 'session-parametric',
+        answer: { value: false, reason: 'child response' },
+        timeSpentSeconds: 2,
+        responseTimeMs: 1800,
+      },
+      { ...activity, type },
+      true,
+    );
+
+    expect(learningEventService.track).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        eventType: LearningEventType.ANSWER_SUBMITTED,
+        activityId: activity.id,
+        responseTimeMs: 1800,
+        correct: true,
+      }),
+    );
+    const [submitted] = learningEventService.track.mock.calls[0];
+    expect(submitted).not.toHaveProperty('answer');
+    expect(submitted).not.toHaveProperty('metadata');
+  });
+
   it('does not wait for answer analytics after preserving the activity attempt', async () => {
     jest.useFakeTimers();
     const savedAttempt = { id: 'attempt-1', isCorrect: true };

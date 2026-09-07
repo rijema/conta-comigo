@@ -7,7 +7,9 @@ export const BnccSkillsSeed = async (dataSource: DataSource): Promise<void> => {
     { code: 'EF01MA02', year: 1, thematicUnit: 'Numeros', knowledgeObject: 'Contar exata ou aproximadamente', description: 'Contar de maneira exata ou aproximada, utilizando diferentes estratégias.' },
     { code: 'EF01MA03', year: 1, thematicUnit: 'Numeros', knowledgeObject: 'Estimar e comparar quantidades', description: 'Estimar e comparar quantidades de objetos de dois conjuntos.' },
     { code: 'EF01MA06', year: 1, thematicUnit: 'Numeros', knowledgeObject: 'Fatos básicos da adição', description: 'Construir fatos básicos da adição e utilizá-los em procedimentos de cálculo.' },
+    { code: 'EF01MA07', year: 1, thematicUnit: 'Numeros', knowledgeObject: 'Composição e decomposição de números naturais', description: 'Compor e decompor número de até duas ordens, por meio de diferentes adições, com o suporte de material manipulável, contribuindo para a compreensão de características do sistema de numeração decimal e o desenvolvimento de estratégias de cálculo.' },
     { code: 'EF01MA08', year: 1, thematicUnit: 'Numeros', knowledgeObject: 'Adição e subtração', description: 'Resolver e elaborar problemas de adição e de subtração, envolvendo números de até dois algarismos.' },
+    { code: 'EF01MA14', year: 1, thematicUnit: 'Geometria', knowledgeObject: 'Figuras geométricas planas', description: 'Identificar e nomear figuras planas (círculo, quadrado, retângulo e triângulo) em desenhos apresentados em diferentes disposições ou em contornos de faces de sólidos geométricos.' },
     // 2º ANO
     { code: 'EF02MA01', year: 2, thematicUnit: 'Numeros', knowledgeObject: 'Comparar e ordenar naturais até centenas', description: 'Comparar e ordenar números naturais até a ordem de centenas.' },
     { code: 'EF02MA05', year: 2, thematicUnit: 'Numeros', knowledgeObject: 'Fatos básicos adição e subtração', description: 'Construir fatos básicos da adição e subtração.' },
