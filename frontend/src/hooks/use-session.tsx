@@ -10,6 +10,7 @@ export interface SessionState {
   currentActivity: any | null;
   progress: number;
   activityStartTime: number;
+  recommendationExplanation: string | null;
 }
 
 type ActivityLifecycleEventType =
@@ -92,7 +93,7 @@ export function useSession() {
     try {
       const sessionId = `session-${Date.now()}`;
       setCurrentLearningSessionId(sessionId);
-      const { activity } = await api.get<{ activity: any; adeDecision: any }>(
+      const { activity, adeDecision } = await api.get<{ activity: any; adeDecision: any }>(
         "/activities/next",
         token,
       );
@@ -101,6 +102,7 @@ export function useSession() {
         currentActivity: activity,
         progress: 0,
         activityStartTime: Date.now(),
+        recommendationExplanation: adeDecision?.childExplanation ?? null,
       });
       trackActivityLifecycle(sessionId, activity.id, "ACTIVITY_PRESENTED");
       getInteractionCounters(activity.id);
@@ -179,38 +181,6 @@ export function useSession() {
 
       const isCorrect = result.attempt?.isCorrect ?? false;
 
-      // ADE / next activity debug log for DevTools Console
-      if (result.adeDecision) {
-        const ade = result.adeDecision;
-        console.groupCollapsed(
-          `%c🤖 ADE — próxima atividade via IA`,
-          "color: #7c3aed; font-weight: bold; font-size: 13px"
-        );
-        console.log("📊 Dificuldade recomendada:", ade.recommendedDifficulty);
-        console.log("🎨 Modalidade recomendada:", ade.recommendedModality);
-        console.log("📚 Habilidade BNCC:", ade.recommendedBnccSkill);
-        if (ade.xaiLog) {
-          console.groupCollapsed("🔍 Raciocínio (XAI)");
-          console.log("Resumo:", ade.xaiLog.finalReason);
-          console.log("Confiança:", (ade.xaiLog.confidence * 100).toFixed(0) + "%");
-          console.log("Ontologia — inferências:", ade.xaiLog.ontologyInferences);
-          console.log("Regras disparadas:", ade.xaiLog.rulesFired);
-          console.log("ML — mastery:", ade.xaiLog.mlPredictions?.masteryProbability?.toFixed(2),
-            "| engagement:", ade.xaiLog.mlPredictions?.engagementScore?.toFixed(2),
-            "| fallback ML?", ade.xaiLog.mlPredictions?.fallback ? "✅ sim" : "❌ não");
-          console.groupEnd();
-        }
-        console.log("➡️ Próxima atividade:", result.nextActivity?.title ?? "(nenhuma)");
-        console.groupEnd();
-      } else if (result.nextActivity) {
-        console.log(
-          `%c🎲 Próxima atividade via FALLBACK aleatório: ${result.nextActivity.title}`,
-          "color: #d97706; font-weight: bold"
-        );
-      } else {
-        console.warn("⚠️ Nenhuma próxima atividade retornada pelo backend");
-      }
-
       if (isCorrect) {
         activitiesCompletedRef.current += 1;
         const completed = activitiesCompletedRef.current;
@@ -226,6 +196,8 @@ export function useSession() {
             currentActivity: nextActivity ?? prev.currentActivity,
             progress: Math.min(completed * 10, 100),
             activityStartTime: Date.now(),
+            recommendationExplanation:
+              result.adeDecision?.childExplanation ?? prev.recommendationExplanation,
           };
         });
       }

@@ -198,3 +198,12 @@ No database migration is required because the semantic fields are derived respon
 - Updated semantic coverage snapshots and added backend/frontend regression tests, including Learning Analytics tracking.
 
 No recommendation ranking, Generalization Score, full ARASAAC integration, learner mastery logic, or legacy activity remapping changed in this batch.
+# Batch 04.3 — Role-appropriate recommendation explanations
+
+- Added a deterministic `RecommendationExplanationService` that derives child, guardian, professional, and technical explanations from the same persisted `AdeDecision`.
+- Sanitized child and guardian recommendation responses and replaced raw technical UI output with audience-appropriate language.
+- Added readable professional summaries with optional details.
+- Added an authorized research/debug endpoint and a hidden panel requiring the environment flag, `?research=true`, and an existing professional/admin role.
+- Represented unsupported ranking metrics explicitly as `not_recorded` instead of inventing scores.
+- Added backend and frontend tests plus Portuguese research documentation.
+- No database migration was required because the existing `ade_decisions` record remains the source decision and no schema changed.

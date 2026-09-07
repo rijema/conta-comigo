@@ -4,8 +4,10 @@ import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { api } from "@/lib/api-client";
 import { authService } from "@/lib/auth";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale } from "next-intl";
+import { isResearchDebugEnabled } from "@/lib/research-debug";
+import { ResearchDebugPanel } from "@/components/recommendation/research-debug-panel";
 
 const SKILLS = ["visual", "auditive", "logical", "motor", "sensory"] as const;
 type Skill = typeof SKILLS[number];
@@ -35,7 +37,13 @@ export default function EducatorDashboardPage() {
   const [activeTab, setActiveTab] = useState<"overview" | "skills" | "ade" | "report">("overview");
   const [savedMsg, setSavedMsg] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const locale = useLocale();
+  const researchDebugEnabled = isResearchDebugEnabled({
+    environmentFlag: process.env.NEXT_PUBLIC_ENABLE_RESEARCH_DEBUG,
+    queryValue: searchParams.get("research"),
+    role: user?.role,
+  });
 
   useEffect(() => {
     if (authLoading) return;
@@ -332,21 +340,32 @@ export default function EducatorDashboardPage() {
                                 {new Date(dec.createdAt).toLocaleString("pt-BR")}
                               </span>
                             </div>
-                            {dec.xaiLog && (
-                              <div className="text-xs text-slate-600 space-y-1">
-                                <p><span className="font-semibold">Raciocínio:</span> {dec.xaiLog.finalReason}</p>
-                                <p><span className="font-semibold">Confiança:</span> {Math.round((dec.xaiLog.confidence ?? 0) * 100)}%</p>
-                                {dec.xaiLog.rulesFired?.length > 0 && (
-                                  <p><span className="font-semibold">Regras:</span> {dec.xaiLog.rulesFired.join("; ")}</p>
-                                )}
-                                {dec.xaiLog.ontologyInferences?.length > 0 && (
-                                  <p><span className="font-semibold">Ontologia:</span> {dec.xaiLog.ontologyInferences[0]}</p>
-                                )}
+                            {dec.professionalExplanation && (
+                              <div className="text-sm text-slate-600 space-y-2">
+                                <p>{dec.professionalExplanation.summary}</p>
+                                <details className="text-xs">
+                                  <summary className="cursor-pointer font-semibold text-indigo-700">Ver detalhes</summary>
+                                  <div className="mt-2 space-y-1 rounded-lg bg-slate-50 p-3">
+                                    <p><strong>Necessidade atual:</strong> {dec.professionalExplanation.learningNeed}</p>
+                                    <p><strong>Domínio estimado:</strong> {dec.professionalExplanation.estimatedMastery}</p>
+                                    <p><strong>Motivo do formato:</strong> {dec.professionalExplanation.activityFormatReason}</p>
+                                    {dec.professionalExplanation.interactionEvidence?.map((item: string) => <p key={item}>• {item}</p>)}
+                                    {dec.professionalExplanation.supportConsiderations?.map((item: string) => <p key={item}>• {item}</p>)}
+                                    {dec.professionalExplanation.recentActivityHistory?.map((item: string) => <p key={item}>• {item}</p>)}
+                                  </div>
+                                </details>
                               </div>
                             )}
                           </div>
                         ))}
                       </div>
+                      {researchDebugEnabled && selected && (
+                        <ResearchDebugPanel
+                          key={selected.id}
+                          learnerId={selected.id}
+                          decisionIds={adeHistory.map((decision) => decision.id)}
+                        />
+                      )}
                     </div>
                   )}
 
@@ -572,7 +591,7 @@ function ReportView({ report, onPrint }: { report: any; onPrint: () => void }) {
                     <span className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-semibold">{dec.recommendedDifficulty}</span>
                     <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-semibold">{dec.recommendedModality}</span>
                   </div>
-                  <p className="text-slate-600">{dec.xaiLog?.finalReason}</p>
+                  <p className="text-slate-600">{dec.professionalExplanation?.summary}</p>
                 </div>
               ))}
             </div>

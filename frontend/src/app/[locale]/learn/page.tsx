@@ -236,6 +236,11 @@ function LearnPageInner() {
           🦋 Selecionado pela TitIA
         </span>
       </div>
+      {session?.recommendationExplanation && (
+        <p className="max-w-2xl mx-auto px-4 pt-2 text-sm font-bold text-purple-700" aria-live="polite">
+          {session.recommendationExplanation}
+        </p>
+      )}
 
       {/* ── Tutorial modal ── */}
       {showTutorial && (

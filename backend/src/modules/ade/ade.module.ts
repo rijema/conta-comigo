@@ -8,6 +8,7 @@ import { RuleEngineService } from './rules/rule-engine.service';
 import { MlEngineService } from './ml/ml-engine.service';
 import { KafkaModule } from '../kafka/kafka.module';
 import { KnowledgeTracingModule } from '../knowledge-tracing/knowledge-tracing.module';
+import { RecommendationExplanationService } from './recommendation-explanation.service';
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { KnowledgeTracingModule } from '../knowledge-tracing/knowledge-tracing.m
     OntologyReasonerService,
     RuleEngineService,
     MlEngineService,
+    RecommendationExplanationService,
   ],
-  exports: [AdeService],
+  exports: [AdeService, RecommendationExplanationService],
 })
 export class AdeModule {}

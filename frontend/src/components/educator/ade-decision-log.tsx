@@ -1,16 +1,17 @@
 "use client";
 
+interface ProfessionalExplanation {
+  summary: string;
+  learningNeed: string;
+  estimatedMastery: string;
+  activityFormatReason: string;
+}
+
 interface ADEDecision {
   id: string;
   createdAt: string;
-  input: any;
-  output: any;
-  xaiRecord: {
-    rules_applied: string[];
-    ml_confidence: number;
-    ontology_state: Record<string, any>;
-    reasoning_steps: string[];
-  };
+  recommendedBnccSkill?: string;
+  professionalExplanation?: ProfessionalExplanation;
 }
 
 interface Props {
@@ -19,75 +20,36 @@ interface Props {
 
 export function ADEDecisionLog({ decisions }: Props) {
   if (decisions.length === 0) {
-    return (
-      <p className="text-gray-400 text-sm">Nenhuma decisão registrada ainda.</p>
-    );
+    return <p className="text-sm text-gray-400">Nenhuma decisão registrada ainda.</p>;
   }
 
   return (
-    <div className="space-y-4 max-h-96 overflow-y-auto">
+    <div className="max-h-96 space-y-4 overflow-y-auto">
       {decisions.map((decision) => (
-        <details key={decision.id} className="border rounded-lg">
-          <summary className="px-4 py-3 cursor-pointer flex items-center justify-between hover:bg-gray-50">
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-gray-400 font-mono">
-                {new Date(decision.createdAt).toLocaleString("pt-BR")}
-              </span>
-              <span className="text-sm font-medium text-gray-700">
-                → Atividade:{" "}
-                {decision.output?.nextActivity?.type || "N/A"} | Dificuldade:{" "}
-                {decision.output?.difficultyAdjustment}
-              </span>
-            </div>
-            <span className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded">
-              {(decision.xaiRecord?.ml_confidence * 100 || 0).toFixed(0)}%
-              confiança
+        <article key={decision.id} className="rounded-lg border p-4">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+            <span className="text-xs font-mono text-gray-400">
+              {new Date(decision.createdAt).toLocaleString("pt-BR")}
             </span>
-          </summary>
-
-          <div className="px-4 pb-4">
-            {/* Reasoning steps */}
-            <div className="mb-3">
-              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">
-                Passos do Raciocínio
-              </h4>
-              <ol className="list-decimal list-inside space-y-1">
-                {decision.xaiRecord?.reasoning_steps?.map((step, i) => (
-                  <li key={i} className="text-xs text-gray-600">
-                    {step}
-                  </li>
-                ))}
-              </ol>
-            </div>
-
-            {/* Rules applied */}
-            <div className="mb-3">
-              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">
-                Regras Aplicadas
-              </h4>
-              <div className="flex flex-wrap gap-1">
-                {decision.xaiRecord?.rules_applied?.map((rule, i) => (
-                  <span
-                    key={i}
-                    className="text-xs bg-purple-50 text-purple-600 px-2 py-0.5 rounded-full border border-purple-200"
-                  >
-                    {rule}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Raw JSON (collapsed) */}
-            <details className="mt-2">
-              <summary className="text-xs text-gray-400 cursor-pointer">
-                Ver JSON completo
-              </summary>
-              <pre className="text-xs bg-gray-900 text-green-400 p-3 rounded mt-2 overflow-x-auto">
-                {JSON.stringify(decision, null, 2)}
-              </pre>
-            </details>
+            <span className="rounded bg-blue-50 px-2 py-1 text-xs text-blue-700">
+              {decision.recommendedBnccSkill ?? "Habilidade não registrada"}
+            </span>
           </div>
-        </details>
+          <p className="text-sm text-gray-700">
+            {decision.professionalExplanation?.summary ??
+              "A explicação pedagógica não está disponível para esta decisão histórica."}
+          </p>
+          {decision.professionalExplanation && (
+            <details className="mt-3 text-xs text-gray-600">
+              <summary className="cursor-pointer font-semibold text-blue-700">Ver detalhes</summary>
+              <div className="mt-2 space-y-1 rounded bg-gray-50 p-3">
+                <p><strong>Necessidade atual:</strong> {decision.professionalExplanation.learningNeed}</p>
+                <p><strong>Domínio estimado:</strong> {decision.professionalExplanation.estimatedMastery}</p>
+                <p><strong>Formato:</strong> {decision.professionalExplanation.activityFormatReason}</p>
+              </div>
+            </details>
+          )}
+        </article>
       ))}
     </div>
   );

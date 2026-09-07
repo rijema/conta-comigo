@@ -9,6 +9,7 @@ import { AdeDecision } from '../ade/entities/ade-decision.entity';
 import { ActivityAttempt } from '../activities/entities/activity-attempt.entity';
 import { UserRole } from '../users/enums/user-role.enum';
 import { KnowledgeTracingService } from '../knowledge-tracing/knowledge-tracing.service';
+import { RecommendationExplanationService } from '../ade/recommendation-explanation.service';
 
 @Injectable()
 export class GuardianService {
@@ -24,6 +25,7 @@ export class GuardianService {
     @InjectRepository(ActivityAttempt)
     private readonly attemptRepo: Repository<ActivityAttempt>,
     private readonly knowledgeTracingService: KnowledgeTracingService,
+    private readonly recommendationExplanationService: RecommendationExplanationService,
   ) {}
 
   async getChildrenSummary(guardianId: string) {
@@ -95,7 +97,9 @@ export class GuardianService {
           currentStreak: profile.currentStreak ?? 0,
           totalPoints: profile.totalPoints ?? 0,
           progressData,
-          recentAdeDecisions: recentAde,
+          recentAdeDecisions: recentAde.map((decision) =>
+            this.recommendationExplanationService.toGuardianDecision(decision),
+          ),
         };
       }),
     );
@@ -144,7 +148,9 @@ export class GuardianService {
         accuracy: totalAttempts > 0 ? Math.round((correct / totalAttempts) * 100) : 0,
       },
       progressOverTime,
-      recentAdeDecisions: adeHistory,
+      recentAdeDecisions: adeHistory.map((decision) =>
+        this.recommendationExplanationService.toGuardianDecision(decision),
+      ),
     };
   }
 
@@ -200,7 +206,11 @@ Mantenha respostas concisas (máximo 3 parágrafos). Baseie-se nos dados reais d
 - Habilidades a desenvolver: ${Object.keys(weaknesses).filter(k => (weaknesses as Record<string,any>)[k]).join(', ') || 'nenhuma identificada ainda'}
 - Cobertura BNCC: ${Object.keys(bnccCoverage).length} habilidades trabalhadas
 - Últimas recomendações da IA:
-${recentAde.map(a => `  • Dificuldade: ${a.recommendedDifficulty}, Modalidade: ${a.recommendedModality} — ${a.xaiLog?.finalReason ?? ''}`).join('\n') || '  (nenhuma ainda)'}
+${recentAde.map((decision) => {
+  const publicDecision = this.recommendationExplanationService
+    .toGuardianDecision(decision);
+  return `  • ${publicDecision.guardianExplanation}`;
+}).join('\n') || '  (nenhuma ainda)'}
 
 === PERGUNTA DO RESPONSÁVEL ===
 ${question}

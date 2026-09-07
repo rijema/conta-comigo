@@ -9,6 +9,7 @@ import { ActivityAttempt } from '../activities/entities/activity-attempt.entity'
 import { Activity } from '../activities/entities/activity.entity';
 import { UserRole } from '../users/enums/user-role.enum';
 import { KnowledgeTracingService } from '../knowledge-tracing/knowledge-tracing.service';
+import { RecommendationExplanationService } from '../ade/recommendation-explanation.service';
 
 @Injectable()
 export class EducatorService {
@@ -26,6 +27,7 @@ export class EducatorService {
     @InjectRepository(Activity)
     private readonly activityRepo: Repository<Activity>,
     private readonly knowledgeTracingService: KnowledgeTracingService,
+    private readonly recommendationExplanationService: RecommendationExplanationService,
   ) {}
 
   async getStats() {
@@ -133,7 +135,11 @@ export class EducatorService {
         engagementIndex: snapshot?.engagementIndex ?? 0,
         overallAccuracy: snapshot?.overallAccuracy ?? 0,
       },
-      recentAdeDecisions: recentAde,
+      recentAdeDecisions: recentAde.map((decision) =>
+        this.recommendationExplanationService.toProfessionalDecision(decision, {
+          recentActivityHistory: this.buildRecentActivityHistory(recentAttempts),
+        }),
+      ),
       recentAttempts: recentAttempts.slice(0, 10),
     };
   }
@@ -157,11 +163,32 @@ export class EducatorService {
   }
 
   async getAdeHistory(learnerId: string) {
-    return this.adeDecisionRepo.find({
-      where: { userId: learnerId },
-      order: { createdAt: 'DESC' },
-      take: 50,
+    const [decisions, recentAttempts] = await Promise.all([
+      this.adeDecisionRepo.find({
+        where: { userId: learnerId },
+        order: { createdAt: 'DESC' },
+        take: 50,
+      }),
+      this.attemptRepo.find({
+        where: { userId: learnerId },
+        order: { createdAt: 'DESC' },
+        take: 5,
+      }),
+    ]);
+    return decisions.map((decision) =>
+      this.recommendationExplanationService.toProfessionalDecision(decision, {
+        recentActivityHistory: this.buildRecentActivityHistory(recentAttempts),
+      }),
+    );
+  }
+
+  async getResearchExplanation(learnerId: string, decisionId: string) {
+    const decision = await this.adeDecisionRepo.findOne({
+      where: { id: decisionId, userId: learnerId },
     });
+    if (!decision) throw new NotFoundException('Recommendation decision not found');
+    return this.recommendationExplanationService.explain({ decision })
+      .researchExplanation;
   }
 
   async getAttemptHistory(learnerId: string) {
@@ -219,5 +246,12 @@ export class EducatorService {
       totalAttempts: attempts.length,
       adeDecisions: adeHistory.slice(0, 20),
     };
+  }
+
+  private buildRecentActivityHistory(attempts: ActivityAttempt[]): string[] {
+    return attempts.slice(0, 5).map((attempt) => {
+      const result = attempt.isCorrect ? 'com acerto' : 'sem acerto';
+      return `Atividade concluída ${result} em ${attempt.createdAt.toISOString()}.`;
+    });
   }
 }

@@ -14,6 +14,7 @@ import { TrackActivityLifecycleDto } from './dto/track-activity-lifecycle.dto';
 import { KnowledgeTracingService } from '../knowledge-tracing/knowledge-tracing.service';
 import { buildActivitySemanticContract } from './activity-semantic-contract';
 import { validateActivityAnswer } from './activity-answer-validator';
+import { RecommendationExplanationService } from '../ade/recommendation-explanation.service';
 
 @Injectable()
 export class ActivitiesService {
@@ -30,6 +31,8 @@ export class ActivitiesService {
     private readonly learningEventService: LearningEventService,
     private readonly dataSource: DataSource,
     private readonly knowledgeTracingService: KnowledgeTracingService,
+    private readonly recommendationExplanationService: RecommendationExplanationService =
+      new RecommendationExplanationService(),
   ) {}
 
   async create(dto: CreateActivityDto): Promise<Activity> {
@@ -135,7 +138,10 @@ export class ActivitiesService {
 
     return {
       activity: await this.attachSemanticContract(activity),
-      adeDecision,
+      adeDecision: this.recommendationExplanationService.toChildDecision(
+        adeDecision,
+        { selectedActivityId: activity.id, selectedActivityType: activity.type },
+      ),
     };
   }
 
@@ -254,7 +260,17 @@ export class ActivitiesService {
       nextActivity = await this.attachSemanticContract(nextActivity);
     }
 
-    return { attempt, feedback, nextActivity, adeDecision };
+    return {
+      attempt,
+      feedback,
+      nextActivity,
+      adeDecision: adeDecision
+        ? this.recommendationExplanationService.toChildDecision(adeDecision, {
+            selectedActivityId: nextActivity?.id,
+            selectedActivityType: nextActivity?.type,
+          })
+        : undefined,
+    };
   }
 
   async trackLifecycleEvent(
