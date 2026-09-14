@@ -8,6 +8,7 @@
 - Added sanitized semantic voice events without persisting audio or raw transcripts.
 - Added PostgreSQL enum migration, privacy/provider tests, deployment settings, and Portuguese research documentation.
 - Moved neural-speech validation into an imported DTO to avoid decorator metadata initialization errors at application startup.
+- Provisioned the pinned Piper Brazilian Portuguese voice and its model card in the ML image so neural speech can be tested after deployment.
 
 
 ## InteractionEvidence PostgreSQL metadata fix
