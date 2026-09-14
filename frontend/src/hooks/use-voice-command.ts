@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api-client";
 import { authService } from "@/lib/auth";
 
@@ -11,6 +11,7 @@ interface Options {
   sessionId?: string; activityId?: string; recommendationId?: string | null;
   onHelp: () => void; onRepeat: () => void; onChangeActivity: () => void;
   onNext?: () => void; onConfirm?: () => void; onDeny?: () => void; onStopSpeech: () => void;
+  onUnknown?: () => void;
 }
 
 export function useVoiceCommand(options: Options) {
@@ -18,6 +19,18 @@ export function useVoiceCommand(options: Options) {
   const [state, setState] = useState<VoiceState>("idle");
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const reportUnknown = useCallback(() => {
+    setState("error");
+    options.onUnknown?.();
+    if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
+    resetTimerRef.current = setTimeout(() => setState("idle"), 1800);
+  }, [options]);
+
+  useEffect(() => () => {
+    if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
+  }, []);
 
   const track = useCallback((eventType: string, extra: Record<string, unknown> = {}) => {
     const token = authService.getStoredToken();
@@ -64,18 +77,18 @@ export function useVoiceCommand(options: Options) {
           const recognized = result.command !== "UNKNOWN";
           track(recognized ? "VOICE_COMMAND_RECOGNIZED" : "VOICE_COMMAND_UNKNOWN", {
             command: result.command, recognitionSucceeded: recognized, processingTimeMs: result.processingTimeMs });
-          if (!recognized) setState("error");
+          if (!recognized) reportUnknown();
           else {
             const semanticEvent = ({ REQUEST_HELP: "VOICE_HELP_REQUESTED", REPEAT_INSTRUCTION: "VOICE_INSTRUCTION_REPLAY_REQUESTED",
               CHANGE_ACTIVITY: "VOICE_ACTIVITY_CHANGE_REQUESTED" } as Partial<Record<VoiceCommand, string>>)[result.command];
             if (semanticEvent) track(semanticEvent, { command: result.command, recognitionSucceeded: true });
             execute(result.command); setState("idle");
           }
-        } catch { chunks = []; setState("error"); }
+        } catch { chunks = []; reportUnknown(); }
       };
       recorder.start(); setState("listening"); track("VOICE_INTERACTION_STARTED");
-    } catch { chunks = []; streamRef.current?.getTracks().forEach((track) => track.stop()); setState("error"); }
-  }, [enabled, execute, state, track]);
+    } catch { chunks = []; streamRef.current?.getTracks().forEach((track) => track.stop()); reportUnknown(); }
+  }, [enabled, execute, reportUnknown, state, track]);
 
   const stop = useCallback(() => {
     if (state === "listening" && recorderRef.current?.state === "recording") recorderRef.current.stop();

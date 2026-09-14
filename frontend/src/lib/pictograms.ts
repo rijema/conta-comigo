@@ -5,7 +5,7 @@ export type PictogramCategory = "NAVIGATION" | "STATE" | "MATHEMATICS" |
 
 export type PictogramConcept =
   | `navigation.${"back" | "next" | "home" | "start" | "finish" | "help" | "repeat" | "listen" | "pause" | "try_again" | "change_activity"}`
-  | `state.${"yes" | "no" | "ok" | "correct" | "incorrect" | "great" | "done" | "wait"}`
+  | `state.${"yes" | "no" | "ok" | "confirm" | "correct" | "incorrect" | "great" | "done" | "wait"}`
   | `mathematics.${"numbers" | "addition" | "subtraction" | "equal" | "more" | "less" | "count" | "compare" | "order" | "sequence" | "pattern" | "shape" | "color" | "size"}`
   | `activity.${"drag" | "choose" | "touch" | "listen" | "look" | "match" | "complete" | "move" | "point"}`
   | `communication.${"i_dont_understand" | "another_activity" | "listen_again" | "help_me"}`
@@ -44,6 +44,7 @@ const definitions: PictogramDefinition[] = [
   definition("state.yes", "STATE", "sim", "✅", 5584),
   definition("state.no", "STATE", "não", "❌", 5526),
   definition("state.ok", "STATE", "ok", "👌"),
+  definition("state.confirm", "STATE", "confirmar", "👍"),
   definition("state.correct", "STATE", "correto", "✅"),
   definition("state.incorrect", "STATE", "incorreto", "❌"),
   definition("state.great", "STATE", "muito bem", "🌟"),

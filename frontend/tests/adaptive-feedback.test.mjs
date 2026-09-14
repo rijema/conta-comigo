@@ -12,7 +12,7 @@ const debug = await readFile(join(root, "src/components/recommendation/research-
 
 test("Quero outro uses the registry, accessible text, speech, and the replacement endpoint", () => {
   assert.match(learn, /"Quero outro"/);
-  assert.match(learn, /conceptId="navigation\.change_activity"/);
+  assert.match(learn, /conceptId="communication\.another_activity"/);
   assert.match(learn, /aria-label="Quero outro exercício"/);
   assert.match(learn, /Vamos tentar de outro jeito!/);
   assert.match(session, /"\/activities\/change"/);

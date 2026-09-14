@@ -61,6 +61,8 @@ export class TitiaSpeechService {
   private configuration = DEFAULT_CONFIGURATION;
   private lastInstruction: SpokenInstruction | null = null;
   private playbackGeneration = 0;
+  private speaking = false;
+  private readonly listeners = new Set<() => void>();
 
   constructor(private engine: TitiaSpeechEngine = new BrowserSpeechEngine()) {}
 
@@ -115,6 +117,14 @@ export class TitiaSpeechService {
   stopSpeech(): void {
     this.playbackGeneration += 1;
     this.engine.cancel();
+    this.setSpeaking(false);
+  }
+
+  isSpeaking(): boolean { return this.speaking; }
+
+  subscribe(listener: () => void): () => void {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
   }
 
   private speakSequence(rawParts: string[], onPlaybackStart?: () => void): boolean {
@@ -135,14 +145,25 @@ export class TitiaSpeechService {
         onStart: () => {
           if (!playbackStarted && generation === this.playbackGeneration) {
             playbackStarted = true;
+            this.setSpeaking(true);
             onPlaybackStart?.();
           }
         },
-        onEnd: () => speakAt(index + 1),
+        onEnd: () => {
+          if (index === parts.length - 1) this.setSpeaking(false);
+          speakAt(index + 1);
+        },
+        onFailure: () => this.setSpeaking(false),
       });
     };
     speakAt(0);
     return true;
+  }
+
+  private setSpeaking(value: boolean): void {
+    if (this.speaking === value) return;
+    this.speaking = value;
+    this.listeners.forEach((listener) => listener());
   }
 
   private normalizeInstruction(instruction: SpokenInstruction): SpokenInstruction {

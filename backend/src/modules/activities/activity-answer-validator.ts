@@ -9,6 +9,7 @@ export type ValidationKind =
 export interface ParametricActivityContent {
   correctAnswer?: unknown;
   correctOrder?: unknown[] | string;
+  acceptedOrders?: unknown[][];
   validation?: {
     kind: ValidationKind;
     tolerance?: number;
@@ -70,7 +71,7 @@ export function validateActivityAnswer(
       const submitted = Array.isArray(answer)
         ? answer
         : String(answer ?? '').split(',').map((item) => item.trim());
-      return arraysEqual(submitted, expected);
+      return [expected, ...(content.acceptedOrders ?? [])].some((order) => arraysEqual(submitted, order));
     }
     case 'set': {
       if (!Array.isArray(correct) || !Array.isArray(answer)) return false;

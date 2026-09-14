@@ -49,7 +49,7 @@ export function GuidedInstructions({ activity }: { activity: Activity }) {
   if (instruction.steps.length === 0) return null;
 
   return (
-    <section className="mb-5 overflow-hidden rounded-2xl border-2 border-purple-100 bg-gradient-to-r from-purple-50 to-pink-50 p-3"
+    <section className="mb-3 overflow-hidden rounded-2xl border-2 border-purple-100 bg-gradient-to-r from-purple-50 to-pink-50 p-2.5"
       aria-labelledby={`guided-instructions-${activity.id}`}>
       <div className="flex items-center gap-3">
         <Image
@@ -57,13 +57,13 @@ export function GuidedInstructions({ activity }: { activity: Activity }) {
           width={112}
           height={84}
           alt="TitiA pronta para explicar a atividade"
-          className="h-20 w-24 flex-none object-contain object-top sm:h-24 sm:w-28"
+          className="h-20 w-24 flex-none object-contain object-top sm:h-24 sm:w-32"
         />
         <div className="min-w-0 flex-1">
           <h3 id={`guided-instructions-${activity.id}`} className="font-extrabold text-purple-800">
             TitiA explica para você
           </h3>
-          <p className="mt-1 text-sm text-purple-700">
+          <p className="mt-1 hidden text-sm text-purple-700 md:block">
             A explicação começa ao abrir a atividade. Use repetir quando quiser ouvir de novo.
           </p>
         </div>
@@ -75,15 +75,17 @@ export function GuidedInstructions({ activity }: { activity: Activity }) {
                 : speech.speakInstruction(instruction);
               if (spoken) setHasSpokenInstruction(true);
             }}
-            className="inline-flex items-center gap-1 rounded-xl bg-purple-600 px-3 py-2 text-sm font-bold text-white disabled:opacity-40">
+            className="inline-flex items-center gap-1 rounded-xl bg-purple-600 px-3 py-2 text-sm font-bold text-white transition-transform hover:scale-[1.03] active:scale-[.97] motion-reduce:transform-none disabled:opacity-40">
             <ArasaacPictogram conceptId="navigation.repeat" showLabel={false} imageClassName="w-6 h-6" />
             <span>Repetir</span>
           </button>
-          <button type="button" onClick={speech.stopSpeech}
-            className="inline-flex items-center gap-1 rounded-xl border-2 border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700">
-            <ArasaacPictogram conceptId="navigation.pause" showLabel={false} imageClassName="w-6 h-6" />
-            <span>Parar</span>
-          </button>
+          {speech.isSpeaking && (
+            <button type="button" onClick={speech.stopSpeech}
+              className="inline-flex items-center gap-1 rounded-xl border-2 border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition-transform hover:scale-[1.03] active:scale-[.97] motion-reduce:transform-none">
+              <ArasaacPictogram conceptId="navigation.pause" showLabel={false} imageClassName="w-6 h-6" />
+              <span>Parar</span>
+            </button>
+          )}
         </div>
       </div>
     </section>

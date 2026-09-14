@@ -73,6 +73,7 @@ export class Activity {
     videoUrl?: string;
     correctAnswer?: any;
     correctOrder?: string[];
+    acceptedOrders?: string[][];
     options?: any[];
     timeLimit?: number; // seconds
     validation?: {

@@ -93,7 +93,6 @@ function playStart() {
 function LearnPageInner() {
   const { user, isLoading: authLoading, logout } = useAuth();
   const { session, startSession, stopSession, submitAnswer, markActivityStarted, requestActivityHelp, requestHint, skipCurrentActivity, changeCurrentActivity, isChangingActivity, isLoading: sessionLoading, error: sessionError } = useSession();
-  const [stars, setStars] = useState(0);
   const [showReward, setShowReward] = useState(false);
   const [rewardWrong, setRewardWrong] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -112,7 +111,7 @@ function LearnPageInner() {
     if (!mounted) return;
     if (authLoading) return;
     if (!user) { router.replace(`/${locale}/auth/login`); return; }
-    startSession();
+    startSession(String(user.id));
     if (settings.soundEnabled && !startCuePlayedRef.current) {
       startCuePlayedRef.current = true;
       playStart();
@@ -139,7 +138,6 @@ function LearnPageInner() {
       speech.speakFeedback(
         session.currentActivity.content?.spokenSuccessFeedback || "Muito bem! Você conseguiu.",
       );
-      setStars((s) => s + 1);
       setShowReward(true);
       setTimeout(() => setShowReward(false), 2200);
     } else {
@@ -158,6 +156,12 @@ function LearnPageInner() {
     router.push(`/${locale}/learn/menu`);
   };
 
+  const handleLogout = () => {
+    speech.stopSpeech();
+    stopSession();
+    logout();
+  };
+
   const handleChangeActivity = async () => {
     speech.stopSpeech();
     const changed = await changeCurrentActivity();
@@ -168,6 +172,8 @@ function LearnPageInner() {
     if (!session?.currentActivity) return;
     requestActivityHelp(session.currentActivity.id);
     setShowTutorial(true);
+    const steps = getTutorialSteps(session.currentActivity).map((step) => step.text);
+    speech.speakInstruction({ introduction: "Vamos ver como jogar.", steps });
   };
 
   const voice = useVoiceCommand({
@@ -175,6 +181,7 @@ function LearnPageInner() {
     recommendationId: session?.currentRecommendationId,
     onHelp: handleOpenTutorial, onRepeat: speech.repeatLastInstruction,
     onChangeActivity: () => { void handleChangeActivity(); }, onStopSpeech: speech.stopSpeech,
+    onUnknown: () => speech.speakFeedback("Não entendi. Vamos tentar novamente."),
   });
 
   const activity = session?.currentActivity;
@@ -215,7 +222,7 @@ function LearnPageInner() {
 
       {/* ── Correct answer burst ── */}
       {showReward && (
-        <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-emerald-300/20 pointer-events-none z-50" style={{ animation: "feedbackFlash 1.3s ease-out" }}>
           <div className="flex flex-col items-center gap-2">
             <Image src="/assets/correctanswer.png" width={520} height={390} alt="TitiA comemorando o acerto" className="h-72 w-auto object-contain sm:h-96" style={{ animation: "bounceIn 0.4s ease-out" }} />
             <p className="text-3xl font-extrabold text-yellow-600 drop-shadow-lg" style={{ animation: "fadeInUp 0.3s ease-out" }}>
@@ -225,7 +232,7 @@ function LearnPageInner() {
         </div>
       )}
       {rewardWrong && (
-        <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-rose-300/20 pointer-events-none z-50" style={{ animation: "feedbackFlash 1.2s ease-out" }}>
           <Image src="/assets/tryagain.png" width={440} height={330} alt="TitiA incentivando uma nova tentativa" className="h-64 w-auto object-contain sm:h-80" style={{ animation: "shake 0.4s ease-out" }} />
         </div>
       )}
@@ -234,24 +241,19 @@ function LearnPageInner() {
         @keyframes bounceIn { 0%{transform:scale(0.3);opacity:0} 60%{transform:scale(1.2)} 100%{transform:scale(1);opacity:1} }
         @keyframes fadeInUp { 0%{transform:translateY(20px);opacity:0} 100%{transform:translateY(0);opacity:1} }
         @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-10px)} 40%{transform:translateX(10px)} 60%{transform:translateX(-8px)} 80%{transform:translateX(8px)} }
+        @keyframes feedbackFlash { 0%{opacity:0} 18%{opacity:1} 100%{opacity:0} }
       `}</style>
 
       {/* ── Header ── */}
-      <header className="bg-white/75 backdrop-blur-md shadow-sm px-4 py-3 sticky top-0 z-20">
-        <div className="max-w-2xl mx-auto flex items-center justify-between gap-3">
+      <header className="sticky top-0 z-20 bg-white/80 px-3 py-2 shadow-sm backdrop-blur-md">
+        <div className="mx-auto flex max-w-3xl items-center justify-between gap-2">
           <button
             onClick={handleGoToMenu}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-gradient-to-r from-purple-100 to-pink-100 border-2 border-purple-200 hover:border-purple-300 transition-colors text-sm font-extrabold text-purple-700"
+            className="flex items-center gap-1.5 rounded-2xl border-2 border-purple-200 bg-gradient-to-r from-purple-100 to-pink-100 px-3 py-2 text-sm font-extrabold text-purple-700 transition-all hover:scale-[1.03] hover:border-purple-300 active:scale-[.97] motion-reduce:transform-none"
           >
-            <ArasaacPictogram conceptId="navigation.change_activity" showLabel={false} imageClassName="w-6 h-6" />
+            <ArasaacPictogram conceptId="navigation.home" showLabel={false} imageClassName="w-5 h-5" />
             <span>Mapa</span>
           </button>
-
-          {/* Stars */}
-          <div className="flex items-center gap-1.5 bg-gradient-to-r from-yellow-100 to-orange-100 border-2 border-yellow-300 px-3 py-1.5 rounded-full shadow-sm">
-            <span className="text-xl">⭐</span>
-            <span className="font-extrabold text-yellow-700 text-lg leading-none">{stars}</span>
-          </div>
 
           {/* Progress pill */}
           <div className="flex-1 max-w-xs">
@@ -263,51 +265,49 @@ function LearnPageInner() {
                 <div className="absolute inset-0 bg-white/20 animate-pulse" />
               </div>
             </div>
-            <p className="text-xs text-center font-bold text-slate-500 mt-0.5">{progress}%</p>
+            <p className="mt-0.5 text-center text-xs font-bold text-slate-500">Progresso {progress}%</p>
           </div>
 
           <div className="flex items-center gap-2">
             {voice.enabled && <PushToTalkButton state={voice.state} onStart={voice.start} onStop={voice.stop} onReset={voice.reset} />}
             <button
               onClick={handleOpenTutorial}
-              className="min-h-10 rounded-2xl bg-orange-100 border-2 border-orange-200 hover:bg-orange-200 flex items-center gap-1 px-2 text-sm font-bold transition-colors"
+              className="flex min-h-10 items-center gap-1 rounded-2xl border-2 border-orange-200 bg-orange-100 px-2 text-sm font-bold transition-all hover:scale-[1.03] hover:bg-orange-200 active:scale-[.97] motion-reduce:transform-none"
               aria-label="Abrir ajuda: como resolver"
             >
               <ArasaacPictogram conceptId="navigation.help" showLabel={false} imageClassName="w-6 h-6" />
               <span className="hidden sm:inline">Ajuda</span>
             </button>
-            <button onClick={logout} className="text-xs text-gray-400 hover:text-red-500 px-2 py-1 rounded-lg">Sair</button>
+            <button onClick={handleLogout} className="rounded-lg px-2 py-1 text-xs text-gray-500 transition-transform hover:scale-105 hover:text-red-600">Sair</button>
           </div>
         </div>
       </header>
 
       {/* ── Activity type badge + BNCC ── */}
-      <div className="max-w-2xl mx-auto px-4 pt-3 flex items-center gap-2 flex-wrap">
+      <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-2 px-4 pt-2">
         <span className="inline-flex items-center gap-1 text-xs font-extrabold bg-white/70 text-blue-700 px-3 py-1 rounded-full border border-blue-200 shadow-sm">
           📚 {activity.bnccSkills?.[0] ?? "BNCC"}
         </span>
-        <span className="inline-flex items-center gap-1 text-xs font-extrabold bg-white/70 text-purple-700 px-3 py-1 rounded-full border border-purple-200 shadow-sm">
-          🦋 Selecionado pela TitIA
-        </span>
+        {session.selectionSource === "recalculated" && <span className="inline-flex items-center gap-1 rounded-full border border-purple-200 bg-white/70 px-3 py-1 text-xs font-extrabold text-purple-700 shadow-sm">↻ Outra opção escolhida pela TitiA</span>}
       </div>
       {session?.recommendationExplanation && (
-        <p className="max-w-2xl mx-auto px-4 pt-2 text-sm font-bold text-purple-700" aria-live="polite">
+        <p className="mx-auto max-w-3xl px-4 pt-1 text-sm font-bold text-purple-700" aria-live="polite">
           {session.recommendationExplanation}
         </p>
       )}
-      <div className="max-w-2xl mx-auto px-4 pt-2">
+      <div className="mx-auto max-w-3xl px-4 pt-1">
         <button
           type="button"
           onClick={handleChangeActivity}
           disabled={isChangingActivity}
           aria-label="Quero outro exercício"
-          className="inline-flex min-h-12 items-center gap-2 rounded-2xl border-2 border-purple-200 bg-white/80 px-4 py-2 font-extrabold text-purple-700 shadow-sm hover:bg-purple-50 disabled:opacity-60"
+          className="inline-flex min-h-10 items-center gap-2 rounded-2xl border-2 border-purple-200 bg-white/80 px-3 py-1.5 text-sm font-extrabold text-purple-700 shadow-sm transition-all hover:scale-[1.025] hover:bg-purple-50 active:scale-[.97] motion-reduce:transform-none disabled:opacity-60"
         >
           <ArasaacPictogram
-            conceptId="navigation.change_activity"
+            conceptId="communication.another_activity"
             alt="Mudar para outro exercício"
             showLabel={false}
-            imageClassName="w-7 h-7"
+            imageClassName="w-5 h-5"
           />
           <span>{isChangingActivity ? "Escolhendo..." : "Quero outro"}</span>
         </button>
@@ -338,7 +338,7 @@ function LearnPageInner() {
               {tutorialSteps.map((step, index) => (
                 <li key={step.text}>
                   <button type="button" onClick={() => speech.speakExplanation(step.text)}
-                    className="flex w-full items-center gap-3 rounded-2xl border-2 border-blue-100 bg-blue-50 p-3 text-left hover:border-blue-300 hover:bg-blue-100"
+                    className="flex w-full items-center gap-3 rounded-2xl border-2 border-blue-100 bg-blue-50 p-3 text-left transition-all hover:scale-[1.015] hover:border-blue-300 hover:bg-blue-100 active:scale-[.985] motion-reduce:transform-none"
                     aria-label={`Ouvir passo ${index + 1}: ${step.text}`}>
                   <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-blue-600 text-lg font-extrabold text-white">
                     {index + 1}
@@ -364,11 +364,8 @@ function LearnPageInner() {
       )}
 
       {/* ── Activity card ── */}
-      <main className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-2 px-4 pb-8 pt-3 lg:grid-cols-[180px_minmax(0,672px)_180px]">
-        <Image src="/assets/mainiconfirstpage.png" width={220} height={260}
-          alt="TitiA acompanhando a atividade"
-          className="hidden h-64 w-full self-end object-contain lg:block" />
-        <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border-2 border-white/80 overflow-hidden">
+      <main className="mx-auto w-full max-w-3xl px-3 pb-4 pt-2 sm:px-4">
+        <div className="overflow-hidden rounded-3xl border-2 border-white/80 bg-white/80 shadow-xl backdrop-blur-sm">
           {/* Colourful top stripe per activity type */}
           <div className="h-2" style={{
             background: activity.type === "multiple_choice" ? "linear-gradient(90deg,#34d399,#059669)" :
@@ -377,7 +374,7 @@ function LearnPageInner() {
                         activity.type === "number_line"     ? "linear-gradient(90deg,#ec4899,#db2777)" :
                         "linear-gradient(90deg,#06b6d4,#0284c7)"
           }} />
-          <div className="p-4">
+          <div className="p-3">
             <ActivityRenderer
               activity={activity}
               onAnswer={handleAnswer}
@@ -386,9 +383,6 @@ function LearnPageInner() {
             />
           </div>
         </div>
-        <Image src="/assets/mainiconfirstpage.png" width={220} height={260}
-          alt="TitiA acompanhando a atividade"
-          className="hidden h-64 w-full -scale-x-100 self-end object-contain lg:block" />
       </main>
     </div>
   );

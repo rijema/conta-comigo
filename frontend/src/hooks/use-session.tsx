@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { api } from "@/lib/api-client";
 import { authService } from "@/lib/auth";
 import { setCurrentLearningSessionId } from "@/lib/learning-session";
@@ -12,7 +12,11 @@ export interface SessionState {
   activityStartTime: number;
   recommendationExplanation: string | null;
   currentRecommendationId: string | null;
+  selectionSource: "recommended" | "recalculated";
 }
+
+const SESSION_STORAGE_KEY = "contacomigo.learning-session";
+const SESSION_TTL_MS = 8 * 60 * 60 * 1000;
 
 type ActivityLifecycleEventType =
   | "ACTIVITY_PRESENTED"
@@ -49,6 +53,16 @@ export function useSession() {
     hints: 0,
     tutorialOpens: 0,
   });
+  const studentIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!session || !studentIdRef.current) return;
+    window.localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({
+      studentId: studentIdRef.current,
+      expiresAt: Date.now() + SESSION_TTL_MS,
+      session,
+    }));
+  }, [session]);
 
   const getInteractionCounters = useCallback((activityId: string) => {
     if (interactionCountersRef.current.activityId !== activityId) {
@@ -87,14 +101,31 @@ export function useSession() {
     });
   }, []);
 
-  const startSession = useCallback(async () => {
+  const startSession = useCallback(async (studentId: string) => {
     if (startedRef.current) return;
     const token = authService.getStoredToken();
     if (!token) return; // wait until token is available
     startedRef.current = true;
+    studentIdRef.current = String(studentId);
     setIsLoading(true);
     setError(null);
     try {
+      const persisted = window.localStorage.getItem(SESSION_STORAGE_KEY);
+      if (persisted) {
+        try {
+          const saved = JSON.parse(persisted) as { studentId: string; expiresAt: number; session: SessionState };
+          if (saved.studentId === String(studentId) && saved.expiresAt > Date.now() && saved.session?.currentActivity?.id) {
+            setCurrentLearningSessionId(saved.session.id);
+            setSession(saved.session);
+            activitiesCompletedRef.current = Math.floor(saved.session.progress / 10);
+            trackedLifecycleEventsRef.current.add(`${saved.session.id}:${saved.session.currentActivity.id}:ACTIVITY_PRESENTED`);
+            trackedLifecycleEventsRef.current.add(`${saved.session.id}:${saved.session.currentActivity.id}:ACTIVITY_STARTED`);
+            getInteractionCounters(saved.session.currentActivity.id);
+            return;
+          }
+        } catch { /* discard malformed local state below */ }
+        window.localStorage.removeItem(SESSION_STORAGE_KEY);
+      }
       const sessionId = `session-${Date.now()}`;
       setCurrentLearningSessionId(sessionId);
       const { activity, adeDecision } = await api.get<{ activity: any; adeDecision: any }>(
@@ -108,6 +139,7 @@ export function useSession() {
         activityStartTime: Date.now(),
         recommendationExplanation: adeDecision?.childExplanation ?? null,
         currentRecommendationId: adeDecision?.id ?? null,
+        selectionSource: "recommended",
       });
       trackActivityLifecycle(sessionId, activity.id, "ACTIVITY_PRESENTED", undefined, adeDecision?.id);
       getInteractionCounters(activity.id);
@@ -189,6 +221,7 @@ export function useSession() {
         currentRecommendationId: result.adeDecision?.id ?? null,
         recommendationExplanation: result.adeDecision?.childExplanation ?? previous.recommendationExplanation,
         activityStartTime: Date.now(),
+        selectionSource: "recalculated",
       } : previous);
       return true;
     } catch (changeError) {
@@ -254,6 +287,7 @@ export function useSession() {
             recommendationExplanation:
               result.adeDecision?.childExplanation ?? prev.recommendationExplanation,
             currentRecommendationId: result.adeDecision?.id ?? null,
+            selectionSource: "recommended",
           };
         });
       }
@@ -275,6 +309,8 @@ export function useSession() {
       tutorialOpens: 0,
     };
     setSession(null);
+    window.localStorage.removeItem(SESSION_STORAGE_KEY);
+    studentIdRef.current = null;
     activitiesCompletedRef.current = 0;
   }, []);
 
