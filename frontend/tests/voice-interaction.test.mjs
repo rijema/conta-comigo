@@ -1,0 +1,33 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+
+const hook = readFileSync(new URL('../src/hooks/use-voice-command.ts', import.meta.url), 'utf8');
+const page = readFileSync(new URL('../src/app/[locale]/learn/page.tsx', import.meta.url), 'utf8');
+const neural = readFileSync(new URL('../src/lib/neural-titia-speech-engine.ts', import.meta.url), 'utf8');
+
+test('microphone is push-to-talk, feature flagged, and stops every media track', () => {
+  assert.match(hook, /NEXT_PUBLIC_ENABLE_VOICE_COMMANDS === "true"/);
+  assert.match(hook, /getUserMedia\(\{ audio: true, video: false \}\)/);
+  assert.match(hook, /recorder\.start\(\)/);
+  assert.match(hook, /stream\.getTracks\(\)\.forEach\(\(track\) => track\.stop\(\)\)/);
+  assert.doesNotMatch(hook, /setInterval|continuous\s*[:=]\s*true/);
+});
+
+test('voice commands reuse existing activity actions and retain canonical behavior', () => {
+  assert.match(page, /onHelp: handleOpenTutorial/);
+  assert.match(page, /onRepeat: speech\.repeatLastInstruction/);
+  assert.match(page, /handleChangeActivity/);
+  assert.match(hook, /VOICE_ACTIVITY_CHANGE_REQUESTED/);
+});
+
+test('child audio is discarded and never added to analytics metadata or caches', () => {
+  assert.match(hook, /chunks = \[\]/);
+  assert.doesNotMatch(hook, /localStorage.*audio|indexedDB|upload|transcript/);
+  assert.doesNotMatch(neural, /MediaRecorder|getUserMedia/);
+});
+
+test('neural speech falls back to the browser engine', () => {
+  assert.match(neural, /BrowserSpeechEngine/);
+  assert.match(neural, /catch\(\(\) => this\.fallback\.speak\(request\)\)/);
+});

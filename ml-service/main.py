@@ -17,7 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from pydantic import BaseModel, Field
 
-from routers import bkt_router, engagement_router, recommendation_router
+from routers import bkt_router, engagement_router, recommendation_router, voice_router
 from middleware.logging_middleware import LoggingMiddleware
 
 # Configure structured logging
@@ -68,6 +68,7 @@ app.add_middleware(LoggingMiddleware)
 app.include_router(bkt_router.router, prefix="/predict", tags=["BKT"])
 app.include_router(engagement_router.router, prefix="/predict", tags=["Engagement"])
 app.include_router(recommendation_router.router, prefix="/predict", tags=["Recommendation"])
+app.include_router(voice_router.router, prefix="/voice", tags=["Voice"])
 
 
 class BackendAttempt(BaseModel):

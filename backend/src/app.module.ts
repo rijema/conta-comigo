@@ -15,6 +15,7 @@ import { EducatorModule } from './modules/educator/educator.module';
 import { LearningEventsModule } from './modules/learning-events/learning-events.module';
 import { KnowledgeTracingModule } from './modules/knowledge-tracing/knowledge-tracing.module';
 import { HealthController } from './health.controller';
+import { VoiceModule } from './modules/voice/voice.module';
 
 function validateEnvironment(config: Record<string, unknown>) {
   if (config.NODE_ENV === 'production') {
@@ -102,6 +103,7 @@ function validateEnvironment(config: Record<string, unknown>) {
     EducatorModule,
     LearningEventsModule,
     KnowledgeTracingModule,
+    VoiceModule,
   ],
   controllers: [HealthController],
   providers: [],

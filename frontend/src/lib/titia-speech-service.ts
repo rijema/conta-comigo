@@ -22,7 +22,7 @@ export interface SpokenInstruction {
   steps: string[];
 }
 
-class BrowserSpeechEngine implements TitiaSpeechEngine {
+export class BrowserSpeechEngine implements TitiaSpeechEngine {
   private activeUtterance: SpeechSynthesisUtterance | null = null;
 
   isAvailable(): boolean {
