@@ -1,7 +1,7 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { TranscribeVoiceDto } from './dto/transcribe-voice.dto';
-import { IsIn, IsNumber, IsString, MaxLength, Max, Min } from 'class-validator';
+import { NeuralSpeechDto } from './dto/neural-speech.dto';
 import { VoiceService } from './voice.service';
 
 @UseGuards(JwtAuthGuard)
@@ -16,10 +16,4 @@ export class VoiceController {
   async speech(@Body() dto: NeuralSpeechDto) {
     return { audioBase64: await this.voice.synthesize(dto.text, dto.language, dto.rate) };
   }
-}
-
-class NeuralSpeechDto {
-  @IsString() @MaxLength(500) text: string;
-  @IsIn(['pt-BR']) language: string = 'pt-BR';
-  @IsNumber() @Min(0.5) @Max(2) rate: number = 0.85;
 }

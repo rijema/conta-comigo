@@ -7,6 +7,7 @@
 - Added in-memory Faster-Whisper STT and optional Piper pt-BR TTS with browser fallback and generated-TitiA-audio caching only.
 - Added sanitized semantic voice events without persisting audio or raw transcripts.
 - Added PostgreSQL enum migration, privacy/provider tests, deployment settings, and Portuguese research documentation.
+- Moved neural-speech validation into an imported DTO to avoid decorator metadata initialization errors at application startup.
 
 
 ## InteractionEvidence PostgreSQL metadata fix
