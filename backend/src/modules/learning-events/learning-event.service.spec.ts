@@ -57,4 +57,16 @@ describe('LearningEventService', () => {
     );
     errorSpy.mockRestore();
   });
+
+  it('stores voice evidence without audio, transcript, or BKT fields', async () => {
+    const evidenceRepository = { create: jest.fn((value) => value), save: jest.fn().mockResolvedValue({}) };
+    const service = new LearningEventService({} as any, evidenceRepository as any);
+    await service.trackVoiceEvidence({ id: 'event-1', ...input,
+      eventType: LearningEventType.VOICE_HELP_REQUESTED, recommendationId: null } as any,
+    'REQUEST_HELP', 320, true);
+    const evidence = evidenceRepository.create.mock.calls[0][0];
+    expect(evidence.interactionType).toEqual(['VOICE']);
+    expect(evidence.outcome).toBe('REQUEST_HELP');
+    expect(JSON.stringify(evidence)).not.toMatch(/audio|transcript|mastery/i);
+  });
 });

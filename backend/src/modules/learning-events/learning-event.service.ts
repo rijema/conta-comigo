@@ -5,6 +5,7 @@ import {
   LearningEvent,
   LearningEventType,
 } from './entities/learning-event.entity';
+import { InteractionEvidence } from './entities/interaction-evidence.entity';
 
 export interface TrackLearningEventInput {
   studentId: string;
@@ -28,7 +29,29 @@ export class LearningEventService {
   constructor(
     @InjectRepository(LearningEvent)
     private readonly learningEventRepository: Repository<LearningEvent>,
+    @InjectRepository(InteractionEvidence)
+    private readonly interactionEvidenceRepository?: Repository<InteractionEvidence>,
   ) {}
+
+  async trackVoiceEvidence(event: LearningEvent, command?: string, processingTimeMs?: number,
+    recognitionSucceeded?: boolean): Promise<void> {
+    if (!this.interactionEvidenceRepository || !event.activityId) return;
+    try {
+      await this.interactionEvidenceRepository.save(this.interactionEvidenceRepository.create({
+        sourceEventId: event.id, studentId: event.studentId, sessionId: event.sessionId,
+        activityId: event.activityId, recommendationId: event.recommendationId,
+        eventType: event.eventType, interactionType: ['VOICE'], representation: null,
+        motorDemand: null, sensoryLoad: null, languageLoad: null, outcome: command ?? null,
+        timestamp: event.timestamp, metadata: {
+          ...(processingTimeMs !== undefined ? { processingTimeMs } : {}),
+          ...(recognitionSucceeded !== undefined ? { recognitionSucceeded } : {}),
+        },
+      }));
+    } catch (error) {
+      this.logger.error('Failed to persist sanitized voice interaction evidence',
+        error instanceof Error ? error.stack : String(error));
+    }
+  }
 
   /**
    * Appends one immutable analytics event. Persistence errors are deliberately

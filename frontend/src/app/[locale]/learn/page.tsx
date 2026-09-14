@@ -10,6 +10,8 @@ import { ActivityRenderer } from "@/components/activity/activity-renderer";
 import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
 import { useAccessibility } from "@/contexts/AccessibilityContext";
 import { useTitiaSpeech } from "@/hooks/use-titia-speech";
+import { useVoiceCommand } from "@/hooks/use-voice-command";
+import { PushToTalkButton } from "@/components/voice/push-to-talk-button";
 
 /* ── Rotating colourful backgrounds per activity ── */
 const BG_THEMES = [
@@ -130,6 +132,13 @@ function LearnPageInner() {
     setShowTutorial(true);
   };
 
+  const voice = useVoiceCommand({
+    sessionId: session?.id, activityId: session?.currentActivity?.id,
+    recommendationId: session?.currentRecommendationId,
+    onHelp: handleOpenTutorial, onRepeat: speech.repeatLastInstruction,
+    onChangeActivity: () => { void handleChangeActivity(); }, onStopSpeech: speech.stopSpeech,
+  });
+
   const activity = session?.currentActivity;
   const progress = session?.progress ?? 0;
 
@@ -219,6 +228,7 @@ function LearnPageInner() {
           </div>
 
           <div className="flex items-center gap-2">
+            {voice.enabled && <PushToTalkButton state={voice.state} onStart={voice.start} onStop={voice.stop} onReset={voice.reset} />}
             <button
               onClick={handleOpenTutorial}
               className="min-h-10 rounded-2xl bg-orange-100 border-2 border-orange-200 hover:bg-orange-200 flex items-center gap-1 px-2 text-sm font-bold transition-colors"

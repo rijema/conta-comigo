@@ -131,6 +131,12 @@ ALTER TYPE learning_event_type_enum ADD VALUE IF NOT EXISTS 'instruction_replaye
 ALTER TYPE learning_event_type_enum ADD VALUE IF NOT EXISTS 'hint_spoken';
 ALTER TYPE learning_event_type_enum ADD VALUE IF NOT EXISTS 'pictogram_spoken';
 ALTER TYPE learning_event_type_enum ADD VALUE IF NOT EXISTS 'speech_disabled';
+ALTER TYPE learning_event_type_enum ADD VALUE IF NOT EXISTS 'VOICE_INTERACTION_STARTED';
+ALTER TYPE learning_event_type_enum ADD VALUE IF NOT EXISTS 'VOICE_COMMAND_RECOGNIZED';
+ALTER TYPE learning_event_type_enum ADD VALUE IF NOT EXISTS 'VOICE_COMMAND_UNKNOWN';
+ALTER TYPE learning_event_type_enum ADD VALUE IF NOT EXISTS 'VOICE_HELP_REQUESTED';
+ALTER TYPE learning_event_type_enum ADD VALUE IF NOT EXISTS 'VOICE_INSTRUCTION_REPLAY_REQUESTED';
+ALTER TYPE learning_event_type_enum ADD VALUE IF NOT EXISTS 'VOICE_ACTIVITY_CHANGE_REQUESTED';
 
 CREATE TABLE IF NOT EXISTS learning_events (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(), "studentId" UUID NOT NULL,

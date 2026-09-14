@@ -6,12 +6,19 @@ import { api } from "@/lib/api-client";
 import { authService } from "@/lib/auth";
 import { getOrCreateLearningSessionId } from "@/lib/learning-session";
 import { titiaSpeechService, type SpokenInstruction } from "@/lib/titia-speech-service";
+import { NeuralTitiaSpeechEngine } from "@/lib/neural-titia-speech-engine";
 
 type SpeechEventType = "instruction_spoken" | "instruction_replayed" |
   "hint_spoken" | "pictogram_spoken" | "speech_disabled";
 
 export function useTitiaSpeech({ activityId }: { activityId?: string } = {}) {
   const { settings, updateSettings, settingsLoaded } = useAccessibility();
+
+  useEffect(() => {
+    if (process.env.NEXT_PUBLIC_ENABLE_NEURAL_TTS === "true") {
+      titiaSpeechService.replaceEngine(new NeuralTitiaSpeechEngine());
+    }
+  }, []);
 
   const configure = useCallback(() => {
     titiaSpeechService.configure({

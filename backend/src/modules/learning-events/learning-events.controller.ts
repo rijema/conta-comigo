@@ -5,6 +5,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { TrackVisualCommunicationEventDto } from './dto/track-visual-communication-event.dto';
 import { LearningEventService } from './learning-event.service';
 import { TrackSpeechEventDto } from './dto/track-speech-event.dto';
+import { TrackVoiceEventDto } from './dto/track-voice-event.dto';
 
 @ApiTags('learning-events')
 @ApiBearerAuth()
@@ -49,6 +50,22 @@ export class LearningEventsController {
         ...(dto.stepCount ? { stepCount: dto.stepCount } : {}),
       },
     });
+    return { tracked: event !== null };
+  }
+
+  @Post('voice')
+  @ApiOperation({ summary: 'Append a sanitized voice-command event without transcript or audio' })
+  async trackVoice(@CurrentUser('userId') studentId: string, @Body() dto: TrackVoiceEventDto) {
+    const event = await this.learningEventService.track({
+      studentId, sessionId: dto.sessionId, eventType: dto.eventType, timestamp: new Date(),
+      activityId: dto.activityId ?? null, recommendationId: dto.recommendationId ?? null,
+      metadata: { interactionSource: 'VOICE', ...(dto.command ? { command: dto.command } : {}),
+        ...(dto.processingTimeMs !== undefined ? { processingTimeMs: dto.processingTimeMs } : {}),
+        ...(dto.recognitionSucceeded !== undefined ? { recognitionSucceeded: dto.recognitionSucceeded } : {}) },
+    });
+    if (event) await this.learningEventService.trackVoiceEvidence(
+      event, dto.command, dto.processingTimeMs, dto.recognitionSucceeded,
+    );
     return { tracked: event !== null };
   }
 }
