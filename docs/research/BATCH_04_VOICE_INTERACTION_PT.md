@@ -14,7 +14,7 @@
 
 ## 4. Provedor TTS
 
-[LITERATURA] O [model card da voz Piper `pt_BR/edresson`](https://huggingface.co/rhasspy/piper-voices/blob/v1.0.0/pt/pt_BR/edresson/low/MODEL_CARD) declara licença CC BY 4.0. [DECISÃO DE ENGENHARIA] O modelo deve ser provisionado explicitamente em `PIPER_MODEL_PATH`; nenhum catálogo ou peso é baixado pela aplicação. Falha ou ausência do modelo aciona `BrowserSpeechEngine`.
+[LITERATURA] O [model card da voz Piper `pt_BR/edresson`](https://huggingface.co/rhasspy/piper-voices/blob/v1.0.0/pt/pt_BR/edresson/low/MODEL_CARD) declara licença CC BY 4.0. [DECISÃO DE ENGENHARIA] A imagem do `ml-service` incorpora somente essa versão fixada, seu JSON e o model card — não o catálogo — e configura `PIPER_MODEL_PATH`. Falha do modelo aciona `BrowserSpeechEngine`.
 
 [PARÂMETRO EXPERIMENTAL] Modelo STT, velocidade, limite de áudio e timeout são configuráveis. A qualidade e adequação infantil da voz precisam de validação profissional antes de ativação geral.
 
