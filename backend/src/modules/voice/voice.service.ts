@@ -40,6 +40,7 @@ export class VoiceService {
     const command = this.interpreter.interpret(transcript);
     return {
       command,
+      transcript,
       recognitionSucceeded: command !== 'UNKNOWN',
       language: response.data?.language ?? null,
       processingTimeMs: Number(response.data?.processingTimeMs ?? Date.now() - started),

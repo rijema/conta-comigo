@@ -38,9 +38,11 @@ test('voice commands reuse existing activity actions and retain canonical behavi
   assert.match(hook, /VOICE_ACTIVITY_CHANGE_REQUESTED/);
 });
 
-test('child audio is discarded and never added to analytics metadata or caches', () => {
+test('child audio is discarded and ephemeral transcription is not cached or tracked', () => {
   assert.match(hook, /chunks = \[\]/);
-  assert.doesNotMatch(hook, /localStorage.*audio|indexedDB|upload|transcript/);
+  assert.doesNotMatch(hook, /localStorage.*audio|indexedDB|upload/);
+  assert.match(hook, /options\.onTranscript\(result\.transcript\.trim\(\)\)/);
+  assert.doesNotMatch(hook, /track\([^)]*transcript/);
   assert.doesNotMatch(neural, /MediaRecorder|getUserMedia/);
 });
 

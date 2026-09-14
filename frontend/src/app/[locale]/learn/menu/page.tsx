@@ -25,17 +25,11 @@ const ISLAND_THEMES = [
 ];
 
 const CARD_CONFIG: Record<string, { emoji: string; label: string; mascot: string }> = {
-  counting:        { emoji: "🔢", label: "Contar",        mascot: "🐛" },
+  counting:        { emoji: "🔢", label: "Contagem com escolha", mascot: "🐛" },
   multiple_choice: { emoji: "🎯", label: "Escolher",      mascot: "🐸" },
   quiz:            { emoji: "❓", label: "Perguntas",     mascot: "🦉" },
   drag_drop:       { emoji: "🖐️", label: "Arrastar",      mascot: "🐱" },
   number_line:     { emoji: "📏", label: "Reta Numérica", mascot: "🐰" },
-};
-
-const DIFF_CONFIG: Record<string, { stars: string; color: string }> = {
-  easy:   { stars: "⭐",     color: "text-green-600" },
-  medium: { stars: "⭐⭐",   color: "text-yellow-600" },
-  hard:   { stars: "⭐⭐⭐", color: "text-red-500" },
 };
 
 const AI_QUESTIONS = [
@@ -307,6 +301,7 @@ export default function ActivityMenuPage() {
                             <div className="min-w-0">
                               <p className="font-extrabold text-white text-sm drop-shadow truncate">{theme.label}</p>
                               <p className="text-white/80 text-xs font-semibold truncate">{skillPt}</p>
+                              <p className="text-white text-xs font-extrabold">BNCC {group.skill}</p>
                               <p className="text-white/65 text-xs">{group.completedCount}/{group.totalActivities} ✓</p>
                             </div>
                           </div>
@@ -324,7 +319,6 @@ export default function ActivityMenuPage() {
                         <div className="p-2.5 space-y-2">
                           {group.activities.map((act: any) => {
                             const cfg  = CARD_CONFIG[act.type] ?? { emoji: "🎮", label: "Jogo", mascot: "🐶" };
-                            const diff = DIFF_CONFIG[act.difficulty] ?? { stars: "⭐", color: "text-gray-500" };
                             const isRec = act.recommended && !act.completed;
 
                             return (
@@ -350,9 +344,11 @@ export default function ActivityMenuPage() {
                                   </div>
                                   <div className="flex-1 min-w-0">
                                     <p className="font-extrabold text-slate-800 text-xs leading-tight line-clamp-2">{act.title}</p>
-                                    <div className="flex items-center gap-1 mt-0.5">
-                                      <span className="text-xs text-slate-500">{cfg.mascot}</span>
-                                      <span className={`text-xs font-bold ${diff.color}`}>{diff.stars}</span>
+                                    <div className="mt-1 flex flex-wrap items-center gap-1">
+                                      <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700">{cfg.label}</span>
+                                      {(act.bnccSkills ?? [group.skill]).map((code: string) => (
+                                        <span key={code} className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700">{code}</span>
+                                      ))}
                                     </div>
                                   </div>
                                   {!act.completed ? (

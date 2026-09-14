@@ -294,6 +294,17 @@ No database migration is required because persistence is browser-local and the a
 
 No database migration is required because these are presentation, speech-control, and deterministic explanation-copy changes.
 
+## BNCC transparency and child action refinement
+
+- Exposed all activity BNCC codes and human-readable activity-family labels in gameplay and trail cards.
+- Confirmed EF01MA01 diversity comes from two existing, validated interaction families instead of fabricating curriculum mappings.
+- Grouped change, child chat, and visual help into one action row and kept the progress header focused.
+- Turned “Falar com a TitiA” into the existing child chatbot, with text input and ephemeral voice transcription inside the dialog.
+- Extended spoken guidance beyond prompt reading with interaction-specific steps.
+- Removed low-information child recommendation copy and lengthened the unified feedback sweep to provide a readable hold phase.
+
+No database migration is required because persisted entities and analytics payloads are unchanged.
+
 ## Neural speech backend proxy correction
 
 - Replaced the Axios/RxJS synthesis bridge with the native Node fetch path already proven against the deployed ML service.

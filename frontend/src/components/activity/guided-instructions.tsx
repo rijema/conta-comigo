@@ -19,9 +19,17 @@ export function getActivitySpokenInstruction(activity: Activity): SpokenInstruct
     ? content.spokenSteps.filter((step): step is string => typeof step === "string" && step.trim().length > 0)
     : [];
   const authoredFallback = content.instructionsPt || activity.instructions || content.question || activity.title;
+  const interactionGuidance: Partial<Record<Activity["type"], string[]>> = {
+    drag_drop: ["Depois, segure uma peça e leve até o espaço escolhido.", "Quando terminar, confirme."],
+    multiple_choice: ["Depois, toque em uma resposta.", "Quando escolher, confirme."],
+    quiz: ["Depois, toque em uma resposta.", "Quando escolher, confirme."],
+    counting: ["Toque nos objetos enquanto conta.", "Depois, confirme o total."],
+    number_line: ["Mova o marcador até o número pedido.", "Depois, confirme."],
+  };
+  const authoredSteps = explicitSteps.length > 0 ? explicitSteps : splitAuthoredInstruction(authoredFallback || "");
   return {
     introduction: content.spokenIntroduction || "Oi! A TitiA vai te explicar.",
-    steps: explicitSteps.length > 0 ? explicitSteps : splitAuthoredInstruction(authoredFallback || ""),
+    steps: [...authoredSteps, ...(interactionGuidance[activity.type] ?? ["Faça sua escolha com calma.", "Depois, confirme."])],
   };
 }
 

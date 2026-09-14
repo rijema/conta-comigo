@@ -12,6 +12,8 @@ import { useAccessibility } from "@/contexts/AccessibilityContext";
 import { useTitiaSpeech } from "@/hooks/use-titia-speech";
 import { useVoiceCommand } from "@/hooks/use-voice-command";
 import { PushToTalkButton } from "@/components/voice/push-to-talk-button";
+import { api } from "@/lib/api-client";
+import { authService } from "@/lib/auth";
 import type { Activity } from "@/types";
 
 const TUTORIALS: Partial<Record<Activity["type"], Array<{ conceptId: string; text: string }>>> = {
@@ -60,6 +62,14 @@ const BG_THEMES = [
   "linear-gradient(135deg,#ffedd5 0%,#fed7aa 40%,#fdba74 100%)",
 ];
 
+const ACTIVITY_TYPE_LABELS: Record<string, string> = {
+  counting: "Contagem com escolha", multiple_choice: "Escolha", quiz: "Perguntas",
+  drag_drop: "Arrastar e organizar", number_line: "Reta numérica",
+  composition_decomposition: "Composição", missing_number: "Número que falta",
+  pattern_completion: "Completar padrão", representation_matching: "Combinar representações",
+  error_detection: "Descobrir o erro", contextual_problem_solving: "Resolver problema",
+};
+
 /* ── Sound helpers using Web Audio API ── */
 function playTone(freq: number, dur: number, type: OscillatorType = "sine", vol = 0.25) {
   if (typeof window === "undefined") return;
@@ -99,6 +109,10 @@ function LearnPageInner() {
   const [mounted, setMounted] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const [bgIdx, setBgIdx] = useState(0);
+  const [showChat, setShowChat] = useState(false);
+  const [chatQuestion, setChatQuestion] = useState("");
+  const [chatAnswer, setChatAnswer] = useState<string | null>(null);
+  const [chatLoading, setChatLoading] = useState(false);
   const startCuePlayedRef = useRef(false);
   const router = useRouter();
   const locale = useLocale();
@@ -140,14 +154,14 @@ function LearnPageInner() {
         session.currentActivity.content?.spokenSuccessFeedback || "Muito bem! Você conseguiu.",
       );
       setShowReward(true);
-      setTimeout(() => setShowReward(false), 2200);
+      setTimeout(() => setShowReward(false), 4200);
     } else {
       if (settings.soundEnabled) playWrong();
       speech.speakFeedback(
         session.currentActivity.content?.spokenRetryFeedback || "Tudo bem. Vamos tentar novamente.",
       );
       setRewardWrong(true);
-      setTimeout(() => setRewardWrong(false), 1800);
+      setTimeout(() => setRewardWrong(false), 3800);
     }
   }, [session, settings.soundEnabled, speech, submitAnswer]);
 
@@ -180,12 +194,28 @@ function LearnPageInner() {
     speech.speakInstruction({ introduction: "Vamos ver como jogar.", steps });
   };
 
+  const askTitia = async (spokenQuestion?: string) => {
+    const question = (spokenQuestion ?? chatQuestion).trim();
+    if (!question) return;
+    setChatQuestion(question);
+    setChatLoading(true);
+    try {
+      const token = authService.getStoredToken();
+      const result = await api.post<{ answer: string }>("/guardian/child-chat", { question }, token ?? undefined);
+      setChatAnswer(result.answer);
+      speech.speakFeedback(result.answer);
+    } catch {
+      speech.speakFeedback("Não consegui responder agora. Vamos tentar depois.");
+    } finally { setChatLoading(false); }
+  };
+
   const voice = useVoiceCommand({
     sessionId: session?.id, activityId: session?.currentActivity?.id,
     recommendationId: session?.currentRecommendationId,
     onHelp: handleOpenTutorial, onRepeat: speech.repeatLastInstruction,
     onChangeActivity: () => { void handleChangeActivity(); }, onStopSpeech: speech.stopSpeech,
     onUnknown: () => speech.speakFeedback("Não entendi. Vamos tentar novamente."),
+    onTranscript: (transcript) => { void askTitia(transcript); },
   });
 
   const activity = session?.currentActivity;
@@ -226,8 +256,8 @@ function LearnPageInner() {
 
       {/* ── Correct answer burst ── */}
       {showReward && (
-        <div className="feedback-motion fixed inset-0 z-50 flex items-center justify-center bg-emerald-400/45 pointer-events-none" style={{ animation: "feedbackFlash 1.8s ease-out" }}>
-          <div className="feedback-motion flex w-full items-center justify-center gap-4 border-y-4 border-emerald-200 bg-emerald-600/90 py-4 shadow-2xl" style={{ animation: "feedbackSweep 1.8s ease-in-out both" }}>
+        <div className="feedback-motion fixed inset-0 z-50 flex items-center justify-center bg-emerald-400/45 pointer-events-none" style={{ animation: "feedbackFlash 4.1s ease-out" }}>
+          <div className="feedback-motion flex w-full items-center justify-center gap-4 border-y-4 border-emerald-200 bg-emerald-600/90 py-4 shadow-2xl" style={{ animation: "feedbackSweep 4.1s ease-in-out both" }}>
             <Image src="/assets/correctanswer.png" width={520} height={390} alt="TitiA comemorando o acerto" className="h-64 w-auto object-contain sm:h-80" />
             <p className="text-3xl font-extrabold text-white drop-shadow-lg">
               Muito bem! 🎉
@@ -236,8 +266,8 @@ function LearnPageInner() {
         </div>
       )}
       {rewardWrong && (
-        <div className="feedback-motion fixed inset-0 z-50 flex items-center justify-center bg-rose-500/45 pointer-events-none" style={{ animation: "feedbackFlash 1.6s ease-out" }}>
-          <div className="feedback-motion flex w-full items-center justify-center border-y-4 border-rose-200 bg-rose-600/90 py-4 shadow-2xl" style={{ animation: "feedbackSweep 1.6s ease-in-out both" }}>
+        <div className="feedback-motion fixed inset-0 z-50 flex items-center justify-center bg-rose-500/45 pointer-events-none" style={{ animation: "feedbackFlash 3.7s ease-out" }}>
+          <div className="feedback-motion flex w-full items-center justify-center border-y-4 border-rose-200 bg-rose-600/90 py-4 shadow-2xl" style={{ animation: "feedbackSweep 3.7s ease-in-out both" }}>
             <Image src="/assets/tryagain.png" width={440} height={330} alt="TitiA incentivando uma nova tentativa" className="h-64 w-auto object-contain sm:h-80" />
           </div>
         </div>
@@ -247,8 +277,8 @@ function LearnPageInner() {
         @keyframes bounceIn { 0%{transform:scale(0.3);opacity:0} 60%{transform:scale(1.2)} 100%{transform:scale(1);opacity:1} }
         @keyframes fadeInUp { 0%{transform:translateY(20px);opacity:0} 100%{transform:translateY(0);opacity:1} }
         @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-10px)} 40%{transform:translateX(10px)} 60%{transform:translateX(-8px)} 80%{transform:translateX(8px)} }
-        @keyframes feedbackFlash { 0%{opacity:0} 18%{opacity:1} 100%{opacity:0} }
-        @keyframes feedbackSweep { 0%{transform:translateX(-105%)} 24%,70%{transform:translateX(0)} 100%{transform:translateX(105%)} }
+        @keyframes feedbackFlash { 0%{opacity:0} 10%,82%{opacity:1} 100%{opacity:0} }
+        @keyframes feedbackSweep { 0%{transform:translateX(-105%)} 12%,82%{transform:translateX(0)} 100%{transform:translateX(105%)} }
         @media (prefers-reduced-motion: reduce) { .feedback-motion { animation: none !important; } }
       `}</style>
 
@@ -277,15 +307,6 @@ function LearnPageInner() {
           </div>
 
           <div className="flex items-center gap-2">
-            {voice.enabled && <PushToTalkButton state={voice.state} onStart={voice.start} onStop={voice.stop} onReset={voice.reset} />}
-            <button
-              onClick={handleOpenTutorial}
-              className="flex min-h-11 items-center gap-1 rounded-[1.5rem_1.5rem_1.5rem_.65rem] border-2 border-orange-300 bg-gradient-to-br from-orange-100 to-yellow-100 px-3 text-sm font-bold shadow-sm transition-all hover:rotate-1 hover:scale-[1.04] hover:shadow-md active:scale-[.96] motion-reduce:transform-none"
-              aria-label="Abrir ajuda: como resolver"
-            >
-              <ArasaacPictogram conceptId="navigation.help" showLabel={false} imageClassName="w-6 h-6" />
-              <span className="hidden sm:inline">Como jogar com a TitiA</span>
-            </button>
             <button onClick={handleLogout} className="rounded-lg px-2 py-1 text-xs text-gray-500 transition-transform hover:scale-105 hover:text-red-600">Sair</button>
           </div>
         </div>
@@ -293,23 +314,23 @@ function LearnPageInner() {
 
       {/* ── Activity type badge + BNCC ── */}
       <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-2 px-4 pt-3">
-        <span className="inline-flex items-center gap-1 text-xs font-extrabold bg-white/70 text-blue-700 px-3 py-1 rounded-full border border-blue-200 shadow-sm">
-          📚 {activity.bnccSkills?.[0] ?? "BNCC"}
+        {(activity.bnccSkills?.length ? activity.bnccSkills : ["BNCC não informada"]).map((skill: string) => (
+          <span key={skill} className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-white/80 px-3 py-1 text-xs font-extrabold text-blue-700 shadow-sm">
+            BNCC {skill}
+          </span>
+        ))}
+        <span className="inline-flex items-center rounded-full border border-emerald-200 bg-white/80 px-3 py-1 text-xs font-extrabold text-emerald-700 shadow-sm">
+          Tipo: {ACTIVITY_TYPE_LABELS[activity.type] ?? activity.type}
         </span>
         {session.selectionSource === "recalculated" && <span className="inline-flex items-center gap-1 rounded-full border border-purple-200 bg-white/70 px-3 py-1 text-xs font-extrabold text-purple-700 shadow-sm">↻ Outra opção escolhida pela TitiA</span>}
       </div>
-      {session?.recommendationExplanation && (
-        <p className="mx-auto max-w-5xl px-4 pt-2 text-sm font-bold text-purple-700" aria-live="polite">
-          {session.recommendationExplanation}
-        </p>
-      )}
-      <div className="mx-auto max-w-5xl px-4 pt-2">
+      <div className="mx-auto grid max-w-5xl grid-cols-1 gap-3 px-4 pt-3 sm:grid-cols-3">
         <button
           type="button"
           onClick={handleChangeActivity}
           disabled={isChangingActivity}
           aria-label="Quero outro exercício"
-          className="inline-flex min-h-11 items-center gap-2 rounded-[.75rem_1.75rem_1.75rem_1.75rem] border-2 border-purple-300 bg-gradient-to-r from-white/90 to-purple-50 px-4 py-2 text-sm font-extrabold text-purple-700 shadow-md transition-all hover:-rotate-1 hover:scale-[1.04] hover:shadow-lg active:scale-[.96] motion-reduce:transform-none disabled:opacity-60"
+          className="inline-flex min-h-14 items-center justify-center gap-2 rounded-[.75rem_1.75rem_1.75rem_1.75rem] border-2 border-teal-400 bg-gradient-to-r from-teal-500 to-emerald-500 px-4 py-2 text-sm font-extrabold text-white shadow-md transition-all hover:-rotate-1 hover:scale-[1.04] hover:shadow-lg active:scale-[.96] motion-reduce:transform-none disabled:opacity-60"
         >
           <ArasaacPictogram
             conceptId="navigation.repeat"
@@ -319,7 +340,47 @@ function LearnPageInner() {
           />
           <span>{isChangingActivity ? "Escolhendo..." : "Quero outro"}</span>
         </button>
+        <button type="button" onClick={() => { if (settings.soundEnabled) playTap(); setShowChat(true); }}
+          className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full border-2 border-sky-300 bg-gradient-to-r from-sky-100 to-blue-100 px-4 py-2 text-sm font-extrabold text-sky-800 shadow-md transition-all hover:scale-[1.04] hover:shadow-lg active:scale-[.96] motion-reduce:transform-none">
+          <ArasaacPictogram conceptId="communication.help_me" showLabel={false} imageClassName="h-7 w-7" />
+          <span>Falar com a TitiA</span>
+        </button>
+        <button type="button" onClick={handleOpenTutorial}
+          className="inline-flex min-h-14 items-center justify-center gap-2 rounded-[1.75rem_.75rem_1.75rem_1.75rem] border-2 border-orange-300 bg-gradient-to-r from-orange-100 to-yellow-100 px-4 py-2 text-sm font-extrabold text-orange-800 shadow-md transition-all hover:rotate-1 hover:scale-[1.04] hover:shadow-lg active:scale-[.96] motion-reduce:transform-none"
+          aria-label="Abrir ajuda visual sobre como jogar">
+          <ArasaacPictogram conceptId="navigation.help" showLabel={false} imageClassName="h-7 w-7" />
+          <span>Como jogar</span>
+        </button>
       </div>
+
+      {/* ── Child chat ── */}
+      {showChat && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-4"
+          onClick={(event) => { if (event.target === event.currentTarget) setShowChat(false); }}>
+          <section role="dialog" aria-modal="true" aria-labelledby="titia-chat-title"
+            className="w-full max-w-lg overflow-hidden rounded-[2rem] bg-white shadow-2xl">
+            <header className="flex items-center gap-3 bg-gradient-to-r from-sky-500 via-blue-500 to-purple-500 p-4 text-white">
+              <Image src="/assets/wildcard.png" width={88} height={72} alt="TitiA" className="h-16 w-20 object-contain" />
+              <div className="flex-1"><h2 id="titia-chat-title" className="text-xl font-extrabold">Falar com a TitiA</h2><p className="text-sm text-white/90">Escreva ou use sua voz para fazer uma pergunta.</p></div>
+              <button type="button" onClick={() => setShowChat(false)} aria-label="Fechar conversa" className="h-10 w-10 rounded-full bg-white/20 text-xl font-bold hover:bg-white/30">×</button>
+            </header>
+            <div className="space-y-4 p-5">
+              {chatAnswer && <div className="rounded-2xl border-2 border-purple-100 bg-purple-50 p-4 text-sm font-semibold leading-relaxed text-slate-700" aria-live="polite">{chatAnswer}</div>}
+              <label className="block font-bold text-slate-700">O que você quer perguntar?
+                <textarea value={chatQuestion} onChange={(event) => setChatQuestion(event.target.value)} rows={3}
+                  className="mt-2 w-full resize-none rounded-2xl border-2 border-sky-200 p-3 font-medium focus:border-sky-500 focus:outline-none" />
+              </label>
+              <div className="flex flex-wrap gap-3">
+                {voice.enabled && <PushToTalkButton state={voice.state} onStart={voice.start} onStop={voice.stop} onReset={voice.reset} idleLabel="Fazer pergunta por voz" />}
+                <button type="button" disabled={!chatQuestion.trim() || chatLoading} onClick={() => { void askTitia(); }}
+                  className="min-h-11 flex-1 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 px-5 font-extrabold text-white shadow-md transition-transform hover:scale-[1.02] active:scale-[.98] disabled:opacity-50">
+                  {chatLoading ? "TitiA está pensando..." : "Enviar para a TitiA"}
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
+      )}
 
       {/* ── Tutorial modal ── */}
       {showTutorial && (
