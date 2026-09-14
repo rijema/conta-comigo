@@ -1,5 +1,14 @@
 # Change Summary
 
+## Batch B5.1 — Longitudinal Learning Analytics dashboards
+
+- Added backend-aggregated longitudinal views for protected professional and guardian routes.
+- Clearly separated observed interaction data from BKT model estimates and preserved missing evidence as `null`/insufficient data.
+- Added recommendation outcome, adaptation, format, interaction-context, and professional-feedback summaries without exposing raw event payloads.
+- Replaced fabricated guardian skill-radar values and fixed performance thresholds with evidence-aware, plain-language presentation.
+- Added automated aggregation/privacy tests and updated the existing Portuguese Learning Analytics research documentation.
+
+
 ## Batch B4.4 — Adaptive feedback loop and professional review
 
 - Added the child-facing accessible “Quero outro” action without ending the learning session.

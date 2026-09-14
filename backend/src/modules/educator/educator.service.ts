@@ -14,6 +14,7 @@ import { AdaptationTransition } from '../learning-events/entities/adaptation-tra
 import { RecommendationOutcome } from '../learning-events/entities/recommendation-outcome.entity';
 import { ProfessionalRecommendationFeedback } from './entities/professional-recommendation-feedback.entity';
 import { CreateProfessionalFeedbackDto } from './dto/create-professional-feedback.dto';
+import { LongitudinalLearningAnalyticsService } from '../learning-events/longitudinal-learning-analytics.service';
 
 @Injectable()
 export class EducatorService {
@@ -38,7 +39,13 @@ export class EducatorService {
     private readonly outcomeRepo: Repository<RecommendationOutcome>,
     @InjectRepository(ProfessionalRecommendationFeedback)
     private readonly professionalFeedbackRepo: Repository<ProfessionalRecommendationFeedback>,
+    private readonly longitudinalAnalytics?: LongitudinalLearningAnalyticsService,
   ) {}
+
+  async getLongitudinalAnalytics(learnerId: string) {
+    if (!this.longitudinalAnalytics) throw new NotFoundException('Longitudinal analytics service is unavailable');
+    return this.longitudinalAnalytics.getProfessionalReport(learnerId);
+  }
 
   async getStats() {
     const learners = await this.userRepo.find({

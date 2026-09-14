@@ -31,6 +31,7 @@ export default function EducatorDashboardPage() {
   const [profile, setProfile] = useState<any>(null);
   const [adeHistory, setAdeHistory] = useState<any[]>([]);
   const [adaptations, setAdaptations] = useState<any[]>([]);
+  const [longitudinal, setLongitudinal] = useState<any>(null);
   const [skippedEvaluations, setSkippedEvaluations] = useState<Set<string>>(new Set());
   const [report, setReport] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -73,17 +74,20 @@ export default function EducatorDashboardPage() {
     setProfile(null);
     setAdeHistory([]);
     setAdaptations([]);
+    setLongitudinal(null);
     setReport(null);
     setActiveTab("overview");
     try {
-      const [prof, ade, adaptiveEvents] = await Promise.all([
+      const [prof, ade, adaptiveEvents, longitudinalReport] = await Promise.all([
         api.get<any>(`/educator/learners/${learner.id}/profile`, t ?? undefined),
         api.get<any[]>(`/educator/learners/${learner.id}/ade-history`, t ?? undefined),
         api.get<any[]>(`/educator/learners/${learner.id}/adaptations`, t ?? undefined),
+        api.get<any>(`/educator/learners/${learner.id}/longitudinal-analytics`, t ?? undefined),
       ]);
       setProfile(prof);
       setAdeHistory(ade);
       setAdaptations(adaptiveEvents);
+      setLongitudinal(longitudinalReport);
     } catch (e) { console.error(e); }
     finally { setProfileLoading(false); }
   };
@@ -250,6 +254,35 @@ export default function EducatorDashboardPage() {
                   {/* OVERVIEW TAB */}
                   {activeTab === "overview" && (
                     <div className="space-y-4">
+                      <div className="bg-white rounded-2xl shadow-sm p-5 border border-indigo-100">
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          <span className="text-xs font-semibold rounded-full bg-emerald-50 text-emerald-700 px-2 py-1">Dados observados</span>
+                          <span className="text-xs font-semibold rounded-full bg-indigo-50 text-indigo-700 px-2 py-1">Estimativas do modelo BKT</span>
+                        </div>
+                        {!longitudinal || longitudinal.evidenceState?.status === "INSUFFICIENT_DATA" ? (
+                          <p className="text-sm text-slate-500">Dados ainda insuficientes para uma visão longitudinal.</p>
+                        ) : (
+                          <>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                              <div><p className="text-slate-500">Respostas observadas</p><p className="font-bold">{longitudinal.observedData.answers}</p></div>
+                              <div><p className="text-slate-500">Precisão observada</p><p className="font-bold">{longitudinal.observedData.accuracy == null ? "Dados insuficientes" : `${Math.round(longitudinal.observedData.accuracy * 100)}%`}</p></div>
+                              <div><p className="text-slate-500">Atividades concluídas</p><p className="font-bold">{longitudinal.observedData.activitiesCompleted}</p></div>
+                              <div><p className="text-slate-500">Pedidos de ajuda</p><p className="font-bold">{longitudinal.observedData.hints}</p></div>
+                            </div>
+                            <p className="text-xs text-slate-400 mt-3">{longitudinal.longitudinal.trendMessage}</p>
+                            <div className="mt-4 pt-3 border-t border-slate-100">
+                              <p className="text-xs font-semibold text-indigo-700 mb-2">Estimativas do modelo por habilidade BNCC</p>
+                              <div className="flex flex-wrap gap-2">
+                                {longitudinal.learningProgress.masteryEstimates.map((item: any) => (
+                                  <span key={item.skillCode} className="text-xs rounded-lg bg-indigo-50 px-2 py-1 text-indigo-800">
+                                    {item.skillCode}: {item.estimatedMastery == null ? "dados insuficientes" : `${Math.round(item.estimatedMastery * 100)}% estimado`} ({item.observations} observações)
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          </>
+                        )}
+                      </div>
                       {/* Stats row */}
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                         {[
@@ -265,6 +298,53 @@ export default function EducatorDashboardPage() {
                           </div>
                         ))}
                       </div>
+
+                      {longitudinal && (
+                        <><div className="grid md:grid-cols-2 gap-4">
+                          <div className="bg-white rounded-2xl shadow-sm p-5">
+                            <h3 className="font-bold text-slate-700 mb-3">Histórico por sessão</h3>
+                            <div className="space-y-2 max-h-64 overflow-auto">
+                              {longitudinal.longitudinal.sessions.map((session: any) => (
+                                <div key={session.sessionId} className="text-xs rounded-xl bg-slate-50 p-3">
+                                  <p className="font-semibold">{session.date}</p>
+                                  <p>{session.activitiesCompleted} concluídas · {session.attempts} respostas · {session.hints} ajudas · {session.instructionReplays} repetições</p>
+                                  <p>Precisão: {session.accuracy == null ? "dados insuficientes" : `${Math.round(session.accuracy * 100)}%`} · Tempo médio: {session.averageResponseTimeMs == null ? "dados insuficientes" : `${Math.round(session.averageResponseTimeMs)} ms`}</p>
+                                </div>
+                              ))}
+                              {longitudinal.longitudinal.sessions.length === 0 && <p className="text-sm text-slate-400">Dados ainda insuficientes.</p>}
+                            </div>
+                          </div>
+                          <div className="bg-white rounded-2xl shadow-sm p-5">
+                            <h3 className="font-bold text-slate-700 mb-3">Desfechos das recomendações</h3>
+                            <div className="text-sm space-y-1">
+                              <p>Conclusão: {longitudinal.observedData.recommendationSummary.completionRate == null ? "dados insuficientes" : `${Math.round(longitudinal.observedData.recommendationSummary.completionRate * 100)}%`}</p>
+                              <p>Pulo: {longitudinal.observedData.recommendationSummary.skipRate == null ? "dados insuficientes" : `${Math.round(longitudinal.observedData.recommendationSummary.skipRate * 100)}%`}</p>
+                              <p>“Quero outro”: {longitudinal.adaptations.totalChangeRequests}</p>
+                              <p>Trocas mantendo a habilidade: {longitudinal.adaptations.sameSkillReplacements}</p>
+                              <p>Fallbacks registrados: {longitudinal.adaptations.items.filter((item: any) => item.fallbackUsed).length}</p>
+                            </div>
+                            <div className="mt-3 pt-3 border-t border-slate-100">
+                              <p className="text-xs font-semibold text-slate-600">Formatos concluídos</p>
+                              <p className="text-xs text-slate-500 mb-2">{longitudinal.observedData.activityFormats.map((item: any) => `${item.type}: ${item.count}`).join(" · ") || "Dados ainda insuficientes."}</p>
+                              <p className="text-xs font-semibold text-slate-600">Histórico de avaliação profissional</p>
+                              {(longitudinal.professionalFeedback ?? []).map((item: any) => (
+                                <p key={item.rating} className="text-xs text-slate-500">{item.rating}: {item.count} · {item.reasonCodes.join(", ") || "sem motivo codificado"}</p>
+                              ))}
+                              {(longitudinal.professionalFeedback ?? []).length === 0 && <p className="text-xs text-slate-400">Nenhuma avaliação profissional registrada.</p>}
+                            </div>
+                            <p className="text-xs text-slate-400 mt-3">Sinais observacionais; não constituem diagnóstico nem explicam, sozinhos, o motivo da interação.</p>
+                          </div>
+                        </div>
+                        <div className="bg-white rounded-2xl shadow-sm p-5 mt-4">
+                          <h3 className="font-bold text-slate-700 mb-1">Histórico de interação e suporte</h3>
+                          <p className="text-xs text-slate-400 mb-3">Indicadores observacionais; não constituem interpretação clínica.</p>
+                          {longitudinal.interactionHistory.status === "INSUFFICIENT_DATA" ? <p className="text-sm text-slate-400">{longitudinal.interactionHistory.message}</p> : (
+                            <div className="space-y-1">{longitudinal.interactionHistory.items.slice(0, 8).map((item: any, index: number) => (
+                              <p key={index} className="text-xs text-slate-600">Representação: {JSON.stringify(item.representation)} · interação: {JSON.stringify(item.interactionType)} · demanda motora: {item.motorDemand ?? "não informada"} · sensorial: {item.sensoryLoad ?? "não informada"} · {item.count} registro(s)</p>
+                            ))}</div>
+                          )}
+                        </div></>
+                      )}
 
                       {/* Skill strengths/weaknesses visual */}
                       <div className="bg-white rounded-2xl shadow-sm p-5">

@@ -9,6 +9,7 @@ import { RecommendationOutcome } from './entities/recommendation-outcome.entity'
 import { AdaptationTransition } from './entities/adaptation-transition.entity';
 import { InteractionEvidence } from './entities/interaction-evidence.entity';
 import { RecommendationOutcomeService } from './recommendation-outcome.service';
+import { LongitudinalLearningAnalyticsService } from './longitudinal-learning-analytics.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([
@@ -18,7 +19,7 @@ import { RecommendationOutcomeService } from './recommendation-outcome.service';
     InteractionEvidence,
   ])],
   controllers: [LearningAnalyticsMetricsController, LearningEventsController],
-  providers: [LearningEventService, LearningAnalyticsMetricsService, RecommendationOutcomeService],
-  exports: [LearningEventService, LearningAnalyticsMetricsService, RecommendationOutcomeService],
+  providers: [LearningEventService, LearningAnalyticsMetricsService, RecommendationOutcomeService, LongitudinalLearningAnalyticsService],
+  exports: [LearningEventService, LearningAnalyticsMetricsService, RecommendationOutcomeService, LongitudinalLearningAnalyticsService],
 })
 export class LearningEventsModule {}

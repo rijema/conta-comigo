@@ -11,6 +11,7 @@ import { UserRole } from '../users/enums/user-role.enum';
 import { KnowledgeTracingService } from '../knowledge-tracing/knowledge-tracing.service';
 import { RecommendationExplanationService } from '../ade/recommendation-explanation.service';
 import { AdaptationTransition } from '../learning-events/entities/adaptation-transition.entity';
+import { LongitudinalLearningAnalyticsService } from '../learning-events/longitudinal-learning-analytics.service';
 
 @Injectable()
 export class GuardianService {
@@ -29,7 +30,15 @@ export class GuardianService {
     private readonly recommendationExplanationService: RecommendationExplanationService,
     @InjectRepository(AdaptationTransition)
     private readonly transitionRepo: Repository<AdaptationTransition>,
+    private readonly longitudinalAnalytics?: LongitudinalLearningAnalyticsService,
   ) {}
+
+  async getLongitudinalAnalytics(guardianId: string, childId: string) {
+    const profile = await this.childProfileRepo.findOne({ where: { userId: childId, guardianId } });
+    if (!profile) throw new ForbiddenException('Child is not linked to this guardian');
+    if (!this.longitudinalAnalytics) throw new ForbiddenException('Longitudinal analytics service is unavailable');
+    return this.longitudinalAnalytics.getGuardianReport(childId);
+  }
 
   async getAdaptationSummaries(guardianId: string, childId: string) {
     const profile = await this.childProfileRepo.findOne({ where: { userId: childId, guardianId } });
