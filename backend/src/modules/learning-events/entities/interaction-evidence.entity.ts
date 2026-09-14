@@ -11,10 +11,10 @@ export class InteractionEvidence {
   @Column() eventType: string;
   @Column({ type: 'jsonb', nullable: true }) interactionType: string[] | null;
   @Column({ type: 'jsonb', nullable: true }) representation: string[] | null;
-  @Column({ nullable: true }) motorDemand: string | null;
-  @Column({ nullable: true }) sensoryLoad: string | null;
-  @Column({ nullable: true }) languageLoad: string | null;
-  @Column({ nullable: true }) outcome: string | null;
+  @Column({ type: 'varchar', nullable: true }) motorDemand: string | null;
+  @Column({ type: 'varchar', nullable: true }) sensoryLoad: string | null;
+  @Column({ type: 'varchar', nullable: true }) languageLoad: string | null;
+  @Column({ type: 'varchar', nullable: true }) outcome: string | null;
   @Column({ type: 'timestamptz' }) timestamp: Date;
   @Column({ type: 'jsonb', nullable: true }) metadata: Record<string, number | boolean | null> | null;
 }
