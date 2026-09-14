@@ -12,6 +12,7 @@ interface Options {
   onHelp: () => void; onRepeat: () => void; onChangeActivity: () => void;
   onNext?: () => void; onConfirm?: () => void; onDeny?: () => void; onStopSpeech: () => void;
   onUnknown?: () => void;
+  onTranscript?: (transcript: string) => void;
 }
 
 export function useVoiceCommand(options: Options) {
@@ -71,13 +72,16 @@ export function useVoiceCommand(options: Options) {
           let binary = "";
           bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
           const token = authService.getStoredToken();
-          const result = await api.post<{ command: VoiceCommand; recognitionSucceeded: boolean; processingTimeMs: number }>(
+          const result = await api.post<{ command: VoiceCommand; transcript?: string; recognitionSucceeded: boolean; processingTimeMs: number }>(
             "/voice/command", { audioBase64: btoa(binary), language: "pt-BR" }, token ?? undefined);
           binary = "";
           const recognized = result.command !== "UNKNOWN";
           track(recognized ? "VOICE_COMMAND_RECOGNIZED" : "VOICE_COMMAND_UNKNOWN", {
             command: result.command, recognitionSucceeded: recognized, processingTimeMs: result.processingTimeMs });
-          if (!recognized) reportUnknown();
+          if (result.transcript?.trim() && options.onTranscript) {
+            options.onTranscript(result.transcript.trim());
+            setState("idle");
+          } else if (!recognized) reportUnknown();
           else {
             const semanticEvent = ({ REQUEST_HELP: "VOICE_HELP_REQUESTED", REPEAT_INSTRUCTION: "VOICE_INSTRUCTION_REPLAY_REQUESTED",
               CHANGE_ACTIVITY: "VOICE_ACTIVITY_CHANGE_REQUESTED" } as Partial<Record<VoiceCommand, string>>)[result.command];

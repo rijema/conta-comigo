@@ -36,6 +36,25 @@ test("only one learning trail is expanded and siblings are visually de-emphasize
   assert.match(menu, /expandedSkill === group\.skill/);
   assert.match(menu, /setExpandedSkill\(isOpen \? null : group\.skill\)/);
   assert.match(menu, /opacity-45/);
+  assert.match(menu, /BNCC \{group\.skill\}/);
+  assert.match(menu, /\{cfg\.label\}/);
+});
+
+test("learning actions share one row and child chat supports text or ephemeral voice transcription", () => {
+  const page = read("../src/app/[locale]/learn/page.tsx");
+  const voice = read("../src/hooks/use-voice-command.ts");
+  assert.match(page, /sm:grid-cols-3/);
+  assert.match(page, /Falar com a TitiA/);
+  assert.match(page, /Como jogar/);
+  assert.match(page, /guardian\/child-chat/);
+  assert.match(voice, /onTranscript/);
+  assert.doesNotMatch(page, /recommendationExplanation &&/);
+});
+
+test("current activity identifies all BNCC codes and its activity family", () => {
+  const page = read("../src/app/[locale]/learn/page.tsx");
+  assert.match(page, /activity\.bnccSkills\?\.length/);
+  assert.match(page, /ACTIVITY_TYPE_LABELS\[activity\.type\]/);
 });
 
 test("learning activity is restored only for the same student within a TTL", () => {

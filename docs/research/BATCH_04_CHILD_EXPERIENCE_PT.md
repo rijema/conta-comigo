@@ -42,6 +42,12 @@
 
 [DECISÃO DE ENGENHARIA] O feedback correto/incorreto foi unificado em uma faixa colorida que atravessa a tela e desaparece. No mapa, somente uma trilha permanece aberta; as trilhas irmãs ficam semitransparentes para comunicar que possuem conteúdo, mas estão inativas.
 
+[DECISÃO DE ENGENHARIA] A atividade atual e cada cartão do mapa tornam explícitos o código BNCC e a família de interação. A EF01MA01 permanece sustentada pelas atividades existentes de contagem com escolha e ordenação por arraste; não foram inventadas novas correspondências curriculares para produzir diversidade artificial.
+
+[DECISÃO DE ENGENHARIA] “Falar com a TitiA” abre o chatbot infantil. A pergunta pode ser digitada ou transcrita de forma transitória pelo serviço de voz já existente; o áudio e a transcrição não são acrescentados aos eventos analíticos. “Quero outro”, chatbot e ajuda visual ocupam uma única linha de ações fora do cabeçalho de progresso.
+
+[DECISÃO DE ENGENHARIA] A orientação falada combina o enunciado autorado com instruções curtas sobre a interação esperada. O feedback animado permanece visível por aproximadamente quatro segundos, incluindo entrada, pausa legível e saída.
+
 ## Texto potencial para a dissertação
 
 ### Metodologia
