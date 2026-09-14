@@ -16,6 +16,7 @@ import { UserRole } from '../users/enums/user-role.enum';
 import { CreateActivityDto } from './dto/create-activity.dto';
 import { SubmitAttemptDto } from './dto/submit-attempt.dto';
 import { TrackActivityLifecycleDto } from './dto/track-activity-lifecycle.dto';
+import { ChangeActivityDto } from './dto/change-activity.dto';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 
 @ApiTags('activities')
@@ -46,6 +47,15 @@ export class ActivitiesController {
   @ApiOperation({ summary: 'Get next recommended activity for current child' })
   getNext(@CurrentUser('userId') userId: string) {
     return this.activitiesService.getNextActivity(userId);
+  }
+
+  @Post('change')
+  @ApiOperation({ summary: 'Request a replacement for the current recommended activity' })
+  changeActivity(
+    @CurrentUser('userId') userId: string,
+    @Body() dto: ChangeActivityDto,
+  ) {
+    return this.activitiesService.changeActivity(userId, dto);
   }
 
   @Get('tree')

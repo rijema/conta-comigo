@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { ChildProfile } from '../users/entities/child-profile.entity';
 import { AnalyticsSnapshot } from '../analytics/entities/analytics-snapshot.entity';
@@ -10,6 +10,10 @@ import { Activity } from '../activities/entities/activity.entity';
 import { UserRole } from '../users/enums/user-role.enum';
 import { KnowledgeTracingService } from '../knowledge-tracing/knowledge-tracing.service';
 import { RecommendationExplanationService } from '../ade/recommendation-explanation.service';
+import { AdaptationTransition } from '../learning-events/entities/adaptation-transition.entity';
+import { RecommendationOutcome } from '../learning-events/entities/recommendation-outcome.entity';
+import { ProfessionalRecommendationFeedback } from './entities/professional-recommendation-feedback.entity';
+import { CreateProfessionalFeedbackDto } from './dto/create-professional-feedback.dto';
 
 @Injectable()
 export class EducatorService {
@@ -28,6 +32,12 @@ export class EducatorService {
     private readonly activityRepo: Repository<Activity>,
     private readonly knowledgeTracingService: KnowledgeTracingService,
     private readonly recommendationExplanationService: RecommendationExplanationService,
+    @InjectRepository(AdaptationTransition)
+    private readonly transitionRepo: Repository<AdaptationTransition>,
+    @InjectRepository(RecommendationOutcome)
+    private readonly outcomeRepo: Repository<RecommendationOutcome>,
+    @InjectRepository(ProfessionalRecommendationFeedback)
+    private readonly professionalFeedbackRepo: Repository<ProfessionalRecommendationFeedback>,
   ) {}
 
   async getStats() {
@@ -187,8 +197,127 @@ export class EducatorService {
       where: { id: decisionId, userId: learnerId },
     });
     if (!decision) throw new NotFoundException('Recommendation decision not found');
-    return this.recommendationExplanationService.explain({ decision })
+    const explanation = this.recommendationExplanationService.explain({ decision })
       .researchExplanation;
+    const transition = await this.transitionRepo.findOne({
+      where: [
+        { studentId: learnerId, previousRecommendationId: decisionId },
+        { studentId: learnerId, replacementRecommendationId: decisionId },
+      ],
+    });
+    if (!transition) return explanation;
+    const recommendationIds = [
+      transition.previousRecommendationId,
+      transition.replacementRecommendationId,
+    ].filter((value): value is string => Boolean(value));
+    const [decisions, outcomes, feedback] = await Promise.all([
+      this.adeDecisionRepo.find({ where: { id: In(recommendationIds) } }),
+      this.outcomeRepo.find({ where: { recommendationId: In(recommendationIds) } }),
+      this.professionalFeedbackRepo.find({ where: { transitionId: transition.id } }),
+    ]);
+    return {
+      ...explanation,
+      adaptationTrace: {
+        transition,
+        decisions: decisions.map((item) => ({
+          id: item.id,
+          selectedActivityId: item.selectedActivityId,
+          hybridRanking: item.hybridRanking,
+          semanticTrace: item.xaiLog?.semanticFiltering,
+          fallbackUsed: item.fallbackUsed,
+        })),
+        outcomes,
+        professionalFeedback: feedback,
+      },
+    };
+  }
+
+  async getAdaptations(learnerId: string) {
+    const transitions = await this.transitionRepo.find({
+      where: { studentId: learnerId }, order: { createdAt: 'DESC' }, take: 50,
+    });
+    const activityIds = [...new Set(transitions.flatMap((item) =>
+      [item.previousActivityId, item.replacementActivityId].filter((value): value is string => Boolean(value))))];
+    const recommendationIds = [...new Set(transitions.flatMap((item) =>
+      [item.previousRecommendationId, item.replacementRecommendationId].filter((value): value is string => Boolean(value))))];
+    const [activities, outcomes, decisions, feedback] = await Promise.all([
+      activityIds.length ? this.activityRepo.find({ where: { id: In(activityIds) } }) : [],
+      recommendationIds.length ? this.outcomeRepo.find({ where: { recommendationId: In(recommendationIds) } }) : [],
+      recommendationIds.length ? this.adeDecisionRepo.find({ where: { id: In(recommendationIds) } }) : [],
+      transitions.length ? this.professionalFeedbackRepo.find({ where: { transitionId: In(transitions.map((item) => item.id)) } }) : [],
+    ]);
+    const activityMap = new Map(activities.map((item) => [item.id, item]));
+    const outcomeMap = new Map(outcomes.map((item) => [item.recommendationId, item]));
+    const decisionMap = new Map(decisions.map((item) => [item.id, item]));
+    const feedbackMap = new Map(feedback.map((item) => [item.transitionId, item]));
+    return transitions.map((transition) => {
+      const previous = activityMap.get(transition.previousActivityId);
+      const replacement = transition.replacementActivityId
+        ? activityMap.get(transition.replacementActivityId) : undefined;
+      const targetSkill = decisionMap.get(transition.previousRecommendationId)?.recommendedBnccSkill ?? null;
+      const replacementDecision = transition.replacementRecommendationId
+        ? decisionMap.get(transition.replacementRecommendationId) : undefined;
+      const selectedRanking = replacementDecision?.hybridRanking?.candidates.find(
+        (candidate) => candidate.activityId === replacementDecision.selectedActivityId,
+      );
+      const formatChange = transition.interactionTypeChanged
+        ? `substituiu ${previous?.type ?? 'o formato anterior'} por ${replacement?.type ?? 'outro formato'}`
+        : 'manteve o formato de interação';
+      return {
+        id: transition.id,
+        sessionId: transition.sessionId,
+        targetBnccSkill: targetSkill,
+        mathematicalConcepts: this.activityConcepts(previous),
+        trigger: transition.changeRequested ? 'Quero outro' : transition.triggerType,
+        repeatedRejection: transitions.filter((item) => item.previousActivityId === transition.previousActivityId).length > 1,
+        fallbackUsed: replacementDecision?.fallbackUsed ?? null,
+        insufficientEvidence: selectedRanking?.insufficientEvidence ?? [],
+        previousActivity: this.activitySummary(previous),
+        replacementActivity: this.activitySummary(replacement),
+        differences: {
+          sameBNCCSkill: transition.sameBNCCSkill,
+          sameMathematicalConcept: transition.sameMathematicalConcept,
+          interactionTypeChanged: transition.interactionTypeChanged,
+          representationChanged: transition.representationChanged,
+          motorDemandDelta: transition.motorDemandDelta,
+          sensoryLoadDelta: transition.sensoryLoadDelta,
+          languageLoadDelta: transition.languageLoadDelta,
+          scaffoldingDelta: transition.scaffoldingDelta,
+          difficultyDelta: transition.difficultyDelta,
+        },
+        previousOutcome: outcomeMap.get(transition.previousRecommendationId) ?? null,
+        replacementOutcome: transition.replacementRecommendationId
+          ? outcomeMap.get(transition.replacementRecommendationId) ?? null : null,
+        guardianExplanation: transition.sameBNCCSkill
+          ? 'A criança pediu outro exercício. O sistema mudou a forma da atividade e manteve a mesma habilidade.'
+          : 'A criança pediu outro exercício. O ContaComigo escolheu uma nova atividade.',
+        professionalExplanation: `A criança solicitou outra atividade. O sistema ${formatChange}${targetSkill ? ` para ${targetSkill}` : ''}.`,
+        feedback: feedbackMap.get(transition.id) ?? null,
+      };
+    });
+  }
+
+  async createAdaptationFeedback(
+    transitionId: string,
+    professionalId: string,
+    dto: CreateProfessionalFeedbackDto,
+  ) {
+    const transition = await this.transitionRepo.findOne({ where: { id: transitionId } });
+    if (!transition) throw new NotFoundException('Adaptation transition not found');
+    const existing = await this.professionalFeedbackRepo.findOne({
+      where: { transitionId, professionalId },
+    });
+    if (existing) return existing;
+    return this.professionalFeedbackRepo.save(this.professionalFeedbackRepo.create({
+      transitionId,
+      recommendationId: transition.replacementRecommendationId ?? transition.previousRecommendationId,
+      sessionId: transition.sessionId,
+      studentId: transition.studentId,
+      professionalId,
+      rating: dto.rating,
+      reasonCodes: dto.reasonCodes ?? [],
+      optionalComment: dto.optionalComment?.trim() || null,
+    }));
   }
 
   async getAttemptHistory(learnerId: string) {
@@ -253,5 +382,20 @@ export class EducatorService {
       const result = attempt.isCorrect ? 'com acerto' : 'sem acerto';
       return `Atividade concluída ${result} em ${attempt.createdAt.toISOString()}.`;
     });
+  }
+
+  private activityConcepts(activity?: Activity): string[] {
+    const concepts = activity?.content?.semantic?.mathematicalConcepts;
+    return Array.isArray(concepts) ? concepts.filter((item): item is string => typeof item === 'string') : [];
+  }
+
+  private activitySummary(activity?: Activity) {
+    return activity ? {
+      id: activity.id,
+      title: activity.title,
+      type: activity.type,
+      bnccSkills: activity.bnccSkills,
+      mathematicalConcepts: this.activityConcepts(activity),
+    } : null;
   }
 }

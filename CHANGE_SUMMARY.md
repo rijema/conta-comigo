@@ -1,5 +1,23 @@
 # Change Summary
 
+## Batch B4.4 — Adaptive feedback loop and professional review
+
+- Added the child-facing accessible “Quero outro” action without ending the learning session.
+- Connected skip, semantic filtering, hybrid reranking, replacement presentation, and AdaptationTransition completion.
+- Preserved the current BNCC target when semantically available while excluding the exact rejected activity.
+- Added post-session adaptation review and optional professional feedback without changing BKT, ontology, weights, or learner characteristics.
+- Extended the protected research trace with the complete adaptation sequence and added migrations, tests, and Portuguese documentation.
+
+
+## Batch B2.5 — Recommendation outcome traceability
+
+- Added idempotent RecommendationOutcome synchronization from append-only LearningEvents.
+- Propagated optional recommendation IDs through presentation, assistance, skip, answer, and completion events while preserving manual activity flows.
+- Added pending/completable AdaptationTransition records for future replacement recommendations.
+- Added contextual InteractionEvidence without modifying BKT mastery or permanent learner characteristics.
+- Added additive database schema changes and backend/frontend propagation coverage.
+
+
 ## Batch B2.4 — Hybrid recommendation ranking
 
 - Added deterministic six-factor ranking after formal semantic filtering.

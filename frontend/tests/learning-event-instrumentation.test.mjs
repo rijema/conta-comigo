@@ -20,6 +20,12 @@ test("answer timing is sent without adding raw answers to analytics metadata", (
   assert.doesNotMatch(sessionHook, /metadata:\s*\{[^}]*answer/s);
 });
 
+test("the current recommendation id follows lifecycle and answer requests", () => {
+  assert.match(sessionHook, /currentRecommendationId: adeDecision\?\.id \?\? null/);
+  assert.match(sessionHook, /recommendationId: recommendationId \?\? undefined/);
+  assert.match(sessionHook, /recommendationId: session\?\.currentRecommendationId \?\? undefined/);
+});
+
 test("assistance and skip signals are tied to explicit interactions", () => {
   assert.match(sessionHook, /"HINT_REQUESTED"/);
   assert.match(sessionHook, /"TUTORIAL_OPENED"/);

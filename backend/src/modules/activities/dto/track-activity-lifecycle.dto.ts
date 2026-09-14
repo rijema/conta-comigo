@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
+import { IsBoolean, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, IsUUID, Min } from 'class-validator';
 import { LearningEventType } from '../../learning-events/entities/learning-event.entity';
 
 export const ACTIVITY_LIFECYCLE_EVENT_TYPES = {
@@ -23,6 +23,11 @@ export class TrackActivityLifecycleDto {
 
   @ApiPropertyOptional()
   @IsOptional()
+  @IsUUID()
+  recommendationId?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsInt()
   @Min(0)
   timeBeforeSkipMs?: number;
@@ -38,4 +43,9 @@ export class TrackActivityLifecycleDto {
   @IsInt()
   @Min(0)
   hintsBeforeSkip?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  changeRequested?: boolean;
 }

@@ -11,6 +11,7 @@ export interface SessionState {
   progress: number;
   activityStartTime: number;
   recommendationExplanation: string | null;
+  currentRecommendationId: string | null;
 }
 
 type ActivityLifecycleEventType =
@@ -38,6 +39,7 @@ export function useSession() {
   const [session, setSession] = useState<SessionState | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isChangingActivity, setIsChangingActivity] = useState(false);
   const activitiesCompletedRef = useRef(0);
   const startedRef = useRef(false);
   const trackedLifecycleEventsRef = useRef(new Set<string>());
@@ -65,6 +67,7 @@ export function useSession() {
     activityId: string,
     eventType: ActivityLifecycleEventType,
     context?: Partial<SkipContext>,
+    recommendationId?: string | null,
   ) => {
     const isRenderTransition = eventType === "ACTIVITY_PRESENTED" || eventType === "ACTIVITY_STARTED";
     if (isRenderTransition) {
@@ -74,9 +77,10 @@ export function useSession() {
     }
 
     const token = authService.getStoredToken();
+    const lifecyclePayload = { sessionId, eventType, ...context };
     void api.post(
       `/activities/${activityId}/lifecycle-events`,
-      { sessionId, eventType, ...context },
+      { ...lifecyclePayload, recommendationId: recommendationId ?? undefined },
       token ?? undefined,
     ).catch((err) => {
       console.error(`Failed to track ${eventType}:`, err);
@@ -103,8 +107,9 @@ export function useSession() {
         progress: 0,
         activityStartTime: Date.now(),
         recommendationExplanation: adeDecision?.childExplanation ?? null,
+        currentRecommendationId: adeDecision?.id ?? null,
       });
-      trackActivityLifecycle(sessionId, activity.id, "ACTIVITY_PRESENTED");
+      trackActivityLifecycle(sessionId, activity.id, "ACTIVITY_PRESENTED", undefined, adeDecision?.id);
       getInteractionCounters(activity.id);
     } catch (err: any) {
       console.error("Failed to start session:", err);
@@ -117,8 +122,8 @@ export function useSession() {
 
   const markActivityStarted = useCallback((activityId: string) => {
     if (!session?.id) return;
-    trackActivityLifecycle(session.id, activityId, "ACTIVITY_STARTED");
-  }, [session?.id, trackActivityLifecycle]);
+    trackActivityLifecycle(session.id, activityId, "ACTIVITY_STARTED", undefined, session.currentRecommendationId);
+  }, [session?.id, session?.currentRecommendationId, trackActivityLifecycle]);
 
   const requestActivityHelp = useCallback((activityId: string) => {
     if (!session?.id) return;
@@ -127,18 +132,18 @@ export function useSession() {
     counters.hints += 1;
     counters.tutorialOpens += 1;
 
-    trackActivityLifecycle(session.id, activityId, "HINT_REQUESTED");
-    trackActivityLifecycle(session.id, activityId, "TUTORIAL_OPENED");
+    trackActivityLifecycle(session.id, activityId, "HINT_REQUESTED", undefined, session.currentRecommendationId);
+    trackActivityLifecycle(session.id, activityId, "TUTORIAL_OPENED", undefined, session.currentRecommendationId);
     if (isReplay) {
-      trackActivityLifecycle(session.id, activityId, "INSTRUCTION_REPLAYED");
+      trackActivityLifecycle(session.id, activityId, "INSTRUCTION_REPLAYED", undefined, session.currentRecommendationId);
     }
-  }, [getInteractionCounters, session?.id, trackActivityLifecycle]);
+  }, [getInteractionCounters, session?.id, session?.currentRecommendationId, trackActivityLifecycle]);
 
   const requestHint = useCallback((activityId: string) => {
     if (!session?.id) return;
     getInteractionCounters(activityId).hints += 1;
-    trackActivityLifecycle(session.id, activityId, "HINT_REQUESTED");
-  }, [getInteractionCounters, session?.id, trackActivityLifecycle]);
+    trackActivityLifecycle(session.id, activityId, "HINT_REQUESTED", undefined, session.currentRecommendationId);
+  }, [getInteractionCounters, session?.id, session?.currentRecommendationId, trackActivityLifecycle]);
 
   const skipCurrentActivity = useCallback(() => {
     if (!session?.id || !session.currentActivity?.id) return;
@@ -148,8 +153,51 @@ export function useSession() {
       timeBeforeSkipMs: Math.max(0, Date.now() - session.activityStartTime),
       attemptsBeforeSkip: counters.attempts,
       hintsBeforeSkip: counters.hints,
-    });
+    }, session.currentRecommendationId);
   }, [getInteractionCounters, session, trackActivityLifecycle]);
+
+  const changeCurrentActivity = useCallback(async () => {
+    if (!session?.currentActivity?.id || !session.currentRecommendationId || isChangingActivity) return false;
+    const token = authService.getStoredToken();
+    if (!token) return false;
+    const counters = getInteractionCounters(session.currentActivity.id);
+    setIsChangingActivity(true);
+    try {
+      const result = await api.post<{ activity: any; adeDecision: any }>(
+        "/activities/change",
+        {
+          currentActivityId: session.currentActivity.id,
+          recommendationId: session.currentRecommendationId,
+          sessionId: session.id,
+          timeBeforeSkipMs: Math.max(0, Date.now() - session.activityStartTime),
+          attemptsBeforeSkip: counters.attempts,
+          hintsBeforeSkip: counters.hints,
+        },
+        token,
+      );
+      trackActivityLifecycle(
+        session.id,
+        result.activity.id,
+        "ACTIVITY_PRESENTED",
+        undefined,
+        result.adeDecision?.id,
+      );
+      getInteractionCounters(result.activity.id);
+      setSession((previous) => previous ? {
+        ...previous,
+        currentActivity: result.activity,
+        currentRecommendationId: result.adeDecision?.id ?? null,
+        recommendationExplanation: result.adeDecision?.childExplanation ?? previous.recommendationExplanation,
+        activityStartTime: Date.now(),
+      } : previous);
+      return true;
+    } catch (changeError) {
+      console.error("Failed to change activity:", changeError);
+      return false;
+    } finally {
+      setIsChangingActivity(false);
+    }
+  }, [getInteractionCounters, isChangingActivity, session, trackActivityLifecycle]);
 
   const submitAnswer = async (payload: {
     activityId: string;
@@ -175,6 +223,7 @@ export function useSession() {
           timeSpentSeconds: Math.round(payload.timeSpentMs / 1000),
           responseTimeMs: payload.timeSpentMs,
           sessionId: session?.id,
+          recommendationId: session?.currentRecommendationId ?? undefined,
         },
         token ?? undefined,
       );
@@ -186,7 +235,13 @@ export function useSession() {
         const completed = activitiesCompletedRef.current;
         const nextActivity = result.nextActivity ?? null;
         if (nextActivity && session?.id) {
-          trackActivityLifecycle(session.id, nextActivity.id, "ACTIVITY_PRESENTED");
+          trackActivityLifecycle(
+            session.id,
+            nextActivity.id,
+            "ACTIVITY_PRESENTED",
+            undefined,
+            result.adeDecision?.id,
+          );
           getInteractionCounters(nextActivity.id);
         }
         setSession((prev) => {
@@ -198,6 +253,7 @@ export function useSession() {
             activityStartTime: Date.now(),
             recommendationExplanation:
               result.adeDecision?.childExplanation ?? prev.recommendationExplanation,
+            currentRecommendationId: result.adeDecision?.id ?? null,
           };
         });
       }
@@ -231,6 +287,8 @@ export function useSession() {
     requestActivityHelp,
     requestHint,
     skipCurrentActivity,
+    changeCurrentActivity,
+    isChangingActivity,
     isLoading,
     error,
   };

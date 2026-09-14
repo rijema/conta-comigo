@@ -17,6 +17,7 @@ export interface AdeInput {
   profile: ChildProfile;
   recentAttempts: ActivityAttempt[];
   sessionId?: string;
+  targetSkillCode?: string;
 }
 
 @Injectable()
@@ -58,7 +59,7 @@ export class AdeService {
     );
 
     // === STEP 2: ML Predictions ===
-    const currentSkillCode = this.pickCurrentSkillCode(profile, recentAttempts);
+    const currentSkillCode = input.targetSkillCode ?? this.pickCurrentSkillCode(profile, recentAttempts);
     const currentMastery = await this.knowledgeTracingService.getMasteryBySkillCode(
       input.userId,
       currentSkillCode,

@@ -54,6 +54,15 @@ export class GuardianController {
     return this.guardianService.getChildDetail(guardianId, childId);
   }
 
+  @Get('children/:childId/adaptations')
+  @ApiOperation({ summary: 'Get plain-language adaptation summaries for a child' })
+  getChildAdaptations(
+    @CurrentUser('userId') guardianId: string,
+    @Param('childId') childId: string,
+  ) {
+    return this.guardianService.getAdaptationSummaries(guardianId, childId);
+  }
+
   @Post('children')
   @ApiOperation({ summary: 'Add a child account linked to the logged-in guardian' })
   addChild(

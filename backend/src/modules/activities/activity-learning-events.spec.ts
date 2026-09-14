@@ -66,7 +66,21 @@ describe('ActivitiesService learning event instrumentation', () => {
         timeBeforeSkipMs: 4200,
         attemptsBeforeSkip: 2,
         hintsBeforeSkip: 1,
+        changeRequested: false,
       },
+    }));
+  });
+
+  it('propagates an optional recommendation id to lifecycle events', async () => {
+    const recommendationId = '20000000-0000-0000-0000-000000000001';
+    await service.trackLifecycleEvent('student-1', activity.id, {
+      sessionId: 'session-1',
+      eventType: LearningEventType.ACTIVITY_PRESENTED,
+      recommendationId,
+    });
+
+    expect(learningEventService.track).toHaveBeenCalledWith(expect.objectContaining({
+      recommendationId,
     }));
   });
 
@@ -120,6 +134,30 @@ describe('ActivitiesService learning event instrumentation', () => {
       expect(event).not.toHaveProperty('answer');
       expect(event).not.toHaveProperty('metadata');
     }
+  });
+
+  it('propagates the originating recommendation to answer and completion events', async () => {
+    const recommendationId = '20000000-0000-0000-0000-000000000001';
+    await (service as any).trackAnswerEvents(
+      'student-1',
+      {
+        activityId: activity.id,
+        sessionId: 'session-1',
+        answer: 3,
+        recommendationId,
+      },
+      activity,
+      true,
+    );
+
+    expect(learningEventService.track).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ recommendationId }),
+    );
+    expect(learningEventService.track).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ recommendationId }),
+    );
   });
 
   it.each([

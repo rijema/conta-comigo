@@ -43,6 +43,18 @@
 
 [HIPÓTESE A VALIDAR] A ordenação híbrida poderá reduzir repetição inadequada preservando relevância curricular; isso exige avaliação experimental.
 
+## Rastreabilidade da recomendação
+
+[PROPOSTA CONTA COMIGO] `RecommendationDecision → RecommendationOutcome → AdaptationTransition` forma a cadeia persistida. A decisão identifica a atividade selecionada; o outcome resume apresentação, início, tentativas, ajuda e término; uma transição registra um skip e pode receber posteriormente a decisão substituta.
+
+[DECISÃO DE ENGENHARIA] `LearningEvent` permanece a fonte append-only de eventos brutos. `RecommendationOutcome` é uma visão operacional resumida e idempotente, sem duplicar payloads. `InteractionEvidence` preserva apenas contexto semântico sanitizado da interação e não cria preferência, força, fraqueza ou necessidade permanente.
+
+[LITERATURA] Nenhuma relação clínica ou psicológica é inferida desses sinais. Um skip é uma observação contextual e não altera domínio matemático; somente BKT atualiza `StudentSkillState` a partir das observações de resposta previstas em seu fluxo.
+
+[PARÂMETRO EXPERIMENTAL] Critérios futuros de suficiência para agregar evidências ainda não foram definidos.
+
+[HIPÓTESE A VALIDAR] Sequências de outcomes e transições poderão apoiar análise das adaptações, condicionada a validação experimental e profissional.
+
 ## Texto potencial para a dissertação
 
 ### Metodologia

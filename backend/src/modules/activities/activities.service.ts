@@ -18,6 +18,9 @@ import { RecommendationExplanationService } from '../ade/recommendation-explanat
 import { OntologyService } from '../ontology/ontology.service';
 import { RuntimeSemanticAdapter } from '../ontology/runtime-semantic.adapter';
 import { SemanticFilteringTrace } from '../ontology/semantic-runtime.types';
+import { RecommendationOutcomeService } from '../learning-events/recommendation-outcome.service';
+import { ChangeActivityDto } from './dto/change-activity.dto';
+import { LearningEvent } from '../learning-events/entities/learning-event.entity';
 import {
   HybridRankingResult,
   HybridRecommendationService,
@@ -49,6 +52,7 @@ export class ActivitiesService {
     private readonly ontologyService?: OntologyService,
     private readonly runtimeSemanticAdapter?: RuntimeSemanticAdapter,
     private readonly hybridRecommendationService?: HybridRecommendationService,
+    private readonly recommendationOutcomeService?: RecommendationOutcomeService,
   ) {}
 
   async create(dto: CreateActivityDto): Promise<Activity> {
@@ -92,7 +96,11 @@ export class ActivitiesService {
     return this.attachSemanticContract(activity);
   }
 
-  async getNextActivity(userId: string): Promise<{
+  async getNextActivity(userId: string, context?: {
+    sessionId?: string;
+    targetSkillCode?: string;
+    excludedActivityId?: string;
+  }): Promise<{
     activity: Activity;
     adeDecision: any;
   }> {
@@ -121,6 +129,8 @@ export class ActivitiesService {
         userId,
         profile,
         recentAttempts: await this.getRecentAttempts(userId, 5),
+        sessionId: context?.sessionId,
+        targetSkillCode: context?.targetSkillCode,
       });
     } catch (adeErr: any) {
       this.logger.error(`ADE failed: ${adeErr?.message}`, adeErr?.stack);
@@ -138,7 +148,11 @@ export class ActivitiesService {
     // 3. Find matching activity
     let activity: Activity;
     try {
-      const selection = await this.findMatchingActivity(adeDecision, profile);
+      const selection = await this.findMatchingActivity(
+        adeDecision,
+        profile,
+        context?.excludedActivityId,
+      );
       activity = selection.activity;
       await this.persistSelection(adeDecision, selection);
     } catch (matchErr: any) {
@@ -161,6 +175,41 @@ export class ActivitiesService {
         { selectedActivityId: activity.id, selectedActivityType: activity.type },
       ),
     };
+  }
+
+  async changeActivity(userId: string, dto: ChangeActivityDto) {
+    const previous = await this.findById(dto.currentActivityId);
+    const skipEvent = await this.trackLifecycleEvent(userId, dto.currentActivityId, {
+      sessionId: dto.sessionId,
+      recommendationId: dto.recommendationId,
+      eventType: LearningEventType.ACTIVITY_SKIPPED,
+      timeBeforeSkipMs: dto.timeBeforeSkipMs,
+      attemptsBeforeSkip: dto.attemptsBeforeSkip,
+      hintsBeforeSkip: dto.hintsBeforeSkip,
+      changeRequested: true,
+    });
+    const replacement = await this.getNextActivity(userId, {
+      sessionId: dto.sessionId,
+      targetSkillCode: previous.bnccSkills?.[0],
+      excludedActivityId: previous.id,
+    });
+    if (skipEvent && replacement.adeDecision?.id && this.recommendationOutcomeService) {
+      const next = replacement.activity;
+      await this.recommendationOutcomeService.attachReplacement(dto.recommendationId, {
+        replacementRecommendationId: replacement.adeDecision.id,
+        replacementActivityId: next.id,
+        sameBNCCSkill: this.overlaps(previous.bnccSkills, next.bnccSkills),
+        sameMathematicalConcept: this.overlaps(previous.mathematicalConcepts, next.mathematicalConcepts),
+        interactionTypeChanged: !this.sameValues(previous.interactionType, next.interactionType),
+        representationChanged: !this.sameValues(previous.representation, next.representation),
+        motorDemandDelta: this.semanticLevelDelta(previous.difficultyProfile?.motorDemand, next.difficultyProfile?.motorDemand),
+        sensoryLoadDelta: this.semanticLevelDelta(previous.difficultyProfile?.sensoryLoad, next.difficultyProfile?.sensoryLoad),
+        languageLoadDelta: this.semanticLevelDelta(previous.difficultyProfile?.languageLoad, next.difficultyProfile?.languageLoad),
+        scaffoldingDelta: this.semanticLevelDelta(previous.difficultyProfile?.scaffoldingLevel, next.difficultyProfile?.scaffoldingLevel),
+        difficultyDelta: this.semanticLevelDelta(previous.difficulty, next.difficulty),
+      });
+    }
+    return replacement;
   }
 
   async submitAttempt(userId: string, dto: SubmitAttemptDto): Promise<{
@@ -290,32 +339,57 @@ export class ActivitiesService {
     userId: string,
     activityId: string,
     dto: TrackActivityLifecycleDto,
-  ): Promise<void> {
+  ): Promise<LearningEvent | null> {
     try {
       const activity = await this.findById(activityId);
       const bnccSkillId = await this.resolveBnccSkillId(activity);
       const isSkip = dto.eventType === LearningEventType.ACTIVITY_SKIPPED;
-      await this.learningEventService.track({
+      const event = await this.learningEventService.track({
         studentId: userId,
         sessionId: dto.sessionId,
         eventType: dto.eventType,
         timestamp: new Date(),
         activityId,
         bnccSkillId,
+        recommendationId: dto.recommendationId ?? null,
         hintsUsed: isSkip ? dto.hintsBeforeSkip ?? null : null,
         metadata: isSkip ? {
           timeBeforeSkipMs: dto.timeBeforeSkipMs ?? null,
           attemptsBeforeSkip: dto.attemptsBeforeSkip ?? null,
           hintsBeforeSkip: dto.hintsBeforeSkip ?? null,
+          changeRequested: dto.changeRequested ?? false,
         } : null,
       });
+      if (event && this.recommendationOutcomeService) {
+        await this.recommendationOutcomeService.synchronize(event, activity);
+      }
+      return event;
     } catch (error) {
       const details = error instanceof Error ? error.stack : String(error);
       this.logger.error(
         `Failed to track ${dto.eventType} for activity ${activityId}`,
         details,
       );
+      return null;
     }
+  }
+
+  private overlaps(left?: string[], right?: string[]): boolean {
+    return Boolean(left?.some((value) => right?.includes(value)));
+  }
+
+  private sameValues(left?: string[], right?: string[]): boolean {
+    return JSON.stringify([...(left ?? [])].sort()) === JSON.stringify([...(right ?? [])].sort());
+  }
+
+  private semanticLevelDelta(previous: unknown, replacement: unknown): number | null {
+    const levels: Record<string, number> = {
+      easy: 1, low: 1, low_to_medium: 2, medium: 3, medium_with_low_motor_alternative: 3,
+      medium_with_keyboard_alternative: 3, hard: 4, high: 4,
+    };
+    const before = levels[String(previous ?? '').toLowerCase()];
+    const after = levels[String(replacement ?? '').toLowerCase()];
+    return before === undefined || after === undefined ? null : after - before;
   }
 
   private async trackAnswerEvents(
@@ -345,17 +419,24 @@ export class ActivitiesService {
         responseTimeMs: dto.responseTimeMs ?? Math.round((dto.timeSpentSeconds ?? 0) * 1000),
         correct: isCorrect,
         hintsUsed: dto.hintsUsed ?? 0,
+        recommendationId: dto.recommendationId ?? dto.adeDecisionContext?.decisionId ?? null,
       };
 
-      await this.learningEventService.track({
+      const submitted = await this.learningEventService.track({
         ...event,
         eventType: LearningEventType.ANSWER_SUBMITTED,
       });
-      await this.learningEventService.track({
+      if (submitted && this.recommendationOutcomeService) {
+        await this.recommendationOutcomeService.synchronize(submitted, activity);
+      }
+      const completed = await this.learningEventService.track({
         ...event,
         timestamp: new Date(),
         eventType: LearningEventType.ACTIVITY_COMPLETED,
       });
+      if (completed && this.recommendationOutcomeService) {
+        await this.recommendationOutcomeService.synchronize(completed, activity);
+      }
     } catch (error) {
       const details = error instanceof Error ? error.stack : String(error);
       this.logger.error(

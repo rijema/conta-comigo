@@ -53,7 +53,7 @@ function playStart() {
 
 function LearnPageInner() {
   const { user, isLoading: authLoading, logout } = useAuth();
-  const { session, startSession, stopSession, submitAnswer, markActivityStarted, requestActivityHelp, requestHint, skipCurrentActivity, isLoading: sessionLoading, error: sessionError } = useSession();
+  const { session, startSession, stopSession, submitAnswer, markActivityStarted, requestActivityHelp, requestHint, skipCurrentActivity, changeCurrentActivity, isChangingActivity, isLoading: sessionLoading, error: sessionError } = useSession();
   const [stars, setStars] = useState(0);
   const [showReward, setShowReward] = useState(false);
   const [rewardWrong, setRewardWrong] = useState(false);
@@ -117,6 +117,11 @@ function LearnPageInner() {
     skipCurrentActivity();
     stopSession();
     router.push(`/${locale}/learn/menu`);
+  };
+
+  const handleChangeActivity = async () => {
+    const changed = await changeCurrentActivity();
+    if (changed) speech.speakFeedback("Vamos tentar de outro jeito!");
   };
 
   const handleOpenTutorial = () => {
@@ -241,6 +246,23 @@ function LearnPageInner() {
           {session.recommendationExplanation}
         </p>
       )}
+      <div className="max-w-2xl mx-auto px-4 pt-2">
+        <button
+          type="button"
+          onClick={handleChangeActivity}
+          disabled={isChangingActivity}
+          aria-label="Quero outro exercício"
+          className="inline-flex min-h-12 items-center gap-2 rounded-2xl border-2 border-purple-200 bg-white/80 px-4 py-2 font-extrabold text-purple-700 shadow-sm hover:bg-purple-50 disabled:opacity-60"
+        >
+          <ArasaacPictogram
+            conceptId="navigation.change_activity"
+            alt="Mudar para outro exercício"
+            showLabel={false}
+            imageClassName="w-7 h-7"
+          />
+          <span>{isChangingActivity ? "Escolhendo..." : "Quero outro"}</span>
+        </button>
+      </div>
 
       {/* ── Tutorial modal ── */}
       {showTutorial && (
