@@ -19,13 +19,23 @@ test("only the page owns answer feedback artwork", () => {
   }
   assert.match(page, /correctanswer\.png/);
   assert.match(page, /feedbackFlash/);
+  for (const component of ["counting-activity.tsx", "number-line-activity.tsx"]) {
+    assert.doesNotMatch(read(`../src/components/activity/${component}`), /const \[feedback|Correto!|resposta é|número correto/);
+  }
 });
 
-test("speech stop is contextual and choices are spoken", () => {
+test("speech stop keeps its place and choices are spoken", () => {
   const guided = read("../src/components/activity/guided-instructions.tsx");
   const choice = read("../src/components/activity/multiple-choice-activity.tsx");
-  assert.match(guided, /speech\.isSpeaking &&/);
+  assert.match(guided, /disabled=\{!speech\.isSpeaking\}/);
   assert.match(choice, /speech\.speakPictogram\(option\.text/);
+});
+
+test("only one learning trail is expanded and siblings are visually de-emphasized", () => {
+  const menu = read("../src/app/[locale]/learn/menu/page.tsx");
+  assert.match(menu, /expandedSkill === group\.skill/);
+  assert.match(menu, /setExpandedSkill\(isOpen \? null : group\.skill\)/);
+  assert.match(menu, /opacity-45/);
 });
 
 test("learning activity is restored only for the same student within a TTL", () => {

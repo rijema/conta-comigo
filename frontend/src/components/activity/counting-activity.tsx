@@ -12,8 +12,6 @@ interface Props {
 
 export function CountingActivity({ activity, onAnswer, sensoryProfile }: Props) {
   const [count, setCount] = useState(0);
-  const [submitted, setSubmitted] = useState(false);
-  const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
 
   const rawItems = activity.content?.items || [];
   const items = rawItems.filter((i: any) => i !== '+' && i !== '=' && i !== '?');
@@ -21,17 +19,15 @@ export function CountingActivity({ activity, onAnswer, sensoryProfile }: Props) 
   const itemEmoji = activity.content?.itemEmoji || null;
 
   const handleCount = () => {
-    if (submitted) return;
     if (count < items.length) {
       setCount((c) => c + 1);
     }
   };
 
   const handleSubmit = () => {
-    setSubmitted(true);
     const isCorrect = count === targetCount;
-    setFeedback(isCorrect ? "correct" : "wrong");
-    setTimeout(() => onAnswer({ count, isCorrect }), 1500);
+    onAnswer({ count, isCorrect });
+    if (!isCorrect) setCount(0);
   };
 
   return (
@@ -69,24 +65,9 @@ export function CountingActivity({ activity, onAnswer, sensoryProfile }: Props) 
         <p className="text-gray-500 mt-1">Você contou {count}</p>
       </div>
 
-      {feedback && (
-        <div
-          role="status"
-          aria-live="polite"
-          className={`text-center py-3 rounded-xl text-lg font-bold mb-4 ${
-            feedback === "correct"
-              ? "bg-green-100 text-green-700"
-              : "bg-red-100 text-red-700"
-          }`}
-        >
-          {feedback === "correct" ? "🎉 Correto!" : `💙 A resposta é ${targetCount}`}
-        </div>
-      )}
-
       <div className="flex gap-3">
         <button
           onClick={() => setCount(0)}
-          disabled={submitted}
           className="flex-1 py-3 border-2 border-gray-300 text-gray-600 rounded-xl hover:bg-gray-50"
         >
           <ArasaacPictogram conceptId="navigation.try_again" showLabel={false} imageClassName="w-6 h-6" />
@@ -94,7 +75,7 @@ export function CountingActivity({ activity, onAnswer, sensoryProfile }: Props) 
         </button>
         <button
           onClick={handleSubmit}
-          disabled={submitted || count === 0}
+          disabled={count === 0}
           className="flex-1 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 disabled:bg-gray-300"
         >
           <ArasaacPictogram conceptId="state.confirm" showLabel={false} imageClassName="w-6 h-6" />

@@ -75,7 +75,7 @@ export default function ActivityMenuPage() {
   const locale = useLocale();
   const [treeData, setTreeData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [expandedSkill, setExpandedSkill] = useState<string | null>(null);
   const [showArasaac, setShowArasaac] = useState(false);
 
   const [showAI, setShowAI] = useState(false);
@@ -92,7 +92,7 @@ export default function ActivityMenuPage() {
     api.get<any>("/activities/tree", token)
       .then((data) => {
         setTreeData(data);
-        if (data.tree?.[0]) setExpanded({ [data.tree[0].skill]: true });
+        if (data.tree?.[0]) setExpandedSkill(data.tree[0].skill);
       })
       .catch(console.error)
       .finally(() => setIsLoading(false));
@@ -236,7 +236,7 @@ export default function ActivityMenuPage() {
       </div>
 
       {/* ── Sine-wave 2-column grid ── */}
-      <main className="max-w-5xl mx-auto px-4 pt-5 pb-20">
+      <main className="max-w-7xl mx-auto px-4 pt-6 pb-20">
         {rows.map((row, rowIdx) => {
           /* odd rows: right-aligned = mt-8 on wrapper; even rows: normal */
           const isOdd = rowIdx % 2 === 1;
@@ -284,7 +284,8 @@ export default function ActivityMenuPage() {
                 {row.map((group: any, ci: number) => {
                   const gi = rowIdx * 2 + ci;
                   const theme  = ISLAND_THEMES[gi % ISLAND_THEMES.length];
-                  const isOpen = expanded[group.skill];
+                  const isOpen = expandedSkill === group.skill;
+                  const isDimmed = expandedSkill !== null && !isOpen;
                   const pct    = group.totalActivities > 0 ? Math.round((group.completedCount / group.totalActivities) * 100) : 0;
                   const allDone = group.completedCount >= group.totalActivities && group.totalActivities > 0;
 
@@ -292,10 +293,11 @@ export default function ActivityMenuPage() {
                   const skillPt = theme.sub;
 
                   return (
-                    <div key={group.skill} className={`rounded-3xl border-4 ${theme.border} shadow-xl overflow-hidden bg-gradient-to-br ${theme.grad}`}>
+                    <div key={group.skill} className={`rounded-[2rem] border-4 ${theme.border} overflow-hidden bg-gradient-to-br ${theme.grad} transition-all duration-300 ${isOpen ? "scale-[1.02] shadow-2xl" : isDimmed ? "scale-[.98] opacity-45 shadow-sm" : "shadow-xl"}`}>
                       <button
-                        onClick={() => setExpanded((e) => ({ ...e, [group.skill]: !isOpen }))}
-                        className="w-full text-left"
+                        onClick={() => setExpandedSkill(isOpen ? null : group.skill)}
+                        className="w-full text-left transition-transform hover:scale-[1.01] active:scale-[.99] motion-reduce:transform-none"
+                        aria-expanded={isOpen}
                       >
                         <div className={`bg-gradient-to-r ${theme.headerGrad} px-4 py-3 flex items-center justify-between gap-2`}>
                           <div className="flex items-center gap-2 min-w-0">

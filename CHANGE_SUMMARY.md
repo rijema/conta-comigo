@@ -282,6 +282,18 @@ No database migration is required because no persisted schema changed.
 
 No database migration is required because persistence is browser-local and the activity content remains JSONB-compatible.
 
+## Child experience visual refinement
+
+- Widened the activity canvas and restored stronger visual scale without reintroducing decorative side characters.
+- Replaced the remaining joystick fallback in core learning navigation with registered ARASAAC imagery.
+- Made speech initiation explicit, kept the stop control spatially stable, and renamed help around learning how to play with TitiA.
+- Unified every activity family under one colored sweep feedback animation and removed persistent local correctness messages.
+- Increased color and interaction feedback while respecting reduced-motion preferences.
+- Expanded the trail map and made its two-column accordion exclusive, visually de-emphasizing the inactive sibling trail.
+- Removed the low-information visual-modality sentence from child recommendation explanations.
+
+No database migration is required because these are presentation, speech-control, and deterministic explanation-copy changes.
+
 ## Neural speech backend proxy correction
 
 - Replaced the Axios/RxJS synthesis bridge with the native Node fetch path already proven against the deployed ML service.
