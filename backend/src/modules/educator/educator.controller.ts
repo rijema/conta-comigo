@@ -53,6 +53,12 @@ export class EducatorController {
     return this.educatorService.getLearnerProfile(learnerId);
   }
 
+  @Get('learners/:learnerId/longitudinal-analytics')
+  @ApiOperation({ summary: 'Get longitudinal observed data and model estimates for a learner' })
+  getLongitudinalAnalytics(@Param('learnerId') learnerId: string) {
+    return this.educatorService.getLongitudinalAnalytics(learnerId);
+  }
+
   @Put('learners/:learnerId/skills')
   @ApiOperation({ summary: 'Update child skill levels and ASD support configuration' })
   updateSkillLevels(

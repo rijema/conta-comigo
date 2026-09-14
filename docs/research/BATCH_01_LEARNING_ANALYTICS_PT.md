@@ -145,6 +145,20 @@ TODO(referência): verificar e documentar a base legal, os prazos de retenção 
 
 `recommendationId` é declarado explicitamente como `varchar` na entidade TypeORM. A anotação explícita evita que o compilador de metadados infira `Object` para a propriedade anulável, tipo que não é suportado pelo driver PostgreSQL. A migração e o `schema.sql` já utilizavam `VARCHAR`, portanto a correção alinha o modelo de runtime ao esquema existente e não exige migração de dados.
 
+## Visões longitudinais por papel
+
+[DECISÃO DE ENGENHARIA]
+
+O painel profissional separa os dados observados — respostas, conclusões, tempo de resposta, ajuda, repetição, pulos e trocas — das estimativas de domínio produzidas pelo BKT. As séries são apresentadas por sessão e não recebem interpretação automática de melhora. Desfechos de recomendação, formatos praticados e avaliações profissionais são agregados no backend; eventos brutos e seus metadados não são enviados ao painel.
+
+[DECISÃO DE ENGENHARIA]
+
+O painel do responsável recebe uma projeção reduzida em linguagem simples. Probabilidade de domínio, fatores de ranqueamento, confiança e rastros semânticos permanecem fora dessa resposta. Quando não há denominador ou observações suficientes, a interface informa “dados ainda insuficientes”, sem converter ausência em desempenho zero.
+
+[HIPÓTESE A VALIDAR]
+
+As curvas descrevem somente o histórico registrado. Elas não demonstram melhora, causalidade, motivação, diagnóstico ou efeito da adaptação sem um desenho experimental e análise apropriados.
+
 ## Texto potencial para a dissertação
 
 ### Metodologia

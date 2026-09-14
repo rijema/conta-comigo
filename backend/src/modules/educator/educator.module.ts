@@ -13,6 +13,7 @@ import { AdeModule } from '../ade/ade.module';
 import { AdaptationTransition } from '../learning-events/entities/adaptation-transition.entity';
 import { RecommendationOutcome } from '../learning-events/entities/recommendation-outcome.entity';
 import { ProfessionalRecommendationFeedback } from './entities/professional-recommendation-feedback.entity';
+import { LearningEventsModule } from '../learning-events/learning-events.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ProfessionalRecommendationFeedback } from './entities/professional-reco
     ]),
     KnowledgeTracingModule,
     AdeModule,
+    LearningEventsModule,
   ],
   controllers: [EducatorController],
   providers: [EducatorService],

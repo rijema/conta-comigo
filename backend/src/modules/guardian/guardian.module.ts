@@ -10,12 +10,14 @@ import { GuardianService } from './guardian.service';
 import { KnowledgeTracingModule } from '../knowledge-tracing/knowledge-tracing.module';
 import { AdeModule } from '../ade/ade.module';
 import { AdaptationTransition } from '../learning-events/entities/adaptation-transition.entity';
+import { LearningEventsModule } from '../learning-events/learning-events.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, ChildProfile, AnalyticsSnapshot, AdeDecision, ActivityAttempt, AdaptationTransition]),
     KnowledgeTracingModule,
     AdeModule,
+    LearningEventsModule,
   ],
   controllers: [GuardianController],
   providers: [GuardianService],

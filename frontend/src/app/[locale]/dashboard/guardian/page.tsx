@@ -136,6 +136,7 @@ export default function GuardianDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<any>(null);
   const [detail, setDetail] = useState<any>(null);
+  const [longitudinal, setLongitudinal] = useState<any>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"overview" | "charts" | "bncc" | "ade" | "chat">("overview");
   const [chatQuestion, setChatQuestion] = useState("");
@@ -168,13 +169,18 @@ export default function GuardianDashboardPage() {
     const t = token ?? authService.getStoredToken();
     setSelected(child);
     setDetail(null);
+    setLongitudinal(null);
     setDetailLoading(true);
     setActiveTab("overview" as any);
     setChatAnswer(null);
     setChatQuestion("");
     try {
-      const d = await api.get<any>(`/guardian/children/${child.id}`, t ?? undefined);
+      const [d, longitudinalReport] = await Promise.all([
+        api.get<any>(`/guardian/children/${child.id}`, t ?? undefined),
+        api.get<any>(`/guardian/children/${child.id}/longitudinal-analytics`, t ?? undefined),
+      ]);
       setDetail(d);
+      setLongitudinal(longitudinalReport);
     } catch (e) { console.error(e); }
     finally { setDetailLoading(false); }
   };
@@ -303,7 +309,7 @@ export default function GuardianDashboardPage() {
                 </div>
                 <div className="flex gap-2 flex-wrap">
                   {[
-                    { icon: "🎯", value: `${selected.accuracy ?? 0}%`, label: "Precisão" },
+                    { icon: "🎯", value: longitudinal?.observedData?.accuracy == null ? "—" : `${Math.round(longitudinal.observedData.accuracy * 100)}%`, label: "Precisão observada" },
                     { icon: "🔥", value: selected.currentStreak ?? 0, label: "Sequência" },
                     { icon: "⭐", value: selected.totalPoints ?? 0, label: "Pontos" },
                   ].map((s) => (
@@ -348,10 +354,10 @@ export default function GuardianDashboardPage() {
                     {/* Stats grid */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       {[
-                        { icon: "🎮", label: "Atividades", value: detail.stats?.totalAttempts ?? 0 },
-                        { icon: "✅", label: "Acertos", value: detail.stats?.correct ?? 0 },
-                        { icon: "📈", label: "Precisão", value: `${detail.stats?.accuracy ?? 0}%` },
-                        { icon: "🔥", label: "Sequência", value: detail.currentStreak ?? 0 },
+                        { icon: "🎮", label: "Atividades concluídas", value: longitudinal?.observedData?.activitiesCompleted ?? "—" },
+                        { icon: "✅", label: "Respostas corretas", value: longitudinal?.observedData?.correctAnswers ?? "—" },
+                        { icon: "📈", label: "Precisão observada", value: longitudinal?.observedData?.accuracy == null ? "Dados insuficientes" : `${Math.round(longitudinal.observedData.accuracy * 100)}%` },
+                        { icon: "💡", label: "Pedidos de ajuda", value: longitudinal?.observedData?.hints ?? "—" },
                       ].map((s) => (
                         <div key={s.label} className="bg-white rounded-2xl shadow-sm p-4 text-center border border-slate-100">
                           <div className="text-3xl mb-1">{s.icon}</div>
@@ -361,14 +367,21 @@ export default function GuardianDashboardPage() {
                       ))}
                     </div>
 
+                    {longitudinal?.adaptations && (
+                      <div className="bg-white rounded-2xl shadow-sm p-5 border border-slate-100">
+                        <h3 className="font-bold text-slate-700 mb-1">🔄 Mudanças de atividade</h3>
+                        <p className="text-sm text-slate-600">{longitudinal.adaptations.message}</p>
+                      </div>
+                    )}
+
                     {/* Contextual guidance for parents */}
                     <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-2xl p-4">
                       <h3 className="font-bold text-purple-800 mb-2 text-sm">💡 O que esses dados significam?</h3>
                       <ul className="space-y-1.5 text-xs text-slate-600">
-                        <li>🎯 <strong>Precisão</strong>: percentual de atividades respondidas corretamente. Acima de 60% indica bom desempenho.</li>
+                        <li>🎯 <strong>Precisão observada</strong>: percentual de respostas corretas nas atividades registradas; não prova melhora isoladamente.</li>
                         <li>🔥 <strong>Sequência</strong>: dias consecutivos de atividades. Importante para criar hábito.</li>
                         <li>⭐ <strong>Pontos</strong>: recompensas acumuladas por acertos e esforço.</li>
-                        <li>🤖 <strong>IA Adaptativa</strong>: o sistema ajusta automaticamente a dificuldade ao perfil de {detail.name}.</li>
+                        <li>🔄 <strong>Adaptação</strong>: quando necessário, o sistema pode oferecer outro formato para o mesmo objetivo de aprendizagem.</li>
                       </ul>
                     </div>
 
@@ -405,17 +418,13 @@ export default function GuardianDashboardPage() {
 
                 {/* CHARTS TAB */}
                 {activeTab === "charts" && (() => {
-                  const progData = (detail.progressOverTime ?? []).slice(-14).map((p: any) => ({
-                    label: p.date?.slice(5) ?? "",
-                    value: p.accuracy ?? 0,
-                  }));
-
-                  const skillAxes = Object.keys(SKILL_LABELS).map((k) => SKILL_LABELS[k].replace(/^\S+ /, ""));
-                  const skillValues = Object.keys(SKILL_LABELS).map((k) => {
-                    if (detail.strengths?.[k]) return 80;
-                    if (detail.weaknesses?.[k]) return 20;
-                    return 45;
-                  });
+                  const progData = (longitudinal?.longitudinal?.sessions ?? [])
+                    .filter((session: any) => session.accuracy != null)
+                    .slice(-14)
+                    .map((session: any) => ({
+                      label: String(session.date ?? "").slice(5),
+                      value: Math.round(session.accuracy * 100),
+                    }));
 
                   const bnccEntries = Object.entries(detail.bnccProgress ?? {});
                   const bnccBarData = bnccEntries.slice(0, 8).map(([skill, d]: [string, any]) => ({
@@ -428,22 +437,21 @@ export default function GuardianDashboardPage() {
                     <div className="space-y-4">
                       {/* Line: precision over time */}
                       <div className="bg-white rounded-2xl shadow-sm p-5 border border-slate-100">
-                        <h3 className="font-bold text-slate-700 mb-1">📈 Evolução da Precisão</h3>
+                        <h3 className="font-bold text-slate-700 mb-1">📈 Precisão observada por sessão</h3>
                         <p className="text-xs text-slate-400 mb-3">Últimas {progData.length} sessões registradas</p>
                         <LineChart data={progData} />
                         <p className="text-xs text-slate-400 text-center mt-1">% de acertos por dia</p>
+                        <p className="text-xs text-slate-400 text-center mt-1">Esta linha, isoladamente, não demonstra melhora.</p>
                       </div>
 
-                      {/* Radar: skill profile */}
                       <div className="bg-white rounded-2xl shadow-sm p-5 border border-slate-100">
-                        <h3 className="font-bold text-slate-700 mb-1">🕸️ Radar de Habilidades</h3>
-                        <p className="text-xs text-slate-400 mb-3">Perfil multidimensional de {detail.name}</p>
-                        <RadarChart axes={skillAxes} values={skillValues} />
-                        <div className="flex gap-4 justify-center mt-3 text-xs">
-                          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-green-400 inline-block" />Força</span>
-                          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-slate-300 inline-block" />Neutro</span>
-                          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-red-400 inline-block" />Fraqueza</span>
-                        </div>
+                        <h3 className="font-bold text-slate-700 mb-1">📚 Habilidades praticadas</h3>
+                        <p className="text-xs text-slate-400 mb-3">Resumo simples das habilidades presentes nas atividades registradas.</p>
+                        {(longitudinal?.learningProgress?.skillsPracticed ?? []).length === 0 ? (
+                          <p className="text-sm text-slate-400">Dados ainda insuficientes.</p>
+                        ) : (
+                          <div className="flex flex-wrap gap-2">{longitudinal.learningProgress.skillsPracticed.map((skill: string) => <span key={skill} className="text-xs bg-purple-50 text-purple-700 rounded-full px-3 py-1">{skill}</span>)}</div>
+                        )}
                       </div>
 
                       {/* Bar: BNCC skills attempted */}
@@ -457,18 +465,21 @@ export default function GuardianDashboardPage() {
 
                       {/* Activity type distribution */}
                       <div className="bg-white rounded-2xl shadow-sm p-5 border border-slate-100">
-                        <h3 className="font-bold text-slate-700 mb-1">🎮 Tipos de Jogo na Plataforma</h3>
-                        <p className="text-xs text-slate-400 mb-3">Variedade de formatos disponíveis para {detail.name}</p>
+                        <h3 className="font-bold text-slate-700 mb-1">🎮 Formatos praticados</h3>
+                        <p className="text-xs text-slate-400 mb-3">Formatos observados nas atividades concluídas por {detail.name}</p>
                         <div className="grid grid-cols-2 gap-2">
-                          {Object.entries(ACTIVITY_TYPES).map(([type, info]) => (
+                          {(longitudinal?.observedData?.activityFormats ?? []).map(({ type, count }: any) => {
+                            const info = ACTIVITY_TYPES[type] ?? { label: type, emoji: "🎮" };
+                            return (
                             <div key={type} className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 bg-slate-50">
                               <span className="text-2xl">{info.emoji}</span>
                               <div>
                                 <p className="text-xs font-bold text-slate-700">{info.label}</p>
-                                <p className="text-xs text-slate-400">Formato interativo</p>
+                                <p className="text-xs text-slate-400">{count} atividade(s) concluída(s)</p>
                               </div>
                             </div>
-                          ))}
+                          )})}
+                          {(longitudinal?.observedData?.activityFormats ?? []).length === 0 && <p className="text-sm text-slate-400">Dados ainda insuficientes.</p>}
                         </div>
                       </div>
                     </div>
@@ -478,22 +489,17 @@ export default function GuardianDashboardPage() {
                 {/* BNCC TAB */}
                 {activeTab === "bncc" && (
                   <div className="bg-white rounded-2xl shadow-sm p-5 border border-slate-100">
-                    <h3 className="font-bold text-slate-700 mb-2">📚 Progresso BNCC</h3>
-                    <p className="text-xs text-slate-500 mb-4">Habilidades da Base Nacional Comum Curricular trabalhadas pela IA</p>
-                    {Object.keys(detail.bnccProgress ?? {}).length === 0 && (
-                      <p className="text-slate-400 text-sm text-center py-6">Nenhuma habilidade BNCC registrada ainda. Comece as atividades!</p>
+                    <h3 className="font-bold text-slate-700 mb-2">📚 Habilidades BNCC praticadas</h3>
+                    <p className="text-xs text-slate-500 mb-4">Habilidades presentes nas atividades registradas. Este resumo não classifica domínio.</p>
+                    {(longitudinal?.learningProgress?.skillsInDevelopment ?? []).length === 0 && (
+                      <p className="text-slate-400 text-sm text-center py-6">Dados ainda insuficientes.</p>
                     )}
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {Object.entries(detail.bnccProgress ?? {}).map(([skill, data]: [string, any]) => (
-                        <div key={skill} className={`p-3 rounded-2xl border-2 text-center ${
-                          data.mastered
-                            ? "bg-green-50 border-green-300"
-                            : "bg-slate-50 border-slate-200"
-                        }`}>
-                          <p className="font-bold text-xs text-slate-700">{skill}</p>
-                          <p className="text-xl mt-1">{data.mastered ? "✅" : "📖"}</p>
-                          <p className="text-xs text-slate-500 mt-1">{data.attempted ?? 0} atividades</p>
-                          {data.mastered && <p className="text-xs text-green-600 font-semibold">Dominado!</p>}
+                      {(longitudinal?.learningProgress?.skillsInDevelopment ?? []).map((item: any) => (
+                        <div key={item.skillCode} className="p-3 rounded-2xl border-2 text-center bg-slate-50 border-slate-200">
+                          <p className="font-bold text-xs text-slate-700">{item.skillCode}</p>
+                          <p className="text-xl mt-1">📖</p>
+                          <p className="text-xs text-slate-500 mt-1">{item.state}</p>
                         </div>
                       ))}
                     </div>

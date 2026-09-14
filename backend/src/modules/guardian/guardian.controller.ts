@@ -54,6 +54,15 @@ export class GuardianController {
     return this.guardianService.getChildDetail(guardianId, childId);
   }
 
+  @Get('children/:childId/longitudinal-analytics')
+  @ApiOperation({ summary: 'Get a plain-language longitudinal learning summary for a child' })
+  getChildLongitudinalAnalytics(
+    @CurrentUser('userId') guardianId: string,
+    @Param('childId') childId: string,
+  ) {
+    return this.guardianService.getLongitudinalAnalytics(guardianId, childId);
+  }
+
   @Get('children/:childId/adaptations')
   @ApiOperation({ summary: 'Get plain-language adaptation summaries for a child' })
   getChildAdaptations(
