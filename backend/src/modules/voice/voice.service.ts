@@ -50,15 +50,67 @@ export class VoiceService {
     if (this.config.get<string>('ENABLE_NEURAL_TTS', 'false') !== 'true') {
       throw new ServiceUnavailableException('Neural TTS is disabled');
     }
-    const response = await this.callMlService('synthesis', () => firstValueFrom(this.http.post(
-      `${this.mlServiceBaseUrl()}/voice/synthesize`, { text, language, rate },
-      { responseType: 'arraybuffer' },
-    ).pipe(timeout(this.config.get<number>('VOICE_PROCESSING_TIMEOUT_MS', 30000)))));
-    return Buffer.from(response.data).toString('base64');
+    const baseUrl = this.mlServiceBaseUrl();
+    const url = `${baseUrl}/voice/synthesize`;
+    const timeoutMs = this.config.get<number>('VOICE_PROCESSING_TIMEOUT_MS', 30000);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    this.logProxy('request started', { textLength: text.length, language, rate, timeoutMs });
+    this.logProxy('ML URL resolved', { origin: new URL(baseUrl).origin, path: '/voice/synthesize' });
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, language, rate }),
+        signal: controller.signal,
+      });
+      const contentType = response.headers.get('content-type') ?? '';
+      this.logProxy('ML status', { status: response.status });
+      this.logProxy('ML content-type', { contentType });
+
+      if (!response.ok) {
+        await response.text().catch(() => '');
+        this.logger.error(`[TitiA Speech Proxy] upstream error ${JSON.stringify({ status: response.status })}`);
+        throw new BadGatewayException('Neural voice synthesis is unavailable');
+      }
+      if (!contentType.toLowerCase().startsWith('audio/wav')) {
+        this.logger.error(`[TitiA Speech Proxy] unexpected content-type ${JSON.stringify({ contentType })}`);
+        throw new BadGatewayException('Neural voice synthesis returned an invalid response');
+      }
+
+      const bytes = Buffer.from(await response.arrayBuffer());
+      this.logProxy('bytes received', { bytes: bytes.length });
+      if (bytes.length === 0) {
+        throw new BadGatewayException('Neural voice synthesis returned empty audio');
+      }
+      return bytes.toString('base64');
+    } catch (error) {
+      if (error instanceof BadGatewayException) throw error;
+      if (controller.signal.aborted) {
+        this.logger.error(`[TitiA Speech Proxy] timeout ${JSON.stringify({ timeoutMs })}`);
+      } else {
+        const code = (error as { code?: string; cause?: { code?: string } })?.code ??
+          (error as { cause?: { code?: string } })?.cause?.code ?? 'unknown';
+        this.logger.error(`[TitiA Speech Proxy] network error ${JSON.stringify({ code })}`);
+      }
+      throw new BadGatewayException('Neural voice synthesis is unavailable');
+    } finally {
+      clearTimeout(timeoutId);
+    }
   }
 
   private mlServiceBaseUrl(): string {
-    return this.config.getOrThrow<string>('ML_SERVICE_URL').replace(/\/+$/, '');
+    const baseUrl = this.config.getOrThrow<string>('ML_SERVICE_URL').replace(/\/+$/, '');
+    const parsed = new URL(baseUrl);
+    if (parsed.pathname !== '' && parsed.pathname !== '/') {
+      throw new ServiceUnavailableException('ML_SERVICE_URL must be a base URL without a path');
+    }
+    return baseUrl;
+  }
+
+  private logProxy(event: string, details: Record<string, string | number>) {
+    this.logger.log(`[TitiA Speech Proxy] ${event} ${JSON.stringify(details)}`);
   }
 
   private async callMlService<T>(operation: string, request: () => Promise<T>): Promise<T> {

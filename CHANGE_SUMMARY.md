@@ -269,6 +269,15 @@ No database migration is required because this is a frontend transport correctio
 - Added safe backend ML gateway errors and expanded frontend, backend, and ML tests.
 
 No database migration is required because no persisted schema changed.
+
+## Neural speech backend proxy correction
+
+- Replaced the Axios/RxJS synthesis bridge with the native Node fetch path already proven against the deployed ML service.
+- Added a configurable 30-second abort timeout, base-URL validation, `audio/wav` verification, single binary-body consumption, empty-audio rejection, and transient base64 conversion.
+- Added privacy-safe operational diagnostics for upstream status, content type, byte count, timeout, and network failures.
+- Added mocked proxy tests for success, forwarding, binary conversion, upstream errors, timeout, network failure, content type, URL normalization, and log privacy.
+
+No database migration is required because the HTTP contract and persisted schema are unchanged.
 ## Batch B3.1 — Adaptive activity framework consolidation
 
 - Added one runtime semantic contract for Counting, Multiple Choice, Quiz, Drag and Drop, and Number Line.

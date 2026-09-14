@@ -128,6 +128,14 @@
 
 [HIPÓTESE A VALIDAR] A caracterização da voz como acolhedora, paciente e apropriada para crianças não decorre apenas do gênero informado na ficha. Ela requer escuta comparativa e validação com responsáveis e profissionais; não é afirmada como eficácia científica.
 
+## 16. Proxy binário no backend
+
+[DECISÃO DE ENGENHARIA] O endpoint autenticado `/api/voice/speech` reproduz no backend a requisição HTTP validada operacionalmente contra o serviço de ML: `POST` JSON para `${ML_SERVICE_URL}/voice/synthesize`, leitura única por `arrayBuffer`, validação de `audio/wav` e conversão transitória para base64. `ML_SERVICE_URL` é validada como URL-base sem caminhos como `/health`.
+
+[DECISÃO DE ENGENHARIA] O proxy usa timeout configurável por `VOICE_PROCESSING_TIMEOUT_MS`, com padrão de 30 segundos. Falha de rede, timeout, resposta não 2xx, tipo de conteúdo inesperado e áudio vazio resultam em `502`, acompanhados de logs operacionais com status, tipo e quantidade de bytes.
+
+[LIMITAÇÃO] Os logs não contêm texto, áudio, token ou cabeçalhos de autenticação; registram somente comprimento do texto e propriedades técnicas. Essa minimização reduz a capacidade de reproduzir um erro linguístico específico a partir dos logs e exige teste controlado quando a pronúncia for a causa investigada.
+
 ## Texto potencial para a dissertação
 
 ### Metodologia
