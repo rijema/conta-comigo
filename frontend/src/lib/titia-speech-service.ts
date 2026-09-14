@@ -9,6 +9,8 @@ export interface SpeechRequest {
   rate: number;
   language: string;
   onEnd: () => void;
+  onStart?: () => void;
+  onFailure?: () => void;
 }
 
 export interface TitiaSpeechEngine {
@@ -30,8 +32,8 @@ export class BrowserSpeechEngine implements TitiaSpeechEngine {
       typeof SpeechSynthesisUtterance !== "undefined";
   }
 
-  speak({ text, rate, language, onEnd }: SpeechRequest): void {
-    if (!this.isAvailable()) return;
+  speak({ text, rate, language, onEnd, onStart, onFailure }: SpeechRequest): void {
+    if (!this.isAvailable()) { onFailure?.(); return; }
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = language;
     utterance.rate = rate;
@@ -39,6 +41,7 @@ export class BrowserSpeechEngine implements TitiaSpeechEngine {
     utterance.onend = onEnd;
     utterance.onerror = onEnd;
     this.activeUtterance = utterance;
+    onStart?.();
     window.speechSynthesis.speak(utterance);
   }
 
@@ -50,7 +53,7 @@ export class BrowserSpeechEngine implements TitiaSpeechEngine {
 
 const DEFAULT_CONFIGURATION: TitiaSpeechConfiguration = {
   enabled: true,
-  rate: 0.85,
+  rate: 0.9,
   language: "pt-BR",
 };
 
@@ -74,35 +77,39 @@ export class TitiaSpeechService {
     this.engine = engine;
   }
 
-  speakInstruction(instruction: SpokenInstruction): boolean {
+  speakInstruction(instruction: SpokenInstruction, onPlaybackStart?: () => void): boolean {
     const normalized = this.normalizeInstruction(instruction);
     if (normalized.steps.length === 0 && !normalized.introduction) return false;
     this.lastInstruction = normalized;
     return this.speakSequence([
       ...(normalized.introduction ? [normalized.introduction] : []),
       ...normalized.steps,
-    ]);
+    ], onPlaybackStart);
   }
 
-  speakHint(text: string): boolean {
-    return this.speakSequence([this.toConcisePhrase(text)]);
+  speakHint(text: string, onPlaybackStart?: () => void): boolean {
+    return this.speakSequence([this.toConcisePhrase(text)], onPlaybackStart);
   }
 
-  speakFeedback(text: string): boolean {
-    return this.speakSequence([this.toConcisePhrase(text)]);
+  speakFeedback(text: string, onPlaybackStart?: () => void): boolean {
+    return this.speakSequence([this.toConcisePhrase(text)], onPlaybackStart);
   }
 
-  speakPictogram(label: string): boolean {
-    return this.speakSequence([this.toConcisePhrase(label)]);
+  speakPictogram(label: string, onPlaybackStart?: () => void): boolean {
+    return this.speakSequence([this.toConcisePhrase(label)], onPlaybackStart);
   }
 
-  repeatLastInstruction(): boolean {
+  speakExplanation(text: string, onPlaybackStart?: () => void): boolean {
+    return this.speakSequence([this.toConcisePhrase(text)], onPlaybackStart);
+  }
+
+  repeatLastInstruction(onPlaybackStart?: () => void): boolean {
     if (!this.lastInstruction) return false;
     const instruction = this.lastInstruction;
     return this.speakSequence([
       ...(instruction.introduction ? [instruction.introduction] : []),
       ...instruction.steps,
-    ]);
+    ], onPlaybackStart);
   }
 
   stopSpeech(): void {
@@ -110,7 +117,7 @@ export class TitiaSpeechService {
     this.engine.cancel();
   }
 
-  private speakSequence(rawParts: string[]): boolean {
+  private speakSequence(rawParts: string[], onPlaybackStart?: () => void): boolean {
     const parts = rawParts.map((part) => this.toConcisePhrase(part)).filter(Boolean);
     if (!this.configuration.enabled || !this.engine.isAvailable() || parts.length === 0) {
       return false;
@@ -118,12 +125,19 @@ export class TitiaSpeechService {
 
     this.stopSpeech();
     const generation = this.playbackGeneration;
+    let playbackStarted = false;
     const speakAt = (index: number) => {
       if (generation !== this.playbackGeneration || index >= parts.length) return;
       this.engine.speak({
         text: parts[index],
         rate: this.configuration.rate,
         language: this.configuration.language,
+        onStart: () => {
+          if (!playbackStarted && generation === this.playbackGeneration) {
+            playbackStarted = true;
+            onPlaybackStart?.();
+          }
+        },
         onEnd: () => speakAt(index + 1),
       });
     };

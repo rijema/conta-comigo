@@ -1,11 +1,13 @@
 import base64
 import os
+import logging
 from fastapi import APIRouter, HTTPException, Response
 from pydantic import BaseModel, Field
 from services.speech_to_text_provider import get_stt_provider
 from services.neural_tts_provider import get_tts_provider
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 MAX_AUDIO_BYTES = int(os.getenv("VOICE_MAX_AUDIO_BYTES", "2000000"))
 
 
@@ -39,10 +41,19 @@ def synthesize(body: SpeechRequest):
     provider = get_tts_provider()
     if not provider.available:
         raise HTTPException(503, "Neural TTS is not configured")
-    audio = provider.synthesize(body.text, "titia-pt-br", body.language, body.rate, "piper-1")
+    try:
+        audio = provider.synthesize(body.text, "titia-pt-br", body.language, body.rate, "piper-1")
+    except Exception as error:
+        logger.exception("TitiA neural synthesis failed")
+        raise HTTPException(503, "Neural TTS synthesis failed") from error
     return Response(audio, media_type="audio/wav", headers={"Cache-Control": "private, max-age=86400"})
 
 
 @router.get("/status")
 def voice_status():
-    return {"sttConfigured": True, "neuralTtsConfigured": get_tts_provider().available}
+    provider = get_tts_provider()
+    return {
+        "sttConfigured": True,
+        "neuralTtsConfigured": provider.available,
+        "neuralTtsModel": os.path.basename(provider.model_path) if provider.model_path else None,
+    }

@@ -48,3 +48,45 @@ test('neural speech falls back to the browser engine', () => {
   assert.match(neural, /BrowserSpeechEngine/);
   assert.match(neural, /catch[\s\S]*this\.fallback\.speak\(request\)/);
 });
+
+test('one neural engine lifecycle is initialized and browser speech remains fallback only', () => {
+  const hookSource = readFileSync(new URL('../src/hooks/use-titia-speech.ts', import.meta.url), 'utf8');
+  assert.match(hookSource, /let runtimeEngineInitialized = false/);
+  assert.match(hookSource, /if \(runtimeEngineInitialized/);
+  assert.match(hookSource, /replaceEngine\(new NeuralTitiaSpeechEngine\(\)\)/);
+  assert.match(neural, /constructor\(private readonly fallback = new BrowserSpeechEngine\(\)\)/);
+});
+
+test('neural request cancellation reaches fetch and stale audio cannot start', () => {
+  const apiClient = readFileSync(new URL('../src/lib/api-client.tsx', import.meta.url), 'utf8');
+  assert.match(neural, /this\.abort\.signal/);
+  assert.match(neural, /generation !== this\.generation/);
+  assert.match(neural, /this\.abort\?\.abort\(\)/);
+  assert.match(apiClient, /signal\?: AbortSignal/);
+  assert.match(apiClient, /signal,/);
+});
+
+test('spoken analytics are emitted from playback start without raw text', () => {
+  const hookSource = readFileSync(new URL('../src/hooks/use-titia-speech.ts', import.meta.url), 'utf8');
+  assert.match(hookSource, /speakInstruction\(instruction, \(\) =>/);
+  assert.match(hookSource, /speakHint\(text, \(\) => track\("hint_spoken"\)\)/);
+  assert.doesNotMatch(hookSource, /api\.post[\s\S]{0,250}\btext\b/);
+});
+
+test('development voice lab is blocked in production and stores no child data', () => {
+  const pageSource = readFileSync(new URL('../src/app/[locale]/dev/titia-voice/page.tsx', import.meta.url), 'utf8');
+  const labSource = readFileSync(new URL('../src/app/[locale]/dev/titia-voice/titia-voice-lab.tsx', import.meta.url), 'utf8');
+  assert.match(pageSource, /NODE_ENV === "production"/);
+  assert.match(pageSource, /notFound\(\)/);
+  assert.match(labSource, /Testar instrução/);
+  assert.doesNotMatch(labSource, /api\.post|learning-events|localStorage/);
+});
+
+test('female neural voice attribution and non-commercial license are visible', () => {
+  const settingsSource = readFileSync(new URL('../src/app/[locale]/settings/page.tsx', import.meta.url), 'utf8');
+  const mlDockerfile = readFileSync(new URL('../../ml-service/Dockerfile', import.meta.url), 'utf8');
+  assert.match(settingsSource, /TigreGotico Lda/);
+  assert.match(settingsSource, /CC BY-NC-ND 4\.0/);
+  assert.match(mlDockerfile, /dii_pt-BR\.onnx/);
+  assert.match(mlDockerfile, /PIPER_CONFIG_PATH/);
+});

@@ -37,11 +37,14 @@ export function GuidedInstructions({ activity }: { activity: Activity }) {
     const sessionId = getOrCreateLearningSessionId();
     const key = `contacomigo.auto-instruction-spoken:${sessionId}:${activity.id}`;
     if (window.sessionStorage.getItem(key)) return;
-    if (speech.speakInstruction(instruction)) {
+    if (speech.speakInstruction(instruction, () => {
       window.sessionStorage.setItem(key, "true");
       setHasSpokenInstruction(true);
-    }
-  }, [activity.id, instruction, speech]);
+    })) setHasSpokenInstruction(true);
+  }, [activity.id, instruction, speech.settingsLoaded, speech.settings.voiceEnabled,
+    speech.settings.automaticInstructionSpeech, speech.speakInstruction]);
+
+  useEffect(() => () => speech.stopSpeech(), [activity.id, speech.stopSpeech]);
 
   if (instruction.steps.length === 0) return null;
 

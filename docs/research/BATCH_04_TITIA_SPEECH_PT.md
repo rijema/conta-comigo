@@ -14,9 +14,9 @@
 
 [DECISÃO DE ENGENHARIA] O serviço oferece `speakInstruction`, `speakHint`, `speakFeedback`, `speakPictogram`, `repeatLastInstruction` e `stopSpeech`. Antes de iniciar uma fala, ele cancela a reprodução vigente. Uma geração interna de reprodução impede que callbacks antigos continuem uma sequência cancelada.
 
-[DECISÃO DE ENGENHARIA] A interface `TitiaSpeechEngine` separa orquestração e mecanismo de TTS. A implementação atual usa a Web Speech API do navegador; `replaceEngine` permite futura substituição por outro mecanismo sem alterar componentes infantis.
+[DECISÃO DE ENGENHARIA] A interface `TitiaSpeechEngine` separa orquestração e mecanismo de TTS. O caminho primário usa `NeuralTitiaSpeechEngine`, o endpoint autenticado do backend e o Piper auto-hospedado no serviço de ML. A Web Speech API permanece encapsulada em `BrowserSpeechEngine` e só é acionada como fallback quando geração ou reprodução neural falham.
 
-[LIMITAÇÃO] Voz, pronúncia, latência e disponibilidade dependem do navegador e do sistema operacional. Não foi selecionada uma voz específica nem foi acrescentado serviço externo de áudio.
+[LIMITAÇÃO] Voz e pronúncia dependem principalmente do modelo neural configurado. Latência e disponibilidade também dependem da comunicação entre frontend, backend e serviço de ML; o fallback depende do navegador e do sistema operacional.
 
 ## 4. Linguagem e instruções em etapas
 
@@ -50,7 +50,7 @@
 
 ## 6. Parâmetros configuráveis
 
-[PARÂMETRO EXPERIMENTAL] A taxa inicial é `0,85`. A interface permite `0,60` a `1,20`, e o serviço aplica um limite técnico de segurança entre `0,50` e `2,00`. Esses valores são configurações de apresentação e não representam parâmetros clínicos ou limiares de aprendizagem.
+[PARÂMETRO EXPERIMENTAL] A taxa inicial é `0,90`. A interface permite `0,60` a `1,20`, e o serviço aplica um limite técnico de segurança entre `0,50` e `2,00`. Esses valores são configurações de apresentação e não representam parâmetros clínicos ou limiares de aprendizagem.
 
 [DECISÃO DE ENGENHARIA] O idioma inicial é `pt-BR`, a voz inicia habilitada e a fala automática inicia habilitada para novos perfis. A criança ou responsável pode alterar essas opções. Preferências anteriormente salvas continuam preservadas.
 
@@ -109,6 +109,24 @@
 [DECISÃO DE ENGENHARIA] O serviço de ML usa a raiz do monorepositório como contexto de build e referencia explicitamente os arquivos sob `ml-service/`. A configuração do Railway seleciona o Dockerfile, pois é nesse build que o modelo Piper é obtido e instalado no caminho interno configurado.
 
 [LIMITAÇÃO] A disponibilidade do modelo durante o build depende do repositório externo que distribui o artefato. A variável `PIPER_MODEL_PATH` identifica um arquivo dentro da imagem e, isoladamente, não realiza o download do modelo.
+
+## 14. Fluxo neural e concorrência
+
+[DECISÃO DE ENGENHARIA] A aplicação mantém um único serviço de fala e inicializa sua engine neural uma única vez. O fluxo é `interface infantil → TitiaSpeechService → NeuralTitiaSpeechEngine → backend /voice/speech → ML /voice/synthesize → WAV transitório → HTMLAudioElement`. Uma nova fala cancela requisição, áudio e fallback anteriores. O sinal do `AbortController` chega ao `fetch`, e respostas antigas são descartadas por geração.
+
+[DECISÃO DE ENGENHARIA] Eventos “spoken” são enviados somente no callback de início aceito da reprodução neural ou do fallback. Texto e áudio não entram nos eventos. A marca de deduplicação automática é escrita apenas nesse callback.
+
+[DECISÃO DE ENGENHARIA] A rota `/dev/titia-voice` oferece frases e velocidades para QA somente fora de produção. Ela não exige uma atividade e não cria dados infantis.
+
+## 15. Modelo de voz e licença
+
+[LITERATURA] A ficha do modelo `OpenVoiceOS/pipertts_pt-BR_dii` declara português brasileiro, arquitetura Piper/VITS, locutora feminina e inferência ONNX em CPU: https://huggingface.co/OpenVoiceOS/pipertts_pt-BR_dii
+
+[DECISÃO DE ENGENHARIA] A imagem do serviço de ML baixa de forma determinística o modelo Dii e sua configuração durante o build; nenhum binário de voz é versionado no repositório. `PIPER_MODEL_PATH` e `PIPER_CONFIG_PATH` continuam configuráveis.
+
+[LIMITAÇÃO] O modelo Dii usa licença CC BY-NC-ND 4.0, exige atribuição à TigreGotico Lda e restringe uso comercial e obras derivadas. A implantação só é adequada enquanto o uso do projeto for não comercial; outro licenciamento ou outro modelo será necessário antes de uso comercial.
+
+[HIPÓTESE A VALIDAR] A caracterização da voz como acolhedora, paciente e apropriada para crianças não decorre apenas do gênero informado na ficha. Ela requer escuta comparativa e validação com responsáveis e profissionais; não é afirmada como eficácia científica.
 
 ## Texto potencial para a dissertação
 

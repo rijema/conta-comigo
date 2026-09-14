@@ -20,7 +20,7 @@ class FakeSpeechEngine {
   cancellations = 0;
   requests = [];
   isAvailable() { return this.available; }
-  speak(request) { this.requests.push(request); }
+  speak(request) { this.requests.push(request); request.onStart?.(); }
   cancel() { this.cancellations += 1; }
   finish(index) { this.requests[index].onEnd(); }
 }
@@ -43,6 +43,15 @@ test("TitiaSpeechService speaks short instruction steps sequentially with config
   assert.deepEqual(engine.requests.map((request) => request.text), [
     "Oi! A TitiA vai te explicar.", "Olhe aqui.", "Pegue o número 1.", "Coloque aqui.",
   ]);
+});
+
+test("playback acceptance callback fires once for a multi-step instruction", () => {
+  const engine = new FakeSpeechEngine();
+  const service = new TitiaSpeechService(engine);
+  let starts = 0;
+  service.speakInstruction({ steps: ["Primeiro.", "Depois."] }, () => { starts += 1; });
+  engine.finish(0);
+  assert.equal(starts, 1);
 });
 
 test("cancellation invalidates the remaining sequence", () => {

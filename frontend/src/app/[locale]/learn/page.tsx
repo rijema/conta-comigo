@@ -159,6 +159,7 @@ function LearnPageInner() {
   };
 
   const handleChangeActivity = async () => {
+    speech.stopSpeech();
     const changed = await changeCurrentActivity();
     if (changed) speech.speakFeedback("Vamos tentar de outro jeito!");
   };
@@ -335,12 +336,16 @@ function LearnPageInner() {
             )}
             <ol className="mb-5 grid gap-3" aria-label="Tutorial visual da atividade">
               {tutorialSteps.map((step, index) => (
-                <li key={step.text} className="flex items-center gap-3 rounded-2xl border-2 border-blue-100 bg-blue-50 p-3">
+                <li key={step.text}>
+                  <button type="button" onClick={() => speech.speakExplanation(step.text)}
+                    className="flex w-full items-center gap-3 rounded-2xl border-2 border-blue-100 bg-blue-50 p-3 text-left hover:border-blue-300 hover:bg-blue-100"
+                    aria-label={`Ouvir passo ${index + 1}: ${step.text}`}>
                   <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-blue-600 text-lg font-extrabold text-white">
                     {index + 1}
                   </span>
                   <ArasaacPictogram conceptId={step.conceptId} showLabel={false} imageClassName="h-14 w-14" />
-                  <span className="text-base font-bold text-slate-700">{step.text}</span>
+                    <span className="text-base font-bold text-slate-700">{step.text}</span>
+                  </button>
                 </li>
               ))}
             </ol>

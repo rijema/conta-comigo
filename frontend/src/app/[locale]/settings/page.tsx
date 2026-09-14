@@ -181,6 +181,11 @@ export default function SettingsPage() {
                 Parar fala
               </button>
             </div>
+            <p className="text-xs text-muted-foreground">
+              Voz neural Dii por TigreGotico Lda, disponibilizada por OpenVoiceOS sob
+              {" "}<a href="https://huggingface.co/OpenVoiceOS/pipertts_pt-BR_dii"
+                target="_blank" rel="noopener noreferrer" className="underline">CC BY-NC-ND 4.0</a>.
+            </p>
           </div>
 
           {/* Low Stimulation */}

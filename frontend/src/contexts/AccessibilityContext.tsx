@@ -26,7 +26,7 @@ const defaultSettings: AccessibilitySettings = {
   fontSize: "medium",
   soundEnabled: true,
   voiceEnabled: true,
-  speechRate: 0.85,
+  speechRate: 0.9,
   automaticInstructionSpeech: true,
   speechLanguage: "pt-BR",
   lowStimulationMode: false,
