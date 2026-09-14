@@ -185,9 +185,6 @@ export class RecommendationExplanationService {
   }
 
   private childExplanation(decision: AdeDecision): string {
-    if (decision.recommendedModality === 'visual') {
-      return 'Esta tem figuras para ajudar!';
-    }
     if (decision.recommendedActivityType) {
       return 'Vamos tentar uma atividade diferente!';
     }

@@ -18,7 +18,7 @@
 
 ## Voz e ajuda
 
-[PROPOSTA CONTA COMIGO] A instrução continua iniciando automaticamente quando a atividade abre. Ao abrir a ajuda, a TitiA inicia a sequência curta do tutorial; cada passo também pode ser acionado isoladamente. O controle “Parar” aparece somente durante fala ativa, e a escolha de uma alternativa pronuncia seu rótulo.
+[PROPOSTA CONTA COMIGO] A orientação principal oferece “Ouvir explicação da TitiA”, evitando iniciar áudio enquanto a síntese ainda está sendo preparada. Ao abrir “Como jogar com a TitiA”, a personagem inicia a sequência curta do tutorial; cada passo também pode ser acionado isoladamente. O controle “Parar” mantém posição estável e fica habilitado somente durante fala ativa; a escolha de uma alternativa pronuncia seu rótulo.
 
 [DECISÃO DE ENGENHARIA] Falhas de reconhecimento de comando deixam de produzir uma mensagem persistente. A TitiA responde oralmente e o controle retorna automaticamente ao estado inicial.
 
@@ -39,6 +39,8 @@
 [DECISÃO DE ENGENHARIA] Texto continua acompanhando os pictogramas; foco visível, interação por teclado, alternativa ao arraste, redução de movimento e ampliação discreta são preservados. “Sem rolagem” é perseguido em viewport desktop típica, mas o conteúdo não é cortado em telas pequenas ou com ampliação de texto, pois acesso integral tem precedência sobre uma altura rígida.
 
 [HIPÓTESE A VALIDAR] O efeito cromático breve, a fala imediata e a menor densidade de controles podem tornar o retorno mais compreensível sem aumentar sobrecarga sensorial. Isso requer avaliação com crianças e profissionais.
+
+[DECISÃO DE ENGENHARIA] O feedback correto/incorreto foi unificado em uma faixa colorida que atravessa a tela e desaparece. No mapa, somente uma trilha permanece aberta; as trilhas irmãs ficam semitransparentes para comunicar que possuem conteúdo, mas estão inativas.
 
 ## Texto potencial para a dissertação
 

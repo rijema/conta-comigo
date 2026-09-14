@@ -30,7 +30,7 @@ describe('RecommendationExplanationService', () => {
   it('creates four audience explanations from the same persisted decision', () => {
     const result = service.explain({ decision });
 
-    expect(result.childExplanation).toContain('figuras');
+    expect(result.childExplanation).toBe('Vamos tentar uma atividade diferente!');
     expect(result.guardianExplanation).toContain('EF01MA08');
     expect(result.professionalExplanation.bnccSkill).toBe('EF01MA08');
     expect(result.researchExplanation.recommendationId).toBe(decision.id);

@@ -83,13 +83,13 @@ test("disabled speech cancels playback and emits no new engine request", () => {
   assert.ok(engine.cancellations >= 1);
 });
 
-test("guided activities expose authored step sequences and deduplicate automatic speech", () => {
+test("guided activities expose authored step sequences through explicit speech controls", () => {
   const guided = readFileSync(new URL("../src/components/activity/guided-instructions.tsx", import.meta.url), "utf8");
   const seeds = readFileSync(new URL("../../backend/src/database/seeds/activities.seed.ts", import.meta.url), "utf8");
   assert.match(guided, /content\.spokenSteps/);
-  assert.match(guided, /auto-instruction-spoken:\$\{sessionId\}:\$\{activity\.id\}/);
-  assert.match(guided, /sessionStorage\.getItem\(key\)/);
-  assert.match(guided, /sessionStorage\.setItem\(key, "true"\)/);
+  assert.match(guided, /Ouvir explicação da TitiA/);
+  assert.match(guided, /speech\.speakInstruction\(instruction\)/);
+  assert.doesNotMatch(guided, /auto-instruction-spoken/);
   assert.match(seeds, /spokenSteps: \[/);
   assert.match(seeds, /spokenHint:/);
   assert.match(seeds, /spokenSuccessFeedback:/);
