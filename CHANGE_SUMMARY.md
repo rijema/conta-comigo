@@ -1,5 +1,11 @@
 # Change Summary
 
+## InteractionEvidence PostgreSQL metadata fix
+
+- Declared nullable interaction-demand and outcome fields explicitly as `varchar`, preventing TypeORM from inferring the unsupported `Object` type during startup and database seeding.
+- Added entity-metadata regression coverage; no database migration is required because the persisted schema already uses text-compatible columns.
+
+
 ## Batch B5.1 — Longitudinal Learning Analytics dashboards
 
 - Added backend-aggregated longitudinal views for protected professional and guardian routes.
