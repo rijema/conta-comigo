@@ -250,6 +250,14 @@ No database migration is required because these changes only affect frontend pre
 - Added a regression check for Docker context paths and Railway builder selection.
 
 No database migration is required because this only changes deployment packaging.
+
+## Empty analytics response handling
+
+- Updated the shared frontend API client to accept successful `204` and empty response bodies without attempting invalid JSON parsing.
+- Preserved structured JSON errors and added safe plain-text error handling.
+- Added regression coverage for non-blocking Learning Analytics requests.
+
+No database migration is required because this is a frontend transport correction.
 ## Batch B3.1 — Adaptive activity framework consolidation
 
 - Added one runtime semantic contract for Counting, Multiple Choice, Quiz, Drag and Drop, and Number Line.
