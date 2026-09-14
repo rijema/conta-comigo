@@ -123,33 +123,11 @@ export function ActivityRenderer({
       aria-label={`Atividade: ${activity.title}`}
       role="main"
     >
-      <div className="mb-3 flex justify-end">
-        <DifficultyIndicator level={activity.difficulty} />
-      </div>
-
       {/* Activity Content */}
       <GuidedInstructions activity={activity} />
-      <div className="bg-white rounded-2xl shadow-md p-6 border-2 border-blue-50">
+      <div className="rounded-2xl border-2 border-blue-50 bg-white p-3 shadow-md sm:p-4">
         {renderActivity()}
       </div>
-    </div>
-  );
-}
-
-function DifficultyIndicator({ level }: { level: string | number }) {
-  const numLevel = typeof level === 'number' ? level
-    : level === 'easy' ? 1 : level === 'medium' ? 3 : level === 'hard' ? 5 : 1;
-  const stars = Array.from({ length: 5 }, (_, i) => i < numLevel);
-  return (
-    <div
-      className="flex gap-0.5"
-      aria-label={`Dificuldade: ${numLevel} de 5 estrelas`}
-    >
-      {stars.map((filled, i) => (
-        <span key={i} className={filled ? "text-yellow-400" : "text-gray-200"}>
-          ★
-        </span>
-      ))}
     </div>
   );
 }

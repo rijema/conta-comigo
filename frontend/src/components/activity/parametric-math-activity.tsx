@@ -90,12 +90,12 @@ export function ParametricMathActivity({
           <button
             key={option.id}
             type="button"
-            onClick={() => select(option.id)}
+            onClick={() => { select(option.id); speech.speakPictogram(option.text, `option.${option.id}`); }}
             aria-pressed={active}
             aria-label={option.text}
             data-spoken-label={option.text}
             className={`min-h-20 rounded-2xl border-4 px-4 py-3 font-bold text-lg
-              focus:ring-4 focus:ring-blue-300 transition-colors
+              focus:ring-4 focus:ring-blue-300 transition-all hover:scale-[1.025] active:scale-[.97] motion-reduce:transform-none
               ${active
                 ? "border-blue-500 bg-blue-100 text-blue-900"
                 : lowStimulation
@@ -195,7 +195,7 @@ export function ParametricMathActivity({
           className="flex-1 py-3 bg-blue-600 text-white font-bold rounded-xl
             hover:bg-blue-700 disabled:bg-gray-300 focus:ring-4 focus:ring-blue-300"
         >
-          <ArasaacPictogram conceptId="activity.complete" showLabel={false} imageClassName="w-6 h-6" />
+          <ArasaacPictogram conceptId="state.confirm" showLabel={false} imageClassName="w-6 h-6" />
           <span className="ml-2">Confirmar</span>
         </button>
       </div>

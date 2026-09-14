@@ -97,7 +97,7 @@ export function CountingActivity({ activity, onAnswer, sensoryProfile }: Props) 
           disabled={submitted || count === 0}
           className="flex-1 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 disabled:bg-gray-300"
         >
-          <ArasaacPictogram conceptId="activity.complete" showLabel={false} imageClassName="w-6 h-6" />
+          <ArasaacPictogram conceptId="state.confirm" showLabel={false} imageClassName="w-6 h-6" />
           <span className="ml-2">Confirmar</span>
         </button>
       </div>

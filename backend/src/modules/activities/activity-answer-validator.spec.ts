@@ -35,4 +35,14 @@ describe('parametric activity answer validation', () => {
       correctOrder: 'n1,n2,n3',
     }, ['n1', 'n2', 'n3'])).toBe(true);
   });
+
+  it('accepts only explicitly authored commutative addition orders', () => {
+    const content = {
+      validation: { kind: 'sequence' as const },
+      correctOrder: ['4', '+', '3', '=', '7'],
+      acceptedOrders: [['3', '+', '4', '=', '7']],
+    };
+    expect(validateActivityAnswer(content, ['3', '+', '4', '=', '7'])).toBe(true);
+    expect(validateActivityAnswer(content, ['7', '=', '4', '+', '3'])).toBe(false);
+  });
 });

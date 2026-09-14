@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
 import { useAccessibility } from "@/contexts/AccessibilityContext";
 import { api } from "@/lib/api-client";
 import { authService } from "@/lib/auth";
@@ -23,6 +23,11 @@ function initializeRuntimeEngine() {
 
 export function useTitiaSpeech({ activityId }: { activityId?: string } = {}) {
   const { settings, updateSettings, settingsLoaded } = useAccessibility();
+  const isSpeaking = useSyncExternalStore(
+    (listener) => titiaSpeechService.subscribe(listener),
+    () => titiaSpeechService.isSpeaking(),
+    () => false,
+  );
 
   useEffect(initializeRuntimeEngine, []);
 
@@ -97,6 +102,6 @@ export function useTitiaSpeech({ activityId }: { activityId?: string } = {}) {
     if (!enabled) track("speech_disabled");
   }, [track, updateSettings]);
 
-  return { settings, settingsLoaded, speakInstruction, repeatLastInstruction,
+  return { settings, settingsLoaded, isSpeaking, speakInstruction, repeatLastInstruction,
     speakHint, speakFeedback, speakPictogram, speakExplanation, stopSpeech, setVoiceEnabled };
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type MouseEvent } from "react";
+import { useState, type MouseEvent as ReactMouseEvent } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -14,8 +14,8 @@ import {
   useSensors,
   type DragEndEvent,
   type DragStartEvent,
+  type Modifier,
 } from "@dnd-kit/core";
-import Image from "next/image";
 import type { Activity, SensoryProfile } from "@/types";
 import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
 
@@ -31,6 +31,18 @@ interface DragItem {
   emoji?: string;
 }
 
+const centerOverlayOnPointer: Modifier = ({ activatorEvent, activeNodeRect, overlayNodeRect, transform }) => {
+  if (!activatorEvent || !activeNodeRect || !overlayNodeRect) return transform;
+  const event = activatorEvent as globalThis.MouseEvent | TouchEvent;
+  const pointer = "touches" in event ? event.touches[0] ?? event.changedTouches[0] : event;
+  if (!pointer) return transform;
+  return {
+    ...transform,
+    x: transform.x + pointer.clientX - activeNodeRect.left - overlayNodeRect.width / 2,
+    y: transform.y + pointer.clientY - activeNodeRect.top - overlayNodeRect.height / 2,
+  };
+};
+
 function DraggableItem({ item, disabled, selected, inSlot = false, onSelect }: {
   item: DragItem;
   disabled: boolean;
@@ -43,7 +55,7 @@ function DraggableItem({ item, disabled, selected, inSlot = false, onSelect }: {
     disabled,
   });
 
-  const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
+  const handleClick = (event: ReactMouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     onSelect(item.id);
   };
@@ -60,7 +72,7 @@ function DraggableItem({ item, disabled, selected, inSlot = false, onSelect }: {
       aria-label={`${item.label}. Arraste ou toque para selecionar.`}
       className={`touch-none select-none rounded-2xl border-4 font-bold shadow-sm
         cursor-grab active:cursor-grabbing active:scale-95
-        transition-[border-color,background-color,box-shadow,opacity] duration-150
+        transition-all duration-150 hover:scale-[1.025] motion-reduce:transform-none
         ${inSlot ? "min-w-16 px-3 py-2 text-xl" : "px-5 py-3 text-2xl"}
         ${selected
           ? "border-blue-600 bg-blue-100 text-blue-900 ring-4 ring-blue-200 shadow-lg"
@@ -153,9 +165,6 @@ export function DragDropActivity({ activity, onAnswer }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
-  const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
-  const [countdown, setCountdown] = useState<number | null>(null);
-  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -205,8 +214,6 @@ export function DragDropActivity({ activity, onAnswer }: Props) {
     setSelected(null);
     setActiveId(null);
     setSubmitted(false);
-    setFeedback(null);
-    setCountdown(null);
   };
 
   const handleSelectItem = (id: string) => {
@@ -248,25 +255,9 @@ export function DragDropActivity({ activity, onAnswer }: Props) {
     const correctOrder = (activity.content?.correctOrder || []) as string[];
     const isCorrect = slots.length === correctOrder.length &&
       slots.every((slot, index) => slot === correctOrder[index]);
-    setFeedback(isCorrect ? "correct" : "wrong");
-    setCountdown(3);
-
-    let seconds = 3;
-    countdownRef.current = setInterval(() => {
-      seconds -= 1;
-      if (seconds <= 0) {
-        if (countdownRef.current) clearInterval(countdownRef.current);
-        onAnswer({ arrangement: slots as string[], isCorrect });
-        if (!isCorrect) resetForRetry();
-      } else {
-        setCountdown(seconds);
-      }
-    }, 1000);
+    onAnswer({ arrangement: slots as string[], isCorrect });
+    if (!isCorrect) resetForRetry();
   };
-
-  useEffect(() => () => {
-    if (countdownRef.current) clearInterval(countdownRef.current);
-  }, []);
 
   const allFilled = slots.every((slot) => slot !== null);
   const activeItem = getItem(activeId);
@@ -328,51 +319,14 @@ export function DragDropActivity({ activity, onAnswer }: Props) {
               hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed
               focus:ring-4 focus:ring-blue-300 transition-colors"
           >
-            <ArasaacPictogram conceptId="activity.complete" showLabel={false} imageClassName="w-7 h-7" />
+          <ArasaacPictogram conceptId="state.confirm" showLabel={false} imageClassName="w-7 h-7" />
             <span className="ml-2">Confirmar</span>
           </button>
         )}
 
-        {feedback && (
-          <div role="status" aria-live="polite"
-            className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-            <div className={`flex flex-col items-center gap-3 px-10 py-8 rounded-3xl
-              shadow-2xl text-center pointer-events-auto
-              ${feedback === "correct" ? "bg-green-500 text-white" : "bg-orange-400 text-white"}`}>
-              <Image
-                src={feedback === "correct" ? "/assets/correctanswer.png" : "/assets/tryagain.png"}
-                width={360}
-                height={270}
-                alt={feedback === "correct" ? "TitiA comemorando o acerto" : "TitiA incentivando uma nova tentativa"}
-                className="h-56 w-auto object-contain sm:h-72"
-              />
-              <p className="text-2xl font-extrabold">
-                {feedback === "correct" ? "Muito bem!" : "Quase lá!"}
-              </p>
-              {countdown !== null && (
-                <>
-                  <p className="text-base font-medium opacity-90">
-                    {feedback === "correct" ? "Próxima atividade em..." : "Tentando novamente em..."}
-                  </p>
-                  <div className="relative flex items-center justify-center w-16 h-16">
-                    <svg className="absolute" width="64" height="64" viewBox="0 0 64 64">
-                      <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="5" />
-                      <circle cx="32" cy="32" r="28" fill="none" stroke="white" strokeWidth="5"
-                        strokeLinecap="round" strokeDasharray={2 * Math.PI * 28}
-                        strokeDashoffset={2 * Math.PI * 28 * (1 - countdown / 3)}
-                        transform="rotate(-90 32 32)"
-                        style={{ transition: "stroke-dashoffset 0.9s linear" }} />
-                    </svg>
-                    <span className="text-2xl font-extrabold">{countdown}</span>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        )}
       </div>
 
-      <DragOverlay adjustScale={false} dropAnimation={{ duration: 180, easing: "ease-out" }}>
+      <DragOverlay modifiers={[centerOverlayOnPointer]} adjustScale={false} dropAnimation={{ duration: 180, easing: "ease-out" }}>
         {activeItem ? (
           <div className="px-5 py-3 rounded-2xl border-4 border-blue-500 bg-white
             text-gray-800 text-2xl font-bold shadow-2xl cursor-grabbing">

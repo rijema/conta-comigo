@@ -419,6 +419,8 @@ export async function ActivitiesSeed(dataSource: DataSource) {
         ],
         slotCount: 5,
         correctOrder: ['eq4', 'eqp', 'eq3', 'eqe', 'eq7'],
+        // Addition is commutative; both authored operand orders are valid.
+        acceptedOrders: [['eq3', 'eqp', 'eq4', 'eqe', 'eq7']],
         correctAnswer: 'eq4,eqp,eq3,eqe,eq7',
       },
     },
@@ -456,8 +458,8 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       isActive: true,
       accessibility: { hasVisual: true, sensoryLoad: 'low' },
       content: {
-        instructionsPt: 'Uma pizza tem formato de... ⭕',
-        instructions: 'A pizza has the shape of... ⭕',
+        instructionsPt: 'Uma pizza tem o formato de qual forma? 🍕',
+        instructions: 'Which shape does a pizza have? 🍕',
         options: [
           { id: 'a', text: 'Quadrado', emoji: '⬜', isCorrect: false },
           { id: 'b', text: 'Círculo', emoji: '⭕', isCorrect: true },
@@ -747,6 +749,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
   const existingByTitle = new Map(existingRecords.map((record: any) => [record.title, record]));
   let created = 0;
   let speechMetadataUpdated = 0;
+  let authoredContentUpdated = 0;
   for (const activity of activities) {
     if (existingTitles.has(activity.title)) {
       const existing = existingByTitle.get(activity.title) as any;
@@ -761,6 +764,18 @@ export async function ActivitiesSeed(dataSource: DataSource) {
         await repo.save(existing);
         speechMetadataUpdated += 1;
       }
+      const authoredCorrection = activity.title === 'Círculo ou quadrado?'
+        ? { instructionsPt: activityContent.instructionsPt, instructions: activityContent.instructions }
+        : activity.title === 'Ordene os passos da adição!'
+          ? { acceptedOrders: activityContent.acceptedOrders }
+          : null;
+      if (authoredCorrection && Object.entries(authoredCorrection).some(
+        ([key, value]) => JSON.stringify(existing.content?.[key]) !== JSON.stringify(value),
+      )) {
+        existing.content = { ...existing.content, ...authoredCorrection };
+        await repo.save(existing);
+        authoredContentUpdated += 1;
+      }
       continue;
     }
     const record = repo.create(activity);
@@ -768,5 +783,5 @@ export async function ActivitiesSeed(dataSource: DataSource) {
     created += 1;
   }
 
-  console.log(`✅ ${created} new activities seeded; ${speechMetadataUpdated} speech metadata records updated (${activities.length} defined)`);
+  console.log(`✅ ${created} new activities seeded; ${speechMetadataUpdated} speech metadata records updated; ${authoredContentUpdated} authored content corrections (${activities.length} defined)`);
 }

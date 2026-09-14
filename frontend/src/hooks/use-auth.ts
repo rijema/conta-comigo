@@ -75,7 +75,7 @@ export function useAuth() {
   const logout = () => {
     authService.clearTokens();
     clearAuth();
-    router.push(`/${locale}/auth/login`);
+    router.push(`/${locale}`);
   };
 
   return {

@@ -270,6 +270,18 @@ No database migration is required because this is a frontend transport correctio
 
 No database migration is required because no persisted schema changed.
 
+## Child experience consistency pass
+
+- Centered and compacted the learning activity, removed decorative side characters and competing difficulty/reward stars, and retained one session progress indicator.
+- Anchored drag overlays to mouse/touch coordinates, added restrained hover/press feedback, and kept tap-based drag alternatives.
+- Consolidated correct/incorrect feedback into one larger TitiA reaction with a brief color cue.
+- Added contextual speech controls, spoken choices, automatic spoken help, and self-resetting spoken voice-command recovery.
+- Added same-student, eight-hour local activity restoration and changed logout navigation to the public home page.
+- Separated shape prompts from text-only alternatives and explicitly authored the commutative order accepted by the addition sequence.
+- Added frontend and backend regression tests and Portuguese research documentation.
+
+No database migration is required because persistence is browser-local and the activity content remains JSONB-compatible.
+
 ## Neural speech backend proxy correction
 
 - Replaced the Axios/RxJS synthesis bridge with the native Node fetch path already proven against the deployed ML service.
