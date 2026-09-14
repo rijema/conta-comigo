@@ -14,6 +14,15 @@ test('Docker build receives every public voice feature flag', () => {
   assert.match(dockerfile, /ENV NEXT_PUBLIC_ENABLE_NEURAL_TTS=/);
 });
 
+test('ML Docker build uses the monorepo root context and Railway selects it', () => {
+  const mlDockerfile = readFileSync(new URL('../../ml-service/Dockerfile', import.meta.url), 'utf8');
+  const mlRailway = readFileSync(new URL('../../ml-service/railway.json', import.meta.url), 'utf8');
+  assert.match(mlDockerfile, /COPY ml-service\/requirements\.txt \./);
+  assert.match(mlDockerfile, /COPY ml-service\/ \./);
+  assert.match(mlRailway, /"builder": "DOCKERFILE"/);
+  assert.match(mlRailway, /"dockerfilePath": "\/ml-service\/Dockerfile"/);
+});
+
 test('microphone is push-to-talk, feature flagged, and stops every media track', () => {
   assert.match(hook, /NEXT_PUBLIC_ENABLE_VOICE_COMMANDS === "true"/);
   assert.match(hook, /getUserMedia\(\{ audio: true, video: false \}\)/);

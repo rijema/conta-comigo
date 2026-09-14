@@ -242,6 +242,14 @@ No database migration is required because this batch changes research documentat
 - Added frontend regression tests and updated Portuguese research documentation.
 
 No database migration is required because these changes only affect frontend presentation and interaction.
+
+## ML service Docker context correction
+
+- Updated the ML Dockerfile to copy files from `ml-service/` when Railway supplies the monorepo root as the Docker build context.
+- Replaced the ML Railpack plan with the repository Dockerfile so the Piper model is included in the deployed image.
+- Added a regression check for Docker context paths and Railway builder selection.
+
+No database migration is required because this only changes deployment packaging.
 ## Batch B3.1 — Adaptive activity framework consolidation
 
 - Added one runtime semantic contract for Counting, Multiple Choice, Quiz, Drag and Drop, and Number Line.

@@ -104,6 +104,12 @@
 
 [HIPÓTESE A VALIDAR] A combinação de fala automática, tutorial visual e presença ampliada da personagem pode tornar a ação esperada mais compreensível e o feedback mais perceptível. Usabilidade com crianças e avaliação profissional ainda são necessárias.
 
+## 13. Empacotamento do provedor neural
+
+[DECISÃO DE ENGENHARIA] O serviço de ML usa a raiz do monorepositório como contexto de build e referencia explicitamente os arquivos sob `ml-service/`. A configuração do Railway seleciona o Dockerfile, pois é nesse build que o modelo Piper é obtido e instalado no caminho interno configurado.
+
+[LIMITAÇÃO] A disponibilidade do modelo durante o build depende do repositório externo que distribui o artefato. A variável `PIPER_MODEL_PATH` identifica um arquivo dentro da imagem e, isoladamente, não realiza o download do modelo.
+
 ## Texto potencial para a dissertação
 
 ### Metodologia
