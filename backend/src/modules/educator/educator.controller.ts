@@ -7,6 +7,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../users/enums/user-role.enum';
+import { CreateProfessionalFeedbackDto } from './dto/create-professional-feedback.dto';
 
 export class UpdateSkillLevelsDto {
   @IsOptional()
@@ -74,6 +75,22 @@ export class EducatorController {
     @Param('decisionId') decisionId: string,
   ) {
     return this.educatorService.getResearchExplanation(learnerId, decisionId);
+  }
+
+  @Get('learners/:learnerId/adaptations')
+  @ApiOperation({ summary: 'Get post-session adaptive events for optional professional review' })
+  getAdaptations(@Param('learnerId') learnerId: string) {
+    return this.educatorService.getAdaptations(learnerId);
+  }
+
+  @Post('adaptations/:transitionId/feedback')
+  @ApiOperation({ summary: 'Record optional professional adaptation feedback' })
+  createAdaptationFeedback(
+    @CurrentUser('userId') professionalId: string,
+    @Param('transitionId') transitionId: string,
+    @Body() dto: CreateProfessionalFeedbackDto,
+  ) {
+    return this.educatorService.createAdaptationFeedback(transitionId, professionalId, dto);
   }
 
   @Get('learners/:learnerId/attempts')

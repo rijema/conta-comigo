@@ -93,6 +93,11 @@ ALTER TABLE ade_decisions ADD COLUMN IF NOT EXISTS "decisionSource" VARCHAR;
 ALTER TABLE ade_decisions ADD COLUMN IF NOT EXISTS "fallbackUsed" BOOLEAN NOT NULL DEFAULT FALSE;
 ALTER TABLE ade_decisions ADD COLUMN IF NOT EXISTS "fallbackReason" TEXT;
 
+DO $$ BEGIN
+  CREATE TYPE recommendation_outcome_status_enum AS ENUM ('PRESENTED', 'STARTED', 'COMPLETED', 'SKIPPED', 'ABANDONED');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
 CREATE TABLE IF NOT EXISTS analytics_snapshots (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(), "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   "sessionId" VARCHAR, "overallAccuracy" DOUBLE PRECISION NOT NULL DEFAULT 0,
@@ -133,6 +138,54 @@ CREATE TABLE IF NOT EXISTS learning_events (
   "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, "activityId" UUID,
   "bnccSkillId" UUID, attempt INTEGER, "responseTimeMs" INTEGER, correct BOOLEAN,
   "hintsUsed" INTEGER, "recommendationId" VARCHAR, metadata JSONB
+);
+
+CREATE TABLE IF NOT EXISTS recommendation_outcomes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(), "recommendationId" UUID NOT NULL UNIQUE REFERENCES ade_decisions(id),
+  "studentId" UUID NOT NULL REFERENCES users(id), "sessionId" VARCHAR NOT NULL,
+  "activityId" UUID NOT NULL REFERENCES activities(id), status recommendation_outcome_status_enum NOT NULL,
+  "presentedAt" TIMESTAMPTZ, "startedAt" TIMESTAMPTZ, "completedAt" TIMESTAMPTZ, "skippedAt" TIMESTAMPTZ,
+  attempts INTEGER NOT NULL DEFAULT 0, "hintsUsed" INTEGER NOT NULL DEFAULT 0,
+  "instructionReplays" INTEGER NOT NULL DEFAULT 0, "responseTimeMs" INTEGER, correct BOOLEAN,
+  "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(), "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS adaptation_transitions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(), "studentId" UUID NOT NULL REFERENCES users(id),
+  "sessionId" VARCHAR NOT NULL, "previousRecommendationId" UUID NOT NULL UNIQUE REFERENCES ade_decisions(id),
+  "previousActivityId" UUID NOT NULL REFERENCES activities(id), "triggerEventId" UUID NOT NULL UNIQUE REFERENCES learning_events(id),
+  "triggerType" VARCHAR NOT NULL, "changeRequested" BOOLEAN NOT NULL DEFAULT FALSE,
+  "replacementRecommendationId" UUID REFERENCES ade_decisions(id),
+  "replacementActivityId" UUID REFERENCES activities(id), "sameBNCCSkill" BOOLEAN,
+  "sameMathematicalConcept" BOOLEAN, "interactionTypeChanged" BOOLEAN, "representationChanged" BOOLEAN,
+  "motorDemandDelta" DOUBLE PRECISION, "sensoryLoadDelta" DOUBLE PRECISION,
+  "languageLoadDelta" DOUBLE PRECISION, "scaffoldingDelta" DOUBLE PRECISION, "difficultyDelta" DOUBLE PRECISION,
+  "createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
+);
+ALTER TABLE adaptation_transitions ADD COLUMN IF NOT EXISTS "difficultyDelta" DOUBLE PRECISION;
+ALTER TABLE adaptation_transitions ADD COLUMN IF NOT EXISTS "changeRequested" BOOLEAN NOT NULL DEFAULT FALSE;
+
+CREATE TABLE IF NOT EXISTS interaction_evidence (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(), "sourceEventId" UUID NOT NULL UNIQUE REFERENCES learning_events(id),
+  "studentId" UUID NOT NULL REFERENCES users(id), "sessionId" VARCHAR NOT NULL,
+  "activityId" UUID NOT NULL REFERENCES activities(id), "recommendationId" UUID REFERENCES ade_decisions(id),
+  "eventType" VARCHAR NOT NULL, "interactionType" JSONB, representation JSONB,
+  "motorDemand" VARCHAR, "sensoryLoad" VARCHAR, "languageLoad" VARCHAR, outcome VARCHAR,
+  timestamp TIMESTAMPTZ NOT NULL, metadata JSONB
+);
+
+DO $$ BEGIN
+  CREATE TYPE professional_feedback_rating_enum AS ENUM ('ADEQUATE', 'PARTIALLY_ADEQUATE', 'INADEQUATE');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+CREATE TABLE IF NOT EXISTS professional_recommendation_feedback (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(), "transitionId" UUID NOT NULL REFERENCES adaptation_transitions(id),
+  "recommendationId" UUID NOT NULL REFERENCES ade_decisions(id), "sessionId" VARCHAR NOT NULL,
+  "studentId" UUID NOT NULL REFERENCES users(id), "professionalId" UUID NOT NULL REFERENCES users(id),
+  rating professional_feedback_rating_enum NOT NULL, "reasonCodes" JSONB NOT NULL DEFAULT '[]',
+  "optionalComment" TEXT, "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+  UNIQUE ("transitionId", "professionalId")
 );
 
 CREATE TABLE IF NOT EXISTS student_skill_states (

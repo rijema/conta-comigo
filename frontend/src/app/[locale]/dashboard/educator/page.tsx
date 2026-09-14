@@ -30,6 +30,8 @@ export default function EducatorDashboardPage() {
   const [selected, setSelected] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [adeHistory, setAdeHistory] = useState<any[]>([]);
+  const [adaptations, setAdaptations] = useState<any[]>([]);
+  const [skippedEvaluations, setSkippedEvaluations] = useState<Set<string>>(new Set());
   const [report, setReport] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(false);
@@ -70,15 +72,18 @@ export default function EducatorDashboardPage() {
     setProfileLoading(true);
     setProfile(null);
     setAdeHistory([]);
+    setAdaptations([]);
     setReport(null);
     setActiveTab("overview");
     try {
-      const [prof, ade] = await Promise.all([
+      const [prof, ade, adaptiveEvents] = await Promise.all([
         api.get<any>(`/educator/learners/${learner.id}/profile`, t ?? undefined),
         api.get<any[]>(`/educator/learners/${learner.id}/ade-history`, t ?? undefined),
+        api.get<any[]>(`/educator/learners/${learner.id}/adaptations`, t ?? undefined),
       ]);
       setProfile(prof);
       setAdeHistory(ade);
+      setAdaptations(adaptiveEvents);
     } catch (e) { console.error(e); }
     finally { setProfileLoading(false); }
   };
@@ -109,6 +114,17 @@ export default function EducatorDashboardPage() {
   };
 
   const handlePrint = () => { window.print(); };
+
+  const submitAdaptationFeedback = async (transitionId: string, rating: string) => {
+    const token = authService.getStoredToken();
+    if (!token || !selected) return;
+    await api.post(`/educator/adaptations/${transitionId}/feedback`, {
+      rating,
+      reasonCodes: [],
+    }, token);
+    const updated = await api.get<any[]>(`/educator/learners/${selected.id}/adaptations`, token);
+    setAdaptations(updated);
+  };
 
   if (authLoading || loading) {
     return (
@@ -315,6 +331,43 @@ export default function EducatorDashboardPage() {
                   {/* ADE TAB */}
                   {activeTab === "ade" && (
                     <div className="bg-white rounded-2xl shadow-sm p-5">
+                      <div className="mb-6 border-b border-slate-200 pb-5">
+                        <h3 className="font-bold text-slate-700 mb-2">🔄 Adaptações para revisão pós-sessão</h3>
+                        <p className="text-xs text-slate-500 mb-3">A avaliação é opcional e não altera domínio, ontologia ou pesos.</p>
+                        <div className="space-y-3">
+                          {adaptations.filter((item) => !skippedEvaluations.has(item.id)).map((item) => (
+                            <div key={item.id} className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm">
+                              <p className="font-semibold text-slate-800">{item.professionalExplanation}</p>
+                              <p className="mt-1 text-xs text-slate-600">
+                                {item.previousActivity?.title ?? "Atividade anterior"} → {item.replacementActivity?.title ?? "Substituição pendente"}
+                              </p>
+                              <p className="mt-1 text-xs text-slate-500">
+                                Resultado anterior: {item.previousOutcome?.status ?? "não registrado"}; substituição: {item.replacementOutcome?.status ?? "não registrada"}
+                              </p>
+                              {!item.feedback && (
+                                <div className="mt-3 flex flex-wrap gap-2" aria-label="Esta adaptação foi adequada?">
+                                  {[
+                                    ["ADEQUATE", "Adequada"],
+                                    ["PARTIALLY_ADEQUATE", "Parcialmente adequada"],
+                                    ["INADEQUATE", "Inadequada"],
+                                  ].map(([rating, label]) => (
+                                    <button key={rating} onClick={() => submitAdaptationFeedback(item.id, rating)}
+                                      className="rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-indigo-700 border border-indigo-200">
+                                      {label}
+                                    </button>
+                                  ))}
+                                  <button onClick={() => setSkippedEvaluations((current) => new Set(current).add(item.id))}
+                                    className="rounded-lg px-3 py-1.5 text-xs text-slate-500">
+                                    Pular avaliação
+                                  </button>
+                                </div>
+                              )}
+                              {item.feedback && <p className="mt-2 text-xs font-semibold text-green-700">Avaliação registrada: {item.feedback.rating}</p>}
+                            </div>
+                          ))}
+                          {adaptations.length === 0 && <p className="text-xs text-slate-400">Nenhuma adaptação registrada.</p>}
+                        </div>
+                      </div>
                       <h3 className="font-bold text-slate-700 mb-4">
                         🤖 Histórico de Decisões ADE — IA Adaptativa
                       </h3>

@@ -10,10 +10,16 @@ import { EducatorController } from './educator.controller';
 import { EducatorService } from './educator.service';
 import { KnowledgeTracingModule } from '../knowledge-tracing/knowledge-tracing.module';
 import { AdeModule } from '../ade/ade.module';
+import { AdaptationTransition } from '../learning-events/entities/adaptation-transition.entity';
+import { RecommendationOutcome } from '../learning-events/entities/recommendation-outcome.entity';
+import { ProfessionalRecommendationFeedback } from './entities/professional-recommendation-feedback.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, ChildProfile, AnalyticsSnapshot, AdeDecision, ActivityAttempt, Activity]),
+    TypeOrmModule.forFeature([
+      User, ChildProfile, AnalyticsSnapshot, AdeDecision, ActivityAttempt, Activity,
+      AdaptationTransition, RecommendationOutcome, ProfessionalRecommendationFeedback,
+    ]),
     KnowledgeTracingModule,
     AdeModule,
   ],

@@ -10,6 +10,7 @@ import { ActivityAttempt } from '../activities/entities/activity-attempt.entity'
 import { UserRole } from '../users/enums/user-role.enum';
 import { KnowledgeTracingService } from '../knowledge-tracing/knowledge-tracing.service';
 import { RecommendationExplanationService } from '../ade/recommendation-explanation.service';
+import { AdaptationTransition } from '../learning-events/entities/adaptation-transition.entity';
 
 @Injectable()
 export class GuardianService {
@@ -26,7 +27,26 @@ export class GuardianService {
     private readonly attemptRepo: Repository<ActivityAttempt>,
     private readonly knowledgeTracingService: KnowledgeTracingService,
     private readonly recommendationExplanationService: RecommendationExplanationService,
+    @InjectRepository(AdaptationTransition)
+    private readonly transitionRepo: Repository<AdaptationTransition>,
   ) {}
+
+  async getAdaptationSummaries(guardianId: string, childId: string) {
+    const profile = await this.childProfileRepo.findOne({ where: { userId: childId, guardianId } });
+    if (!profile) throw new ForbiddenException('Child is not linked to this guardian');
+    const transitions = await this.transitionRepo.find({
+      where: { studentId: childId }, order: { createdAt: 'DESC' }, take: 20,
+    });
+    return transitions.map((transition) => ({
+      id: transition.id,
+      sessionId: transition.sessionId,
+      explanation: transition.sameBNCCSkill
+        ? 'A criança pediu outro exercício. O sistema mudou a forma da atividade e manteve a mesma habilidade.'
+        : 'A criança pediu outro exercício. O ContaComigo escolheu uma nova atividade.',
+      replacementAvailable: Boolean(transition.replacementRecommendationId),
+      createdAt: transition.createdAt,
+    }));
+  }
 
   async getChildrenSummary(guardianId: string) {
     const childProfiles = await this.childProfileRepo.find({

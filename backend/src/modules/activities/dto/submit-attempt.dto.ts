@@ -5,6 +5,7 @@ import {
   IsBoolean,
   IsObject,
   IsNotEmpty,
+  IsUUID,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -21,6 +22,11 @@ export class SubmitAttemptDto {
   @IsOptional()
   @IsString()
   sessionId?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  recommendationId?: string;
 
   @ApiPropertyOptional()
   @IsOptional()

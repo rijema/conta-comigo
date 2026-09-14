@@ -36,6 +36,7 @@ interface ResearchExplanation {
   reasonerVersion: TraceValue;
   semanticFilteringFallback: TraceValue;
   recommendationOutcome: TraceValue;
+  adaptationTrace?: unknown;
 }
 
 const LABELS: Array<[keyof ResearchExplanation, string]> = [
@@ -60,6 +61,7 @@ const LABELS: Array<[keyof ResearchExplanation, string]> = [
   ["reasonerVersion", "Reasoner version"],
   ["semanticFilteringFallback", "Semantic filtering fallback"],
   ["recommendationOutcome", "Recommendation outcome"],
+  ["adaptationTrace", "Adaptation transition and feedback"],
 ];
 
 function formatValue(value: unknown): string {
