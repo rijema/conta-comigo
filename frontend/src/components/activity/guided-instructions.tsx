@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
+import Image from "next/image";
 import { useTitiaSpeech } from "@/hooks/use-titia-speech";
 import { getOrCreateLearningSessionId } from "@/lib/learning-session";
 import type { Activity } from "@/types";
@@ -45,24 +46,33 @@ export function GuidedInstructions({ activity }: { activity: Activity }) {
   if (instruction.steps.length === 0) return null;
 
   return (
-    <section className="mb-5 rounded-2xl border-2 border-purple-100 bg-purple-50/70 p-4"
+    <section className="mb-5 overflow-hidden rounded-2xl border-2 border-purple-100 bg-gradient-to-r from-purple-50 to-pink-50 p-3"
       aria-labelledby={`guided-instructions-${activity.id}`}>
-      <div className="flex items-center justify-between gap-3">
-        <h3 id={`guided-instructions-${activity.id}`} className="font-extrabold text-purple-800">
-          TitiA explica passo a passo
-        </h3>
+      <div className="flex items-center gap-3">
+        <Image
+          src="/assets/wildcard.png"
+          width={112}
+          height={84}
+          alt="TitiA pronta para explicar a atividade"
+          className="h-20 w-24 flex-none object-contain object-top sm:h-24 sm:w-28"
+        />
+        <div className="min-w-0 flex-1">
+          <h3 id={`guided-instructions-${activity.id}`} className="font-extrabold text-purple-800">
+            TitiA explica para você
+          </h3>
+          <p className="mt-1 text-sm text-purple-700">
+            A explicação começa ao abrir a atividade. Use repetir quando quiser ouvir de novo.
+          </p>
+        </div>
         <div className="flex flex-wrap justify-end gap-2">
           <button type="button" disabled={!speech.settings.voiceEnabled}
             onClick={() => {
-              if (speech.speakInstruction(instruction)) setHasSpokenInstruction(true);
+              const spoken = hasSpokenInstruction
+                ? speech.repeatLastInstruction()
+                : speech.speakInstruction(instruction);
+              if (spoken) setHasSpokenInstruction(true);
             }}
             className="inline-flex items-center gap-1 rounded-xl bg-purple-600 px-3 py-2 text-sm font-bold text-white disabled:opacity-40">
-            <ArasaacPictogram conceptId="navigation.listen" showLabel={false} imageClassName="w-6 h-6" />
-            <span>Ouvir</span>
-          </button>
-          <button type="button" disabled={!speech.settings.voiceEnabled || !hasSpokenInstruction}
-            onClick={speech.repeatLastInstruction}
-            className="inline-flex items-center gap-1 rounded-xl border-2 border-purple-200 bg-white px-3 py-2 text-sm font-bold text-purple-700 disabled:opacity-40">
             <ArasaacPictogram conceptId="navigation.repeat" showLabel={false} imageClassName="w-6 h-6" />
             <span>Repetir</span>
           </button>
@@ -73,16 +83,6 @@ export function GuidedInstructions({ activity }: { activity: Activity }) {
           </button>
         </div>
       </div>
-      <ol className="mt-3 space-y-2" aria-label="Passos da atividade">
-        {instruction.steps.map((step, index) => (
-          <li key={`${index}-${step}`} className="flex items-start gap-2 text-slate-700">
-            <span className="inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-purple-200 text-xs font-extrabold text-purple-800">
-              {index + 1}
-            </span>
-            <span>{step}</span>
-          </li>
-        ))}
-      </ol>
     </section>
   );
 }

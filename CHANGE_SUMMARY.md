@@ -9,6 +9,7 @@
 - Added PostgreSQL enum migration, privacy/provider tests, deployment settings, and Portuguese research documentation.
 - Moved neural-speech validation into an imported DTO to avoid decorator metadata initialization errors at application startup.
 - Provisioned the pinned Piper Brazilian Portuguese voice and its model card in the ML image so neural speech can be tested after deployment.
+- Forwarded public voice feature flags into the frontend Docker build, preventing production bundles from silently disabling microphone and neural speech controls.
 
 
 ## InteractionEvidence PostgreSQL metadata fix
@@ -230,6 +231,17 @@ No database migration is required because this batch only changes client-side in
 - Added an automated documentation test that enforces the classification labels and final dissertation structure for every Markdown document under `docs/research/`.
 
 No database migration is required because this batch changes research documentation and its validation only.
+
+## Child activity guidance and drag interaction refinement
+
+- Enabled automatic spoken instructions by default for new accessibility profiles while preserving saved preferences and per-session deduplication.
+- Removed the redundant Listen control and duplicated written prompt from the TitiA guidance panel; Repeat remains available and can initiate playback if needed.
+- Replaced generic, repeated help copy with one family-aware visual tutorial entry point using centralized pictograms.
+- Added responsive TitiA companion artwork beside the activity and enlarged correct/retry feedback artwork.
+- Fixed the drag-and-drop offset duplicate by keeping movement exclusively in `DragOverlay` and hiding the source item during drag.
+- Added frontend regression tests and updated Portuguese research documentation.
+
+No database migration is required because these changes only affect frontend presentation and interaction.
 ## Batch B3.1 — Adaptive activity framework consolidation
 
 - Added one runtime semantic contract for Counting, Multiple Choice, Quiz, Drag and Drop, and Number Line.

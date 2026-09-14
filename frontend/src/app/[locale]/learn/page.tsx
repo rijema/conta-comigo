@@ -12,6 +12,43 @@ import { useAccessibility } from "@/contexts/AccessibilityContext";
 import { useTitiaSpeech } from "@/hooks/use-titia-speech";
 import { useVoiceCommand } from "@/hooks/use-voice-command";
 import { PushToTalkButton } from "@/components/voice/push-to-talk-button";
+import type { Activity } from "@/types";
+
+const TUTORIALS: Partial<Record<Activity["type"], Array<{ conceptId: string; text: string }>>> = {
+  drag_drop: [
+    { conceptId: "activity.touch", text: "Toque ou segure uma peça." },
+    { conceptId: "activity.move", text: "Leve a peça até o lugar escolhido." },
+    { conceptId: "activity.complete", text: "Quando terminar, confirme a resposta." },
+  ],
+  multiple_choice: [
+    { conceptId: "activity.look", text: "Observe a pergunta e as figuras." },
+    { conceptId: "activity.choose", text: "Toque na resposta que você escolheu." },
+    { conceptId: "activity.complete", text: "Confirme para ver como você foi." },
+  ],
+  quiz: [
+    { conceptId: "activity.look", text: "Observe a pergunta e as figuras." },
+    { conceptId: "activity.choose", text: "Toque na resposta que você escolheu." },
+    { conceptId: "activity.complete", text: "Confirme para ver como você foi." },
+  ],
+  counting: [
+    { conceptId: "activity.look", text: "Olhe todos os objetos com calma." },
+    { conceptId: "mathematics.count", text: "Conte um objeto de cada vez." },
+    { conceptId: "activity.choose", text: "Escolha ou escreva o total." },
+  ],
+  number_line: [
+    { conceptId: "activity.look", text: "Observe os números na linha." },
+    { conceptId: "activity.point", text: "Encontre o lugar pedido." },
+    { conceptId: "activity.touch", text: "Toque nesse lugar para responder." },
+  ],
+};
+
+function getTutorialSteps(activity: Activity) {
+  return TUTORIALS[activity.type] ?? [
+    { conceptId: "activity.look", text: "Observe a atividade com calma." },
+    { conceptId: "activity.choose", text: "Faça ou escolha sua resposta." },
+    { conceptId: "activity.complete", text: "Confirme quando terminar." },
+  ];
+}
 
 /* ── Rotating colourful backgrounds per activity ── */
 const BG_THEMES = [
@@ -170,6 +207,7 @@ function LearnPageInner() {
   }
 
   const bg = BG_THEMES[bgIdx % BG_THEMES.length];
+  const tutorialSteps = getTutorialSteps(activity);
 
   return (
     <div className="min-h-screen transition-all duration-700" style={{ background: bg }}>
@@ -178,7 +216,7 @@ function LearnPageInner() {
       {showReward && (
         <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-50">
           <div className="flex flex-col items-center gap-2">
-            <Image src="/assets/correctanswer.png" width={300} height={225} alt="TitiA comemorando o acerto" className="h-52 w-auto object-contain" style={{ animation: "bounceIn 0.4s ease-out" }} />
+            <Image src="/assets/correctanswer.png" width={520} height={390} alt="TitiA comemorando o acerto" className="h-72 w-auto object-contain sm:h-96" style={{ animation: "bounceIn 0.4s ease-out" }} />
             <p className="text-3xl font-extrabold text-yellow-600 drop-shadow-lg" style={{ animation: "fadeInUp 0.3s ease-out" }}>
               Muito bem! 🎉
             </p>
@@ -187,7 +225,7 @@ function LearnPageInner() {
       )}
       {rewardWrong && (
         <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-50">
-          <Image src="/assets/tryagain.png" width={260} height={195} alt="TitiA incentivando uma nova tentativa" className="h-44 w-auto object-contain" style={{ animation: "shake 0.4s ease-out" }} />
+          <Image src="/assets/tryagain.png" width={440} height={330} alt="TitiA incentivando uma nova tentativa" className="h-64 w-auto object-contain sm:h-80" style={{ animation: "shake 0.4s ease-out" }} />
         </div>
       )}
 
@@ -282,10 +320,12 @@ function LearnPageInner() {
               <h2 className="text-xl font-extrabold text-blue-700">💡 Como jogar</h2>
               <button onClick={() => setShowTutorial(false)} className="text-2xl text-gray-400 hover:text-gray-600">✕</button>
             </div>
-            <div className="text-5xl text-center mb-3">🎮</div>
-            <h3 className="text-lg font-extrabold text-gray-800 text-center mb-2">{activity.title}</h3>
-            <p className="text-gray-600 text-sm text-center mb-4">
-              {activity.content?.instructionsPt || activity.description || "Siga as instruções da atividade."}
+            <div className="flex justify-center">
+              <Image src="/assets/wildcard.png" width={180} height={135}
+                alt="TitiA mostrando como fazer a atividade" className="h-32 w-auto object-contain" />
+            </div>
+            <p className="mb-4 text-center text-sm font-bold text-purple-700">
+              Vamos aprender como usar esta atividade.
             </p>
             {activity.content?.example && (
               <div className="bg-blue-50 rounded-2xl p-4 mb-4 border-2 border-blue-100">
@@ -293,26 +333,17 @@ function LearnPageInner() {
                 <p className="text-gray-700 text-sm">{activity.content.example}</p>
               </div>
             )}
-            {activity.type === "drag_drop" && (
-              <div className="bg-yellow-50 rounded-2xl p-4 mb-4 border-2 border-yellow-200">
-                <p className="text-xs font-extrabold text-yellow-600 mb-2">🖐️ Como jogar:</p>
-                <ol className="text-sm text-gray-700 space-y-1 list-decimal list-inside">
-                  <li>Toque num item amarelo para selecionar</li>
-                  <li>Toque numa posição para colocá-lo lá</li>
-                  <li>Clique em "Confirmar" quando terminar</li>
-                </ol>
-              </div>
-            )}
-            {(activity.type === "multiple_choice" || activity.type === "quiz") && (
-              <div className="bg-green-50 rounded-2xl p-4 mb-4 border-2 border-green-200">
-                <p className="text-xs font-extrabold text-green-600 mb-2">🎯 Como jogar:</p>
-                <ol className="text-sm text-gray-700 space-y-1 list-decimal list-inside">
-                  <li>Leia a pergunta com atenção</li>
-                  <li>Toque na resposta certa</li>
-                  <li>Clique em "Confirmar"</li>
-                </ol>
-              </div>
-            )}
+            <ol className="mb-5 grid gap-3" aria-label="Tutorial visual da atividade">
+              {tutorialSteps.map((step, index) => (
+                <li key={step.text} className="flex items-center gap-3 rounded-2xl border-2 border-blue-100 bg-blue-50 p-3">
+                  <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-blue-600 text-lg font-extrabold text-white">
+                    {index + 1}
+                  </span>
+                  <ArasaacPictogram conceptId={step.conceptId} showLabel={false} imageClassName="h-14 w-14" />
+                  <span className="text-base font-bold text-slate-700">{step.text}</span>
+                </li>
+              ))}
+            </ol>
             <button
               onClick={() => {
                 setShowTutorial(false);
@@ -328,7 +359,10 @@ function LearnPageInner() {
       )}
 
       {/* ── Activity card ── */}
-      <main className="max-w-2xl mx-auto px-4 pt-3 pb-8">
+      <main className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-2 px-4 pb-8 pt-3 lg:grid-cols-[180px_minmax(0,672px)_180px]">
+        <Image src="/assets/mainiconfirstpage.png" width={220} height={260}
+          alt="TitiA acompanhando a atividade"
+          className="hidden h-64 w-full self-end object-contain lg:block" />
         <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border-2 border-white/80 overflow-hidden">
           {/* Colourful top stripe per activity type */}
           <div className="h-2" style={{
@@ -347,6 +381,9 @@ function LearnPageInner() {
             />
           </div>
         </div>
+        <Image src="/assets/mainiconfirstpage.png" width={220} height={260}
+          alt="TitiA acompanhando a atividade"
+          className="hidden h-64 w-full -scale-x-100 self-end object-contain lg:block" />
       </main>
     </div>
   );

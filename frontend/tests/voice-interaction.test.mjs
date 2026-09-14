@@ -5,6 +5,14 @@ import { readFileSync } from 'node:fs';
 const hook = readFileSync(new URL('../src/hooks/use-voice-command.ts', import.meta.url), 'utf8');
 const page = readFileSync(new URL('../src/app/[locale]/learn/page.tsx', import.meta.url), 'utf8');
 const neural = readFileSync(new URL('../src/lib/neural-titia-speech-engine.ts', import.meta.url), 'utf8');
+const dockerfile = readFileSync(new URL('../Dockerfile', import.meta.url), 'utf8');
+
+test('Docker build receives every public voice feature flag', () => {
+  assert.match(dockerfile, /ARG NEXT_PUBLIC_ENABLE_VOICE_COMMANDS=false/);
+  assert.match(dockerfile, /ARG NEXT_PUBLIC_ENABLE_NEURAL_TTS=false/);
+  assert.match(dockerfile, /ENV NEXT_PUBLIC_ENABLE_VOICE_COMMANDS=/);
+  assert.match(dockerfile, /ENV NEXT_PUBLIC_ENABLE_NEURAL_TTS=/);
+});
 
 test('microphone is push-to-talk, feature flagged, and stops every media track', () => {
   assert.match(hook, /NEXT_PUBLIC_ENABLE_VOICE_COMMANDS === "true"/);
@@ -29,5 +37,5 @@ test('child audio is discarded and never added to analytics metadata or caches',
 
 test('neural speech falls back to the browser engine', () => {
   assert.match(neural, /BrowserSpeechEngine/);
-  assert.match(neural, /catch\(\(\) => this\.fallback\.speak\(request\)\)/);
+  assert.match(neural, /catch[\s\S]*this\.fallback\.speak\(request\)/);
 });

@@ -123,22 +123,8 @@ export function ActivityRenderer({
       aria-label={`Atividade: ${activity.title}`}
       role="main"
     >
-      {/* Activity Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-sm font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded">
-            {activity.bnccSkills?.[0] ?? activity.bnccSkillCode ?? "BNCC"}
-          </span>
-          <DifficultyIndicator level={activity.difficulty} />
-        </div>
-        <h2 className="text-xl font-bold text-gray-800">
-          {activity.title || activity.content?.instructionsPt}
-        </h2>
-        {(activity.instructions || activity.content?.instructionsPt) && activity.title && (
-          <p className="text-gray-600 mt-1">
-            {activity.instructions || activity.content?.instructionsPt}
-          </p>
-        )}
+      <div className="mb-3 flex justify-end">
+        <DifficultyIndicator level={activity.difficulty} />
       </div>
 
       {/* Activity Content */}

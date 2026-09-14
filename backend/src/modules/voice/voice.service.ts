@@ -10,6 +10,22 @@ export class VoiceService {
   constructor(private readonly http: HttpService, private readonly config: ConfigService,
     private readonly interpreter: VoiceCommandInterpreter) {}
 
+  async status() {
+    let provider = { reachable: false, sttConfigured: false, neuralTtsConfigured: false };
+    try {
+      const response = await firstValueFrom(this.http.get(
+        `${this.config.get<string>('ML_SERVICE_URL')}/voice/status`,
+      ).pipe(timeout(5000)));
+      provider = { reachable: true, sttConfigured: response.data?.sttConfigured === true,
+        neuralTtsConfigured: response.data?.neuralTtsConfigured === true };
+    } catch { /* Status remains explicitly unavailable. */ }
+    return {
+      voiceCommandsEnabled: this.config.get<string>('ENABLE_VOICE_COMMANDS', 'false') === 'true',
+      neuralTtsEnabled: this.config.get<string>('ENABLE_NEURAL_TTS', 'false') === 'true',
+      provider,
+    };
+  }
+
   async transcribe(audioBase64: string, language = 'pt-BR') {
     if (this.config.get<string>('ENABLE_VOICE_COMMANDS', 'false') !== 'true') {
       throw new ServiceUnavailableException('Voice commands are disabled');

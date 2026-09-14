@@ -41,3 +41,8 @@ def synthesize(body: SpeechRequest):
         raise HTTPException(503, "Neural TTS is not configured")
     audio = provider.synthesize(body.text, "titia-pt-br", body.language, body.rate, "piper-1")
     return Response(audio, media_type="audio/wav", headers={"Cache-Control": "private, max-age=86400"})
+
+
+@router.get("/status")
+def voice_status():
+    return {"sttConfigured": True, "neuralTtsConfigured": get_tts_provider().available}
