@@ -78,7 +78,9 @@ export interface ActivitySemanticContract {
   communication: ChildCommunicationSupport;
   scaffoldingOptions: Record<string, unknown> | null;
   semanticAnnotation: {
-    source: 'CURRENT_ACTIVITY_CONTENT_AND_REPOSITORY_ONTOLOGY';
+    source:
+      | 'FORMAL_CONTACOMIGO_ONTOLOGY_AND_ACTIVITY_CONTENT'
+      | 'CURRENT_ACTIVITY_CONTENT_AND_REPOSITORY_ONTOLOGY';
     conceptMappingStatus: 'MAPPED' | 'PARTIAL' | 'NEEDS_REVIEW' | 'UNMAPPED';
   };
 }
@@ -352,6 +354,7 @@ function explicitConceptStatus(
 export function buildActivitySemanticContract(
   source: ActivitySemanticSource,
   bnccSkillId: string | null,
+  formalConceptMappings?: Record<string, string[]>,
 ): ActivitySemanticContract {
   const activityType = normalizeActivityType(source);
   const family = FAMILY_PROFILES[activityType];
@@ -382,7 +385,9 @@ export function buildActivitySemanticContract(
   const bnccCodes = source.bnccSkills ?? [];
   const explicitConcepts = stringArray(explicitSemantic?.mathematicalConcepts);
   const mathematicalConcepts = explicitConcepts ?? Array.from(new Set(
-    bnccCodes.flatMap((code) => BNCC_CONCEPT_MAPPINGS[code] ?? []),
+    bnccCodes.flatMap((code) =>
+      formalConceptMappings?.[code] ?? BNCC_CONCEPT_MAPPINGS[code] ?? [],
+    ),
   ));
   const explicitDifficulty = asRecord(explicitSemantic?.difficultyProfile);
   const numericalMagnitude = typeof explicitDifficulty?.numericalMagnitude === 'number'
@@ -485,7 +490,9 @@ export function buildActivitySemanticContract(
     },
     scaffoldingOptions,
     semanticAnnotation: {
-      source: 'CURRENT_ACTIVITY_CONTENT_AND_REPOSITORY_ONTOLOGY',
+      source: formalConceptMappings
+        ? 'FORMAL_CONTACOMIGO_ONTOLOGY_AND_ACTIVITY_CONTENT'
+        : 'CURRENT_ACTIVITY_CONTENT_AND_REPOSITORY_ONTOLOGY',
       conceptMappingStatus: explicitConceptStatus(explicitSemantic?.conceptMappingStatus) ??
         (explicitConcepts ? 'MAPPED' : conceptStatus(bnccCodes)),
     },

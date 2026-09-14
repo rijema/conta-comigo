@@ -23,6 +23,9 @@ export interface RecommendationSemanticTrace {
   weights?: Record<string, number>;
   ontologyVersion?: string;
   rankingVersion?: string;
+  reasonerVersion?: string;
+  fallbackUsed?: boolean;
+  fallbackReason?: string | null;
   challengeFit?: number;
   interactionFit?: number;
   semanticFit?: number;
@@ -78,6 +81,11 @@ export interface ResearchRecommendationExplanation {
   weights: TraceValue<Record<string, number>>;
   ontologyVersion: TraceValue<string>;
   rankingVersion: TraceValue<string>;
+  reasonerVersion: TraceValue<string>;
+  semanticFilteringFallback: TraceValue<{
+    used: boolean;
+    reason: string | null;
+  }>;
   recommendationOutcome: TraceValue<RecommendationOutcome>;
 }
 
@@ -252,7 +260,7 @@ export class RecommendationExplanationService {
     mastery: number | null,
     learningNeed: string,
   ): ResearchRecommendationExplanation {
-    const trace = input.semanticTrace ?? {};
+    const trace = input.semanticTrace ?? this.persistedSemanticTrace(input.decision);
     const decision = input.decision;
     const semanticInferences = trace.semanticInferences ??
       decision.xaiLog?.ontologyInferences;
@@ -286,14 +294,52 @@ export class RecommendationExplanationService {
       weights: this.optionalValue(trace.weights),
       ontologyVersion: this.optionalValue(trace.ontologyVersion),
       rankingVersion: this.optionalValue(trace.rankingVersion),
+      reasonerVersion: this.optionalValue(trace.reasonerVersion),
+      semanticFilteringFallback: typeof trace.fallbackUsed === 'boolean'
+        ? this.recorded({
+            used: trace.fallbackUsed,
+            reason: trace.fallbackReason ?? null,
+          })
+        : this.notRecorded(),
       recommendationOutcome: input.outcome
         ? this.recorded(input.outcome)
+        : decision.selectedActivityId
+          ? this.recorded({ selectedActivityId: decision.selectedActivityId })
         : this.notRecorded(),
     };
   }
 
   private optionalMetric(value: number | undefined): TraceValue<number> {
     return typeof value === 'number' ? this.recorded(value) : this.notRecorded();
+  }
+
+  private persistedSemanticTrace(decision: AdeDecision): RecommendationSemanticTrace {
+    const trace = decision.xaiLog?.semanticFiltering;
+    const ranking = decision.hybridRanking;
+    const selected = ranking?.candidates.find(
+      (candidate) => candidate.activityId === ranking.selectedActivityId,
+    );
+    if (!trace && !ranking) return {};
+    return {
+      candidateRanking: ranking?.candidates,
+      candidateTrace: trace?.candidateDecisions,
+      exclusionTrace: trace?.candidateDecisions.filter((candidate) => !candidate.included),
+      semanticInferences: trace?.semanticRelations.map((relation) =>
+        `${relation.subject} ${relation.predicate} ${relation.object}`,
+      ),
+      weights: ranking?.weights,
+      ontologyVersion: ranking?.ontologyVersion ?? trace?.ontologyVersion,
+      rankingVersion: ranking?.rankingVersion,
+      reasonerVersion: trace?.reasonerVersion,
+      fallbackUsed: ranking?.fallbackUsed ?? trace?.fallbackUsed,
+      fallbackReason: ranking?.fallbackReason ?? trace?.fallbackReason,
+      challengeFit: selected?.challengeFit,
+      interactionFit: selected?.interactionFit,
+      semanticFit: selected?.semanticFit,
+      novelty: selected?.novelty,
+      rejectionRisk: selected?.rejectionRisk,
+      finalScore: selected?.finalScore,
+    };
   }
 
   private optionalValue<T>(value: T | undefined): TraceValue<T> {

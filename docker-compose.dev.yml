@@ -64,6 +64,7 @@ services:
       JWT_EXPIRES_IN: 7d
       JWT_REFRESH_EXPIRES_IN: 30d
       ML_SERVICE_URL: http://ml-service:8000
+      CONTACOMIGO_ONTOLOGY_PATH: /ontology/contacomigo/contacomigo.owl
       REDIS_URL: redis://redis:6379
       PORT: 3001
     ports:
@@ -79,6 +80,7 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
+      - ./ontology/contacomigo:/ontology/contacomigo:ro
 
   ml-service:
     build:

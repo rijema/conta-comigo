@@ -87,6 +87,12 @@ CREATE TABLE IF NOT EXISTS ade_decisions (
   "inputSnapshot" JSONB, "createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
+ALTER TABLE ade_decisions ADD COLUMN IF NOT EXISTS "selectedActivityId" UUID;
+ALTER TABLE ade_decisions ADD COLUMN IF NOT EXISTS "hybridRanking" JSONB;
+ALTER TABLE ade_decisions ADD COLUMN IF NOT EXISTS "decisionSource" VARCHAR;
+ALTER TABLE ade_decisions ADD COLUMN IF NOT EXISTS "fallbackUsed" BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE ade_decisions ADD COLUMN IF NOT EXISTS "fallbackReason" TEXT;
+
 CREATE TABLE IF NOT EXISTS analytics_snapshots (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(), "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   "sessionId" VARCHAR, "overallAccuracy" DOUBLE PRECISION NOT NULL DEFAULT 0,

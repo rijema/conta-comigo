@@ -3,14 +3,15 @@ import { Injectable, Logger } from '@nestjs/common';
 /**
  * OntologyReasonerService
  *
- * Implements a JSON-based reasoning engine inspired by the LASDONT OWL ontology.
- * The ontology defines:
+ * @deprecated Legacy procedural modality fallback retained for compatibility.
+ * It does not execute or infer from the formal ContaComigo ontology.
+ * The retained legacy rule table contains:
  *   - Strengths: Visual, Auditive, Logical, Motor, Sensory
  *   - Weaknesses: same axes
  *   - Treatments: Visual_Puzzles, Textual_Quizzes, Videos, IA_Sandbox_DIY, etc.
  *   - Rules: if hasStrength(Visual) AND hasStrength(Sensory) → recommend IA_Sandbox_DIY
  *
- * Ontology source: LASDONT (LasdOnt.owl) - Richard Jeremias, 2024
+ * Historical source label: LASDONT.
  */
 @Injectable()
 export class OntologyReasonerService {
@@ -18,7 +19,7 @@ export class OntologyReasonerService {
 
   /**
    * Infer recommended treatment modalities based on learner strengths/weaknesses.
-   * Mirrors the OWL SubClassOf restrictions from LASDONT.
+   * Runs the legacy hard-coded modality rules.
    */
   inferRecommendedModalities(
     strengths: Record<string, boolean>,
@@ -32,7 +33,7 @@ export class OntologyReasonerService {
     if (strengths?.visual && strengths?.sensory) {
       modalities.push('visual'); // IA_Sandbox maps to visual modality
       inferences.push(
-        'LASDONT:IA_Sandbox_DIY — hasStrength(Visual) AND hasStrength(Sensory)',
+        'LEGACY_PROCEDURAL: IA_Sandbox_DIY modality rule matched',
       );
     }
 
@@ -40,7 +41,7 @@ export class OntologyReasonerService {
     if (strengths?.logical && strengths?.sensory && strengths?.visual) {
       modalities.push('visual');
       inferences.push(
-        'LASDONT:Visual_Puzzles — hasStrength(Logical) AND hasStrength(Sensory) AND hasStrength(Visual)',
+        'LEGACY_PROCEDURAL: Visual_Puzzles modality rule matched',
       );
     }
 
@@ -48,7 +49,7 @@ export class OntologyReasonerService {
     if (strengths?.logical && !weaknesses?.logical) {
       modalities.push('text');
       inferences.push(
-        'LASDONT:Textual_Quizzes — hasStrength(Logical)',
+        'LEGACY_PROCEDURAL: Textual_Quizzes modality rule matched',
       );
     }
 
@@ -56,7 +57,7 @@ export class OntologyReasonerService {
     if (strengths?.visual || (strengths?.visual && weaknesses?.motor)) {
       modalities.push('auditive');
       inferences.push(
-        'LASDONT:Question_Videos — hasStrength(Visual) OR (hasStrength(Visual) AND hasWeakness(Motor))',
+        'LEGACY_PROCEDURAL: Question_Videos modality rule matched',
       );
     }
 
@@ -64,14 +65,14 @@ export class OntologyReasonerService {
     if (weaknesses?.logical || weaknesses?.motor) {
       modalities.push('auditive');
       inferences.push(
-        'LASDONT:Yes_No_Videos — hasWeakness(Logical) OR hasWeakness(Motor)',
+        'LEGACY_PROCEDURAL: Yes_No_Videos modality rule matched',
       );
     }
 
     // Default fallback
     if (modalities.length === 0) {
       modalities.push('visual');
-      inferences.push('FALLBACK: Default visual modality (no specific constraints matched)');
+      inferences.push('LEGACY_FALLBACK: Default visual modality');
     }
 
     // Deduplicate
@@ -86,7 +87,7 @@ export class OntologyReasonerService {
 
   /**
    * Infer support level from ASD profile.
-   * Maps to LASDONT:Mild_Percentage, Moderated_Percentage, Strong_Percentage
+   * Preserves the legacy support-level mapping for compatibility only.
    */
   inferSupportLevel(asdSupportLevel: string): {
     level: 'mild' | 'moderate' | 'strong';
@@ -101,7 +102,7 @@ export class OntologyReasonerService {
     const level = map[asdSupportLevel] || 'moderate';
     return {
       level,
-      inference: `LASDONT:${level.charAt(0).toUpperCase() + level.slice(1)}_Percentage`,
+      inference: `LEGACY_PROCEDURAL: support level mapped to ${level}`,
     };
   }
 }

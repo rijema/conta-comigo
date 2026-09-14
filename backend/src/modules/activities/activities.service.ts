@@ -15,6 +15,19 @@ import { KnowledgeTracingService } from '../knowledge-tracing/knowledge-tracing.
 import { buildActivitySemanticContract } from './activity-semantic-contract';
 import { validateActivityAnswer } from './activity-answer-validator';
 import { RecommendationExplanationService } from '../ade/recommendation-explanation.service';
+import { OntologyService } from '../ontology/ontology.service';
+import { RuntimeSemanticAdapter } from '../ontology/runtime-semantic.adapter';
+import { SemanticFilteringTrace } from '../ontology/semantic-runtime.types';
+import {
+  HybridRankingResult,
+  HybridRecommendationService,
+} from '../ade/hybrid-recommendation.service';
+
+interface ActivitySelectionResult {
+  activity: Activity;
+  semanticTrace: SemanticFilteringTrace;
+  ranking: HybridRankingResult;
+}
 
 @Injectable()
 export class ActivitiesService {
@@ -33,6 +46,9 @@ export class ActivitiesService {
     private readonly knowledgeTracingService: KnowledgeTracingService,
     private readonly recommendationExplanationService: RecommendationExplanationService =
       new RecommendationExplanationService(),
+    private readonly ontologyService?: OntologyService,
+    private readonly runtimeSemanticAdapter?: RuntimeSemanticAdapter,
+    private readonly hybridRecommendationService?: HybridRecommendationService,
   ) {}
 
   async create(dto: CreateActivityDto): Promise<Activity> {
@@ -122,7 +138,9 @@ export class ActivitiesService {
     // 3. Find matching activity
     let activity: Activity;
     try {
-      activity = await this.findMatchingActivity(adeDecision);
+      const selection = await this.findMatchingActivity(adeDecision, profile);
+      activity = selection.activity;
+      await this.persistSelection(adeDecision, selection);
     } catch (matchErr: any) {
       this.logger.error(`findMatchingActivity failed: ${matchErr?.message}`);
       const fallback = await this.activityRepo.findOne({
@@ -228,18 +246,13 @@ export class ActivitiesService {
         }),
         timeout,
       ]);
-      nextActivity = await this.findMatchingActivity(adeDecision);
-      // Avoid returning the same activity as current
-      if (nextActivity.id === dto.activityId) {
-        const candidates = await this.activityRepo
-          .createQueryBuilder('activity')
-          .where('activity.isActive = true')
-          .andWhere('activity.id != :id', { id: dto.activityId })
-          .getMany();
-        if (candidates.length > 0) {
-          nextActivity = candidates[Math.floor(Math.random() * candidates.length)];
-        }
-      }
+      const selection = await this.findMatchingActivity(
+        adeDecision,
+        profile,
+        dto.activityId,
+      );
+      nextActivity = selection.activity;
+      await this.persistSelection(adeDecision, selection);
     } catch (err: any) {
       this.logger.error(`Next activity fetch failed: ${err?.message}. Using random fallback.`);
       try {
@@ -365,6 +378,7 @@ export class ActivitiesService {
 
   private async attachSemanticContract(activity: Activity): Promise<Activity> {
     let bnccSkillId: string | null = null;
+    let formalConceptMappings: Record<string, string[]> | undefined;
     try {
       bnccSkillId = await this.resolveBnccSkillId(activity);
     } catch (error) {
@@ -374,10 +388,19 @@ export class ActivitiesService {
         details,
       );
     }
+    try {
+      formalConceptMappings = this.ontologyService
+        ?.getMathematicalConceptMappings(activity.bnccSkills ?? []);
+    } catch (error) {
+      this.logger.error(
+        `Formal concept materialization failed for activity ${activity.id}; using documented legacy mappings`,
+        error instanceof Error ? error.stack : String(error),
+      );
+    }
 
     return Object.assign(
       activity,
-      buildActivitySemanticContract(activity, bnccSkillId),
+      buildActivitySemanticContract(activity, bnccSkillId, formalConceptMappings),
     );
   }
 
@@ -474,7 +497,8 @@ export class ActivitiesService {
     return {
       tree,
       ontologyModalities: ontologyResult.modalities,
-      ontologyInferences: ontologyResult.inferences,
+      ontologyInferences: [],
+      legacyProceduralSignals: ontologyResult.inferences,
       completedTotal: completedActivityIds.size,
       totalActivities: allActivities.length,
     };
@@ -518,34 +542,172 @@ export class ActivitiesService {
     };
   }
 
-  private async findMatchingActivity(adeDecision: any): Promise<Activity> {
-    const query = this.activityRepo.createQueryBuilder('activity')
-      .where('activity.isActive = true');
+  private async findMatchingActivity(
+    adeDecision: any,
+    profile: any,
+    excludedActivityId?: string,
+  ): Promise<ActivitySelectionResult> {
+    const storedActivities = (await this.activityRepo.find({ where: { isActive: true } }))
+      .filter((activity) => activity.id !== excludedActivityId);
+    if (storedActivities.length === 0) throw new Error('No activities available');
 
-    if (adeDecision.recommendedDifficulty) {
-      query.andWhere('activity.difficulty = :diff', {
-        diff: adeDecision.recommendedDifficulty,
-      });
+    const activities = await Promise.all(
+      storedActivities.map((activity) => this.attachSemanticContract(activity)),
+    );
+    const legacyCandidates = activities.filter((activity) =>
+      this.matchesLegacyRecommendation(activity, adeDecision),
+    );
+
+    if (!this.ontologyService || !this.runtimeSemanticAdapter || !this.hybridRecommendationService) {
+      const candidates = legacyCandidates.length > 0 ? legacyCandidates : activities;
+      const fallbackReason = 'Formal semantic or hybrid ranking services are unavailable; legacy selection was used';
+      const activity = candidates[Math.floor(Math.random() * candidates.length)];
+      return {
+        activity,
+        semanticTrace: this.unavailableSemanticTrace(
+          adeDecision,
+          activities,
+          fallbackReason,
+        ),
+        ranking: this.fallbackRanking(activity.id, candidates, fallbackReason),
+      };
     }
 
-    if (adeDecision.recommendedModality) {
-      query.andWhere('activity.targetModalities::jsonb @> :modality::jsonb', {
-        modality: JSON.stringify([adeDecision.recommendedModality]),
-      });
+    const facts = this.runtimeSemanticAdapter.materialize({
+      studentId: adeDecision.userId,
+      targetSkill: adeDecision.recommendedBnccSkill,
+      activities,
+      masteryProbability: adeDecision.xaiLog?.mlPredictions?.masteryProbability,
+      recentAccuracy: adeDecision.inputSnapshot?.recentAccuracy,
+      observedLearnerEvidence: profile?.ontologyInstanceData,
+    });
+    const semanticResult = this.ontologyService.getValidActivityCandidates(facts);
+    const validIds = new Set(semanticResult.validCandidateIds);
+    const formallyValid = activities.filter((activity) => validIds.has(activity.id));
+
+    if (semanticResult.trace.fallbackUsed) {
+      const candidates = legacyCandidates.length > 0 ? legacyCandidates : activities;
+      const activity = candidates[Math.floor(Math.random() * candidates.length)];
+      return {
+        activity,
+        semanticTrace: semanticResult.trace,
+        ranking: this.fallbackRanking(
+          activity.id,
+          candidates,
+          semanticResult.trace.fallbackReason ?? 'Semantic candidate generation required fallback',
+          semanticResult.trace.ontologyVersion,
+        ),
+      };
     }
 
-    const activities = await query.getMany();
-
-    if (activities.length === 0) {
-      // Fallback: return any easy activity
-      const fallback = await this.activityRepo.findOne({
-        where: { difficulty: DifficultyLevel.EASY, isActive: true },
-      });
-      if (!fallback) throw new Error('No activities available');
-      return fallback;
+    const [recentAttempts, rejectedActivityIds] = await Promise.all([
+      this.getRecentAttempts(adeDecision.userId, 20),
+      this.learningEventService.getRecentSkippedActivityIds(adeDecision.userId, 20),
+    ]);
+    const ranking = this.hybridRecommendationService.rank({
+      candidates: formallyValid,
+      masteryProbability: facts.mastery.probability,
+      semanticTrace: semanticResult.trace,
+      recentActivityIds: recentAttempts.map((attempt) => attempt.activityId),
+      recentlyRejectedActivityIds: rejectedActivityIds,
+      observedEvidenceTypes: facts.observedEvidenceTypes,
+    });
+    const selected = formallyValid.find((activity) => activity.id === ranking.selectedActivityId);
+    if (!selected) {
+      const candidates = legacyCandidates.length > 0 ? legacyCandidates : activities;
+      const activity = candidates[Math.floor(Math.random() * candidates.length)];
+      const fallbackReason = ranking.fallbackReason ?? 'Hybrid ranking did not select a valid candidate';
+      return {
+        activity,
+        semanticTrace: semanticResult.trace,
+        ranking: this.fallbackRanking(
+          activity.id,
+          candidates,
+          fallbackReason,
+          semanticResult.trace.ontologyVersion,
+        ),
+      };
     }
 
-    // Random selection from candidates (simple exploration)
-    return activities[Math.floor(Math.random() * activities.length)];
+    return {
+      activity: selected,
+      semanticTrace: semanticResult.trace,
+      ranking,
+    };
+  }
+
+  private matchesLegacyRecommendation(activity: Activity, adeDecision: any): boolean {
+    const difficultyMatches = !adeDecision.recommendedDifficulty ||
+      activity.difficulty === adeDecision.recommendedDifficulty;
+    const modalityMatches = !adeDecision.recommendedModality ||
+      activity.targetModalities?.includes(adeDecision.recommendedModality);
+    return difficultyMatches && modalityMatches;
+  }
+
+  private async persistSelection(
+    decision: any,
+    selection: ActivitySelectionResult,
+  ): Promise<void> {
+    try {
+      await this.adeService.recordSemanticFilteringTrace(decision, selection.semanticTrace);
+      await this.adeService.recordHybridRanking(decision, selection.ranking);
+    } catch (error) {
+      this.logger.error(
+        `Failed to persist semantic trace for decision ${decision?.id}`,
+        error instanceof Error ? error.stack : String(error),
+      );
+    }
+  }
+
+  private fallbackRanking(
+    selectedActivityId: string,
+    candidates: Activity[],
+    fallbackReason: string,
+    ontologyVersion = 'unavailable',
+  ): HybridRankingResult {
+    return {
+      selectedActivityId,
+      candidateIds: candidates.map((candidate) => candidate.id),
+      candidates: [],
+      weights: { learning: 0, challenge: 0, interaction: 0, semantic: 0, novelty: 0, rejection: 0 },
+      configurationVersion: 'unavailable',
+      rankingVersion: 'unavailable',
+      ontologyVersion,
+      decisionSource: 'LEGACY_FALLBACK',
+      fallbackUsed: true,
+      fallbackReason,
+      selectionExplanation: {
+        selectedActivityId,
+        comparedWith: candidates.filter((candidate) => candidate.id !== selectedActivityId).map((candidate) => candidate.id),
+        scoreMargin: null,
+      },
+    };
+  }
+
+  private unavailableSemanticTrace(
+    decision: any,
+    activities: Activity[],
+    fallbackReason: string,
+  ): SemanticFilteringTrace {
+    return {
+      targetSkill: decision.recommendedBnccSkill,
+      runtimeFactsUsed: {
+        studentId: decision.userId,
+        masterySource: 'StudentSkillState',
+        masteryProbability: decision.xaiLog?.mlPredictions?.masteryProbability ?? null,
+        recentAccuracy: decision.inputSnapshot?.recentAccuracy ?? null,
+        observedEvidenceTypes: [],
+        hardConstraints: { disallowDragging: false, requireAudio: false },
+      },
+      candidateActivities: activities.map((activity) => activity.id),
+      validCandidateIds: activities.map((activity) => activity.id),
+      excludedCandidateIds: [],
+      candidateDecisions: [],
+      semanticRelations: [],
+      ontologyVersion: 'unavailable',
+      reasonerVersion: 'unavailable',
+      fallbackUsed: true,
+      fallbackReason,
+    };
   }
 }

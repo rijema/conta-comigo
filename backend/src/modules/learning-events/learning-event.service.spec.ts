@@ -43,4 +43,18 @@ describe('LearningEventService', () => {
 
     errorSpy.mockRestore();
   });
+
+  it('keeps missing skip evidence neutral when analytics reads fail', async () => {
+    const errorSpy = jest.spyOn(Logger.prototype, 'error').mockImplementation();
+    const service = new LearningEventService({
+      find: jest.fn().mockRejectedValue(new Error('database unavailable')),
+    } as any);
+
+    await expect(service.getRecentSkippedActivityIds(input.studentId)).resolves.toEqual([]);
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringContaining('rejection evidence remains neutral'),
+      expect.any(String),
+    );
+    errorSpy.mockRestore();
+  });
 });
