@@ -258,6 +258,17 @@ No database migration is required because this only changes deployment packaging
 - Added regression coverage for non-blocking Learning Analytics requests.
 
 No database migration is required because this is a frontend transport correction.
+
+## TitiA neural speech runtime completion
+
+- Initialized one neural-first speech engine lifecycle over the shared TitiA speech service, retaining browser speech only as fallback.
+- Propagated request cancellation into `fetch`, discarded stale neural responses, cleaned transient audio, and added content-free development diagnostics.
+- Delayed spoken analytics and automatic-instruction deduplication until playback starts.
+- Added automatic navigation cancellation, spoken tutorial steps, progressive hint speech, existing feedback speech, and a production-blocked voice QA page.
+- Added configurable Piper model/config paths and selected the documented female pt-BR Dii model, with its non-commercial CC BY-NC-ND 4.0 restriction recorded explicitly.
+- Added safe backend ML gateway errors and expanded frontend, backend, and ML tests.
+
+No database migration is required because no persisted schema changed.
 ## Batch B3.1 — Adaptive activity framework consolidation
 
 - Added one runtime semantic contract for Counting, Multiple Choice, Quiz, Drag and Drop, and Number Line.

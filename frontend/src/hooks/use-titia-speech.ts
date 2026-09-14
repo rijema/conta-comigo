@@ -11,14 +11,20 @@ import { NeuralTitiaSpeechEngine } from "@/lib/neural-titia-speech-engine";
 type SpeechEventType = "instruction_spoken" | "instruction_replayed" |
   "hint_spoken" | "pictogram_spoken" | "speech_disabled";
 
+let runtimeEngineInitialized = false;
+
+function initializeRuntimeEngine() {
+  if (runtimeEngineInitialized || typeof window === "undefined") return;
+  runtimeEngineInitialized = true;
+  if (process.env.NEXT_PUBLIC_ENABLE_NEURAL_TTS === "true") {
+    titiaSpeechService.replaceEngine(new NeuralTitiaSpeechEngine());
+  }
+}
+
 export function useTitiaSpeech({ activityId }: { activityId?: string } = {}) {
   const { settings, updateSettings, settingsLoaded } = useAccessibility();
 
-  useEffect(() => {
-    if (process.env.NEXT_PUBLIC_ENABLE_NEURAL_TTS === "true") {
-      titiaSpeechService.replaceEngine(new NeuralTitiaSpeechEngine());
-    }
-  }, []);
+  useEffect(initializeRuntimeEngine, []);
 
   const configure = useCallback(() => {
     titiaSpeechService.configure({
@@ -44,38 +50,45 @@ export function useTitiaSpeech({ activityId }: { activityId?: string } = {}) {
     }, token).catch((error) => console.error("Failed to track TitiA speech event", error));
   }, [activityId]);
 
-  const speakInstruction = useCallback((instruction: SpokenInstruction) => {
+  const speakInstruction = useCallback((instruction: SpokenInstruction, onPlaybackStart?: () => void) => {
+    initializeRuntimeEngine();
     configure();
-    const spoken = titiaSpeechService.speakInstruction(instruction);
-    if (spoken) track("instruction_spoken", { stepCount: instruction.steps.length });
-    return spoken;
+    return titiaSpeechService.speakInstruction(instruction, () => {
+      track("instruction_spoken", { stepCount: instruction.steps.length });
+      onPlaybackStart?.();
+    });
   }, [configure, track]);
 
   const repeatLastInstruction = useCallback(() => {
+    initializeRuntimeEngine();
     configure();
-    const spoken = titiaSpeechService.repeatLastInstruction();
-    if (spoken) track("instruction_replayed");
-    return spoken;
+    return titiaSpeechService.repeatLastInstruction(() => track("instruction_replayed"));
   }, [configure, track]);
 
   const speakHint = useCallback((text: string) => {
+    initializeRuntimeEngine();
     configure();
-    const spoken = titiaSpeechService.speakHint(text);
-    if (spoken) track("hint_spoken");
-    return spoken;
+    return titiaSpeechService.speakHint(text, () => track("hint_spoken"));
   }, [configure, track]);
 
   const speakFeedback = useCallback((text: string) => {
+    initializeRuntimeEngine();
     configure();
     return titiaSpeechService.speakFeedback(text);
   }, [configure]);
 
   const speakPictogram = useCallback((label: string, pictogramConceptId: string) => {
+    initializeRuntimeEngine();
     configure();
-    const spoken = titiaSpeechService.speakPictogram(label);
-    if (spoken) track("pictogram_spoken", { pictogramConceptId });
-    return spoken;
+    return titiaSpeechService.speakPictogram(label,
+      () => track("pictogram_spoken", { pictogramConceptId }));
   }, [configure, track]);
+
+  const speakExplanation = useCallback((text: string) => {
+    initializeRuntimeEngine();
+    configure();
+    return titiaSpeechService.speakExplanation(text);
+  }, [configure]);
 
   const stopSpeech = useCallback(() => titiaSpeechService.stopSpeech(), []);
   const setVoiceEnabled = useCallback((enabled: boolean) => {
@@ -85,5 +98,5 @@ export function useTitiaSpeech({ activityId }: { activityId?: string } = {}) {
   }, [track, updateSettings]);
 
   return { settings, settingsLoaded, speakInstruction, repeatLastInstruction,
-    speakHint, speakFeedback, speakPictogram, stopSpeech, setVoiceEnabled };
+    speakHint, speakFeedback, speakPictogram, speakExplanation, stopSpeech, setVoiceEnabled };
 }

@@ -12,7 +12,8 @@ class FakeWhisper:
 
 
 class FakeVoice:
-    def synthesize_wav(self, text, output):
+    def synthesize_wav(self, text, output, syn_config=None):
+        self.syn_config = syn_config
         output.setnchannels(1); output.setsampwidth(2); output.setframerate(16000)
         output.writeframes(text.encode())
 
@@ -25,7 +26,9 @@ class VoiceProviderTests(unittest.TestCase):
         self.assertEqual(result["transcript"], "quero outro")
 
     def test_generated_titia_audio_is_cached(self):
-        provider = PiperNeuralTTSProvider(FakeVoice())
+        provider = PiperNeuralTTSProvider(
+            FakeVoice(), synthesis_config_factory=lambda **values: SimpleNamespace(**values)
+        )
         first = provider.synthesize("Isso!", "titia", "pt-BR", .85, "test")
         second = provider.synthesize("Isso!", "titia", "pt-BR", .85, "test")
         self.assertIs(first, second)

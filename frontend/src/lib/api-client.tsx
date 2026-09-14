@@ -4,13 +4,14 @@ interface RequestOptions {
   method?: string;
   body?: unknown;
   token?: string;
+  signal?: AbortSignal;
 }
 
 async function request<T>(
   endpoint: string,
   options: RequestOptions = {}
 ): Promise<T> {
-  const { method = "GET", body, token } = options;
+  const { method = "GET", body, token, signal } = options;
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -24,6 +25,7 @@ async function request<T>(
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined,
+    signal,
   });
 
   if (!response.ok) {
@@ -49,8 +51,8 @@ export const api = {
   get: <T,>(endpoint: string, token?: string): Promise<T> =>
     request<T>(endpoint, { token }),
 
-  post: <T,>(endpoint: string, body: unknown, token?: string): Promise<T> =>
-    request<T>(endpoint, { method: "POST", body, token }),
+  post: <T,>(endpoint: string, body: unknown, token?: string, signal?: AbortSignal): Promise<T> =>
+    request<T>(endpoint, { method: "POST", body, token, signal }),
 
   put: <T,>(endpoint: string, body: unknown, token?: string): Promise<T> =>
     request<T>(endpoint, { method: "PUT", body, token }),

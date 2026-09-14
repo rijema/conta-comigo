@@ -5,20 +5,68 @@ import { BrowserSpeechEngine, type SpeechRequest, type TitiaSpeechEngine } from 
 export class NeuralTitiaSpeechEngine implements TitiaSpeechEngine {
   private audio: HTMLAudioElement | null = null;
   private abort: AbortController | null = null;
+  private generation = 0;
   constructor(private readonly fallback = new BrowserSpeechEngine()) {}
   isAvailable() { return typeof window !== "undefined"; }
   speak(request: SpeechRequest) {
     this.cancel();
+    const generation = this.generation;
     this.abort = new AbortController();
     const token = authService.getStoredToken();
+    console.debug("[TitiA Speech] neural request started");
     void api.post<{ audioBase64: string }>("/voice/speech", {
       text: request.text, language: request.language, rate: request.rate,
-    }, token ?? undefined).then(({ audioBase64 }) => {
+    }, token ?? undefined, this.abort.signal).then(({ audioBase64 }) => {
+      if (generation !== this.generation) return;
+      console.debug("[TitiA Speech] neural audio received");
       const audio = new Audio(`data:audio/wav;base64,${audioBase64}`);
-      this.audio = audio; audio.onended = request.onEnd;
-      audio.onerror = () => { console.warn("Neural TitiA audio failed; using browser speech"); this.fallback.speak(request); };
-      void audio.play().catch(() => { console.warn("Neural TitiA playback was blocked; using browser speech"); this.fallback.speak(request); });
-    }).catch((error) => { console.warn("Neural TitiA request failed; using browser speech", error); this.fallback.speak(request); });
+      this.audio = audio;
+      audio.onended = () => {
+        if (generation !== this.generation) return;
+        console.debug("[TitiA Speech] neural playback finished");
+        this.clearAudio(audio);
+        request.onEnd();
+      };
+      audio.onerror = () => this.useFallback(
+        generation, audio, request, "[TitiA Speech] neural audio failed — browser fallback",
+      );
+      void audio.play().then(() => {
+        if (generation !== this.generation) { audio.pause(); return; }
+        console.debug("[TitiA Speech] neural playback started");
+        request.onStart?.();
+      }).catch(() => this.useFallback(
+        generation, audio, request, "[TitiA Speech] playback blocked — browser fallback",
+      ));
+    }).catch((error) => {
+      if (generation !== this.generation || error?.name === "AbortError") return;
+      console.warn("[TitiA Speech] neural request failed — browser fallback", error);
+      this.fallback.speak(request);
+    });
   }
-  cancel() { this.abort?.abort(); this.audio?.pause(); this.audio = null; this.fallback.cancel(); }
+
+  cancel() {
+    this.generation += 1;
+    this.abort?.abort();
+    this.abort = null;
+    if (this.audio) {
+      this.audio.pause();
+      this.clearAudio(this.audio);
+    }
+    this.fallback.cancel();
+  }
+
+  private useFallback(generation: number, audio: HTMLAudioElement, request: SpeechRequest, message: string) {
+    if (generation !== this.generation) return;
+    console.warn(message);
+    audio.pause();
+    this.clearAudio(audio);
+    this.fallback.speak(request);
+  }
+
+  private clearAudio(audio: HTMLAudioElement) {
+    audio.onended = null;
+    audio.onerror = null;
+    audio.removeAttribute("src");
+    if (this.audio === audio) this.audio = null;
+  }
 }
