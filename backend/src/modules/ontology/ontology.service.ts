@@ -1,172 +1,371 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { DOMParser, Document, Element } from '@xmldom/xmldom';
+import { existsSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import {
+  CandidateDecisionTrace,
+  RuntimeSemanticFacts,
+  SemanticCandidateResult,
+} from './semantic-runtime.types';
 
-/**
- * OntologyService — JSON-based implementation of LASDONT ontology
- * Based on: http://www.semanticweb.org/ricma/ontologies/2024/11/LASDONT.owl
- *
- * Maps the OWL ontology concepts to runtime reasoning:
- * - Strengths (Visual, Auditive, Logical, Motor, Sensory)
- * - Weaknesses (Visual, Auditive, Logical, Motor, Sensory)
- * - Treatments (DIY, IA_Sandbox_DIY, Puzzles, Visual_Puzzles, Quizzes, Videos)
- * - Support Levels (Mild, Moderated, Strong)
- */
+const RDF_NS = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
+const OWL_NS = 'http://www.w3.org/2002/07/owl#';
+const CC_NS = 'https://contacomigo.org/ontology#';
+const EXPECTED_ONTOLOGY_IRI = 'https://contacomigo.org/ontology';
+const REASONER_VERSION = 'contacomigo-semantic-filter/1.0.0';
+
+interface SkillDefinition {
+  iri: string;
+  code: string;
+  mathematicalConcepts: string[];
+}
+
+interface PrerequisiteDefinition {
+  iri: string;
+  prerequisiteConcept: string;
+  dependentConcept: string;
+}
+
+interface CachedOntology {
+  filePath: string;
+  ontologyIri: string;
+  version: string;
+  skillsByCode: Map<string, SkillDefinition>;
+  prerequisites: PrerequisiteDefinition[];
+}
+
 @Injectable()
-export class OntologyService {
+export class OntologyService implements OnModuleInit {
   private readonly logger = new Logger(OntologyService.name);
+  private ontology: CachedOntology | null = null;
 
-  // Ontology graph derived from LASDONT.owl
-  private readonly ontologyGraph = {
-    classes: {
-      Strengths: ['Visual_Strength', 'Auditive_Strength', 'Logical_Strength', 'Motor_Strength', 'Sensory_Strength'],
-      Weaknesses: ['Visual_Weakness', 'Auditive_Weakness', 'Logical_Weakness', 'Motor_Weakness', 'Sensory_Weakness'],
-      Treatments: {
-        DIY: ['IA_Sandbox_DIY'],
-        Puzzles: ['Visual_Puzzles'],
-        Quizzes: ['Textual_Quizzes', 'Visual_Quizzes'],
-        Videos: ['Question_Videos', 'Yes_No_Videos'],
-      },
-      SupportLevels: {
-        Mild: 'Mild_Learning_Percentage',
-        Moderated: 'Moderated_Percentage',
-        Strong: 'Strong_Percentage',
-      },
-    },
-    // Treatment → Required Strengths (from OWL SubClassOf restrictions)
-    treatmentRequirements: {
-      IA_Sandbox_DIY: {
-        requiredStrengths: ['Sensory_Strength', 'Visual_Strength'],
-        suitableFor: ['Mild', 'Moderated'],
-      },
-      Visual_Puzzles: {
-        requiredStrengths: ['Logical_Strength', 'Sensory_Strength', 'Visual_Strength'],
-        suitableFor: ['Mild', 'Moderated', 'Strong'],
-      },
-      Question_Videos: {
-        requiredStrengths: ['Visual_Strength'],
-        requiredWeaknesses: ['Motor_Weakness', 'Logical_Weakness'],
-        suitableFor: ['Moderated', 'Strong'],
-      },
-      Yes_No_Videos: {
-        requiredWeaknesses: ['Logical_Weakness', 'Motor_Weakness'],
-        suitableFor: ['Strong'],
-      },
-      Textual_Quizzes: {
-        requiredStrengths: ['Logical_Strength'],
-        suitableFor: ['Mild'],
-      },
-      Visual_Quizzes: {
-        requiredStrengths: ['Visual_Strength'],
-        suitableFor: ['Mild', 'Moderated'],
-      },
-    },
-    // Content difficulty mapping
-    contentDifficultyMap: {
-      Strong_Support_Level_User: 'Easy_Content',
-      Moderated_Support_Level_User: 'Mid_Content',
-      Mild_Support_Level_User: 'Hard_Content',
-    },
-  };
+  constructor(private readonly configService: ConfigService) {}
 
-  /**
-   * Load learner ontology instance
-   * Maps DB learner profile to ontology concepts
-   */
-  loadLearnerInstance(learnerProfile: Record<string, unknown>): Record<string, unknown> {
-    const strengths = (learnerProfile.strengths as string[]) ?? [];
-    const weaknesses = (learnerProfile.weaknesses as string[]) ?? [];
-    const supportLevel = (learnerProfile.supportLevel as string) ?? 'Moderated';
-
-    const instance = {
-      type: 'LearnerOntologyInstance',
-      supportLevel,
-      strengths: strengths.map(s => `${s}_Strength`),
-      weaknesses: weaknesses.map(w => `${w}_Weakness`),
-      contentDifficulty: (this.ontologyGraph.contentDifficultyMap as any)[`${supportLevel}_Support_Level_User`] ?? 'Mid_Content',
-      inferredTreatments: this.inferTreatments(strengths, weaknesses, supportLevel),
-    };
-
-    this.logger.log(`[ONTOLOGY] Learner instance loaded: ${JSON.stringify(instance)}`);
-    return instance;
+  onModuleInit(): void {
+    this.loadOnce();
   }
 
-  /**
-   * Infer applicable treatments based on learner strengths/weaknesses
-   * Implements OWL SubClassOf reasoning in TypeScript
-   */
-  inferTreatments(
-    strengths: string[],
-    weaknesses: string[],
-    supportLevel: string,
-  ): string[] {
-    const mappedStrengths = strengths.map(s => `${s}_Strength`);
-    const mappedWeaknesses = weaknesses.map(w => `${w}_Weakness`);
-    const applicable: string[] = [];
+  loadOnce(): void {
+    if (this.ontology) return;
+    const filePath = this.resolveOntologyPath();
+    const source = this.readOntology(filePath);
+    const document = this.parseOntology(source, filePath);
+    this.ontology = this.buildCache(document, filePath);
+    this.logger.log(
+      `ContaComigo ontology ${this.ontology.version} loaded from ${filePath}; ` +
+      `${this.ontology.skillsByCode.size} BNCC skills cached`,
+    );
+  }
 
-    for (const [treatment, requirements] of Object.entries(this.ontologyGraph.treatmentRequirements)) {
-      const req = requirements as {
-        requiredStrengths?: string[];
-        requiredWeaknesses?: string[];
-        suitableFor: string[];
+  getValidActivityCandidates(facts: RuntimeSemanticFacts): SemanticCandidateResult {
+    const ontology = this.requireOntology();
+    const targetSkill = ontology.skillsByCode.get(facts.targetSkill);
+    if (!targetSkill) {
+      return this.fallbackResult(
+        facts,
+        `Target skill ${facts.targetSkill} is not represented in the loaded ontology`,
+      );
+    }
+
+    const decisions: CandidateDecisionTrace[] = facts.activities.map((activity) => {
+      const reasons: string[] = [];
+      const matchedConcepts = activity.mathematicalConcepts.filter((concept) =>
+        targetSkill.mathematicalConcepts.includes(concept),
+      );
+
+      if (!activity.bnccSkills.includes(facts.targetSkill)) {
+        reasons.push('TARGET_SKILL_NOT_DECLARED_BY_ACTIVITY');
+      }
+      if (
+        targetSkill.mathematicalConcepts.length > 0 &&
+        matchedConcepts.length === 0
+      ) {
+        reasons.push('NO_SHARED_MATHEMATICAL_CONCEPT');
+      }
+      if (facts.hardConstraints.disallowDragging && activity.affordances.requiresDragging) {
+        reasons.push('HARD_CONSTRAINT_DISALLOWS_DRAGGING');
+      }
+      if (facts.hardConstraints.requireAudio && !activity.affordances.usesAudio) {
+        reasons.push('HARD_CONSTRAINT_REQUIRES_AUDIO');
+      }
+      if (activity.mappingStatus === 'UNMAPPED') {
+        reasons.push('ACTIVITY_SEMANTIC_MAPPING_MISSING');
+      }
+      if (activity.mappingStatus === 'NEEDS_REVIEW') {
+        reasons.push('ACTIVITY_SEMANTIC_MAPPING_REQUIRES_REVIEW');
+      }
+
+      return {
+        activityId: activity.activityId,
+        included: reasons.length === 0,
+        reasons: reasons.length === 0
+          ? ['TARGET_SKILL_AND_MATHEMATICAL_CONCEPT_ALIGNED']
+          : reasons,
+        matchedConcepts,
       };
+    });
+    const validCandidateIds = decisions
+      .filter((decision) => decision.included)
+      .map((decision) => decision.activityId);
 
-      // Check support level compatibility
-      if (!req.suitableFor.includes(supportLevel)) continue;
-
-      // Check required strengths (all must be present)
-      if (req.requiredStrengths) {
-        const hasAllStrengths = req.requiredStrengths.every(s => mappedStrengths.includes(s));
-        if (!hasAllStrengths) continue;
-      }
-
-      // Check required weaknesses (at least one must be present for weakness-based treatments)
-      if (req.requiredWeaknesses) {
-        const hasAnyWeakness = req.requiredWeaknesses.some(w => mappedWeaknesses.includes(w));
-        if (!hasAnyWeakness) continue;
-      }
-
-      applicable.push(treatment);
+    if (validCandidateIds.length === 0) {
+      return this.fallbackResult(
+        facts,
+        'Formal semantic filtering produced no valid candidates',
+        decisions,
+      );
     }
-
-    this.logger.log(`[ONTOLOGY] Inferred treatments for ${supportLevel}: ${applicable.join(', ')}`);
-    return applicable.length > 0 ? applicable : ['Visual_Quizzes']; // Default fallback
-  }
-
-  /**
-   * Map ontology treatment type to activity modality
-   */
-  mapTreatmentToModality(treatment: string): string {
-    const modalityMap: Record<string, string> = {
-      IA_Sandbox_DIY: 'interactive',
-      Visual_Puzzles: 'visual',
-      Question_Videos: 'video',
-      Yes_No_Videos: 'video',
-      Textual_Quizzes: 'text',
-      Visual_Quizzes: 'visual',
-    };
-    return modalityMap[treatment] ?? 'visual';
-  }
-
-  /**
-   * Validate BNCC skill against learner ontology state
-   */
-  validateBnccAlignment(
-    bnccSkillCode: string,
-    learnerGrade: number,
-  ): { isAligned: boolean; reason: string } {
-    // Extract year from BNCC code (e.g., EF01MA01 -> year 1)
-    const yearMatch = bnccSkillCode.match(/EF(\d{2})MA/);
-    if (!yearMatch) {
-      return { isAligned: false, reason: 'Invalid BNCC code format' };
-    }
-
-    const skillYear = parseInt(yearMatch[1], 10);
-    const isAligned = Math.abs(skillYear - learnerGrade) <= 1; // Allow ±1 year flexibility
 
     return {
-      isAligned,
-      reason: isAligned
-        ? `Skill year ${skillYear} aligns with learner grade ${learnerGrade}`
-        : `Skill year ${skillYear} too far from learner grade ${learnerGrade}`,
+      validCandidateIds,
+      excludedCandidateIds: decisions
+        .filter((decision) => !decision.included)
+        .map((decision) => decision.activityId),
+      trace: this.buildTrace(facts, targetSkill, decisions, false, null),
     };
+  }
+
+  getStatus() {
+    const ontology = this.requireOntology();
+    return {
+      loaded: true,
+      filePath: ontology.filePath,
+      ontologyIri: ontology.ontologyIri,
+      ontologyVersion: ontology.version,
+      reasonerVersion: REASONER_VERSION,
+      cachedBnccSkills: ontology.skillsByCode.size,
+      cachedPrerequisiteRelations: ontology.prerequisites.length,
+    };
+  }
+
+  getMathematicalConceptMappings(
+    skillCodes: string[],
+  ): Record<string, string[]> {
+    const ontology = this.requireOntology();
+    return Object.fromEntries(
+      skillCodes.flatMap((code) => {
+        const skill = ontology.skillsByCode.get(code);
+        return skill ? [[code, [...skill.mathematicalConcepts]]] : [];
+      }),
+    );
+  }
+
+  private buildTrace(
+    facts: RuntimeSemanticFacts,
+    targetSkill: SkillDefinition,
+    decisions: CandidateDecisionTrace[],
+    fallbackUsed: boolean,
+    fallbackReason: string | null,
+  ) {
+    const ontology = this.requireOntology();
+    const semanticRelations = targetSkill.mathematicalConcepts.map((concept) => ({
+      subject: targetSkill.iri,
+      predicate: `${CC_NS}addressesMathematicalConcept`,
+      object: `${CC_NS}${concept}`,
+    }));
+    const relevantPrerequisites = ontology.prerequisites.filter((relation) =>
+      targetSkill.mathematicalConcepts.includes(relation.dependentConcept),
+    );
+    semanticRelations.push(...relevantPrerequisites.flatMap((relation) => [
+      {
+        subject: relation.iri,
+        predicate: `${CC_NS}prerequisiteConcept`,
+        object: `${CC_NS}${relation.prerequisiteConcept}`,
+      },
+      {
+        subject: relation.iri,
+        predicate: `${CC_NS}dependentConcept`,
+        object: `${CC_NS}${relation.dependentConcept}`,
+      },
+    ]));
+
+    return {
+      targetSkill: facts.targetSkill,
+      runtimeFactsUsed: {
+        studentId: facts.studentId,
+        masterySource: facts.mastery.source,
+        masteryProbability: facts.mastery.probability,
+        recentAccuracy: facts.learningAnalytics.recentAccuracy,
+        observedEvidenceTypes: facts.observedEvidenceTypes,
+        hardConstraints: facts.hardConstraints,
+      },
+      candidateActivities: facts.activities.map((activity) => activity.activityId),
+      validCandidateIds: decisions
+        .filter((decision) => decision.included)
+        .map((decision) => decision.activityId),
+      excludedCandidateIds: decisions
+        .filter((decision) => !decision.included)
+        .map((decision) => decision.activityId),
+      candidateDecisions: decisions,
+      semanticRelations,
+      ontologyVersion: ontology.version,
+      reasonerVersion: REASONER_VERSION,
+      fallbackUsed,
+      fallbackReason,
+    };
+  }
+
+  private fallbackResult(
+    facts: RuntimeSemanticFacts,
+    reason: string,
+    decisions: CandidateDecisionTrace[] = [],
+  ): SemanticCandidateResult {
+    const ontology = this.requireOntology();
+    const targetSkill = ontology.skillsByCode.get(facts.targetSkill) ?? {
+      iri: `${CC_NS}unmapped_${facts.targetSkill}`,
+      code: facts.targetSkill,
+      mathematicalConcepts: [],
+    };
+    return {
+      validCandidateIds: decisions
+        .filter((decision) => decision.included)
+        .map((decision) => decision.activityId),
+      excludedCandidateIds: decisions
+        .filter((decision) => !decision.included)
+        .map((decision) => decision.activityId),
+      trace: this.buildTrace(facts, targetSkill, decisions, true, reason),
+    };
+  }
+
+  private resolveOntologyPath(): string {
+    const configured = this.configService.get<string>('CONTACOMIGO_ONTOLOGY_PATH');
+    if (configured) {
+      const explicitPath = resolve(configured);
+      if (!existsSync(explicitPath)) {
+        throw new Error(
+          `ContaComigo ontology file configured at ${explicitPath} does not exist`,
+        );
+      }
+      return explicitPath;
+    }
+
+    const candidates = [
+      resolve(process.cwd(), 'ontology/contacomigo/contacomigo.owl'),
+      resolve(process.cwd(), '../ontology/contacomigo/contacomigo.owl'),
+    ];
+    const discovered = candidates.find(existsSync);
+    if (!discovered) {
+      throw new Error(
+        `ContaComigo ontology file was not found. Checked: ${candidates.join(', ')}`,
+      );
+    }
+    return discovered;
+  }
+
+  private readOntology(filePath: string): string {
+    try {
+      return readFileSync(filePath, 'utf8');
+    } catch (error) {
+      throw new Error(
+        `Failed to read ContaComigo ontology at ${filePath}: ${this.errorMessage(error)}`,
+      );
+    }
+  }
+
+  private parseOntology(source: string, filePath: string): Document {
+    if (/<!DOCTYPE|<!ENTITY/i.test(source)) {
+      throw new Error(
+        `Invalid RDF/XML in ContaComigo ontology at ${filePath}: external entity declarations are not allowed`,
+      );
+    }
+    const errors: string[] = [];
+    const parser = new DOMParser({
+      onError: (level, message) => errors.push(`${level}: ${message}`),
+    });
+    const document = parser.parseFromString(source, 'application/xml');
+    if (errors.length > 0 || document.documentElement?.localName !== 'RDF') {
+      throw new Error(
+        `Invalid RDF/XML in ContaComigo ontology at ${filePath}: ` +
+        (errors.join(' | ') || 'root element must be rdf:RDF'),
+      );
+    }
+    return document;
+  }
+
+  private buildCache(document: Document, filePath: string): CachedOntology {
+    const ontologyElements = this.elements(document.getElementsByTagNameNS(OWL_NS, 'Ontology'));
+    if (ontologyElements.length !== 1) {
+      throw new Error('ContaComigo ontology must declare exactly one owl:Ontology');
+    }
+    const ontologyElement = ontologyElements[0];
+    const ontologyIri = ontologyElement.getAttributeNS(RDF_NS, 'about');
+    if (ontologyIri !== EXPECTED_ONTOLOGY_IRI) {
+      throw new Error(`Unexpected ContaComigo ontology IRI: ${ontologyIri || '(missing)'}`);
+    }
+    const version = this.firstText(ontologyElement, OWL_NS, 'versionInfo');
+    if (!version) throw new Error('ContaComigo ontology owl:versionInfo is missing');
+
+    const skillsByCode = new Map<string, SkillDefinition>();
+    const prerequisites: PrerequisiteDefinition[] = [];
+    for (const individual of this.elements(
+      document.getElementsByTagNameNS(OWL_NS, 'NamedIndividual'),
+    )) {
+      const iri = individual.getAttributeNS(RDF_NS, 'about') ?? '';
+      const types = this.resourceValues(individual, RDF_NS, 'type');
+      if (types.includes(`${CC_NS}BNCCSkill`)) {
+        const code = this.firstText(individual, CC_NS, 'hasCurriculumCode');
+        if (!code) throw new Error(`BNCC skill ${iri} has no curriculum code`);
+        if (skillsByCode.has(code)) throw new Error(`Duplicate BNCC skill code ${code}`);
+        skillsByCode.set(code, {
+          iri,
+          code,
+          mathematicalConcepts: this.resourceValues(
+            individual,
+            CC_NS,
+            'addressesMathematicalConcept',
+          ).map((value) => this.localName(value)),
+        });
+      }
+      if (types.includes(`${CC_NS}PrerequisiteRelation`)) {
+        const prerequisite = this.resourceValues(individual, CC_NS, 'prerequisiteConcept')[0];
+        const dependent = this.resourceValues(individual, CC_NS, 'dependentConcept')[0];
+        if (prerequisite && dependent) {
+          prerequisites.push({
+            iri,
+            prerequisiteConcept: this.localName(prerequisite),
+            dependentConcept: this.localName(dependent),
+          });
+        }
+      }
+    }
+    if (skillsByCode.size === 0) {
+      throw new Error('ContaComigo ontology contains no BNCCSkill individuals');
+    }
+    return { filePath, ontologyIri, version, skillsByCode, prerequisites };
+  }
+
+  private firstText(parent: Element, namespace: string, localName: string): string {
+    return parent.getElementsByTagNameNS(namespace, localName).item(0)
+      ?.textContent?.trim() ?? '';
+  }
+
+  private resourceValues(
+    parent: Element,
+    namespace: string,
+    localName: string,
+  ): string[] {
+    return this.elements(parent.getElementsByTagNameNS(namespace, localName))
+      .map((element) => element.getAttributeNS(RDF_NS, 'resource'))
+      .filter((value): value is string => Boolean(value));
+  }
+
+  private elements<T extends Element>(nodes: ArrayLike<T>): T[] {
+    return Array.from({ length: nodes.length }, (_, index) => nodes[index]);
+  }
+
+  private localName(iri: string): string {
+    return iri.includes('#') ? iri.slice(iri.lastIndexOf('#') + 1) : iri;
+  }
+
+  private requireOntology(): CachedOntology {
+    if (!this.ontology) {
+      throw new Error('ContaComigo ontology has not been initialized');
+    }
+    return this.ontology;
+  }
+
+  private errorMessage(error: unknown): string {
+    return error instanceof Error ? error.message : String(error);
   }
 }

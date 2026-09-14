@@ -33,6 +33,8 @@ interface ResearchExplanation {
   weights: TraceValue;
   ontologyVersion: TraceValue;
   rankingVersion: TraceValue;
+  reasonerVersion: TraceValue;
+  semanticFilteringFallback: TraceValue;
   recommendationOutcome: TraceValue;
 }
 
@@ -55,6 +57,8 @@ const LABELS: Array<[keyof ResearchExplanation, string]> = [
   ["weights", "Weights"],
   ["ontologyVersion", "Ontology version"],
   ["rankingVersion", "Ranking version"],
+  ["reasonerVersion", "Reasoner version"],
+  ["semanticFilteringFallback", "Semantic filtering fallback"],
   ["recommendationOutcome", "Recommendation outcome"],
 ];
 

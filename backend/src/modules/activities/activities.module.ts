@@ -9,6 +9,7 @@ import { AdeModule } from '../ade/ade.module';
 import { UsersModule } from '../users/users.module';
 import { LearningEventsModule } from '../learning-events/learning-events.module';
 import { KnowledgeTracingModule } from '../knowledge-tracing/knowledge-tracing.module';
+import { OntologyModule } from '../ontology/ontology.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { KnowledgeTracingModule } from '../knowledge-tracing/knowledge-tracing.m
     UsersModule,
     LearningEventsModule,
     KnowledgeTracingModule,
+    OntologyModule,
   ],
   controllers: [ActivitiesController],
   providers: [ActivitiesService],

@@ -1,5 +1,14 @@
 # Change Summary
 
+## Batch B2.4 — Hybrid recommendation ranking
+
+- Added deterministic six-factor ranking after formal semantic filtering.
+- Kept StudentSkillState/BKT as the sole mastery source and missing interaction evidence neutral.
+- Added exact-activity recency and skip penalties without blacklisting activity families.
+- Persisted selected activity, candidate scores, configuration/version, provenance, and explicit fallback status on the existing AdeDecision.
+- Added an additive database migration, automated tests, environment configuration, and Portuguese research documentation.
+
+
 ## Batch B4.2 — TitiA speech and guided instructions
 
 - Added a replaceable `TitiaSpeechService` that centralizes browser TTS, sequential instructions, cancellation, replay, rate, language, hints, feedback, and pictogram speech.
@@ -207,3 +216,13 @@ No recommendation ranking, Generalization Score, full ARASAAC integration, learn
 - Represented unsupported ranking metrics explicitly as `not_recorded` instead of inventing scores.
 - Added backend and frontend tests plus Portuguese research documentation.
 - No database migration was required because the existing `ade_decisions` record remains the source decision and no schema changed.
+# Batch 02.3 — Formal ontology runtime integration
+
+- Replaced the unused LASDONT JSON `OntologyService` implementation with a startup-validated, cached loader for `ontology/contacomigo/contacomigo.owl`.
+- Added ephemeral runtime semantic materialization and non-ranking activity candidate filtering.
+- Integrated formal filtering into the real `AdeService → ActivitiesService` selection path and persisted versioned semantic traces in the existing decision JSONB.
+- Kept BKT as the sole mastery source and separated legacy procedural modality signals from formal ontology inferences.
+- Added explicit, honestly labeled legacy fallback behavior for missing semantic coverage.
+- Packaged/mounted the ontology for production and development containers.
+- Added loader, filtering, missing-file, fallback, and production-call-path tests.
+- No database migration was required because no schema changed.

@@ -41,8 +41,8 @@ services:
 
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: backend/Dockerfile
     container_name: contacomigo_backend
     environment:
       NODE_ENV: development
@@ -50,6 +50,7 @@ services:
       KAFKA_BROKERS: redpanda:29092
       JWT_SECRET: local_dev_secret_change_in_prod
       ML_SERVICE_URL: http://ml-service:8000
+      CONTACOMIGO_ONTOLOGY_PATH: /ontology/contacomigo/contacomigo.owl
       PORT: 3001
     ports:
       - "3001:3001"
@@ -61,6 +62,7 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
+      - ./ontology/contacomigo:/ontology/contacomigo:ro
 
   ml-service:
     build:

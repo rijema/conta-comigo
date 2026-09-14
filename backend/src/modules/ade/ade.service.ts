@@ -9,6 +9,8 @@ import { KafkaProducerService } from '../kafka/kafka-producer.service';
 import { ChildProfile } from '../users/entities/child-profile.entity';
 import { ActivityAttempt } from '../activities/entities/activity-attempt.entity';
 import { KnowledgeTracingService } from '../knowledge-tracing/knowledge-tracing.service';
+import { SemanticFilteringTrace } from '../ontology/semantic-runtime.types';
+import { HybridRankingResult } from './hybrid-recommendation.service';
 
 export interface AdeInput {
   userId: string;
@@ -100,7 +102,8 @@ export class AdeService {
       'visual';
 
     const xaiLog = {
-      ontologyInferences: ontologyResult.inferences,
+      ontologyInferences: [],
+      legacyProceduralSignals: ontologyResult.inferences,
       rulesFired: ruleResult.rulesFired,
       mlPredictions: {
         masteryProbability: currentMastery,
@@ -108,7 +111,7 @@ export class AdeService {
         confidence: mlPredictions.confidence,
         fallback: mlPredictions.fallback || false,
       },
-      finalReason: `Ontology(${ontologyResult.inferences.length} inferences) + Rules(${ruleResult.rulesFired.length} fired) + BKT(mastery=${currentMastery.toFixed(2)})`,
+      finalReason: `Legacy procedural modality(${ontologyResult.inferences.length} signals) + Rules(${ruleResult.rulesFired.length} fired) + BKT(mastery=${currentMastery.toFixed(2)})`,
       confidence: mlPredictions.confidence,
     };
 
@@ -164,6 +167,34 @@ export class AdeService {
       order: { createdAt: 'DESC' },
       take: 20,
     });
+  }
+
+  async recordSemanticFilteringTrace(
+    decision: AdeDecision,
+    trace: SemanticFilteringTrace,
+  ): Promise<AdeDecision> {
+    decision.xaiLog = {
+      ...decision.xaiLog,
+      ontologyInferences: trace.fallbackUsed
+        ? []
+        : trace.semanticRelations.map((relation) =>
+            `${relation.subject} ${relation.predicate} ${relation.object}`,
+          ),
+      semanticFiltering: trace,
+    };
+    return this.decisionRepo.save(decision);
+  }
+
+  async recordHybridRanking(
+    decision: AdeDecision,
+    ranking: HybridRankingResult,
+  ): Promise<AdeDecision> {
+    decision.selectedActivityId = ranking.selectedActivityId;
+    decision.hybridRanking = ranking;
+    decision.decisionSource = ranking.decisionSource;
+    decision.fallbackUsed = ranking.fallbackUsed;
+    decision.fallbackReason = ranking.fallbackReason;
+    return this.decisionRepo.save(decision);
   }
 
   private pickCurrentSkillCode(

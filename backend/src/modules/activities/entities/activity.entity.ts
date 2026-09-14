@@ -123,7 +123,9 @@ export class Activity {
   communication?: ChildCommunicationSupport;
   scaffoldingOptions?: Record<string, unknown> | null;
   semanticAnnotation?: {
-    source: 'CURRENT_ACTIVITY_CONTENT_AND_REPOSITORY_ONTOLOGY';
+    source:
+      | 'FORMAL_CONTACOMIGO_ONTOLOGY_AND_ACTIVITY_CONTENT'
+      | 'CURRENT_ACTIVITY_CONTENT_AND_REPOSITORY_ONTOLOGY';
     conceptMappingStatus: 'MAPPED' | 'PARTIAL' | 'NEEDS_REVIEW' | 'UNMAPPED';
   };
 }

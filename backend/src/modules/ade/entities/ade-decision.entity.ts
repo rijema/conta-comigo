@@ -4,6 +4,8 @@ import {
   Column,
   CreateDateColumn,
 } from 'typeorm';
+import type { SemanticFilteringTrace } from '../../ontology/semantic-runtime.types';
+import type { HybridRankingResult } from '../hybrid-recommendation.service';
 
 @Entity('ade_decisions')
 export class AdeDecision {
@@ -32,14 +34,31 @@ export class AdeDecision {
   @Column({ type: 'jsonb' })
   xaiLog: {
     ontologyInferences: string[];
+    legacyProceduralSignals?: string[];
     rulesFired: string[];
     mlPredictions: Record<string, any>;
     finalReason: string;
     confidence: number;
+    semanticFiltering?: SemanticFilteringTrace;
   };
 
   @Column({ type: 'jsonb', nullable: true })
   inputSnapshot: Record<string, any>;
+
+  @Column({ type: 'uuid', nullable: true })
+  selectedActivityId?: string | null;
+
+  @Column({ type: 'jsonb', nullable: true })
+  hybridRanking?: HybridRankingResult | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  decisionSource?: 'HYBRID_RANKING' | 'LEGACY_FALLBACK' | null;
+
+  @Column({ default: false })
+  fallbackUsed?: boolean;
+
+  @Column({ type: 'text', nullable: true })
+  fallbackReason?: string | null;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -47,4 +47,21 @@ export class LearningEventService {
       return null;
     }
   }
+
+  async getRecentSkippedActivityIds(studentId: string, limit = 20): Promise<string[]> {
+    try {
+      const events = await this.learningEventRepository.find({
+        where: { studentId, eventType: LearningEventType.ACTIVITY_SKIPPED },
+        order: { timestamp: 'DESC' },
+        take: limit,
+      });
+      return events.flatMap((event) => event.activityId ? [event.activityId] : []);
+    } catch (error) {
+      this.logger.error(
+        `Failed to read recent skip signals for student ${studentId}; rejection evidence remains neutral`,
+        error instanceof Error ? error.stack : String(error),
+      );
+      return [];
+    }
+  }
 }
