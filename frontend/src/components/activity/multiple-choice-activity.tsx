@@ -179,7 +179,7 @@ export function MultipleChoiceActivity({
               width={210}
               height={158}
               alt={feedback === "correct" ? "TitiA comemorando o acerto" : "TitiA incentivando uma nova tentativa"}
-              className="h-36 w-auto object-contain"
+              className="h-56 w-auto object-contain sm:h-72"
             />
             <p className="text-2xl font-extrabold">
               {feedback === "correct" ? "Muito bem!" : "Quase lá!"}

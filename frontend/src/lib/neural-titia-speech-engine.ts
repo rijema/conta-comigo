@@ -16,9 +16,9 @@ export class NeuralTitiaSpeechEngine implements TitiaSpeechEngine {
     }, token ?? undefined).then(({ audioBase64 }) => {
       const audio = new Audio(`data:audio/wav;base64,${audioBase64}`);
       this.audio = audio; audio.onended = request.onEnd;
-      audio.onerror = () => this.fallback.speak(request);
-      void audio.play().catch(() => this.fallback.speak(request));
-    }).catch(() => this.fallback.speak(request));
+      audio.onerror = () => { console.warn("Neural TitiA audio failed; using browser speech"); this.fallback.speak(request); };
+      void audio.play().catch(() => { console.warn("Neural TitiA playback was blocked; using browser speech"); this.fallback.speak(request); });
+    }).catch((error) => { console.warn("Neural TitiA request failed; using browser speech", error); this.fallback.speak(request); });
   }
   cancel() { this.abort?.abort(); this.audio?.pause(); this.audio = null; this.fallback.cancel(); }
 }

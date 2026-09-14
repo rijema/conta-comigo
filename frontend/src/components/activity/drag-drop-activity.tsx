@@ -15,7 +15,6 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import { CSS } from "@dnd-kit/utilities";
 import Image from "next/image";
 import type { Activity, SensoryProfile } from "@/types";
 import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
@@ -39,7 +38,7 @@ function DraggableItem({ item, disabled, selected, inSlot = false, onSelect }: {
   inSlot?: boolean;
   onSelect: (id: string) => void;
 }) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: item.id,
     disabled,
   });
@@ -53,7 +52,6 @@ function DraggableItem({ item, disabled, selected, inSlot = false, onSelect }: {
     <button
       ref={setNodeRef}
       type="button"
-      style={{ transform: CSS.Translate.toString(transform) }}
       {...listeners}
       {...attributes}
       onClick={handleClick}
@@ -70,7 +68,7 @@ function DraggableItem({ item, disabled, selected, inSlot = false, onSelect }: {
             ? "border-transparent bg-transparent text-blue-800"
             : "border-yellow-300 bg-white text-gray-800 hover:border-blue-300 hover:bg-blue-50"
         }
-        ${isDragging ? "opacity-20" : "opacity-100"}`}
+        ${isDragging ? "opacity-0" : "opacity-100"}`}
     >
       {item.emoji && <span className="mr-1">{item.emoji}</span>}
       {item.label}
@@ -343,10 +341,10 @@ export function DragDropActivity({ activity, onAnswer }: Props) {
               ${feedback === "correct" ? "bg-green-500 text-white" : "bg-orange-400 text-white"}`}>
               <Image
                 src={feedback === "correct" ? "/assets/correctanswer.png" : "/assets/tryagain.png"}
-                width={210}
-                height={158}
+                width={360}
+                height={270}
                 alt={feedback === "correct" ? "TitiA comemorando o acerto" : "TitiA incentivando uma nova tentativa"}
-                className="h-36 w-auto object-contain"
+                className="h-56 w-auto object-contain sm:h-72"
               />
               <p className="text-2xl font-extrabold">
                 {feedback === "correct" ? "Muito bem!" : "Quase lá!"}
@@ -374,10 +372,10 @@ export function DragDropActivity({ activity, onAnswer }: Props) {
         )}
       </div>
 
-      <DragOverlay dropAnimation={{ duration: 180, easing: "ease-out" }}>
+      <DragOverlay adjustScale={false} dropAnimation={{ duration: 180, easing: "ease-out" }}>
         {activeItem ? (
           <div className="px-5 py-3 rounded-2xl border-4 border-blue-500 bg-white
-            text-gray-800 text-2xl font-bold shadow-2xl scale-110 cursor-grabbing">
+            text-gray-800 text-2xl font-bold shadow-2xl cursor-grabbing">
             {activeItem.emoji && <span className="mr-1">{activeItem.emoji}</span>}
             {activeItem.label}
           </div>

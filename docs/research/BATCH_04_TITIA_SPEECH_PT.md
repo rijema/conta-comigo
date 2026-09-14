@@ -52,7 +52,7 @@
 
 [PARÂMETRO EXPERIMENTAL] A taxa inicial é `0,85`. A interface permite `0,60` a `1,20`, e o serviço aplica um limite técnico de segurança entre `0,50` e `2,00`. Esses valores são configurações de apresentação e não representam parâmetros clínicos ou limiares de aprendizagem.
 
-[DECISÃO DE ENGENHARIA] O idioma inicial é `pt-BR`, a voz inicia habilitada e a fala automática inicia desabilitada. A criança ou responsável pode alterar essas opções.
+[DECISÃO DE ENGENHARIA] O idioma inicial é `pt-BR`, a voz inicia habilitada e a fala automática inicia habilitada para novos perfis. A criança ou responsável pode alterar essas opções. Preferências anteriormente salvas continuam preservadas.
 
 ## 7. Fala de pictogramas
 
@@ -93,6 +93,16 @@
 [HIPÓTESE A VALIDAR] Instruções curtas, sequenciais e repetíveis podem reduzir a dependência de leitura para determinados usuários. A implementação não comprova essa hipótese; são necessários estudos de compreensão, autonomia, preferência e carga percebida.
 
 [LIMITAÇÃO] Não há personalização automática de voz por diagnóstico, nível de suporte, domínio BNCC ou BKT. Não há inferência de capacidade a partir do uso de replay, dicas ou desativação da voz.
+
+## 12. Integração visual na atividade
+
+[DECISÃO DE ENGENHARIA] Ao abrir uma atividade, a instrução falada usa o enunciado autoral como fonte, mas o painel da TitiA não o imprime novamente. O controle “Ouvir” foi retirado; “Repetir” reproduz a última instrução e também permite iniciar a fala manualmente quando a reprodução automática não ocorreu.
+
+[PROPOSTA CONTA COMIGO] A ajuda geral passou a apresentar um tutorial visual curto sobre a mecânica da família de atividade, com texto, numeração e pictogramas. Ela não fornece a resposta e permanece distinta das dicas graduais do exercício.
+
+[DECISÃO DE ENGENHARIA] A TitiA aparece ao lado do exercício em telas largas e em tamanho ampliado no feedback de acerto ou nova tentativa. O arraste usa somente a representação flutuante durante o gesto; o item de origem é ocultado temporariamente para evitar duplicação e deslocamento visual.
+
+[HIPÓTESE A VALIDAR] A combinação de fala automática, tutorial visual e presença ampliada da personagem pode tornar a ação esperada mais compreensível e o feedback mais perceptível. Usabilidade com crianças e avaliação profissional ainda são necessárias.
 
 ## Texto potencial para a dissertação
 

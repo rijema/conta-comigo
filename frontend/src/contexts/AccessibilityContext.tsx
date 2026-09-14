@@ -27,7 +27,7 @@ const defaultSettings: AccessibilitySettings = {
   soundEnabled: true,
   voiceEnabled: true,
   speechRate: 0.85,
-  automaticInstructionSpeech: false,
+  automaticInstructionSpeech: true,
   speechLanguage: "pt-BR",
   lowStimulationMode: false,
   highContrast: false,
