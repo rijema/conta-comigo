@@ -27,11 +27,22 @@ async function request<T>(
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: "Request failed" }));
-    throw new Error(error.message || `HTTP ${response.status}`);
+    const payload = await response.text();
+    let message = `HTTP ${response.status}`;
+    if (payload) {
+      try {
+        const error = JSON.parse(payload) as { message?: string };
+        message = error.message || message;
+      } catch {
+        message = payload;
+      }
+    }
+    throw new Error(message);
   }
 
-  return response.json();
+  if (response.status === 204) return undefined as T;
+  const payload = await response.text();
+  return payload ? JSON.parse(payload) as T : undefined as T;
 }
 
 export const api = {
