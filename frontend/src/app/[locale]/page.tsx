@@ -19,6 +19,8 @@ export default function HomePage() {
   const aboutDialogRef = useModalFocus<HTMLElement>(showAbout, closeAbout, aboutCloseRef);
 
   useEffect(() => {
+    const requestedAuth = new URLSearchParams(window.location.search).get("auth");
+    if (requestedAuth === "login" || requestedAuth === "register") setAuth(requestedAuth);
     const update = () => setCompact(window.scrollY > 36);
     update(); window.addEventListener("scroll", update, { passive: true });
     return () => window.removeEventListener("scroll", update);

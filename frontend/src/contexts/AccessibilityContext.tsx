@@ -6,6 +6,9 @@ import React, {
   useState,
   useEffect,
 } from "react";
+import { useAuthStore } from "@/store/auth.store";
+import { authService } from "@/lib/auth";
+import { api } from "@/lib/api-client";
 
 export interface AccessibilitySettings {
   theme: "light" | "dark";
@@ -39,6 +42,7 @@ interface AccessibilityContextType {
   settings: AccessibilitySettings;
   updateSettings: (partial: Partial<AccessibilitySettings>) => void;
   settingsLoaded: boolean;
+  childPreferencesReady: boolean;
 }
 
 const AccessibilityContext = createContext<AccessibilityContextType | null>(null);
@@ -51,6 +55,52 @@ export function AccessibilityProvider({
   const [settings, setSettings] =
     useState<AccessibilitySettings>(defaultSettings);
   const [settingsLoaded, setSettingsLoaded] = useState(false);
+  const user = useAuthStore((state) => state.user);
+  const [professionalPreferences, setProfessionalPreferences] = useState<Partial<AccessibilitySettings> | null>(null);
+  const [professionalUserId, setProfessionalUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user?.role !== 'child') { setProfessionalPreferences(null); setProfessionalUserId(null); return; }
+    let active = true;
+    setProfessionalPreferences(null);
+    setProfessionalUserId(null);
+    const load = () => {
+      const token = authService.getStoredToken();
+      if (!token) return;
+      api.get<{ uiPreferences?: Record<string, unknown> }>(`/users/${user.id}/child-profile`, token)
+        .then((profile) => {
+          if (!active) return;
+          const preferences = profile.uiPreferences ?? {};
+          setProfessionalPreferences({
+            lowStimulationMode: preferences.lowStimulation === true,
+            highContrast: preferences.highContrast === true,
+            soundEnabled: preferences.soundEnabled !== false,
+            voiceEnabled: preferences.voiceEnabled !== false,
+            animationsReduced: preferences.animationsEnabled === false,
+            automaticInstructionSpeech: preferences.automaticInstructionSpeech !== false,
+            ...(typeof preferences.speechRate === 'number' ? { speechRate: preferences.speechRate } : {}),
+          });
+          setProfessionalUserId(user.id);
+        }).catch((error) => { console.error('Failed to load child accessibility preferences', error); });
+    };
+    load();
+    window.addEventListener('focus', load);
+    const refresh = window.setInterval(load, 30000);
+    return () => { active = false; window.removeEventListener('focus', load); window.clearInterval(refresh); };
+  }, [user?.id, user?.role]);
+
+  const appliedPreferences = user?.role === 'child' && professionalUserId === user.id ? professionalPreferences : null;
+  const effectiveSettings: AccessibilitySettings = {
+    ...settings,
+    soundEnabled: settings.soundEnabled && appliedPreferences?.soundEnabled !== false,
+    voiceEnabled: settings.voiceEnabled && appliedPreferences?.voiceEnabled !== false,
+    automaticInstructionSpeech: settings.automaticInstructionSpeech && appliedPreferences?.automaticInstructionSpeech !== false,
+    lowStimulationMode: settings.lowStimulationMode || appliedPreferences?.lowStimulationMode === true,
+    highContrast: settings.highContrast || appliedPreferences?.highContrast === true,
+    animationsReduced: settings.animationsReduced || appliedPreferences?.animationsReduced === true,
+    speechRate: appliedPreferences?.speechRate ?? settings.speechRate,
+  };
+  const childPreferencesReady = user?.role !== 'child' || professionalUserId === user.id;
 
   useEffect(() => {
     const stored = localStorage.getItem("a11y_settings");
@@ -68,30 +118,30 @@ export function AccessibilityProvider({
     if (!settingsLoaded) return;
     // Apply theme to document
     const root = document.documentElement;
-    root.classList.toggle("dark", settings.theme === "dark");
-    root.classList.toggle("low-stimulation", settings.lowStimulationMode);
-    root.classList.toggle("high-contrast", settings.highContrast);
+    root.classList.toggle("dark", effectiveSettings.theme === "dark");
+    root.classList.toggle("low-stimulation", effectiveSettings.lowStimulationMode);
+    root.classList.toggle("high-contrast", effectiveSettings.highContrast);
     root.classList.toggle(
       "reduce-motion",
-      settings.animationsReduced
+      effectiveSettings.animationsReduced
     );
 
     // Font size
     const fontSizeMap = { small: "14px", medium: "16px", large: "20px" };
     root.style.setProperty(
       "--base-font-size",
-      fontSizeMap[settings.fontSize]
+      fontSizeMap[effectiveSettings.fontSize]
     );
 
     localStorage.setItem("a11y_settings", JSON.stringify(settings));
-  }, [settings, settingsLoaded]);
+  }, [settings, settingsLoaded, professionalPreferences, professionalUserId, user?.id, user?.role]);
 
   const updateSettings = (partial: Partial<AccessibilitySettings>) => {
     setSettings((prev) => ({ ...prev, ...partial }));
   };
 
   return (
-    <AccessibilityContext.Provider value={{ settings, updateSettings, settingsLoaded }}>
+    <AccessibilityContext.Provider value={{ settings: effectiveSettings, updateSettings, settingsLoaded, childPreferencesReady }}>
       {children}
     </AccessibilityContext.Provider>
   );

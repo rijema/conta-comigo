@@ -12,17 +12,12 @@ test("the frontend has a single authentication service implementation", async ()
   assert.deepEqual(authImplementations, ["auth.ts"]);
 });
 
-test("registration interfaces use the shared authentication service", async () => {
-  const registrationFiles = [
-    join(frontendRoot, "src", "components", "home", "auth-dialog.tsx"),
-    join(frontendRoot, "src", "app", "[locale]", "auth", "register", "page.tsx"),
-  ];
-
-  for (const file of registrationFiles) {
-    const source = await readFile(file, "utf8");
-    assert.match(source, /authService\.register\(/);
-    assert.doesNotMatch(source, /apiClient\.post\(["']\/auth\/register/);
-  }
+test("registration uses the shared authentication service through one modal", async () => {
+  const dialog = await readFile(join(frontendRoot, "src", "components", "home", "auth-dialog.tsx"), "utf8");
+  const route = await readFile(join(frontendRoot, "src", "app", "[locale]", "auth", "register", "page.tsx"), "utf8");
+  assert.match(dialog, /authService\.register\(/);
+  assert.doesNotMatch(dialog, /apiClient\.post\(["']\/auth\/register/);
+  assert.match(route, /auth=register/);
 });
 
 test("the frontend registration roles match the backend wire values", async () => {

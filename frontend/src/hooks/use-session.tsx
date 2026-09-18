@@ -13,6 +13,7 @@ export interface SessionState {
   recommendationExplanation: string | null;
   currentRecommendationId: string | null;
   selectionSource: "recommended" | "recalculated";
+  roundStats?: { correctAnswers: number; starsEarned: number; practiceLabel: string };
 }
 
 const SESSION_STORAGE_KEY = "contacomigo.learning-session";
@@ -140,6 +141,7 @@ export function useSession() {
         recommendationExplanation: adeDecision?.childExplanation ?? null,
         currentRecommendationId: adeDecision?.id ?? null,
         selectionSource: "recommended",
+        roundStats: { correctAnswers: 0, starsEarned: 0, practiceLabel: "matemática" },
       });
       trackActivityLifecycle(sessionId, activity.id, "ACTIVITY_PRESENTED", undefined, adeDecision?.id);
       getInteractionCounters(activity.id);
@@ -266,8 +268,9 @@ export function useSession() {
       if (isCorrect) {
         activitiesCompletedRef.current += 1;
         const completed = activitiesCompletedRef.current;
+        const roundComplete = completed >= 10;
         const nextActivity = result.nextActivity ?? null;
-        if (nextActivity && session?.id) {
+        if (!roundComplete && nextActivity && session?.id) {
           trackActivityLifecycle(
             session.id,
             nextActivity.id,
@@ -281,21 +284,26 @@ export function useSession() {
           if (!prev) return prev;
           return {
             ...prev,
-            currentActivity: nextActivity ?? prev.currentActivity,
+            currentActivity: roundComplete ? prev.currentActivity : nextActivity ?? prev.currentActivity,
             progress: Math.min(completed * 10, 100),
-            activityStartTime: Date.now(),
+            activityStartTime: roundComplete ? prev.activityStartTime : Date.now(),
             recommendationExplanation:
-              result.adeDecision?.childExplanation ?? prev.recommendationExplanation,
-            currentRecommendationId: result.adeDecision?.id ?? null,
+              roundComplete ? prev.recommendationExplanation : result.adeDecision?.childExplanation ?? prev.recommendationExplanation,
+            currentRecommendationId: roundComplete ? prev.currentRecommendationId : result.adeDecision?.id ?? null,
             selectionSource: "recommended",
+            roundStats: {
+              correctAnswers: (prev.roundStats?.correctAnswers ?? completed - 1) + 1,
+              starsEarned: (prev.roundStats?.starsEarned ?? completed - 1) + 1,
+              practiceLabel: String(prev.currentActivity.content?.formatLabel ?? prev.currentActivity.title ?? "matemática"),
+            },
           };
         });
       }
 
-      return { isCorrect, feedback: result.feedback };
+      return { isCorrect, completed: isCorrect && activitiesCompletedRef.current >= 10, feedback: result.feedback };
     } catch (err) {
       console.error("Failed to submit answer:", err);
-      return { isCorrect: false, feedback: null };
+      return { isCorrect: false, completed: false, feedback: null };
     }
   };
 
