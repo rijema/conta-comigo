@@ -12,6 +12,9 @@ export const VISUAL_COMMUNICATION_CATEGORIES = [
   'NAVIGATION', 'STATE', 'MATHEMATICS', 'ACTIVITY_ACTION', 'COMMUNICATION',
   'NUMBER', 'Números', 'Operações Matemáticas', 'Formas Geométricas', 'Cores',
   'Verbos de Aprender', 'Jogos e Atividades', 'Matemática',
+  'Pessoas', 'Animais', 'Alimentos', 'Objetos', 'Ações', 'Emoções',
+  'Lugares', 'Formas', 'Cotidiano', 'Aprender', 'Jogos', 'Software',
+  'Símbolos', 'Educação',
 ] as const;
 
 export class TrackVisualCommunicationEventDto {
@@ -29,7 +32,7 @@ export class TrackVisualCommunicationEventDto {
   @IsOptional()
   @IsString()
   @MaxLength(128)
-  @Matches(/^(navigation|state|mathematics|activity|communication|number|library|action|character|math|object|shape)\.[a-z0-9_]+$/)
+  @Matches(/^(?:(navigation|state|mathematics|activity|communication|number|library|action|character|math|object|shape)\.[a-z0-9_]+|arasaac\.[1-9][0-9]*)$/)
   pictogramConceptId?: string;
 
   @ApiPropertyOptional()

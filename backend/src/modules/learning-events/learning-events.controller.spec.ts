@@ -41,6 +41,18 @@ describe('LearningEventsController visual communication tracking', () => {
     ]));
   });
 
+  it('accepts bounded catalog identifiers and the new curated sections', async () => {
+    const dto = Object.assign(new TrackVisualCommunicationEventDto(), {
+      sessionId: 'learning-session-1', eventType: LearningEventType.PICTOGRAM_OPENED,
+      pictogramConceptId: 'arasaac.2731', category: 'Jogos',
+    });
+    await expect(validate(dto)).resolves.toHaveLength(0);
+    dto.pictogramConceptId = 'arasaac.child free text';
+    await expect(validate(dto)).resolves.toEqual(expect.arrayContaining([
+      expect.objectContaining({ property: 'pictogramConceptId' }),
+    ]));
+  });
+
   it('tracks only enumerated metadata and uses the authenticated student', async () => {
     const track = jest.fn().mockResolvedValue({ id: 'event-1' });
     const controller = new LearningEventsController({ track } as any);
@@ -75,6 +87,13 @@ describe('LearningEventsController visual communication tracking', () => {
 });
 
 describe('LearningEventsController speech tracking', () => {
+  it('accepts a catalog pictogram identifier without spoken text', async () => {
+    const dto = Object.assign(new TrackSpeechEventDto(), {
+      sessionId: 'learning-session-1', eventType: LearningEventType.PICTOGRAM_SPOKEN,
+      pictogramConceptId: 'arasaac.2731',
+    });
+    await expect(validate(dto)).resolves.toHaveLength(0);
+  });
   it.each(SPEECH_EVENT_TYPES)('accepts the supported %s event', async (eventType) => {
     const dto = Object.assign(new TrackSpeechEventDto(), {
       sessionId: 'learning-session-1',

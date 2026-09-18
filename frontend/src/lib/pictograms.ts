@@ -10,6 +10,7 @@ export type PictogramConcept =
   | `activity.${"drag" | "choose" | "touch" | "listen" | "look" | "match" | "complete" | "move" | "point"}`
   | `communication.${"i_dont_understand" | "another_activity" | "listen_again" | "help_me"}`
   | `number.${number}` | `library.${string}`
+  | `arasaac.${number}`
   // Legacy exercise identifiers remain valid while activity seeds migrate.
   | "action.yes" | "action.no" | "character.titia" | "math.addition"
   | "math.number_line" | "math.part" | "math.whole" | "object.apple"
@@ -121,6 +122,10 @@ const definitions: PictogramDefinition[] = [
 export class PictogramRegistry {
   private readonly entries = new Map(definitions.map((entry) => [entry.conceptId, entry]));
   get(conceptId: string): PictogramDefinition | null {
+    if (/^arasaac\.[1-9]\d*$/.test(conceptId)) {
+      const arasaacId = Number(conceptId.slice('arasaac.'.length));
+      return definition(conceptId as PictogramConcept, 'LEARNING_LIBRARY', 'pictograma ARASAAC', '□', arasaacId);
+    }
     return this.entries.get(conceptId as PictogramConcept) ?? null;
   }
   getImageUrl(conceptId: string, size = 500): string | null {
