@@ -41,6 +41,21 @@ export class SubmitAttemptDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsNumber()
+  firstInteractionMs?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  totalTimeMs?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  previousDifficulty?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
   hintsUsed?: number;
 
   @ApiPropertyOptional()

@@ -396,3 +396,10 @@ No recommendation ranking, Generalization Score, full ARASAAC integration, learn
 - Applied sound, voice, volume, motion, visual feedback, help timing and activity-change controls to the child exercise. Candidate eligibility now respects disabled formats and visible-element limits, and prefers compatible BNCC skills and manual difficulty while keeping the existing ontology and ranking.
 - Added a plain-language guardian summary from recorded attempts, sessions, practiced skills and formats, plus linked-child name and short-password editing with authorization and password hashing. Guardians can also change their own password after providing the current password.
 - Corrected existing guardian BNCC labels and the summary's session count. Added backend/frontend tests and Portuguese research documentation. No database migration was needed because the existing JSONB profile stores the preferences.
+
+## 2026-09-18 — TitiA continuity and dissertation traces
+
+- Reused the existing TitiA speech, tutorial, pictogram, celebration and sensory settings flows; removed repeated motion and a technical spinner from child loading states, aligned exercise action corners, and disabled exercise background transitions under reduced stimulation.
+- Added structured attempt research traces with activity, BNCC, difficulty, format, safe math answer, timing and BKT before/after values; kept recommendation explanations in the existing ADE decisions.
+- Added session start/completion and explicit activity abandonment events. Incorrect attempts no longer emit activity completion in learning events or Kafka.
+- Added the runtime SQL and TypeORM migrations, automated tests and Portuguese research documentation. Free text and arbitrary answer objects are excluded from the new answer snapshot.

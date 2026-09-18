@@ -107,6 +107,14 @@ describe('RecommendationOutcomeService', () => {
     }));
   });
 
+  it('marks departure as abandoned without creating a replacement transition', async () => {
+    const abandoned = event('40000000-0000-0000-0000-000000000005', LearningEventType.ACTIVITY_ABANDONED);
+    await service.synchronize(abandoned, activity);
+    expect(outcomes[0].status).toBe(RecommendationOutcomeStatus.ABANDONED);
+    expect(outcomes[0].abandonedAt).toEqual(abandoned.timestamp);
+    expect(transitions).toHaveLength(0);
+  });
+
   it('can attach a later replacement without inferring comparison values', async () => {
     const skipped = event('40000000-0000-0000-0000-000000000004', LearningEventType.ACTIVITY_SKIPPED);
     await service.synchronize(skipped, activity);

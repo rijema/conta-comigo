@@ -15,9 +15,17 @@ test("activity lifecycle events reuse the session id and are deduplicated", () =
   assert.match(sessionHook, /\{ sessionId, eventType, \.\.\.context \}/);
 });
 
-test("answer timing is sent without adding raw answers to analytics metadata", () => {
-  assert.match(sessionHook, /responseTimeMs: payload\.timeSpentMs/);
+test("answer timing distinguishes first interaction, current response, and total time", () => {
+  assert.match(sessionHook, /responseTimeMs: Math\.max\(0, answerAt - \(counters\.lastAttemptAt/);
+  assert.match(sessionHook, /firstInteractionMs: Math\.max\(0, counters\.firstInteractionAt/);
+  assert.match(sessionHook, /totalTimeMs: payload\.timeSpentMs/);
+  assert.match(sessionHook, /hintsUsed: counters\.hints/);
   assert.doesNotMatch(sessionHook, /metadata:\s*\{[^}]*answer/s);
+});
+
+test("round completion and leaving an activity emit distinct lifecycle events", () => {
+  assert.match(sessionHook, /trackSessionEvent\(session\.id, "SESSION_COMPLETED"\)/);
+  assert.match(sessionHook, /"ACTIVITY_ABANDONED"/);
 });
 
 test("the current recommendation id follows lifecycle and answer requests", () => {

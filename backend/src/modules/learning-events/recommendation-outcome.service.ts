@@ -76,6 +76,7 @@ export class RecommendationOutcomeService {
       startedAt: null,
       completedAt: null,
       skippedAt: null,
+      abandonedAt: null,
       attempts: 0,
       hintsUsed: 0,
       instructionReplays: 0,
@@ -100,11 +101,13 @@ export class RecommendationOutcomeService {
       outcome.correct = event.correct ?? outcome.correct;
     }
     if (event.eventType === LearningEventType.ACTIVITY_SKIPPED) outcome.skippedAt ??= event.timestamp;
+    if (event.eventType === LearningEventType.ACTIVITY_ABANDONED) outcome.abandonedAt ??= event.timestamp;
   }
 
   private statusFor(eventType: LearningEventType): RecommendationOutcomeStatus | null {
     if (eventType === LearningEventType.ACTIVITY_COMPLETED) return RecommendationOutcomeStatus.COMPLETED;
     if (eventType === LearningEventType.ACTIVITY_SKIPPED) return RecommendationOutcomeStatus.SKIPPED;
+    if (eventType === LearningEventType.ACTIVITY_ABANDONED) return RecommendationOutcomeStatus.ABANDONED;
     if (eventType === LearningEventType.ACTIVITY_STARTED) return RecommendationOutcomeStatus.STARTED;
     if (eventType === LearningEventType.ACTIVITY_PRESENTED) return RecommendationOutcomeStatus.PRESENTED;
     return null;
@@ -158,6 +161,12 @@ export class RecommendationOutcomeService {
           attemptsBeforeSkip: this.numberOrNull(event.metadata?.attemptsBeforeSkip),
           hintsBeforeSkip: this.numberOrNull(event.metadata?.hintsBeforeSkip),
           changeRequested: event.metadata?.changeRequested === true,
+        }
+      : event.eventType === LearningEventType.ACTIVITY_ABANDONED
+      ? {
+          timeBeforeExitMs: this.numberOrNull(event.metadata?.timeBeforeExitMs),
+          attemptsBeforeExit: this.numberOrNull(event.metadata?.attemptsBeforeExit),
+          hintsBeforeExit: this.numberOrNull(event.metadata?.hintsBeforeExit),
         }
       : null;
     await this.evidenceRepository.save(this.evidenceRepository.create({

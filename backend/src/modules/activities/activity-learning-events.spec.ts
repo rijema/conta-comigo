@@ -136,6 +136,29 @@ describe('ActivitiesService learning event instrumentation', () => {
     }
   });
 
+  it('does not classify an incorrect attempt as completed', async () => {
+    await (service as any).trackAnswerEvents('student-1', {
+      activityId: activity.id, sessionId: 'session-1', answer: 2,
+    }, activity, false);
+
+    expect(learningEventService.track).toHaveBeenCalledTimes(1);
+    expect(learningEventService.track).toHaveBeenCalledWith(expect.objectContaining({
+      eventType: LearningEventType.ANSWER_SUBMITTED,
+      correct: false,
+    }));
+  });
+
+  it('records leaving an activity as abandonment with observed context', async () => {
+    await service.trackLifecycleEvent('student-1', activity.id, {
+      sessionId: 'session-1', eventType: LearningEventType.ACTIVITY_ABANDONED,
+      timeBeforeExitMs: 4500, attemptsBeforeExit: 1, hintsBeforeExit: 2,
+    });
+    expect(learningEventService.track).toHaveBeenCalledWith(expect.objectContaining({
+      eventType: LearningEventType.ACTIVITY_ABANDONED,
+      metadata: expect.objectContaining({ timeBeforeExitMs: 4500, attemptsBeforeExit: 1 }),
+    }));
+  });
+
   it('propagates the originating recommendation to answer and completion events', async () => {
     const recommendationId = '20000000-0000-0000-0000-000000000001';
     await (service as any).trackAnswerEvents(
@@ -215,7 +238,7 @@ describe('ActivitiesService learning event instrumentation', () => {
       createQueryBuilder: jest.fn().mockReturnValue(queryBuilder),
     };
     const attemptRepository = {
-      create: jest.fn().mockReturnValue(savedAttempt),
+      create: jest.fn((value) => Object.assign(savedAttempt, value)),
       save: jest.fn().mockResolvedValue(savedAttempt),
       find: jest.fn().mockResolvedValue([]),
     };
@@ -227,7 +250,8 @@ describe('ActivitiesService learning event instrumentation', () => {
       { getChildProfile: jest.fn().mockResolvedValue({}) } as any,
       learningEventService as any,
       dataSource as any,
-      { observe: jest.fn().mockResolvedValue({}) } as any,
+      { getMasteryBySkillCode: jest.fn().mockResolvedValue(0.3),
+        observe: jest.fn().mockResolvedValue({ masteryProbability: 0.4 }) } as any,
     );
     const trackAnswerEvents = jest
       .spyOn(serviceWithAttempt as any, 'trackAnswerEvents')
@@ -242,6 +266,12 @@ describe('ActivitiesService learning event instrumentation', () => {
     })).resolves.toEqual(expect.objectContaining({ attempt: savedAttempt }));
 
     expect(attemptRepository.save).toHaveBeenCalledWith(savedAttempt);
+    expect(savedAttempt).toEqual(expect.objectContaining({
+      researchTrace: expect.objectContaining({
+        answer: '4', primaryBnccSkill: 'EF01MA01',
+        responseTimeMs: 900, masteryBefore: 0.3, masteryAfter: 0.4,
+      }),
+    }));
     expect(trackAnswerEvents).toHaveBeenCalled();
     expect(attemptRepository.save.mock.invocationCallOrder[0])
       .toBeLessThan(trackAnswerEvents.mock.invocationCallOrder[0]);

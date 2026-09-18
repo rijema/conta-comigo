@@ -21,6 +21,7 @@ export class RecommendationOutcome {
   @Column({ type: 'timestamptz', nullable: true }) startedAt: Date | null;
   @Column({ type: 'timestamptz', nullable: true }) completedAt: Date | null;
   @Column({ type: 'timestamptz', nullable: true }) skippedAt: Date | null;
+  @Column({ type: 'timestamptz', nullable: true }) abandonedAt: Date | null;
   @Column({ type: 'integer', default: 0 }) attempts: number;
   @Column({ type: 'integer', default: 0 }) hintsUsed: number;
   @Column({ type: 'integer', default: 0 }) instructionReplays: number;

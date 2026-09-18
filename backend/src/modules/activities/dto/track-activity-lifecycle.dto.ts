@@ -9,6 +9,7 @@ export const ACTIVITY_LIFECYCLE_EVENT_TYPES = {
   TUTORIAL_OPENED: LearningEventType.TUTORIAL_OPENED,
   INSTRUCTION_REPLAYED: LearningEventType.INSTRUCTION_REPLAYED,
   ACTIVITY_SKIPPED: LearningEventType.ACTIVITY_SKIPPED,
+  ACTIVITY_ABANDONED: LearningEventType.ACTIVITY_ABANDONED,
 } as const;
 
 export class TrackActivityLifecycleDto {
@@ -43,6 +44,24 @@ export class TrackActivityLifecycleDto {
   @IsInt()
   @Min(0)
   hintsBeforeSkip?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  timeBeforeExitMs?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  attemptsBeforeExit?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  hintsBeforeExit?: number;
 
   @ApiPropertyOptional()
   @IsOptional()

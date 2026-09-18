@@ -256,18 +256,35 @@ export class ActivitiesService {
       hintsUsed: dto.hintsUsed || 0,
       interactionSignals: dto.interactionSignals,
       adeDecisionContext: dto.adeDecisionContext,
+      researchTrace: {
+        answer: this.researchAnswer(dto.answer),
+        primaryBnccSkill: activity.skillWeights?.find((skill) => skill.role === 'primary')?.code ?? activity.bnccSkills?.[0] ?? null,
+        secondaryBnccSkills: activity.bnccSkills?.filter((code) => code !== (activity.skillWeights?.find((skill) => skill.role === 'primary')?.code ?? activity.bnccSkills?.[0])) ?? [],
+        difficulty: activity.difficulty,
+        previousDifficulty: dto.previousDifficulty ?? null,
+        format: activity.type,
+        presentedExercise: {
+          title: activity.title,
+          structureId: activity.content?.semantic?.structureId ?? null,
+          skillWeights: activity.skillWeights ?? null,
+        },
+        recommendationId: dto.recommendationId ?? dto.adeDecisionContext?.decisionId ?? null,
+        firstInteractionMs: dto.firstInteractionMs ?? null,
+        responseTimeMs: dto.responseTimeMs ?? null,
+        totalTimeMs: dto.totalTimeMs ?? null,
+      },
     });
 
     await this.attemptRepo.save(attempt);
 
     // Learning analytics is best-effort and must not delay attempt processing.
     void this.trackAnswerEvents(userId, dto, activity, isCorrect);
-    void this.updateMasteryFromAttempt(userId, activity, isCorrect);
+    const masteryUpdate = this.updateMasteryFromAttempt(userId, activity, isCorrect, attempt);
 
     // Publish Kafka event (async, non-blocking)
     this.kafkaProducer.publishActivityEvent({
       eventId: `activity-${attempt.id}`,
-      eventType: 'ACTIVITY_COMPLETED',
+      eventType: isCorrect ? 'ACTIVITY_COMPLETED' : 'ANSWER_SUBMITTED',
       learnerId: userId,
       sessionId: dto.sessionId || '',
       timestamp: new Date().toISOString(),
@@ -340,6 +357,14 @@ export class ActivitiesService {
       nextActivity = await this.attachSemanticContract(nextActivity);
     }
 
+    await masteryUpdate;
+    attempt.researchTrace = {
+      ...attempt.researchTrace,
+      nextDifficulty: nextActivity?.difficulty ?? null,
+      nextRecommendationId: adeDecision?.id ?? null,
+    };
+    await this.attemptRepo.save(attempt);
+
     return {
       attempt,
       feedback,
@@ -353,6 +378,14 @@ export class ActivitiesService {
     };
   }
 
+  private researchAnswer(answer: unknown): number | boolean | string | number[] | null {
+    if (typeof answer === 'number' && Number.isFinite(answer)) return answer;
+    if (typeof answer === 'boolean') return answer;
+    if (typeof answer === 'string') return answer.length <= 40 && /^[0-9 +\-.,=<>]*$/.test(answer) ? answer : null;
+    if (Array.isArray(answer) && answer.length <= 20 && answer.every((item) => typeof item === 'number' && Number.isFinite(item))) return answer;
+    return null;
+  }
+
   async trackLifecycleEvent(
     userId: string,
     activityId: string,
@@ -362,6 +395,7 @@ export class ActivitiesService {
       const activity = await this.findById(activityId);
       const bnccSkillId = await this.resolveBnccSkillId(activity);
       const isSkip = dto.eventType === LearningEventType.ACTIVITY_SKIPPED;
+      const isExit = dto.eventType === LearningEventType.ACTIVITY_ABANDONED;
       const event = await this.learningEventService.track({
         studentId: userId,
         sessionId: dto.sessionId,
@@ -370,12 +404,16 @@ export class ActivitiesService {
         activityId,
         bnccSkillId,
         recommendationId: dto.recommendationId ?? null,
-        hintsUsed: isSkip ? dto.hintsBeforeSkip ?? null : null,
+        hintsUsed: isSkip ? dto.hintsBeforeSkip ?? null : isExit ? dto.hintsBeforeExit ?? null : null,
         metadata: isSkip ? {
           timeBeforeSkipMs: dto.timeBeforeSkipMs ?? null,
           attemptsBeforeSkip: dto.attemptsBeforeSkip ?? null,
           hintsBeforeSkip: dto.hintsBeforeSkip ?? null,
           changeRequested: dto.changeRequested ?? false,
+        } : isExit ? {
+          timeBeforeExitMs: dto.timeBeforeExitMs ?? null,
+          attemptsBeforeExit: dto.attemptsBeforeExit ?? null,
+          hintsBeforeExit: dto.hintsBeforeExit ?? null,
         } : null,
       });
       if (event && this.recommendationOutcomeService) {
@@ -447,6 +485,7 @@ export class ActivitiesService {
       if (submitted && this.recommendationOutcomeService) {
         await this.recommendationOutcomeService.synchronize(submitted, activity);
       }
+      if (!isCorrect) return;
       const completed = await this.learningEventService.track({
         ...event,
         timestamp: new Date(),
@@ -507,6 +546,7 @@ export class ActivitiesService {
     studentId: string,
     activity: Activity,
     correct: boolean,
+    attempt: ActivityAttempt,
   ): Promise<void> {
     const skillCode = activity.bnccSkills?.[0];
     if (!skillCode) return;
@@ -514,12 +554,18 @@ export class ActivitiesService {
     try {
       const skillId = await this.resolveBnccSkillId(activity);
       if (!skillId) return;
-      await this.knowledgeTracingService.observe({
+      const masteryBefore = await this.knowledgeTracingService.getMasteryBySkillCode(studentId, skillCode);
+      const state = await this.knowledgeTracingService.observe({
         studentId,
         skillId,
         skillCode,
         correct,
       });
+      attempt.researchTrace = {
+        ...attempt.researchTrace,
+        masteryBefore,
+        masteryAfter: state.masteryProbability,
+      };
     } catch (error) {
       const details = error instanceof Error ? error.stack : String(error);
       this.logger.error(`Knowledge tracing failed for skill ${skillCode}`, details);

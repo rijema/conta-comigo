@@ -89,7 +89,7 @@ export default function ActivityMenuPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen" style={{ background: "linear-gradient(135deg,#fce7f3,#e0f2fe,#d1fae5)" }}>
-        <div className="text-center animate-bounce">
+        <div className="text-center" role="status" aria-live="polite">
           <div className="text-8xl mb-4">🗺️</div>
           <p className="text-2xl font-extrabold text-blue-700">Preparando o mapa...</p>
           <p className="text-gray-500 mt-1 text-sm">As aventuras chegam em instantes!</p>
@@ -428,7 +428,7 @@ export default function ActivityMenuPage() {
                   )}
                   <button onClick={() => handleAsk()} disabled={aiLoading || !aiQuestion.trim()}
                     className="flex-[2] py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-extrabold rounded-2xl hover:opacity-90 disabled:opacity-40 text-sm flex items-center justify-center gap-2 shadow-md">
-                    {aiLoading ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Pensando...</> : "✨ Perguntar à TitIA"}
+                    {aiLoading ? <><span aria-hidden="true">🦋</span> A TitiA está pensando...</> : "✨ Perguntar à TitIA"}
                   </button>
                 </div>
               </div>

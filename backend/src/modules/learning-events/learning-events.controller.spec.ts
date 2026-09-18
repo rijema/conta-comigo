@@ -6,6 +6,23 @@ import {
 import { LearningEventType } from './entities/learning-event.entity';
 import { LearningEventsController } from './learning-events.controller';
 import { SPEECH_EVENT_TYPES, TrackSpeechEventDto } from './dto/track-speech-event.dto';
+import { TrackSessionEventDto } from './dto/track-session-event.dto';
+
+describe('LearningEventsController session tracking', () => {
+  it('accepts only session start and completion and binds the authenticated child', async () => {
+    const dto = Object.assign(new TrackSessionEventDto(), {
+      sessionId: 'session-1', eventType: LearningEventType.SESSION_COMPLETED,
+    });
+    expect(await validate(dto)).toHaveLength(0);
+    const track = jest.fn().mockResolvedValue({ id: 'event-1' });
+    await new LearningEventsController({ track } as any).trackSession('child-1', dto);
+    expect(track).toHaveBeenCalledWith(expect.objectContaining({
+      studentId: 'child-1', sessionId: 'session-1', eventType: LearningEventType.SESSION_COMPLETED,
+    }));
+    (dto as any).eventType = LearningEventType.ANSWER_SUBMITTED;
+    expect((await validate(dto)).map((error) => error.property)).toContain('eventType');
+  });
+});
 
 describe('LearningEventsController visual communication tracking', () => {
   it.each(VISUAL_COMMUNICATION_EVENT_TYPES)('accepts the supported %s event', async (eventType) => {
