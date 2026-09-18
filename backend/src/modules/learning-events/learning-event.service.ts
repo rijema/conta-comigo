@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MoreThanOrEqual, Repository } from 'typeorm';
 import {
   LearningEvent,
   LearningEventType,
@@ -71,10 +71,11 @@ export class LearningEventService {
     }
   }
 
-  async getRecentSkippedActivityIds(studentId: string, limit = 20): Promise<string[]> {
+  async getRecentSkippedActivityIds(studentId: string, limit = 20, since?: Date): Promise<string[]> {
     try {
       const events = await this.learningEventRepository.find({
-        where: { studentId, eventType: LearningEventType.ACTIVITY_SKIPPED },
+        where: { studentId, eventType: LearningEventType.ACTIVITY_SKIPPED,
+          ...(since ? { timestamp: MoreThanOrEqual(since) } : {}) },
         order: { timestamp: 'DESC' },
         take: limit,
       });

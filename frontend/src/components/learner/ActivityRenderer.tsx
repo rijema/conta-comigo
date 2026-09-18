@@ -432,6 +432,8 @@ export function ActivityRenderer({ activity, onComplete, onSkip }: ActivityRende
     }
   };
 
+  const difficultyStars = ({ very_easy: 1, easy: 2, medium: 3, hard: 4, extreme: 5 } as Record<string, number>)[activity.difficulty] ?? 2;
+
   return (
     <div className="relative">
       {/* Activity metadata */}
@@ -440,12 +442,12 @@ export function ActivityRenderer({ activity, onComplete, onSkip }: ActivityRende
           <span className="text-xs font-medium px-3 py-1 rounded-full bg-blue-100 text-blue-700 uppercase tracking-wide">
             {t(`activity.type.${activity.type}`, { defaultValue: activity.type })}
           </span>
-          <div className="flex gap-1" aria-label={`${t("activity.difficulty")}: ${activity.difficulty}`}>
-            {[1, 2, 3].map((star) => (
+          <div className="flex gap-1" aria-label={`${t("activity.difficulty")}: ${t(`activity.difficultyLevels.${activity.difficulty}`, { defaultValue: activity.difficulty })}`}>
+            {[1, 2, 3, 4, 5].map((star) => (
               <Star
                 key={star}
                 size={14}
-                className={star <= activity.difficulty ? "text-yellow-400 fill-yellow-400" : "text-gray-200 fill-gray-200"}
+                className={star <= difficultyStars ? "text-yellow-400 fill-yellow-400" : "text-gray-200 fill-gray-200"}
                 aria-hidden
               />
             ))}

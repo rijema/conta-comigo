@@ -35,6 +35,8 @@
     "skills": "Skills"
   },
   "activity": {
+    "difficulty": "Difficulty",
+    "difficultyLevels": { "very_easy": "Very easy", "easy": "Easy", "medium": "Medium", "hard": "Hard", "extreme": "Extreme" },
     "question": "Question",
     "checkAnswer": "Check answer",
     "correct": "Correct! Well done!",

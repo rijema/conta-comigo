@@ -1,4 +1,5 @@
 import { DataSource } from 'typeorm';
+import { expandedActivityPools } from './activity-pools.seed';
 
 export async function ActivitiesSeed(dataSource: DataSource) {
   const repo = dataSource.getRepository('activities');
@@ -744,6 +745,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
     },
   ];
 
+  activities.push(...expandedActivityPools() as any[]);
   const existingRecords = await repo.find({ select: ['id', 'title', 'content'] });
   const existingTitles = new Set(existingRecords.map((record: any) => record.title));
   const existingByTitle = new Map(existingRecords.map((record: any) => [record.title, record]));

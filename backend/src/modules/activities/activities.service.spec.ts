@@ -52,6 +52,43 @@ describe('ActivitiesService answer evaluation', () => {
   });
 });
 
+describe('Activity cooldown', () => {
+  it('avoids the last activity, structure, items and format when alternatives exist', () => {
+    const service = new ActivitiesService({} as any, {} as any, {} as any, {} as any,
+      {} as any, {} as any, {} as any, {} as any);
+    const activity = (id: string, structureId: string, type: string, items: string[]) => ({
+      id, title: id, type, content: { items, semantic: { structureId } },
+    });
+    const recent = activity('recent', 'count', 'counting', ['⭐']);
+    const sameStructure = activity('structure', 'count', 'quiz', ['●']);
+    const sameItems = activity('items', 'different', 'quiz', ['⭐']);
+    const sameFormat = activity('format', 'different-again', 'counting', ['▲']);
+    const fresh = activity('fresh', 'new', 'missing_number', ['■']);
+    const result = (service as any).cooldown(
+      [recent, sameStructure, sameItems, sameFormat, fresh],
+      [recent, sameStructure, sameItems, sameFormat, fresh], ['recent'],
+    );
+    expect(result.map((item: any) => item.id)).toEqual(['fresh']);
+  });
+});
+
+describe('Weighted BNCC activity creation', () => {
+  it('rejects inconsistent primary and secondary weights before persistence', async () => {
+    const save = jest.fn();
+    const service = new ActivitiesService({ create: jest.fn(), save } as any,
+      {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any);
+    await expect(service.create({
+      title: 'Shopping', type: 'quiz' as any, difficulty: 'easy' as any,
+      bnccSkills: ['EF01MA08', 'EF01MA03'], targetModalities: ['visual'], content: {},
+      skillWeights: [
+        { code: 'EF01MA08', role: 'primary', weight: 0.8 },
+        { code: 'EF01MA03', role: 'secondary', weight: 0.8 },
+      ],
+    })).rejects.toThrow('Skill weights');
+    expect(save).not.toHaveBeenCalled();
+  });
+});
+
 describe('ActivitiesService semantic activity responses', () => {
   it('adds the semantic contract while preserving legacy difficulty', async () => {
     const activity = {

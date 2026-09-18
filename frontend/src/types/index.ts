@@ -113,8 +113,9 @@ export interface Activity {
   title: string;
   description?: string;
   type: 'multiple_choice' | 'quiz' | 'drag_drop' | 'counting' | 'number_line' | string;
-  difficulty: 'easy' | 'medium' | 'hard' | string;
+  difficulty: 'very_easy' | 'easy' | 'medium' | 'hard' | 'extreme' | string;
   bnccSkills?: string[];
+  skillWeights?: Array<{ code: string; role: 'primary' | 'secondary'; weight: number }> | null;
   bnccSkillCode?: string;
   targetModalities?: string[];
   pointsReward?: number;

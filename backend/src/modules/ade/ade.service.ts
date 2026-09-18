@@ -18,6 +18,7 @@ export interface AdeInput {
   recentAttempts: ActivityAttempt[];
   sessionId?: string;
   targetSkillCode?: string;
+  recentSkips?: number;
 }
 
 @Injectable()
@@ -82,9 +83,11 @@ export class AdeService {
     });
 
     // === STEP 3: Rule Engine ===
-    const recentAccuracy = this.calculateAccuracy(recentAttempts);
-    const avgTime = this.calculateAvgTime(recentAttempts);
-    const totalHints = recentAttempts.reduce((s, a) => s + (a.hintsUsed || 0), 0);
+    const skillAttempts = recentAttempts.filter((attempt) =>
+      attempt.activity?.bnccSkills?.includes(currentSkillCode));
+    const recentAccuracy = this.calculateAccuracy(skillAttempts);
+    const avgTime = this.calculateAvgTime(skillAttempts);
+    const totalHints = skillAttempts.reduce((s, a) => s + (a.hintsUsed || 0), 0);
 
     const ruleResult = this.ruleEngine.evaluate({
       recentAccuracy,
@@ -94,6 +97,14 @@ export class AdeService {
       asdSupportLevel: profile.asdSupportLevel || 'moderate',
       streakCount: profile.currentStreak || 0,
       engagementScore: mlPredictions.engagementScore,
+      recentAttempts: skillAttempts.map((attempt) => ({
+        isCorrect: attempt.isCorrect,
+        hintsUsed: attempt.hintsUsed,
+        timeSpentSeconds: attempt.timeSpentSeconds,
+        activityId: attempt.activityId,
+        difficulty: attempt.activity?.difficulty,
+      })),
+      recentSkips: input.recentSkips,
     });
 
     // === STEP 4: Synthesize Decision ===

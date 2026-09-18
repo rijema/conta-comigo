@@ -353,3 +353,10 @@ No recommendation ranking, Generalization Score, full ARASAAC integration, learn
 - Packaged/mounted the ontology for production and development containers.
 - Added loader, filtering, missing-file, fallback, and production-call-path tests.
 - No database migration was required because no schema changed.
+
+## 2026-09-18 — Difficulty progression and activity pools
+
+- Added five difficulty levels while retaining the existing three values, and optional weighted primary/secondary BNCC metadata.
+- Reused ADE, BKT, hybrid ranking and learning events for evidence based progression and cooldown across attempts and skips.
+- Added 60 authored activity structures across 12 niches, with five levels per niche and contextual/sensory metadata.
+- Updated the runtime SQL migration, tests and Portuguese research documentation. Thresholds and curricular mappings require experimental and specialist validation.

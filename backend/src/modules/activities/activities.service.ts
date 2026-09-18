@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { Activity, DifficultyLevel, ActivityType } from './entities/activity.entity';
@@ -56,6 +56,20 @@ export class ActivitiesService {
   ) {}
 
   async create(dto: CreateActivityDto): Promise<Activity> {
+    if (dto.skillWeights) {
+      const codes = dto.skillWeights.map((entry) => entry.code);
+      const sum = dto.skillWeights.reduce((total, entry) => total + entry.weight, 0);
+      if (codes.length !== dto.bnccSkills.length ||
+          new Set(codes).size !== codes.length ||
+          !dto.bnccSkills.every((code) => codes.includes(code)) ||
+          dto.skillWeights.filter((entry) => entry.role === 'primary').length !== 1 ||
+          dto.skillWeights.find((entry) => entry.role === 'primary')?.code !== dto.bnccSkills[0] ||
+          dto.skillWeights.some((entry) => !['primary', 'secondary'].includes(entry.role) ||
+            !Number.isFinite(entry.weight) || entry.weight <= 0 || entry.weight > 1) ||
+          Math.abs(sum - 1) > 0.0001) {
+        throw new BadRequestException('Skill weights must cover each BNCC code once, with one primary skill and weights summing to 1');
+      }
+    }
     const activity = this.activityRepo.create(dto);
     return this.attachSemanticContract(await this.activityRepo.save(activity));
   }
@@ -79,7 +93,7 @@ export class ActivitiesService {
     }
 
     if (filters?.bnccSkill) {
-      query.andWhere(':skill = ANY(activity.bnccSkills)', {
+      query.andWhere('activity.bnccSkills ? :skill', {
         skill: filters.bnccSkill,
       });
     }
@@ -128,16 +142,14 @@ export class ActivitiesService {
       adeDecision = await this.adeService.decide({
         userId,
         profile,
-        recentAttempts: await this.getRecentAttempts(userId, 5),
+        recentAttempts: await this.getRecentAttempts(userId, 20),
         sessionId: context?.sessionId,
         targetSkillCode: context?.targetSkillCode,
+        recentSkips: await this.recentSkipCount(userId),
       });
     } catch (adeErr: any) {
       this.logger.error(`ADE failed: ${adeErr?.message}`, adeErr?.stack);
-      // Fallback: skip ADE, pick any easy activity
-      const fallback = await this.activityRepo.findOne({
-        where: { difficulty: DifficultyLevel.EASY, isActive: true },
-      });
+      const fallback = await this.selectFallbackActivity(userId, context?.excludedActivityId);
       if (!fallback) throw new Error('No activities available');
       return {
         activity: await this.attachSemanticContract(fallback),
@@ -157,9 +169,7 @@ export class ActivitiesService {
       await this.persistSelection(adeDecision, selection);
     } catch (matchErr: any) {
       this.logger.error(`findMatchingActivity failed: ${matchErr?.message}`);
-      const fallback = await this.activityRepo.findOne({
-        where: { isActive: true },
-      });
+      const fallback = await this.selectFallbackActivity(userId, context?.excludedActivityId);
       if (!fallback) throw new Error('No activities available');
       activity = fallback;
     }
@@ -290,8 +300,9 @@ export class ActivitiesService {
         this.adeService.decide({
           userId,
           profile,
-          recentAttempts: await this.getRecentAttempts(userId, 5),
+          recentAttempts: await this.getRecentAttempts(userId, 20),
           sessionId: dto.sessionId,
+          recentSkips: await this.recentSkipCount(userId),
         }),
         timeout,
       ]);
@@ -303,15 +314,9 @@ export class ActivitiesService {
       nextActivity = selection.activity;
       await this.persistSelection(adeDecision, selection);
     } catch (err: any) {
-      this.logger.error(`Next activity fetch failed: ${err?.message}. Using random fallback.`);
+      this.logger.error(`Next activity fetch failed: ${err?.message}. Using cooldown fallback.`);
       try {
-        const fallbacks = await this.activityRepo
-          .createQueryBuilder('activity')
-          .where('activity.isActive = true')
-          .andWhere('activity.id != :id', { id: dto.activityId })
-          .orderBy('RANDOM()')
-          .limit(1)
-          .getOne();
+        const fallbacks = await this.selectFallbackActivity(userId, dto.activityId);
         if (fallbacks) nextActivity = fallbacks;
       } catch {
         // no-op — nextActivity stays undefined
@@ -384,8 +389,8 @@ export class ActivitiesService {
 
   private semanticLevelDelta(previous: unknown, replacement: unknown): number | null {
     const levels: Record<string, number> = {
-      easy: 1, low: 1, low_to_medium: 2, medium: 3, medium_with_low_motor_alternative: 3,
-      medium_with_keyboard_alternative: 3, hard: 4, high: 4,
+      very_easy: 0, easy: 1, low: 1, low_to_medium: 2, medium: 3, medium_with_low_motor_alternative: 3,
+      medium_with_keyboard_alternative: 3, hard: 4, high: 4, extreme: 5,
     };
     const before = levels[String(previous ?? '').toLowerCase()];
     const after = levels[String(replacement ?? '').toLowerCase()];
@@ -593,6 +598,15 @@ export class ActivitiesService {
     });
   }
 
+  private async recentSkipCount(userId: string): Promise<number> {
+    const attempts = await this.getRecentAttempts(userId, 5);
+    if (!attempts.length) return 0;
+    const oldest = attempts[attempts.length - 1].createdAt;
+    return typeof this.learningEventService.getRecentSkippedActivityIds === 'function'
+      ? (await this.learningEventService.getRecentSkippedActivityIds(userId, 5, oldest)).length
+      : 0;
+  }
+
   async getUserAttemptHistory(userId: string): Promise<ActivityAttempt[]> {
     return this.attemptRepo.find({
       where: { userId },
@@ -635,12 +649,20 @@ export class ActivitiesService {
     const activities = await Promise.all(
       storedActivities.map((activity) => this.attachSemanticContract(activity)),
     );
-    const legacyCandidates = activities.filter((activity) =>
+    const sameSkill = activities.filter((activity) =>
+      activity.bnccSkills?.includes(adeDecision.recommendedBnccSkill));
+    const skillCandidates = sameSkill.length ? sameSkill : activities;
+    const legacyCandidates = skillCandidates.filter((activity) =>
       this.matchesLegacyRecommendation(activity, adeDecision),
     );
+    const [recentAttempts, rejectedActivityIds] = await Promise.all([
+      this.getRecentAttempts(adeDecision.userId, 20),
+      this.learningEventService.getRecentSkippedActivityIds(adeDecision.userId, 20),
+    ]);
+    const recentIds = [...rejectedActivityIds, ...recentAttempts.map((attempt) => attempt.activityId)];
 
     if (!this.ontologyService || !this.runtimeSemanticAdapter || !this.hybridRecommendationService) {
-      const candidates = legacyCandidates.length > 0 ? legacyCandidates : activities;
+      const candidates = this.cooldown(legacyCandidates.length > 0 ? legacyCandidates : skillCandidates, activities, recentIds);
       const fallbackReason = 'Formal semantic or hybrid ranking services are unavailable; legacy selection was used';
       const activity = candidates[Math.floor(Math.random() * candidates.length)];
       return {
@@ -667,7 +689,7 @@ export class ActivitiesService {
     const formallyValid = activities.filter((activity) => validIds.has(activity.id));
 
     if (semanticResult.trace.fallbackUsed) {
-      const candidates = legacyCandidates.length > 0 ? legacyCandidates : activities;
+      const candidates = this.cooldown(legacyCandidates.length > 0 ? legacyCandidates : skillCandidates, activities, recentIds);
       const activity = candidates[Math.floor(Math.random() * candidates.length)];
       return {
         activity,
@@ -681,21 +703,21 @@ export class ActivitiesService {
       };
     }
 
-    const [recentAttempts, rejectedActivityIds] = await Promise.all([
-      this.getRecentAttempts(adeDecision.userId, 20),
-      this.learningEventService.getRecentSkippedActivityIds(adeDecision.userId, 20),
-    ]);
+    const matchingLevel = formallyValid.filter((activity) =>
+      activity.difficulty === adeDecision.recommendedDifficulty);
+    const rankedCandidates = this.cooldown(
+      matchingLevel.length ? matchingLevel : formallyValid, activities, recentIds);
     const ranking = this.hybridRecommendationService.rank({
-      candidates: formallyValid,
+      candidates: rankedCandidates,
       masteryProbability: facts.mastery.probability,
       semanticTrace: semanticResult.trace,
       recentActivityIds: recentAttempts.map((attempt) => attempt.activityId),
       recentlyRejectedActivityIds: rejectedActivityIds,
       observedEvidenceTypes: facts.observedEvidenceTypes,
     });
-    const selected = formallyValid.find((activity) => activity.id === ranking.selectedActivityId);
+    const selected = rankedCandidates.find((activity) => activity.id === ranking.selectedActivityId);
     if (!selected) {
-      const candidates = legacyCandidates.length > 0 ? legacyCandidates : activities;
+      const candidates = this.cooldown(legacyCandidates.length > 0 ? legacyCandidates : skillCandidates, activities, recentIds);
       const activity = candidates[Math.floor(Math.random() * candidates.length)];
       const fallbackReason = ranking.fallbackReason ?? 'Hybrid ranking did not select a valid candidate';
       return {
@@ -715,6 +737,41 @@ export class ActivitiesService {
       semanticTrace: semanticResult.trace,
       ranking,
     };
+  }
+
+  private cooldown(candidates: Activity[], catalog: Activity[], recentIds: string[]): Activity[] {
+    if (!candidates.length) return candidates;
+    const byId = new Map(catalog.map((activity) => [activity.id, activity]));
+    const recent = recentIds.slice(0, 4).map((id) => byId.get(id)).filter((item): item is Activity => Boolean(item));
+    const recentStructures = new Set(recent.map((item) => item.content?.semantic?.structureId ?? item.title));
+    const recentItems = new Set(recent.map((item) => JSON.stringify(item.content?.items ?? item.content?.pictogramConceptIds ?? [])));
+    const recentTypes = new Set(recent.slice(0, 2).map((item) => item.type));
+    const stages = [
+      (item: Activity) => !recentIds.slice(0, 8).includes(item.id) &&
+        !recentStructures.has(item.content?.semantic?.structureId ?? item.title) &&
+        !recentItems.has(JSON.stringify(item.content?.items ?? item.content?.pictogramConceptIds ?? [])) &&
+        !recentTypes.has(item.type),
+      (item: Activity) => !recentIds.slice(0, 5).includes(item.id) &&
+        !recentStructures.has(item.content?.semantic?.structureId ?? item.title),
+      (item: Activity) => !recentIds.slice(0, 2).includes(item.id),
+    ];
+    for (const stage of stages) {
+      const available = candidates.filter(stage);
+      if (available.length) return available;
+    }
+    return candidates;
+  }
+
+  private async selectFallbackActivity(userId: string, excludedId?: string): Promise<Activity | null> {
+    const catalog = await this.activityRepo.find({ where: { isActive: true } });
+    const candidates = catalog.filter((item) => item.id !== excludedId);
+    if (!candidates.length) return null;
+    const [attempts, skipped] = await Promise.all([
+      this.getRecentAttempts(userId, 20),
+      this.learningEventService.getRecentSkippedActivityIds(userId, 20),
+    ]);
+    return this.cooldown(candidates, catalog,
+      [...skipped, ...attempts.map((attempt) => attempt.activityId)])[0] ?? null;
   }
 
   private matchesLegacyRecommendation(activity: Activity, adeDecision: any): boolean {

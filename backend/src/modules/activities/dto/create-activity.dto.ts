@@ -26,6 +26,10 @@ export class CreateActivityDto {
   @IsArray()
   bnccSkills: string[];
 
+  @IsOptional()
+  @IsArray()
+  skillWeights?: Array<{ code: string; role: 'primary' | 'secondary'; weight: number }>;
+
   @IsArray()
   targetModalities: string[];
 
