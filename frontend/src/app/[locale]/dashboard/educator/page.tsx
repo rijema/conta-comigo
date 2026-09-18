@@ -24,6 +24,31 @@ const SUPPORT_LEVELS = [
   { value: "strong", label: "Intenso", color: "bg-red-100 text-red-700 border-red-300" },
 ];
 
+const ACTIVITY_FORMATS = [
+  ['counting', 'Contagem'], ['multiple_choice', 'Escolha'], ['quiz', 'Perguntas'],
+  ['drag_drop', 'Arrastar'], ['number_line', 'Reta numérica'],
+  ['composition_decomposition', 'Composição'], ['missing_number', 'Número que falta'],
+  ['pattern_completion', 'Padrões'], ['representation_matching', 'Correspondência'],
+  ['error_detection', 'Encontrar o erro'], ['contextual_problem_solving', 'Problemas do cotidiano'],
+] as const;
+const BNCC_OPTIONS = ['EF01MA01', 'EF01MA02', 'EF01MA03', 'EF01MA06', 'EF01MA07', 'EF01MA08', 'EF01MA14', 'EF02MA01', 'EF02MA05', 'EF03MA07', 'EF03MA15'];
+const BNCC_PRIORITY_LABELS: Record<string, string> = {
+  EF01MA01: 'Números no cotidiano', EF01MA02: 'Contagem', EF01MA03: 'Comparação de quantidades',
+  EF01MA06: 'Adição', EF01MA07: 'Composição de números', EF01MA08: 'Problemas de somar e tirar',
+  EF01MA14: 'Formas planas', EF02MA01: 'Comparar e ordenar números', EF02MA05: 'Adição e subtração',
+  EF03MA07: 'Multiplicação', EF03MA15: 'Classificação de formas',
+};
+const DEFAULT_EXPERIENCE_PREFERENCES = {
+  soundEnabled: true, voiceEnabled: true, soundEffectsEnabled: true,
+  animationsEnabled: true, animationsReduced: false, lowStimulation: false, highContrast: false,
+  volume: 0.7, speechRate: 0.9, visualStimulus: 'medium', audioStimulus: 'medium',
+  animationSpeed: 'normal', feedbackVisual: 'normal', celebrationFrequency: 'frequent',
+  predictability: 'standard', reinforcementPreference: 'normal', maxSimultaneousElements: 20,
+  autoHints: false, helpDelaySeconds: 30, allowChangeActivity: true,
+  disabledActivityTypes: [] as string[], prioritizedBnccSkills: [] as string[],
+  adaptiveDifficulty: true, manualDifficulty: 'easy',
+};
+
 export default function EducatorDashboardPage() {
   const { user, isLoading: authLoading, logout } = useAuth();
   const [learners, setLearners] = useState<any[]>([]);
@@ -237,7 +262,7 @@ export default function EducatorDashboardPage() {
                           : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                       }`}
                     >
-                      {{ overview: "📊 Visão Geral", skills: "🧠 Habilidades", ade: "🤖 IA/ADE", report: "📄 Relatório" }[tab]}
+                      {{ overview: "📊 Visão Geral", skills: "🎨 Perfil e experiência", ade: "🤖 IA/ADE", report: "📄 Relatório" }[tab]}
                     </button>
                   ))}
                 </div>
@@ -537,7 +562,12 @@ function SkillEditor({ profile, onSave, saving, savedMsg }: {
   const [strengths, setStrengths] = useState<Record<string, boolean>>(profile.strengths ?? {});
   const [weaknesses, setWeaknesses] = useState<Record<string, boolean>>(profile.weaknesses ?? {});
   const [asdLevel, setAsdLevel] = useState(profile.asdSupportLevel ?? "mild");
-  const [uiPrefs, setUiPrefs] = useState(profile.uiPreferences ?? {});
+  const [uiPrefs, setUiPrefs] = useState({ ...DEFAULT_EXPERIENCE_PREFERENCES, ...(profile.uiPreferences ?? {}) });
+  const setPreference = (key: string, value: unknown) => setUiPrefs((current: any) => ({ ...current, [key]: value }));
+  const toggleListPreference = (key: string, value: string) => setUiPrefs((current: any) => {
+    const selected = Array.isArray(current[key]) ? current[key] : [];
+    return { ...current, [key]: selected.includes(value) ? selected.filter((item: string) => item !== value) : [...selected, value] };
+  });
 
   const toggleStrength = (skill: Skill) => {
     setStrengths((prev) => ({ ...prev, [skill]: !prev[skill] }));
@@ -570,9 +600,7 @@ function SkillEditor({ profile, onSave, saving, savedMsg }: {
 
       <div className="bg-white rounded-2xl shadow-sm p-5">
         <h3 className="font-bold text-slate-700 mb-1">⚡ Forças e Dificuldades</h3>
-        <p className="text-xs text-slate-500 mb-4">
-          Essas configurações alimentam diretamente a ontologia LASDONT que guia a escolha de atividades.
-        </p>
+        <p className="text-xs text-slate-500 mb-4">Observações do profissional sobre a experiência da criança; não definem um grupo sensorial fixo.</p>
         <div className="space-y-3">
           {SKILLS.map((skill) => (
             <div key={skill} className="flex items-center gap-3">
@@ -604,27 +632,54 @@ function SkillEditor({ profile, onSave, saving, savedMsg }: {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm p-5">
-        <h3 className="font-bold text-slate-700 mb-3">🎨 Preferências de Interface</h3>
-        <div className="grid grid-cols-2 gap-3">
-          {[
-            { key: "lowStimulation", label: "Baixa Estimulação" },
-            { key: "highContrast", label: "Alto Contraste" },
-            { key: "animationsEnabled", label: "Animações" },
-            { key: "soundEnabled", label: "Sons" },
-            { key: "voiceEnabled", label: "Leitura dos pictogramas pela TitiA" },
-          ].map(({ key, label }) => (
-            <label key={key} className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={uiPrefs[key] ?? false}
-                onChange={(e) => setUiPrefs((p: any) => ({ ...p, [key]: e.target.checked }))}
-                className="w-5 h-5 rounded accent-indigo-600"
-              />
-              <span className="text-sm text-slate-700">{label}</span>
+      <div className="space-y-5 rounded-2xl bg-white p-5 shadow-sm">
+        <div><h3 className="font-bold text-slate-800">🎨 Perfil sensorial</h3><p className="text-sm text-slate-600">Ajuste cada dimensão separadamente. Baixa estimulação também pausa efeitos sonoros e movimento intenso; a voz pode continuar ativa. A fórmula de recomendação permanece igual.</p></div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {([
+            ['soundEnabled', 'Som geral'], ['voiceEnabled', 'Voz da TitiA'], ['soundEffectsEnabled', 'Efeitos sonoros'],
+            ['animationsEnabled', 'Animações'], ['animationsReduced', 'Animações reduzidas'], ['lowStimulation', 'Modo de baixa estimulação'],
+            ['highContrast', 'Alto contraste'], ['autoHints', 'Oferecer ajuda automaticamente'],
+            ['allowChangeActivity', 'Permitir “Quero outro”'],
+          ] as const).map(([key, label]) => (
+            <label key={key} className="flex min-h-12 items-center gap-3 rounded-xl border border-slate-200 p-3 text-sm font-semibold text-slate-700">
+              <input type="checkbox" checked={uiPrefs[key] ?? !['lowStimulation', 'highContrast', 'animationsReduced', 'autoHints'].includes(key)} onChange={(event) => setPreference(key, event.target.checked)} className="h-5 w-5 accent-indigo-600" />{label}
             </label>
           ))}
         </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <label className="text-sm font-semibold text-slate-700">Volume ({Math.round((uiPrefs.volume ?? 0.7) * 100)}%)<input type="range" min="0" max="1" step="0.1" value={uiPrefs.volume ?? 0.7} onChange={(event) => setPreference('volume', Number(event.target.value))} className="mt-2 w-full" /></label>
+          <label className="text-sm font-semibold text-slate-700">Velocidade da fala ({uiPrefs.speechRate ?? 0.9}×)<input type="range" min="0.6" max="1.2" step="0.1" value={uiPrefs.speechRate ?? 0.9} onChange={(event) => setPreference('speechRate', Number(event.target.value))} className="mt-2 w-full" /></label>
+          {([
+            ['visualStimulus', 'Estímulos visuais', [['low', 'Poucos'], ['medium', 'Moderados'], ['high', 'Mais elementos']]],
+            ['audioStimulus', 'Intensidade sonora', [['low', 'Baixa'], ['medium', 'Moderada'], ['high', 'Alta']]],
+            ['animationSpeed', 'Velocidade das animações', [['slow', 'Lenta'], ['normal', 'Normal'], ['fast', 'Rápida']]],
+            ['feedbackVisual', 'Feedback visual', [['minimal', 'Mínimo'], ['normal', 'Normal'], ['reinforced', 'Reforçado']]],
+            ['celebrationFrequency', 'Frequência de celebrações', [['round_only', 'Só ao terminar'], ['normal', 'Normal'], ['frequent', 'Frequente']]],
+            ['predictability', 'Previsibilidade', [['standard', 'Padrão'], ['high', 'Mais previsível']]],
+            ['reinforcementPreference', 'Preferência por reforço', [['minimal', 'Discreto'], ['normal', 'Normal'], ['frequent', 'Frequente']]],
+          ] as const).map(([key, label, options]) => (
+            <label key={key} className="text-sm font-semibold text-slate-700">{label}
+              <select value={uiPrefs[key] ?? options[1]?.[0] ?? options[0][0]} onChange={(event) => setPreference(key, event.target.value)} className="mt-1 block min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3">
+                {options.map(([value, text]) => <option key={value} value={value}>{text}</option>)}
+              </select>
+            </label>
+          ))}
+          <label className="text-sm font-semibold text-slate-700">Elementos simultâneos
+            <select value={uiPrefs.maxSimultaneousElements ?? 20} onChange={(event) => setPreference('maxSimultaneousElements', Number(event.target.value))} className="mt-1 block min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3">
+              {[4, 6, 8, 12, 20].map((value) => <option key={value} value={value}>Até {value}</option>)}
+            </select>
+          </label>
+          <label className="text-sm font-semibold text-slate-700">Tempo antes de oferecer ajuda
+            <select value={uiPrefs.helpDelaySeconds ?? 30} onChange={(event) => setPreference('helpDelaySeconds', Number(event.target.value))} className="mt-1 block min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3">
+              {[15, 30, 45, 60].map((value) => <option key={value} value={value}>{value} segundos</option>)}
+            </select>
+          </label>
+        </div>
+        <div className="border-t border-slate-200 pt-4"><h4 className="font-bold text-slate-800">Atividades e currículo</h4><p className="text-sm text-slate-600">Restrições só se aplicam quando existe atividade compatível; pré-requisitos continuam obrigatórios.</p></div>
+        <fieldset><legend className="mb-2 text-sm font-semibold text-slate-700">Tipos de exercício indisponíveis</legend><div className="grid gap-2 sm:grid-cols-2">{ACTIVITY_FORMATS.map(([type, label]) => <label key={type} className="flex min-h-10 items-center gap-2 text-sm"><input type="checkbox" checked={(uiPrefs.disabledActivityTypes ?? []).includes(type)} onChange={() => toggleListPreference('disabledActivityTypes', type)} className="h-5 w-5" />{label}</label>)}</div></fieldset>
+        <fieldset><legend className="mb-2 text-sm font-semibold text-slate-700">Habilidades BNCC a priorizar</legend><div className="flex flex-wrap gap-2">{BNCC_OPTIONS.map((code) => <label key={code} className="flex min-h-10 items-center gap-2 rounded-xl border border-slate-200 px-3 text-sm"><input type="checkbox" checked={(uiPrefs.prioritizedBnccSkills ?? []).includes(code)} onChange={() => toggleListPreference('prioritizedBnccSkills', code)} className="h-5 w-5" />{code} · {BNCC_PRIORITY_LABELS[code]}</label>)}</div></fieldset>
+        <label className="flex items-center gap-3 text-sm font-semibold text-slate-700"><input type="checkbox" checked={uiPrefs.adaptiveDifficulty !== false} onChange={(event) => setPreference('adaptiveDifficulty', event.target.checked)} className="h-5 w-5" />Dificuldade adaptativa automática</label>
+        {uiPrefs.adaptiveDifficulty === false && <label className="block text-sm font-semibold text-slate-700">Dificuldade manual até voltar ao modo adaptativo<select value={uiPrefs.manualDifficulty ?? 'easy'} onChange={(event) => setPreference('manualDifficulty', event.target.value)} className="mt-1 block min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3">{[['very_easy', 'Muito fácil'], ['easy', 'Fácil'], ['medium', 'Médio'], ['hard', 'Difícil'], ['extreme', 'Extremo']].map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>}
       </div>
 
       <div className="flex items-center gap-3">

@@ -1,4 +1,4 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import { Injectable, ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
@@ -117,7 +117,7 @@ export class GuardianService {
           weaknesses: profile.weaknesses ?? {},
           bnccProgress: profile.bnccProgress ?? {},
           skillMastery,
-          totalSessions: latest?.totalActivitiesCompleted ?? 0,
+          totalSessions: new Set(recentAttempts.map((attempt) => attempt.sessionId).filter(Boolean)).size,
           averageScore: latest?.overallAccuracy ?? 0,
           engagementIndex: latest?.engagementIndex ?? 0,
           lastActivityAt: latest?.createdAt ?? null,
@@ -159,6 +159,23 @@ export class GuardianService {
 
     const totalAttempts = attempts.length;
     const correct = attempts.filter((a) => a.isCorrect).length;
+    const completed = attempts.filter((attempt) => attempt.isCorrect);
+    const sessionIds = new Set(attempts.map((attempt) => attempt.sessionId).filter(Boolean));
+    const formatCounts = new Map<string, number>();
+    const skillCounts = new Map<string, number>();
+    const successfulSkillCounts = new Map<string, number>();
+    for (const attempt of attempts) {
+      for (const code of attempt.activity?.bnccSkills ?? []) {
+        skillCounts.set(code, (skillCounts.get(code) ?? 0) + 1);
+      }
+    }
+    for (const attempt of completed) {
+      const format = attempt.activity?.type;
+      if (format) formatCounts.set(format, (formatCounts.get(format) ?? 0) + 1);
+      for (const code of attempt.activity?.bnccSkills ?? []) {
+        successfulSkillCounts.set(code, (successfulSkillCounts.get(code) ?? 0) + 1);
+      }
+    }
 
     return {
       id: childId,
@@ -175,12 +192,50 @@ export class GuardianService {
         totalAttempts,
         correct,
         accuracy: totalAttempts > 0 ? Math.round((correct / totalAttempts) * 100) : 0,
+        sessionCount: sessionIds.size,
       },
+      recentActivities: attempts.slice(0, 8).map((attempt) => ({
+        id: attempt.id,
+        title: attempt.activity?.title ?? 'Atividade de matemática',
+        format: attempt.activity?.type ?? null,
+        skills: attempt.activity?.bnccSkills ?? [],
+        correct: attempt.isCorrect,
+        date: attempt.createdAt,
+      })),
+      practicedSkills: [...skillCounts].map(([code, count]) => ({ code, count })),
+      recentlySuccessfulSkills: [...successfulSkillCounts].map(([code, count]) => ({ code, count })),
+      favoriteFormats: [...formatCounts].sort((a, b) => b[1] - a[1]).slice(0, 3).map(([type, count]) => ({ type, count })),
       progressOverTime,
       recentAdeDecisions: adeHistory.map((decision) =>
         this.recommendationExplanationService.toGuardianDecision(decision),
       ),
     };
+  }
+
+  async updateChildAccess(guardianId: string, childId: string, dto: { childName: string; childPassword: string }) {
+    const profile = await this.childProfileRepo.findOne({ where: { userId: childId, guardianId } });
+    if (!profile) throw new ForbiddenException('Child is not linked to this guardian');
+    const name = dto.childName.trim();
+    if (!name || dto.childPassword.length < 4) throw new ForbiddenException('Invalid child access details');
+    const child = await this.userRepo.findOne({ where: { id: childId, role: UserRole.CHILD } });
+    if (!child) throw new ForbiddenException('Child account is unavailable');
+    child.name = name;
+    child.password = await bcrypt.hash(dto.childPassword, 12);
+    await this.userRepo.save(child);
+    return { id: child.id, name: child.name };
+  }
+
+  async updateOwnPassword(guardianId: string, dto: { currentPassword: string; newPassword: string }) {
+    const guardian = await this.userRepo.createQueryBuilder('user')
+      .addSelect('user.password')
+      .where('user.id = :guardianId AND user.role = :role', { guardianId, role: UserRole.GUARDIAN })
+      .getOne();
+    if (!guardian || !await bcrypt.compare(dto.currentPassword, guardian.password)) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+    guardian.password = await bcrypt.hash(dto.newPassword, 12);
+    await this.userRepo.save(guardian);
+    return { success: true };
   }
 
   async chatWithContext(guardianId: string, childId: string, question: string) {

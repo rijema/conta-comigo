@@ -2,12 +2,14 @@ export interface TitiaSpeechConfiguration {
   enabled: boolean;
   rate: number;
   language: string;
+  volume?: number;
 }
 
 export interface SpeechRequest {
   text: string;
   rate: number;
   language: string;
+  volume?: number;
   onEnd: () => void;
   onStart?: () => void;
   onFailure?: () => void;
@@ -32,11 +34,12 @@ export class BrowserSpeechEngine implements TitiaSpeechEngine {
       typeof SpeechSynthesisUtterance !== "undefined";
   }
 
-  speak({ text, rate, language, onEnd, onStart, onFailure }: SpeechRequest): void {
+  speak({ text, rate, language, volume, onEnd, onStart, onFailure }: SpeechRequest): void {
     if (!this.isAvailable()) { onFailure?.(); return; }
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = language;
     utterance.rate = rate;
+    utterance.volume = volume ?? 1;
     utterance.pitch = 1.05;
     utterance.onend = onEnd;
     utterance.onerror = onEnd;
@@ -55,6 +58,7 @@ const DEFAULT_CONFIGURATION: TitiaSpeechConfiguration = {
   enabled: true,
   rate: 0.9,
   language: "pt-BR",
+  volume: 0.7,
 };
 
 export class TitiaSpeechService {
@@ -70,7 +74,8 @@ export class TitiaSpeechService {
     const rate = configuration.rate === undefined
       ? this.configuration.rate
       : Math.min(2, Math.max(0.5, configuration.rate));
-    this.configuration = { ...this.configuration, ...configuration, rate };
+    const volume = configuration.volume === undefined ? this.configuration.volume : Math.min(1, Math.max(0, configuration.volume));
+    this.configuration = { ...this.configuration, ...configuration, rate, volume };
     if (!this.configuration.enabled) this.stopSpeech();
   }
 
@@ -142,6 +147,7 @@ export class TitiaSpeechService {
         text: parts[index],
         rate: this.configuration.rate,
         language: this.configuration.language,
+        volume: this.configuration.volume,
         onStart: () => {
           if (!playbackStarted && generation === this.playbackGeneration) {
             playbackStarted = true;

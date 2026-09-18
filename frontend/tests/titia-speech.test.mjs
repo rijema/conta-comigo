@@ -83,6 +83,17 @@ test("disabled speech cancels playback and emits no new engine request", () => {
   assert.ok(engine.cancellations >= 1);
 });
 
+test("professional volume is clamped and reaches the speech engine", () => {
+  const engine = new FakeSpeechEngine();
+  const service = new TitiaSpeechService(engine);
+  service.configure({ volume: 0.3 });
+  service.speakFeedback("Muito bem!");
+  assert.equal(engine.requests[0].volume, 0.3);
+  service.configure({ volume: 2 });
+  service.speakFeedback("Vamos continuar.");
+  assert.equal(engine.requests[1].volume, 1);
+});
+
 test("guided activities expose authored step sequences through explicit speech controls", () => {
   const guided = readFileSync(new URL("../src/components/activity/guided-instructions.tsx", import.meta.url), "utf8");
   const seeds = readFileSync(new URL("../../backend/src/database/seeds/activities.seed.ts", import.meta.url), "utf8");

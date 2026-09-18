@@ -65,6 +65,24 @@ export class ChildProfile {
     automaticInstructionSpeech?: boolean;
     speechLanguage?: string;
     preferredModality?: 'visual' | 'auditive' | 'mixed';
+    soundEffectsEnabled?: boolean;
+    volume?: number;
+    animationSpeed?: 'slow' | 'normal' | 'fast';
+    animationsReduced?: boolean;
+    visualStimulus?: 'low' | 'medium' | 'high';
+    audioStimulus?: 'low' | 'medium' | 'high';
+    feedbackVisual?: 'minimal' | 'normal' | 'reinforced';
+    maxSimultaneousElements?: number;
+    celebrationFrequency?: 'round_only' | 'normal' | 'frequent';
+    autoHints?: boolean;
+    helpDelaySeconds?: number;
+    allowChangeActivity?: boolean;
+    disabledActivityTypes?: string[];
+    prioritizedBnccSkills?: string[];
+    manualDifficulty?: string | null;
+    adaptiveDifficulty?: boolean;
+    predictability?: 'standard' | 'high';
+    reinforcementPreference?: 'minimal' | 'normal' | 'frequent';
   };
 
   /** @deprecated Read current mastery from StudentSkillState. */

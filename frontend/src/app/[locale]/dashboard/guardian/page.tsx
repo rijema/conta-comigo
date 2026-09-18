@@ -16,14 +16,15 @@ const SKILL_LABELS: Record<string, string> = {
 };
 
 const BNCC_AREAS: Record<string, { label: string; color: string; emoji: string }> = {
-  EF01MA01: { label: "Contagem 1-10", color: "#818cf8", emoji: "🔢" },
-  EF01MA02: { label: "Contagem 1-20", color: "#34d399", emoji: "🔟" },
-  EF01MA03: { label: "Comparação", color: "#f59e0b", emoji: "⚖️" },
-  EF01MA04: { label: "Ordenação", color: "#ec4899", emoji: "📊" },
-  EF01MA05: { label: "Adição", color: "#60a5fa", emoji: "➕" },
-  EF01MA06: { label: "Subtração", color: "#f97316", emoji: "➖" },
-  EF02MA01: { label: "Numeração", color: "#a78bfa", emoji: "🔣" },
-  EF02MA03: { label: "Operações", color: "#10b981", emoji: "🧮" },
+  EF01MA01: { label: "Números no cotidiano", color: "#818cf8", emoji: "🔢" },
+  EF01MA02: { label: "Contagem", color: "#34d399", emoji: "🔟" },
+  EF01MA03: { label: "Comparação de quantidades", color: "#f59e0b", emoji: "⚖️" },
+  EF01MA06: { label: "Adição", color: "#60a5fa", emoji: "➕" },
+  EF01MA07: { label: "Montar e separar números", color: "#a78bfa", emoji: "🔣" },
+  EF01MA08: { label: "Problemas de somar e tirar", color: "#f97316", emoji: "🧮" },
+  EF01MA14: { label: "Formas planas", color: "#ec4899", emoji: "🔷" },
+  EF02MA01: { label: "Comparar e ordenar números", color: "#10b981", emoji: "📊" },
+  EF02MA05: { label: "Adição e subtração", color: "#eab308", emoji: "🧮" },
 };
 
 const ACTIVITY_TYPES: Record<string, { label: string; emoji: string; color: string }> = {
@@ -32,6 +33,16 @@ const ACTIVITY_TYPES: Record<string, { label: string; emoji: string; color: stri
   quiz:            { label: "Quiz", emoji: "❓", color: "#f59e0b" },
   drag_drop:       { label: "Arrasta e Solta", emoji: "🖐️", color: "#ec4899" },
   number_line:     { label: "Reta Numérica", emoji: "📏", color: "#60a5fa" },
+};
+
+const HOME_IDEAS: Record<string, string> = {
+  EF01MA01: 'Contem juntos objetos da casa, um de cada vez.',
+  EF01MA02: 'Separem pequenos grupos de objetos e contem cada grupo.',
+  EF01MA03: 'Compare dois grupos de objetos: qual tem mais ou menos?',
+  EF01MA06: 'Juntem dois pequenos grupos de objetos e contem o total.',
+  EF01MA07: 'Montem o mesmo número de duas formas usando objetos.',
+  EF01MA08: 'Criem uma história simples de juntar ou tirar objetos.',
+  EF01MA14: 'Procurem círculos, quadrados e triângulos pela casa.',
 };
 
 /* ── SVG Bar Chart ──────────────────────────────────────────────── */
@@ -147,8 +158,41 @@ export default function GuardianDashboardPage() {
   const [addForm, setAddForm] = useState({ childName: "", age: "", childPassword: "" });
   const [addLoading, setAddLoading] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
+  const [accessForm, setAccessForm] = useState({ childName: "", childPassword: "" });
+  const [accessMessage, setAccessMessage] = useState("");
+  const [accessSaving, setAccessSaving] = useState(false);
+  const [guardianPasswords, setGuardianPasswords] = useState({ currentPassword: "", newPassword: "" });
+  const [guardianPasswordMessage, setGuardianPasswordMessage] = useState("");
+  const [guardianPasswordSaving, setGuardianPasswordSaving] = useState(false);
   const router = useRouter();
   const locale = useLocale();
+
+  const saveChildAccess = async () => {
+    if (!selected || accessForm.childPassword.length < 4 || !accessForm.childName.trim()) return;
+    setAccessSaving(true); setAccessMessage("");
+    try {
+      const token = authService.getStoredToken();
+      const updated = await api.put<{ id: string; name: string }>(`/guardian/children/${selected.id}/access`, accessForm, token ?? undefined);
+      setSelected((current: any) => current ? { ...current, name: updated.name } : current);
+      setDetail((current: any) => current ? { ...current, name: updated.name } : current);
+      setChildren((current) => current.map((child) => child.id === updated.id ? { ...child, name: updated.name } : child));
+      setAccessForm({ childName: updated.name, childPassword: "" });
+      setAccessMessage("Nome e senha da criança atualizados.");
+    } catch { setAccessMessage("Não foi possível atualizar os dados de acesso."); }
+    finally { setAccessSaving(false); }
+  };
+
+  const saveGuardianPassword = async () => {
+    if (!guardianPasswords.currentPassword || guardianPasswords.newPassword.length < 8) return;
+    setGuardianPasswordSaving(true); setGuardianPasswordMessage("");
+    try {
+      const token = authService.getStoredToken();
+      await api.put('/guardian/password', guardianPasswords, token ?? undefined);
+      setGuardianPasswords({ currentPassword: "", newPassword: "" });
+      setGuardianPasswordMessage('Sua senha foi atualizada.');
+    } catch { setGuardianPasswordMessage('Não foi possível alterar sua senha. Confira a senha atual.'); }
+    finally { setGuardianPasswordSaving(false); }
+  };
 
   useEffect(() => {
     if (authLoading) return;
@@ -168,6 +212,8 @@ export default function GuardianDashboardPage() {
   const selectChild = async (child: any, token?: string | null) => {
     const t = token ?? authService.getStoredToken();
     setSelected(child);
+    setAccessForm({ childName: child.name ?? "", childPassword: "" });
+    setAccessMessage("");
     setDetail(null);
     setLongitudinal(null);
     setDetailLoading(true);
@@ -367,6 +413,57 @@ export default function GuardianDashboardPage() {
                       ))}
                     </div>
 
+                    <section className="rounded-2xl border border-purple-100 bg-white p-5 shadow-sm" aria-labelledby="family-summary-title">
+                      <h3 id="family-summary-title" className="text-lg font-bold text-slate-800">O que {detail.name} praticou</h3>
+                      <p className="mt-1 text-sm text-slate-600">Um resumo das atividades registradas recentemente, sem classificar domínio.</p>
+                      <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                        <p className="rounded-xl bg-purple-50 p-3 text-sm"><strong className="block text-xl text-purple-800">{detail.stats?.sessionCount ?? 0}</strong>Sessões nas últimas atividades</p>
+                        <p className="rounded-xl bg-amber-50 p-3 text-sm"><strong className="block text-xl text-amber-800">{detail.totalPoints ?? 0}</strong>Pontos acumulados</p>
+                        <p className="rounded-xl bg-emerald-50 p-3 text-sm"><strong className="block text-xl text-emerald-800">{detail.currentStreak ?? 0}</strong>Dias de sequência registrados</p>
+                      </div>
+                      <h4 className="mt-5 font-bold text-slate-700">🌱 Está aprendendo e praticando</h4>
+                      <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                        {(detail.practicedSkills ?? []).length === 0 && <p className="text-sm text-slate-500">Ainda não há atividades suficientes para este resumo.</p>}
+                        {(detail.practicedSkills ?? []).map(({ code, count }: { code: string; count: number }) => (
+                          <p key={code} className="rounded-xl border border-slate-200 p-3 text-sm"><strong className="block text-slate-800">{BNCC_AREAS[code]?.label ?? 'Matemática'}</strong>Praticou em {count} {count === 1 ? 'atividade' : 'atividades'}.</p>
+                        ))}
+                      </div>
+                      <h4 className="mt-5 font-bold text-slate-700">✨ Já conseguiu em atividades recentes</h4>
+                      <p className="mt-1 text-sm text-slate-600">Acertos observados, sem concluir que a habilidade foi dominada.</p>
+                      <div className="mt-2 flex flex-wrap gap-2">{(detail.recentlySuccessfulSkills ?? []).length ? detail.recentlySuccessfulSkills.map(({ code, count }: { code: string; count: number }) => <span key={code} className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-900">{BNCC_AREAS[code]?.label ?? 'Matemática'} · {count} {count === 1 ? 'acerto' : 'acertos'}</span>) : <span className="text-sm text-slate-500">Ainda não há acertos registrados nesta amostra.</span>}</div>
+                      <h4 className="mt-5 font-bold text-slate-700">🎮 Formatos mais usados</h4>
+                      <p className="mt-1 text-sm text-slate-600">{(detail.favoriteFormats ?? []).length ? detail.favoriteFormats.map(({ type, count }: { type: string; count: number }) => `${ACTIVITY_TYPES[type]?.label ?? type} (${count})`).join(' · ') : 'Ainda sem atividades concluídas.'}</p>
+                      <h4 className="mt-5 font-bold text-slate-700">🕘 Atividades recentes</h4>
+                      <ul className="mt-2 space-y-2">{(detail.recentActivities ?? []).map((activity: any) => (
+                        <li key={activity.id} className="rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700"><strong>{activity.title}</strong> · {new Date(activity.date).toLocaleDateString('pt-BR')} · {activity.correct ? 'Concluída com acerto' : 'Em prática'}</li>
+                      ))}</ul>
+                      {(detail.recentActivities ?? []).length === 0 && <p className="text-sm text-slate-500">Nenhuma atividade registrada ainda.</p>}
+                      <h4 className="mt-5 font-bold text-slate-700">🏠 Ideia para praticar juntos</h4>
+                      <p className="mt-1 rounded-xl bg-sky-50 p-3 text-sm text-slate-700">{HOME_IDEAS[detail.practicedSkills?.[0]?.code] ?? 'Escolham objetos da casa para contar e comparar juntos, no ritmo da criança.'}</p>
+                    </section>
+
+                    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm" aria-labelledby="child-access-title">
+                      <h3 id="child-access-title" className="font-bold text-slate-800">Dados de acesso da criança</h3>
+                      <p className="mt-1 text-sm text-slate-600">O nome é usado para entrar. Para alterar o nome, informe também uma nova senha curta.</p>
+                      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                        <label className="text-sm font-semibold">Nome da criança<input value={accessForm.childName} onChange={(event) => setAccessForm((current) => ({ ...current, childName: event.target.value }))} className="mt-1 min-h-11 w-full rounded-xl border border-slate-300 px-3" /></label>
+                        <label className="text-sm font-semibold">Nova senha da criança<input type="password" minLength={4} value={accessForm.childPassword} onChange={(event) => setAccessForm((current) => ({ ...current, childPassword: event.target.value }))} className="mt-1 min-h-11 w-full rounded-xl border border-slate-300 px-3" /></label>
+                      </div>
+                      <button type="button" onClick={() => void saveChildAccess()} disabled={accessSaving || !accessForm.childName.trim() || accessForm.childPassword.length < 4} className="mt-3 min-h-11 rounded-xl bg-purple-700 px-5 font-bold text-white disabled:opacity-50">{accessSaving ? 'Salvando...' : 'Salvar nome e senha'}</button>
+                      {accessMessage && <p role="status" className="mt-2 text-sm text-slate-700">{accessMessage}</p>}
+                    </section>
+
+                    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm" aria-labelledby="guardian-password-title">
+                      <h3 id="guardian-password-title" className="font-bold text-slate-800">Minha senha</h3>
+                      <p className="mt-1 text-sm text-slate-600">Para trocar sua senha, informe a atual e escolha outra com pelo menos oito caracteres.</p>
+                      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                        <label className="text-sm font-semibold">Senha atual<input type="password" autoComplete="current-password" value={guardianPasswords.currentPassword} onChange={(event) => setGuardianPasswords((current) => ({ ...current, currentPassword: event.target.value }))} className="mt-1 min-h-11 w-full rounded-xl border border-slate-300 px-3" /></label>
+                        <label className="text-sm font-semibold">Nova senha<input type="password" autoComplete="new-password" minLength={8} value={guardianPasswords.newPassword} onChange={(event) => setGuardianPasswords((current) => ({ ...current, newPassword: event.target.value }))} className="mt-1 min-h-11 w-full rounded-xl border border-slate-300 px-3" /></label>
+                      </div>
+                      <button type="button" onClick={() => void saveGuardianPassword()} disabled={guardianPasswordSaving || !guardianPasswords.currentPassword || guardianPasswords.newPassword.length < 8} className="mt-3 min-h-11 rounded-xl bg-slate-800 px-5 font-bold text-white disabled:opacity-50">{guardianPasswordSaving ? 'Salvando...' : 'Atualizar minha senha'}</button>
+                      {guardianPasswordMessage && <p role="status" className="mt-2 text-sm text-slate-700">{guardianPasswordMessage}</p>}
+                    </section>
+
                     {longitudinal?.adaptations && (
                       <div className="bg-white rounded-2xl shadow-sm p-5 border border-slate-100">
                         <h3 className="font-bold text-slate-700 mb-1">🔄 Mudanças de atividade</h3>
@@ -428,7 +525,7 @@ export default function GuardianDashboardPage() {
 
                   const bnccEntries = Object.entries(detail.bnccProgress ?? {});
                   const bnccBarData = bnccEntries.slice(0, 8).map(([skill, d]: [string, any]) => ({
-                    label: skill.replace("EF0", "").replace("MA", ""),
+                    label: BNCC_AREAS[skill]?.emoji ?? "🔢",
                     value: d.attempted ?? 0,
                     color: BNCC_AREAS[skill]?.color ?? "#818cf8",
                   }));
@@ -460,6 +557,7 @@ export default function GuardianDashboardPage() {
                           <h3 className="font-bold text-slate-700 mb-1">📚 Atividades por Habilidade BNCC</h3>
                           <p className="text-xs text-slate-400 mb-3">Quantidade de tentativas por código BNCC</p>
                           <BarChart data={bnccBarData} />
+                          <ul className="mt-3 space-y-1 text-sm text-slate-600">{bnccEntries.slice(0, 8).map(([skill, data]: [string, any]) => <li key={skill}>{BNCC_AREAS[skill]?.emoji ?? '🔢'} {BNCC_AREAS[skill]?.label ?? 'Matemática'}: {data.attempted ?? 0} tentativas</li>)}</ul>
                         </div>
                       )}
 
@@ -489,7 +587,7 @@ export default function GuardianDashboardPage() {
                 {/* BNCC TAB */}
                 {activeTab === "bncc" && (
                   <div className="bg-white rounded-2xl shadow-sm p-5 border border-slate-100">
-                    <h3 className="font-bold text-slate-700 mb-2">📚 Habilidades BNCC praticadas</h3>
+                    <h3 className="font-bold text-slate-700 mb-2">📚 Habilidades praticadas</h3>
                     <p className="text-xs text-slate-500 mb-4">Habilidades presentes nas atividades registradas. Este resumo não classifica domínio.</p>
                     {(longitudinal?.learningProgress?.skillsInDevelopment ?? []).length === 0 && (
                       <p className="text-slate-400 text-sm text-center py-6">Dados ainda insuficientes.</p>
@@ -497,7 +595,7 @@ export default function GuardianDashboardPage() {
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                       {(longitudinal?.learningProgress?.skillsInDevelopment ?? []).map((item: any) => (
                         <div key={item.skillCode} className="p-3 rounded-2xl border-2 text-center bg-slate-50 border-slate-200">
-                          <p className="font-bold text-xs text-slate-700">{item.skillCode}</p>
+                          <p className="font-bold text-sm text-slate-700">{BNCC_AREAS[item.skillCode]?.label ?? 'Matemática'}</p>
                           <p className="text-xl mt-1">📖</p>
                           <p className="text-xs text-slate-500 mt-1">{item.state}</p>
                         </div>
@@ -640,19 +738,7 @@ export default function GuardianDashboardPage() {
                       {detail.recentAdeDecisions?.map((dec: any) => (
                         <div key={dec.id} className="border border-slate-200 rounded-2xl p-4">
                           <div className="flex items-start justify-between gap-2 mb-2 flex-wrap">
-                            <div className="flex gap-2 flex-wrap">
-                              <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-semibold">
-                                {dec.recommendedDifficulty ?? "—"}
-                              </span>
-                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-semibold">
-                                {dec.recommendedModality ?? "—"}
-                              </span>
-                              {dec.recommendedBnccSkill && (
-                                <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">
-                                  {dec.recommendedBnccSkill}
-                                </span>
-                              )}
-                            </div>
+                            <strong className="text-sm text-slate-700">{BNCC_AREAS[dec.recommendedBnccSkill]?.label ?? 'Atividade de matemática'}</strong>
                             <span className="text-xs text-slate-400">
                               {new Date(dec.createdAt).toLocaleString("pt-BR")}
                             </span>

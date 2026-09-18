@@ -8,6 +8,7 @@ import { SubmitAttemptDto } from './dto/submit-attempt.dto';
 import { KafkaProducerService } from '../kafka/kafka-producer.service';
 import { AdeService } from '../ade/ade.service';
 import { UsersService } from '../users/users.service';
+import type { ChildProfile } from '../users/entities/child-profile.entity';
 import { LearningEventService } from '../learning-events/learning-event.service';
 import { LearningEventType } from '../learning-events/entities/learning-event.entity';
 import { TrackActivityLifecycleDto } from './dto/track-activity-lifecycle.dto';
@@ -148,12 +149,13 @@ export class ActivitiesService {
     // 2. Call ADE to decide
     let adeDecision: any;
     try {
+      const recentAttempts = await this.getRecentAttempts(userId, 20);
       adeDecision = await this.adeService.decide({
         userId,
         profile,
-        recentAttempts: await this.getRecentAttempts(userId, 20),
+        recentAttempts,
         sessionId: context?.sessionId,
-        targetSkillCode: context?.targetSkillCode,
+        targetSkillCode: context?.targetSkillCode ?? this.pickPreferredSkill(profile?.uiPreferences, recentAttempts),
         recentSkips: await this.recentSkipCount(userId),
       });
     } catch (adeErr: any) {
@@ -305,12 +307,14 @@ export class ActivitiesService {
       const timeout = new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error('ADE timeout')), 3000),
       );
+      const recentAttempts = await this.getRecentAttempts(userId, 20);
       adeDecision = await Promise.race([
         this.adeService.decide({
           userId,
           profile,
-          recentAttempts: await this.getRecentAttempts(userId, 20),
+          recentAttempts,
           sessionId: dto.sessionId,
+          targetSkillCode: this.pickPreferredSkill(profile?.uiPreferences, recentAttempts),
           recentSkips: await this.recentSkipCount(userId),
         }),
         timeout,
@@ -667,10 +671,12 @@ export class ActivitiesService {
     const masteryBySkillCode = typeof this.knowledgeTracingService.getMasteryMapBySkillCode === 'function'
       ? await this.knowledgeTracingService.getMasteryMapBySkillCode(adeDecision.userId).catch(() => ({}))
       : {};
+    const preferences = profile?.uiPreferences ?? {};
     const eligibleActivities = activities.filter((activity) =>
-      typeof this.ontologyService?.isActivityPrerequisiteSatisfied !== 'function' ||
-      this.ontologyService.isActivityPrerequisiteSatisfied(
-        activity.prerequisiteSkillCode, masteryBySkillCode));
+      (typeof this.ontologyService?.isActivityPrerequisiteSatisfied !== 'function' ||
+        this.ontologyService.isActivityPrerequisiteSatisfied(
+          activity.prerequisiteSkillCode, masteryBySkillCode)) &&
+      this.matchesExperienceRestrictions(activity, preferences));
     if (!eligibleActivities.length) throw new Error('No activity satisfies known prerequisites');
     const strategy = await this.planLearningStrategy(adeDecision, eligibleActivities, recentAttempts);
     const sameSkill = eligibleActivities.filter((activity) =>
@@ -682,7 +688,7 @@ export class ActivitiesService {
     const recentIds = [...rejectedActivityIds, ...recentAttempts.map((attempt) => attempt.activityId)];
 
     if (!this.ontologyService || !this.runtimeSemanticAdapter || !this.hybridRecommendationService) {
-      const candidates = this.cooldown(legacyCandidates.length > 0 ? legacyCandidates : skillCandidates, activities, recentIds);
+      const candidates = this.cooldown(this.preferExperienceCandidates(legacyCandidates.length > 0 ? legacyCandidates : skillCandidates, preferences), activities, recentIds);
       const fallbackReason = 'Formal semantic or hybrid ranking services are unavailable; legacy selection was used';
       const activity = candidates[Math.floor(Math.random() * candidates.length)];
       return {
@@ -710,7 +716,7 @@ export class ActivitiesService {
     const formallyValid = eligibleActivities.filter((activity) => validIds.has(activity.id));
 
     if (semanticResult.trace.fallbackUsed) {
-      const candidates = this.cooldown(legacyCandidates.length > 0 ? legacyCandidates : skillCandidates, activities, recentIds);
+      const candidates = this.cooldown(this.preferExperienceCandidates(legacyCandidates.length > 0 ? legacyCandidates : skillCandidates, preferences), activities, recentIds);
       const activity = candidates[Math.floor(Math.random() * candidates.length)];
       return {
         activity,
@@ -724,10 +730,12 @@ export class ActivitiesService {
       };
     }
 
-    const matchingLevel = formallyValid.filter((activity) =>
-      activity.difficulty === adeDecision.recommendedDifficulty);
+    const curriculumCandidates = this.preferExperienceCandidates(formallyValid, preferences);
+    const manualDifficulty = preferences.adaptiveDifficulty === false ? preferences.manualDifficulty : null;
+    const matchingLevel = curriculumCandidates.filter((activity) =>
+      activity.difficulty === (manualDifficulty ?? adeDecision.recommendedDifficulty));
     const rankedCandidates = this.cooldown(
-      matchingLevel.length ? matchingLevel : formallyValid, activities, recentIds);
+      matchingLevel.length ? matchingLevel : curriculumCandidates, activities, recentIds);
     const activitiesById = new Map(activities.map((activity) => [activity.id, activity]));
     const ranking = this.hybridRecommendationService.rank({
       candidates: rankedCandidates,
@@ -750,7 +758,7 @@ export class ActivitiesService {
     ranking.selectionStrategy = strategy;
     const selected = rankedCandidates.find((activity) => activity.id === ranking.selectedActivityId);
     if (!selected) {
-      const candidates = this.cooldown(legacyCandidates.length > 0 ? legacyCandidates : skillCandidates, activities, recentIds);
+      const candidates = this.cooldown(this.preferExperienceCandidates(legacyCandidates.length > 0 ? legacyCandidates : skillCandidates, preferences), activities, recentIds);
       const activity = candidates[Math.floor(Math.random() * candidates.length)];
       const fallbackReason = ranking.fallbackReason ?? 'Hybrid ranking did not select a valid candidate';
       return {
@@ -891,11 +899,16 @@ export class ActivitiesService {
   }
 
   private async selectFallbackActivity(userId: string, excludedId?: string): Promise<Activity | null> {
+    const profile = typeof this.usersService.getChildProfile === 'function'
+      ? await this.usersService.getChildProfile(userId).catch(() => null)
+      : null;
+    const preferences = profile?.uiPreferences ?? {};
     const catalog = await this.activityRepo.find({ where: { isActive: true } });
     const masteryBySkillCode = typeof this.knowledgeTracingService.getMasteryMapBySkillCode === 'function'
       ? await this.knowledgeTracingService.getMasteryMapBySkillCode(userId).catch(() => ({}))
       : {};
     const candidates = catalog.filter((item) => item.id !== excludedId &&
+      this.matchesExperienceRestrictions(item, preferences) &&
       (typeof this.ontologyService?.isActivityPrerequisiteSatisfied !== 'function' ||
         this.ontologyService.isActivityPrerequisiteSatisfied(
           item.prerequisiteSkillCode, masteryBySkillCode)));
@@ -904,7 +917,7 @@ export class ActivitiesService {
       this.getRecentAttempts(userId, 20),
       this.learningEventService.getRecentSkippedActivityIds(userId, 20),
     ]);
-    return this.cooldown(candidates, catalog,
+    return this.cooldown(this.preferExperienceCandidates(candidates, preferences), catalog,
       [...skipped, ...attempts.map((attempt) => attempt.activityId)])[0] ?? null;
   }
 
@@ -914,6 +927,34 @@ export class ActivitiesService {
     const modalityMatches = !adeDecision.recommendedModality ||
       activity.targetModalities?.includes(adeDecision.recommendedModality);
     return difficultyMatches && modalityMatches;
+  }
+
+  private matchesExperienceRestrictions(activity: Activity, preferences: NonNullable<ChildProfile['uiPreferences']>): boolean {
+    if (preferences.disabledActivityTypes?.includes(activity.type)) return false;
+    const maximum = preferences.maxSimultaneousElements;
+    if (!Number.isInteger(maximum) || maximum! < 1) return true;
+    return Math.max(activity.content?.items?.length ?? 0, activity.content?.options?.length ?? 0) <= maximum!;
+  }
+
+  private preferExperienceCandidates(activities: Activity[], preferences: NonNullable<ChildProfile['uiPreferences']>): Activity[] {
+    let candidates = activities;
+    if (preferences.adaptiveDifficulty === false && preferences.manualDifficulty) {
+      const manual = candidates.filter((activity) => activity.difficulty === preferences.manualDifficulty);
+      if (manual.length > 0) candidates = manual;
+    }
+    return candidates;
+  }
+
+  private pickPreferredSkill(preferences: ChildProfile['uiPreferences'] | null | undefined, recentAttempts: ActivityAttempt[]): string | undefined {
+    const skills = preferences?.prioritizedBnccSkills;
+    if (!Array.isArray(skills) || skills.length === 0) return undefined;
+    const counts = new Map(skills.map((skill) => [skill, 0]));
+    for (const attempt of recentAttempts) {
+      for (const skill of attempt.activity?.bnccSkills ?? []) {
+        if (counts.has(skill)) counts.set(skill, (counts.get(skill) ?? 0) + 1);
+      }
+    }
+    return [...counts].sort((a, b) => a[1] - b[1])[0]?.[0];
   }
 
   private async persistSelection(

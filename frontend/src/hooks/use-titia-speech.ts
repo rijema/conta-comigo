@@ -36,8 +36,9 @@ export function useTitiaSpeech({ activityId }: { activityId?: string } = {}) {
       enabled: settings.voiceEnabled,
       rate: settings.speechRate,
       language: settings.speechLanguage,
+      volume: Math.min(settings.volume, settings.audioStimulus === 'low' ? 0.35 : settings.audioStimulus === 'medium' ? 0.7 : 1),
     });
-  }, [settings.voiceEnabled, settings.speechRate, settings.speechLanguage]);
+  }, [settings.voiceEnabled, settings.speechRate, settings.speechLanguage, settings.volume, settings.audioStimulus]);
 
   useEffect(() => {
     if (settingsLoaded) configure();
@@ -98,7 +99,7 @@ export function useTitiaSpeech({ activityId }: { activityId?: string } = {}) {
   const stopSpeech = useCallback(() => titiaSpeechService.stopSpeech(), []);
   const setVoiceEnabled = useCallback((enabled: boolean) => {
     updateSettings({ voiceEnabled: enabled });
-    titiaSpeechService.configure({ enabled });
+    if (!enabled) titiaSpeechService.configure({ enabled: false });
     if (!enabled) track("speech_disabled");
   }, [track, updateSettings]);
 

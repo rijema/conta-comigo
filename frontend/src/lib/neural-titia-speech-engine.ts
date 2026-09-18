@@ -20,6 +20,7 @@ export class NeuralTitiaSpeechEngine implements TitiaSpeechEngine {
       if (generation !== this.generation) return;
       console.debug("[TitiA Speech] neural audio received");
       const audio = new Audio(`data:audio/wav;base64,${audioBase64}`);
+      audio.volume = request.volume ?? 1;
       this.audio = audio;
       audio.onended = () => {
         if (generation !== this.generation) return;
