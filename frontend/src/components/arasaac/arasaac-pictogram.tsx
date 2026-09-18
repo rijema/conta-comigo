@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { pictogramRegistry, type PictogramConcept } from "@/lib/pictograms";
+import { arasaacCatalog } from "@/lib/arasaac-catalog";
 
 interface ArasaacPictogramProps {
   conceptId: PictogramConcept | string;
@@ -19,8 +20,19 @@ export function ArasaacPictogram({
   imageClassName = "w-16 h-16",
 }: ArasaacPictogramProps) {
   const entry = pictogramRegistry.get(conceptId);
-  const imageUrl = pictogramRegistry.getImageUrl(conceptId);
+  const [searchedConceptId, setSearchedConceptId] = useState<string | null>(null);
+  const imageUrl = pictogramRegistry.getImageUrl(searchedConceptId ?? conceptId);
   const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => {
+    setSearchedConceptId(null);
+    if (!entry || entry.arasaacId !== null) return;
+    let active = true;
+    arasaacCatalog.resolveMissing(conceptId).then((resolved) => {
+      if (active && resolved) setSearchedConceptId(resolved);
+    }).catch(() => undefined);
+    return () => { active = false; };
+  }, [conceptId, entry]);
 
   useEffect(() => setImageFailed(false), [conceptId, imageUrl]);
 

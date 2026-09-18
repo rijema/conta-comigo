@@ -612,6 +612,7 @@ function SkillEditor({ profile, onSave, saving, savedMsg }: {
             { key: "highContrast", label: "Alto Contraste" },
             { key: "animationsEnabled", label: "Animações" },
             { key: "soundEnabled", label: "Sons" },
+            { key: "voiceEnabled", label: "Leitura dos pictogramas pela TitiA" },
           ].map(({ key, label }) => (
             <label key={key} className="flex items-center gap-2 cursor-pointer">
               <input

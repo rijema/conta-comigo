@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useLocale } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AuthDialog, type AuthView } from "@/components/home/auth-dialog";
-import { ArasaacSection } from "@/components/arasaac/arasaac-section";
+import { ArasaacLibraryDialog } from "@/components/arasaac/arasaac-library-dialog";
 import { useModalFocus } from "@/hooks/use-modal-focus";
 
 export default function HomePage() {
@@ -36,7 +36,7 @@ export default function HomePage() {
             <span><strong className={`${compact ? "text-xl" : "text-2xl"} block font-black leading-none text-indigo-950`}>Conta Comigo</strong><span className={`font-semibold text-violet-700 ${compact ? "hidden" : "hidden sm:block text-xs"}`}>Matemática que aprende com cada criança.</span></span>
           </button>
           <div className="flex items-center gap-2">
-            <button onClick={() => setShowArasaac((value) => !value)} aria-expanded={showArasaac} aria-controls="arasaac-details" className="hidden rounded-xl px-3 py-2 text-sm font-bold text-orange-700 hover:bg-orange-50 sm:block">ARASAAC</button>
+            <button onClick={() => setShowArasaac(true)} aria-expanded={showArasaac} aria-controls="arasaac-library-dialog" className="rounded-xl px-3 py-2 text-sm font-bold text-orange-700 hover:bg-orange-50 sm:block">ARASAAC</button>
             <button onClick={() => setAuth("login")} className="rounded-xl border-2 border-violet-200 bg-white px-4 py-2 text-sm font-bold text-violet-700 hover:bg-violet-50">Entrar</button>
             <button onClick={() => setAuth("register")} className="rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2 text-sm font-black text-white shadow-md hover:-translate-y-0.5">Cadastrar</button>
           </div>
@@ -79,11 +79,10 @@ export default function HomePage() {
         </section>
 
         <section className="mx-auto max-w-5xl px-5 pb-12 text-center sm:px-6">
-          <button type="button" onClick={() => setShowArasaac((value) => !value)} aria-expanded={showArasaac} aria-controls="arasaac-details" className="group inline-flex items-center gap-4 rounded-3xl border-2 border-orange-200 bg-white px-5 py-3 text-left shadow-md hover:border-orange-400 focus:ring-4 focus:ring-orange-100">
+          <button type="button" onClick={() => setShowArasaac(true)} aria-expanded={showArasaac} aria-controls="arasaac-library-dialog" className="group inline-flex items-center gap-4 rounded-3xl border-2 border-orange-200 bg-white px-5 py-3 text-left shadow-md hover:border-orange-400 focus:ring-4 focus:ring-orange-100">
             <Image src="/assets/arasaac.png" width={190} height={45} alt="ARASAAC" className="h-10 w-auto object-contain" />
-            <span><strong className="block text-slate-800">Pictogramas que apoiam a compreensão</strong><span className="text-sm text-slate-500">{showArasaac ? "Recolher detalhes" : "Saiba como usamos ARASAAC"}</span></span><span aria-hidden className="text-xl text-orange-600">{showArasaac ? "−" : "+"}</span>
+            <span><strong className="block text-slate-800">Pictogramas que apoiam a compreensão</strong><span className="text-sm text-slate-500">Explore a biblioteca</span></span><span aria-hidden className="text-xl text-orange-600">→</span>
           </button>
-          {showArasaac && <div id="arasaac-details" className="mt-5 rounded-[2rem] bg-white/70 text-left shadow-sm"><ArasaacSection locale={locale} /></div>}
         </section>
       </main>
 
@@ -115,6 +114,7 @@ export default function HomePage() {
           </section>
         </div>
       )}
+      <ArasaacLibraryDialog open={showArasaac} onClose={() => setShowArasaac(false)} />
       <AuthDialog open={auth !== null} initialView={auth ?? "login"} onClose={closeAuth} />
     </div>
   );

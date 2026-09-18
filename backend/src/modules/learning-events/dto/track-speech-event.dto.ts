@@ -30,7 +30,7 @@ export class TrackSpeechEventDto {
   @IsOptional()
   @IsString()
   @MaxLength(128)
-  @Matches(/^(navigation|state|mathematics|activity|communication|number|library|action|character|math|object|shape)\.[a-z0-9_]+$/)
+  @Matches(/^(?:(navigation|state|mathematics|activity|communication|number|library|action|character|math|object|shape)\.[a-z0-9_]+|arasaac\.[1-9][0-9]*)$/)
   pictogramConceptId?: string;
 
   @ApiPropertyOptional()

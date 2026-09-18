@@ -1,5 +1,12 @@
 # Change Summary
 
+## Batch B8 — Shared ARASAAC library
+
+- Restored the section toolbar and pictogram details from the historical experience in one modal shared by public home, the library route, and the logged learning map.
+- Added Portuguese ARASAAC catalog search with bounded API responses, server revalidation, in-memory client cache, and exact-label lookup for legacy concepts without IDs.
+- Reused the central pictogram registry, TitiA speech, visual communication events, and modal focus behavior; the professional profile now controls child pictogram speech.
+- Removed the superseded static library and added frontend regression tests and Portuguese research documentation. No database migration is needed.
+
 ## Batch B7 — Interactive exercise formats
 
 - Added 26 authored visual format families with two difficulty stages, including grouping, quantity building, bidirectional matching, six spatial relations, length and container fullness.

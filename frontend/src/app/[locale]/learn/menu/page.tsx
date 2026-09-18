@@ -7,10 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { api } from "@/lib/api-client";
 import { authService } from "@/lib/auth";
 import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
-import { ArasaacAttribution } from "@/components/arasaac/arasaac-attribution";
-import { useVisualCommunicationAnalytics } from "@/hooks/use-visual-communication-analytics";
-import { pictogramRegistry } from "@/lib/pictograms";
-import { useTitiaSpeech } from "@/hooks/use-titia-speech";
+import { ArasaacLibraryDialog } from "@/components/arasaac/arasaac-library-dialog";
 
 /* ── Island themes — thematic name + skill subtitle ── */
 const ISLAND_THEMES = [
@@ -40,29 +37,6 @@ const AI_QUESTIONS = [
   "Como a matemática me ajuda no dia a dia? 🏠",
 ];
 
-const NUMBER_PICTOS = [
-  { conceptId: "number.1", color: "bg-red-50 border-red-200" },
-  { conceptId: "number.2", color: "bg-orange-50 border-orange-200" },
-  { conceptId: "number.3", color: "bg-yellow-50 border-yellow-200" },
-  { conceptId: "number.4", color: "bg-green-50 border-green-200" },
-  { conceptId: "number.5", color: "bg-teal-50 border-teal-200" },
-  { conceptId: "number.6", color: "bg-blue-50 border-blue-200" },
-  { conceptId: "number.7", color: "bg-indigo-50 border-indigo-200" },
-  { conceptId: "number.8", color: "bg-purple-50 border-purple-200" },
-  { conceptId: "number.10", color: "bg-pink-50 border-pink-200" },
-];
-
-const MATH_PICTOS = [
-  { conceptId: "mathematics.addition", color: "bg-green-50 border-green-200" },
-  { conceptId: "mathematics.subtraction", color: "bg-blue-50 border-blue-200" },
-  { conceptId: "mathematics.count", color: "bg-yellow-50 border-yellow-200" },
-  { conceptId: "mathematics.compare", color: "bg-teal-50 border-teal-200" },
-  { conceptId: "library.math", color: "bg-red-50 border-red-200" },
-  { conceptId: "library.learn", color: "bg-indigo-50 border-indigo-200" },
-  { conceptId: "library.board_game", color: "bg-pink-50 border-pink-200" },
-  { conceptId: "library.play", color: "bg-amber-50 border-amber-200" },
-];
-
 export default function ActivityMenuPage() {
   const { user, logout } = useAuth();
   const router = useRouter();
@@ -77,8 +51,6 @@ export default function ActivityMenuPage() {
   const [aiAnswer, setAiAnswer] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
-  const trackVisualCommunication = useVisualCommunicationAnalytics();
-  const speech = useTitiaSpeech();
 
   useEffect(() => {
     const token = authService.getStoredToken();
@@ -112,7 +84,6 @@ export default function ActivityMenuPage() {
 
   const openVisualLibrary = () => {
     setShowArasaac(true);
-    trackVisualCommunication("visual_library_opened");
   };
 
   if (isLoading) {
@@ -466,58 +437,7 @@ export default function ActivityMenuPage() {
         </div>
       )}
 
-      {/* ── ARASAAC Modal ── */}
-      {showArasaac && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
-          style={{ background: "rgba(0,0,0,0.55)" }}
-          onClick={(e) => { if (e.target === e.currentTarget) setShowArasaac(false); }}
-        >
-          <div className="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden" style={{ maxHeight: "90vh" }}>
-            <div className="bg-gradient-to-r from-orange-400 to-yellow-400 px-5 py-4 flex items-center gap-3">
-              <span className="text-3xl">🗣️</span>
-              <div className="flex-1">
-                <p className="font-extrabold text-white text-base">Aprender com Figuras!</p>
-                <p className="text-white/80 text-xs">Toque num número para ouvir!</p>
-              </div>
-              <button onClick={() => setShowArasaac(false)} className="w-9 h-9 bg-white/20 hover:bg-white/30 rounded-xl flex items-center justify-center text-white text-lg">✕</button>
-            </div>
-            <div className="p-4 overflow-y-auto" style={{ maxHeight: "calc(90vh - 72px)" }}>
-              <p className="text-xs font-extrabold text-slate-400 uppercase mb-3">🔢 Números</p>
-              <div className="grid grid-cols-5 gap-2 mb-5">
-                {NUMBER_PICTOS.map((p) => (
-                  <button key={p.conceptId} onClick={() => {
-                    const label = pictogramRegistry.get(p.conceptId)?.labelPt ?? p.conceptId.split(".")[1];
-                    speech.speakPictogram(label, p.conceptId);
-                    trackVisualCommunication("pictogram_opened", { pictogramConceptId: p.conceptId, category: "Números" });
-                    trackVisualCommunication("visual_library_item_selected", { pictogramConceptId: p.conceptId, category: "Números" });
-                  }}
-                    className={`rounded-2xl border-2 p-1.5 flex flex-col items-center gap-1 hover:scale-105 active:scale-95 transition-transform ${p.color}`}>
-                    <ArasaacPictogram conceptId={p.conceptId} className="w-full" imageClassName="w-full aspect-square" />
-                  </button>
-                ))}
-              </div>
-              <p className="text-xs font-extrabold text-slate-400 uppercase mb-3">➕ Matemática, Aprender e Jogar</p>
-              <div className="grid grid-cols-4 gap-2 mb-4">
-                {MATH_PICTOS.map((p) => (
-                  <button key={p.conceptId} onClick={() => {
-                    const label = pictogramRegistry.get(p.conceptId)?.labelPt;
-                    if (label) speech.speakPictogram(label, p.conceptId);
-                    trackVisualCommunication("pictogram_opened", { pictogramConceptId: p.conceptId, category: "Matemática" });
-                    trackVisualCommunication("visual_library_item_selected", { pictogramConceptId: p.conceptId, category: "Matemática" });
-                  }}
-                    className={`rounded-2xl border-2 p-1.5 flex flex-col items-center gap-1 hover:scale-105 active:scale-95 transition-transform ${p.color}`}>
-                    <ArasaacPictogram conceptId={p.conceptId} className="w-full" imageClassName="w-full aspect-square" />
-                  </button>
-                ))}
-              </div>
-              <div className="bg-orange-50 border border-orange-200 rounded-2xl p-3 text-center">
-                <p className="text-xs text-orange-600">🔊 Toque em qualquer figura para ouvir o nome!</p>
-                <ArasaacAttribution className="text-orange-500 mt-1" />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <ArasaacLibraryDialog open={showArasaac} onClose={() => setShowArasaac(false)} />
     </div>
   );
 }
