@@ -8,6 +8,8 @@ import { NumberLineActivity } from "./number-line-activity";
 import { ParametricMathActivity } from "./parametric-math-activity";
 import type { Activity, SensoryProfile } from "@/types";
 import { GuidedInstructions } from "./guided-instructions";
+import { CategorizationActivity } from "./categorization-activity";
+import { QuantityBuilderActivity } from "./quantity-builder-activity";
 
 interface ActivityRendererProps {
   activity: Activity;
@@ -37,6 +39,12 @@ export function ActivityRenderer({
   }, [activity.id]);
 
   const renderActivity = () => {
+    if (activity.content?.interaction === "categorize") {
+      return <CategorizationActivity key={activity.id} activity={activity} onAnswer={onAnswer} />;
+    }
+    if (activity.content?.interaction === "quantity_builder") {
+      return <QuantityBuilderActivity key={activity.id} activity={activity} onAnswer={onAnswer} />;
+    }
     const hasOptions = (activity.content?.options?.length ?? 0) > 0;
 
     switch (activity.type) {

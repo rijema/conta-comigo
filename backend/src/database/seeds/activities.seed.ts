@@ -1,5 +1,6 @@
 import { DataSource } from 'typeorm';
 import { expandedActivityPools } from './activity-pools.seed';
+import { interactiveFormatActivities } from './interactive-formats.seed';
 
 export async function ActivitiesSeed(dataSource: DataSource) {
   const repo = dataSource.getRepository('activities');
@@ -169,7 +170,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       description: 'Resolva a subtração',
       type: 'quiz',
       difficulty: 'easy',
-      bnccSkills: ['EF01MA07'],
+      bnccSkills: ['EF01MA08'],
       targetModalities: ['visual'],
       pointsReward: 15,
       isActive: true,
@@ -191,7 +192,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       description: 'Subtração',
       type: 'quiz',
       difficulty: 'medium',
-      bnccSkills: ['EF01MA07'],
+      bnccSkills: ['EF01MA08'],
       targetModalities: ['logical'],
       pointsReward: 20,
       isActive: true,
@@ -431,7 +432,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       description: 'Reconheça as formas geométricas',
       type: 'quiz',
       difficulty: 'easy',
-      bnccSkills: ['EF01MA15'],
+      bnccSkills: ['EF01MA14'],
       targetModalities: ['visual'],
       pointsReward: 15,
       isActive: true,
@@ -453,7 +454,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       description: 'Identifique a forma',
       type: 'quiz',
       difficulty: 'easy',
-      bnccSkills: ['EF01MA15'],
+      bnccSkills: ['EF01MA14'],
       targetModalities: ['visual'],
       pointsReward: 15,
       isActive: true,
@@ -745,8 +746,8 @@ export async function ActivitiesSeed(dataSource: DataSource) {
     },
   ];
 
-  activities.push(...expandedActivityPools() as any[]);
-  const existingRecords = await repo.find({ select: ['id', 'title', 'content'] });
+  activities.push(...expandedActivityPools() as any[], ...interactiveFormatActivities() as any[]);
+  const existingRecords = await repo.find({ select: ['id', 'title', 'content', 'bnccSkills'] });
   const existingTitles = new Set(existingRecords.map((record: any) => record.title));
   const existingByTitle = new Map(existingRecords.map((record: any) => [record.title, record]));
   let created = 0;
@@ -755,6 +756,13 @@ export async function ActivitiesSeed(dataSource: DataSource) {
   for (const activity of activities) {
     if (existingTitles.has(activity.title)) {
       const existing = existingByTitle.get(activity.title) as any;
+      const correctedSkill = ['Que forma é essa?', 'Círculo ou quadrado?'].includes(activity.title)
+        ? 'EF01MA14'
+        : ['Tirando biscoitos', '8 - 3 = ?'].includes(activity.title) ? 'EF01MA08' : null;
+      if (correctedSkill && JSON.stringify(existing.bnccSkills) !== JSON.stringify([correctedSkill])) {
+        existing.bnccSkills = [correctedSkill];
+        await repo.save(existing);
+      }
       const activityContent = activity.content as Record<string, any>;
       const authoredSpeech = Object.fromEntries(
         ['spokenIntroduction', 'spokenSteps', 'spokenHint', 'spokenSuccessFeedback', 'spokenRetryFeedback']

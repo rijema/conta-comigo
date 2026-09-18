@@ -36,7 +36,8 @@ test("only one learning trail is expanded and siblings are visually de-emphasize
   assert.match(menu, /expandedSkill === group\.skill/);
   assert.match(menu, /setExpandedSkill\(isOpen \? null : group\.skill\)/);
   assert.match(menu, /opacity-45/);
-  assert.match(menu, /BNCC \{group\.skill\}/);
+  assert.match(menu, /Sem vínculo BNCC validado/);
+  assert.match(menu, /BNCC \$\{group\.skill\}/);
   assert.match(menu, /\{cfg\.label\}/);
 });
 
@@ -68,6 +69,6 @@ test("learning activity is restored only for the same student within a TTL", () 
 test("shape choices hide answer artwork while retaining a visual prompt", () => {
   const source = read("../src/components/activity/multiple-choice-activity.tsx");
   assert.match(source, /isShapeActivity/);
-  assert.match(source, /!isShapeActivity && option\.emoji/);
+  assert.match(source, /!isShapeActivity && !option\.pictogramConceptId && !option\.pictogramConceptIds && option\.emoji/);
   assert.match(source, /targetShape/);
 });

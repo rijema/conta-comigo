@@ -1,5 +1,12 @@
 # Change Summary
 
+## Batch B7 — Interactive exercise formats
+
+- Added 26 authored visual format families with two difficulty stages, including grouping, quantity building, bidirectional matching, six spatial relations, length and container fullness.
+- Reused the existing activity renderer, server answer validation, seed, activity tree, attempt tracking, and ARASAAC registry.
+- Corrected four legacy BNCC links through the idempotent seed and labeled exploratory activities honestly in the island map and activity badge.
+- Added catalog and answer validation tests plus Portuguese research documentation. No database schema migration is needed because all new interaction data uses the existing JSON content field.
+
 ## Batch B6.1 — Push-to-talk and neural TitiA speech
 
 - Added feature-flagged, explicit push-to-talk with conservative Portuguese command interpretation.

@@ -70,7 +70,7 @@ export function CountingActivity({ activity, onAnswer, sensoryProfile }: Props) 
           onClick={() => setCount(0)}
           className="flex-1 py-3 border-2 border-gray-300 text-gray-600 rounded-xl hover:bg-gray-50"
         >
-          <ArasaacPictogram conceptId="navigation.try_again" showLabel={false} imageClassName="w-6 h-6" />
+          <ArasaacPictogram conceptId="navigation.repeat" showLabel={false} imageClassName="w-6 h-6" />
           <span className="ml-2">Recomeçar</span>
         </button>
         <button
@@ -78,7 +78,7 @@ export function CountingActivity({ activity, onAnswer, sensoryProfile }: Props) 
           disabled={count === 0}
           className="flex-1 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 disabled:bg-gray-300"
         >
-          <ArasaacPictogram conceptId="state.confirm" showLabel={false} imageClassName="w-6 h-6" />
+          <ArasaacPictogram conceptId="activity.complete" showLabel={false} imageClassName="w-6 h-6" />
           <span className="ml-2">Confirmar</span>
         </button>
       </div>

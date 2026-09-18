@@ -29,6 +29,8 @@ interface DragItem {
   id: string;
   label: string;
   emoji?: string;
+  pictogramConceptId?: string;
+  pictogramConceptIds?: string[];
 }
 
 const centerOverlayOnPointer: Modifier = ({ activatorEvent, activeNodeRect, overlayNodeRect, transform }) => {
@@ -82,19 +84,23 @@ function DraggableItem({ item, disabled, selected, inSlot = false, onSelect }: {
         }
         ${isDragging ? "opacity-0" : "opacity-100"}`}
     >
-      {item.emoji && <span className="mr-1">{item.emoji}</span>}
+      {item.pictogramConceptId && <ArasaacPictogram conceptId={item.pictogramConceptId} showLabel={false} imageClassName="h-12 w-12" />}
+      {item.pictogramConceptIds?.map((conceptId, index) => <ArasaacPictogram key={`${conceptId}-${index}`} conceptId={conceptId} showLabel={false} imageClassName="h-9 w-9" />)}
+      {!item.pictogramConceptId && !item.pictogramConceptIds && item.emoji && <span className="mr-1">{item.emoji}</span>}
       {item.label}
     </button>
   );
 }
 
-function DropSlot({ index, item, selectedId, disabled, onSelectItem, onTapSlot }: {
+function DropSlot({ index, item, selectedId, disabled, onSelectItem, onTapSlot, label, pictogramConceptIds }: {
   index: number;
   item: DragItem | null;
   selectedId: string | null;
   disabled: boolean;
   onSelectItem: (id: string) => void;
   onTapSlot: (index: number) => void;
+  label?: string;
+  pictogramConceptIds?: string[];
 }) {
   const { isOver, setNodeRef } = useDroppable({ id: `slot-${index}`, disabled });
 
@@ -110,7 +116,7 @@ function DropSlot({ index, item, selectedId, disabled, onSelectItem, onTapSlot }
           onTapSlot(index);
         }
       }}
-      aria-label={`Posição ${index + 1}${item ? `: ${item.label}` : ": vazia"}`}
+      aria-label={`${label ?? `Posição ${index + 1}`}${item ? `: ${item.label}` : ": vazia"}`}
       className={`min-w-24 min-h-24 px-3 py-3 border-4 border-dashed rounded-2xl
         flex flex-col items-center justify-center text-2xl font-bold transition-all duration-150
         ${isOver
@@ -122,6 +128,8 @@ function DropSlot({ index, item, selectedId, disabled, onSelectItem, onTapSlot }
               : "border-gray-300 bg-gray-50 text-gray-300"
         }`}
     >
+      {pictogramConceptIds && <span className="flex flex-wrap justify-center">{pictogramConceptIds.map((conceptId, imageIndex) => <ArasaacPictogram key={`${conceptId}-${imageIndex}`} conceptId={conceptId} showLabel={false} imageClassName="h-9 w-9" />)}</span>}
+      {label && <span className="text-sm text-blue-900">{label}</span>}
       {item ? (
         <DraggableItem
           item={item}
@@ -130,7 +138,7 @@ function DropSlot({ index, item, selectedId, disabled, onSelectItem, onTapSlot }
           inSlot
           onSelect={onSelectItem}
         />
-      ) : <span>{index + 1}</span>}
+      ) : !label && !pictogramConceptIds ? <span>{index + 1}</span> : null}
     </div>
   );
 }
@@ -306,6 +314,8 @@ export function DragDropActivity({ activity, onAnswer }: Props) {
               disabled={submitted}
               onSelectItem={handleSelectItem}
               onTapSlot={handleTapSlot}
+              label={activity.content?.slotLabels?.[index]}
+              pictogramConceptIds={activity.content?.slotPictogramConceptIds?.[index]}
             />
           ))}
         </div>
@@ -319,7 +329,7 @@ export function DragDropActivity({ activity, onAnswer }: Props) {
               hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed
               focus:ring-4 focus:ring-blue-300 transition-colors"
           >
-          <ArasaacPictogram conceptId="state.confirm" showLabel={false} imageClassName="w-7 h-7" />
+          <ArasaacPictogram conceptId="activity.complete" showLabel={false} imageClassName="w-7 h-7" />
             <span className="ml-2">Confirmar</span>
           </button>
         )}
@@ -330,7 +340,9 @@ export function DragDropActivity({ activity, onAnswer }: Props) {
         {activeItem ? (
           <div className="px-5 py-3 rounded-2xl border-4 border-blue-500 bg-white
             text-gray-800 text-2xl font-bold shadow-2xl cursor-grabbing">
-            {activeItem.emoji && <span className="mr-1">{activeItem.emoji}</span>}
+            {activeItem.pictogramConceptId && <ArasaacPictogram conceptId={activeItem.pictogramConceptId} showLabel={false} imageClassName="h-12 w-12" />}
+            {activeItem.pictogramConceptIds?.map((conceptId, index) => <ArasaacPictogram key={`${conceptId}-${index}`} conceptId={conceptId} showLabel={false} imageClassName="h-9 w-9" />)}
+            {!activeItem.pictogramConceptId && !activeItem.pictogramConceptIds && activeItem.emoji && <span className="mr-1">{activeItem.emoji}</span>}
             {activeItem.label}
           </div>
         ) : null}
