@@ -26,7 +26,7 @@ test('professional child preferences constrain sound, speech and motion on the e
   const page = read('../src/app/[locale]/learn/page.tsx');
   assert.match(context, /\/users\/\$\{user\.id\}\/child-profile/);
   assert.match(context, /soundEnabled: settings\.soundEnabled && appliedPreferences\?\.soundEnabled !== false/);
-  assert.match(context, /voiceEnabled: settings\.voiceEnabled && appliedPreferences\?\.voiceEnabled !== false/);
+  assert.match(context, /voiceEnabled: settings\.voiceEnabled && settings\.soundEnabled && appliedPreferences\?\.voiceEnabled !== false/);
   assert.match(context, /lowStimulationMode: settings\.lowStimulationMode \|\| appliedPreferences\?\.lowStimulationMode === true/);
   assert.match(page, /if \(!childPreferencesReady\) return/);
   assert.match(page, /voice\.enabled && settings\.voiceEnabled/);

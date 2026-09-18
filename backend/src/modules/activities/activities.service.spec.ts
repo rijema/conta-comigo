@@ -233,3 +233,40 @@ describe('ActivitiesService semantic activity responses', () => {
     );
   });
 });
+
+describe('Professional experience restrictions', () => {
+  const service = new ActivitiesService({} as any, {} as any, {} as any, {} as any,
+    {} as any, {} as any, {} as any, {} as any);
+  const activity = (type: string, count: number, skill: string, difficulty: string) => ({
+    type, difficulty, bnccSkills: [skill], content: { options: Array.from({ length: count }, () => ({})) },
+  });
+
+  it('excludes disabled types and exercises with too many visible options', () => {
+    const allowed = (candidate: any) => (service as any).matchesExperienceRestrictions(candidate, {
+      disabledActivityTypes: ['quiz'], maxSimultaneousElements: 4,
+    });
+    expect(allowed(activity('quiz', 3, 'EF01MA01', 'easy'))).toBe(false);
+    expect(allowed(activity('counting', 5, 'EF01MA01', 'easy'))).toBe(false);
+    expect(allowed(activity('counting', 4, 'EF01MA01', 'easy'))).toBe(true);
+  });
+
+  it('prefers manual difficulty without creating new candidates', () => {
+    const candidates = [
+      activity('quiz', 3, 'EF01MA01', 'easy'),
+      activity('counting', 3, 'EF01MA03', 'easy'),
+      activity('counting', 3, 'EF01MA03', 'medium'),
+    ];
+    const chosen = (service as any).preferExperienceCandidates(candidates, {
+      adaptiveDifficulty: false, manualDifficulty: 'medium',
+    });
+    expect(chosen).toEqual([candidates[2]]);
+  });
+
+  it('targets the least recently practiced professional BNCC priority before ADE decides', () => {
+    const chosen = (service as any).pickPreferredSkill({ prioritizedBnccSkills: ['EF01MA01', 'EF01MA03'] }, [
+      { activity: { bnccSkills: ['EF01MA01'] } },
+      { activity: { bnccSkills: ['EF01MA01'] } },
+    ]);
+    expect(chosen).toBe('EF01MA03');
+  });
+});

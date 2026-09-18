@@ -389,3 +389,10 @@ No recommendation ranking, Generalization Score, full ARASAAC integration, learn
 - Applied professional child-profile sound, voice, contrast, motion and low-stimulation preferences to the exercise, refreshing them during an active session without storing them across accounts.
 - Routed legacy login and registration URLs to the existing home modal, added clear child/guardian/professional selection, and directed exercise Exit to the current map.
 - Tightened landscape tablet spacing while retaining large touch controls. Added automated tests and Portuguese research documentation. No database migration was needed because the existing profile and session storage are reused.
+
+## 2026-09-18 — Professional experience preferences and guardian summary
+
+- Expanded the existing child profile JSONB preferences into independent sensory and experience controls in the professional dashboard; no fixed sensory group or ranking-weight change was introduced.
+- Applied sound, voice, volume, motion, visual feedback, help timing and activity-change controls to the child exercise. Candidate eligibility now respects disabled formats and visible-element limits, and prefers compatible BNCC skills and manual difficulty while keeping the existing ontology and ranking.
+- Added a plain-language guardian summary from recorded attempts, sessions, practiced skills and formats, plus linked-child name and short-password editing with authorization and password hashing. Guardians can also change their own password after providing the current password.
+- Corrected existing guardian BNCC labels and the summary's session count. Added backend/frontend tests and Portuguese research documentation. No database migration was needed because the existing JSONB profile stores the preferences.

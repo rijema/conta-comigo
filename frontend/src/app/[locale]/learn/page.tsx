@@ -87,25 +87,26 @@ function playTone(freq: number, dur: number, type: OscillatorType = "sine", vol 
   } catch { /* silently ignore if AudioContext unavailable */ }
 }
 
-function playCorrect() {
-  playTone(523, 0.12, "triangle", 0.3);
-  setTimeout(() => playTone(659, 0.12, "triangle", 0.3), 110);
-  setTimeout(() => playTone(784, 0.25, "triangle", 0.3), 220);
+function playCorrect(volume: number) {
+  playTone(523, 0.12, "triangle", 0.3 * volume);
+  setTimeout(() => playTone(659, 0.12, "triangle", 0.3 * volume), 110);
+  setTimeout(() => playTone(784, 0.25, "triangle", 0.3 * volume), 220);
 }
-function playWrong() {
-  playTone(300, 0.15, "sawtooth", 0.2);
-  setTimeout(() => playTone(250, 0.25, "sawtooth", 0.15), 150);
+function playWrong(volume: number) {
+  playTone(300, 0.15, "sawtooth", 0.2 * volume);
+  setTimeout(() => playTone(250, 0.25, "sawtooth", 0.15 * volume), 150);
 }
-function playStart() {
-  playTone(440, 0.1, "sine", 0.2);
-  setTimeout(() => playTone(550, 0.15, "sine", 0.2), 100);
+function playStart(volume: number) {
+  playTone(440, 0.1, "sine", 0.2 * volume);
+  setTimeout(() => playTone(550, 0.15, "sine", 0.2 * volume), 100);
 }
-function playTap() { playTone(620, 0.07, "sine", 0.12); }
+function playTap(volume: number) { playTone(620, 0.07, "sine", 0.12 * volume); }
 
 function LearnPageInner() {
   const { user, isLoading: authLoading } = useAuth();
   const { session, startSession, stopSession, submitAnswer, markActivityStarted, requestActivityHelp, requestHint, skipCurrentActivity, changeCurrentActivity, isChangingActivity, isLoading: sessionLoading, error: sessionError } = useSession();
   const [showReward, setShowReward] = useState(false);
+  const [showAutoHint, setShowAutoHint] = useState(false);
   const [rewardWrong, setRewardWrong] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
@@ -120,6 +121,8 @@ function LearnPageInner() {
   const locale = useLocale();
   const searchParams = useSearchParams();
   const { settings, childPreferencesReady } = useAccessibility();
+  const effectVolume = Math.min(settings.volume, settings.audioStimulus === 'low' ? 0.35 : settings.audioStimulus === 'medium' ? 0.7 : 1);
+  const feedbackDuration = settings.animationSpeed === 'slow' ? 5500 : settings.animationSpeed === 'fast' ? 2800 : 4200;
   const speech = useTitiaSpeech({ activityId: session?.currentActivity?.id });
 
   useEffect(() => { setMounted(true); }, []);
@@ -130,19 +133,30 @@ function LearnPageInner() {
     if (!user) { router.replace(`/${locale}/auth/login`); return; }
     if (!childPreferencesReady) return;
     startSession(String(user.id));
-    if (settings.soundEnabled && !settings.lowStimulationMode && !startCuePlayedRef.current) {
+    if (settings.soundEnabled && settings.soundEffectsEnabled && !settings.lowStimulationMode && !startCuePlayedRef.current) {
       startCuePlayedRef.current = true;
-      playStart();
+      playStart(effectVolume);
     }
-  }, [mounted, user, authLoading, childPreferencesReady, settings.soundEnabled, settings.lowStimulationMode, startSession, router, locale]);
+  }, [mounted, user, authLoading, childPreferencesReady, settings.soundEnabled, settings.soundEffectsEnabled, effectVolume, settings.lowStimulationMode, startSession, router, locale]);
 
   /* rotate background on each new activity */
   useEffect(() => {
     if (session?.currentActivity) {
-      setBgIdx((i) => (i + 1) % BG_THEMES.length);
+      if (settings.predictability !== 'high' && settings.visualStimulus !== 'low') setBgIdx((i) => (i + 1) % BG_THEMES.length);
       markActivityStarted(session.currentActivity.id);
     }
-  }, [session?.currentActivity?.id, markActivityStarted]);
+  }, [session?.currentActivity?.id, markActivityStarted, settings.predictability, settings.visualStimulus]);
+
+  useEffect(() => {
+    setShowAutoHint(false);
+    if (!session?.currentActivity?.id || !settings.autoHints || session.progress >= 100) return;
+    const activityId = session.currentActivity.id;
+    const timer = window.setTimeout(() => {
+      requestHint(activityId);
+      setShowAutoHint(true);
+    }, Math.max(5, settings.helpDelaySeconds) * 1000);
+    return () => window.clearTimeout(timer);
+  }, [session?.currentActivity?.id, session?.progress, settings.autoHints, settings.helpDelaySeconds, requestHint]);
 
   const handleAnswer = useCallback(async (answer: any) => {
     if (!session?.currentActivity) return;
@@ -153,24 +167,26 @@ function LearnPageInner() {
     });
     if (result.isCorrect) {
       if (result.completed) return;
-      if (settings.soundEnabled) playCorrect();
+      if (settings.soundEnabled && settings.soundEffectsEnabled) playCorrect(effectVolume);
       speech.speakFeedback(
         session.currentActivity.content?.spokenSuccessFeedback || "Muito bem! Você conseguiu.",
       );
-      if (!settings.lowStimulationMode && !settings.animationsReduced) setShowReward(true);
-      setTimeout(() => setShowReward(false), 4200);
+      const showCelebration = settings.celebrationFrequency === 'frequent' ||
+        (settings.celebrationFrequency === 'normal' && (session.progress / 10) % 2 === 0);
+      if (showCelebration && settings.feedbackVisual !== 'minimal' && settings.reinforcementPreference !== 'minimal' && settings.predictability !== 'high' && !settings.lowStimulationMode && !settings.animationsReduced) setShowReward(true);
+      setTimeout(() => setShowReward(false), feedbackDuration);
     } else {
-      if (settings.soundEnabled) playWrong();
+      if (settings.soundEnabled && settings.soundEffectsEnabled) playWrong(effectVolume);
       speech.speakFeedback(
         session.currentActivity.content?.spokenRetryFeedback || "Tudo bem. Vamos tentar novamente.",
       );
-      if (!settings.lowStimulationMode && !settings.animationsReduced) setRewardWrong(true);
-      setTimeout(() => setRewardWrong(false), 3800);
+      if (settings.feedbackVisual !== 'minimal' && settings.predictability !== 'high' && !settings.lowStimulationMode && !settings.animationsReduced) setRewardWrong(true);
+      setTimeout(() => setRewardWrong(false), feedbackDuration);
     }
-  }, [session, settings.soundEnabled, settings.lowStimulationMode, settings.animationsReduced, speech, submitAnswer]);
+  }, [session, settings, effectVolume, feedbackDuration, speech, submitAnswer]);
 
   const handleGoToMenu = () => {
-    if (settings.soundEnabled) playTap();
+    if (settings.soundEnabled && settings.soundEffectsEnabled) playTap(effectVolume);
     skipCurrentActivity();
     stopSession();
     router.push(`/${locale}/learn/menu`);
@@ -185,7 +201,8 @@ function LearnPageInner() {
   };
 
   const handleChangeActivity = async () => {
-    if (settings.soundEnabled) playTap();
+    if (!settings.allowChangeActivity) return;
+    if (settings.soundEnabled && settings.soundEffectsEnabled) playTap(effectVolume);
     speech.stopSpeech();
     const changed = await changeCurrentActivity();
     if (changed) speech.speakFeedback("Vamos tentar de outro jeito!");
@@ -194,7 +211,7 @@ function LearnPageInner() {
   const handleOpenTutorial = () => {
     if (!session?.currentActivity) return;
     requestActivityHelp(session.currentActivity.id);
-    if (settings.soundEnabled) playTap();
+    if (settings.soundEnabled && settings.soundEffectsEnabled) playTap(effectVolume);
     setShowTutorial(true);
     const steps = getTutorialSteps(session.currentActivity).map((step) => step.text);
     speech.speakInstruction({ introduction: "Vamos ver como jogar.", steps });
@@ -232,7 +249,7 @@ function LearnPageInner() {
       correctAnswers={session.roundStats?.correctAnswers ?? 10}
       starsEarned={session.roundStats?.starsEarned ?? 0}
       practiceLabel={session.roundStats?.practiceLabel ?? "matemática"}
-      lowStimulation={settings.lowStimulationMode || settings.animationsReduced}
+      lowStimulation={settings.lowStimulationMode || settings.animationsReduced || settings.predictability === 'high'}
       onReturnToMap={returnToMap}
       onSpeak={speech.speakFeedback}
     />;
@@ -269,22 +286,22 @@ function LearnPageInner() {
   const tutorialSteps = getTutorialSteps(activity);
 
   return (
-    <div className="min-h-screen transition-all duration-700" style={{ background: settings.lowStimulationMode ? "#ecfdf5" : bg }}>
+    <div className="min-h-screen transition-all duration-700" style={{ background: settings.lowStimulationMode || settings.visualStimulus === 'low' ? "#ecfdf5" : bg, filter: settings.visualStimulus === 'high' ? 'saturate(1.1)' : undefined, transitionDuration: settings.animationSpeed === 'slow' ? '1200ms' : settings.animationSpeed === 'fast' ? '350ms' : '700ms' }}>
 
       {/* ── Correct answer burst ── */}
       {showReward && (
-        <div className="feedback-motion fixed inset-0 z-50 flex items-center justify-center bg-emerald-400/45 pointer-events-none" style={{ animation: "feedbackFlash 4.1s ease-out" }}>
-          <div className="feedback-motion flex w-full items-center justify-center gap-4 border-y-4 border-emerald-200 bg-emerald-600/90 py-4 shadow-2xl" style={{ animation: "feedbackSweep 4.1s ease-in-out both" }}>
+        <div className="feedback-motion fixed inset-0 z-50 flex items-center justify-center bg-emerald-400/45 pointer-events-none" style={{ animation: `feedbackFlash ${feedbackDuration}ms ease-out` }}>
+          <div className="feedback-motion flex w-full items-center justify-center gap-4 border-y-4 border-emerald-200 bg-emerald-600/90 py-4 shadow-2xl" style={{ animation: `feedbackSweep ${feedbackDuration}ms ease-in-out both` }}>
             <Image src="/assets/correctanswer.png" width={520} height={390} alt="TitiA comemorando o acerto" className="h-64 w-auto object-contain sm:h-80" />
             <p className="text-3xl font-extrabold text-white drop-shadow-lg">
-              Muito bem! 🎉
+              Muito bem! {settings.feedbackVisual === 'reinforced' || settings.reinforcementPreference === 'frequent' ? '🎉 ⭐ ✨' : '🎉'}
             </p>
           </div>
         </div>
       )}
       {rewardWrong && (
-        <div className="feedback-motion fixed inset-0 z-50 flex items-center justify-center bg-rose-500/45 pointer-events-none" style={{ animation: "feedbackFlash 3.7s ease-out" }}>
-          <div className="feedback-motion flex w-full items-center justify-center border-y-4 border-rose-200 bg-rose-600/90 py-4 shadow-2xl" style={{ animation: "feedbackSweep 3.7s ease-in-out both" }}>
+        <div className="feedback-motion fixed inset-0 z-50 flex items-center justify-center bg-rose-500/45 pointer-events-none" style={{ animation: `feedbackFlash ${feedbackDuration}ms ease-out` }}>
+          <div className="feedback-motion flex w-full items-center justify-center border-y-4 border-rose-200 bg-rose-600/90 py-4 shadow-2xl" style={{ animation: `feedbackSweep ${feedbackDuration}ms ease-in-out both` }}>
             <Image src="/assets/tryagain.png" width={440} height={330} alt="TitiA incentivando uma nova tentativa" className="h-64 w-auto object-contain sm:h-80" />
           </div>
         </div>
@@ -353,7 +370,7 @@ function LearnPageInner() {
         <button
           type="button"
           onClick={handleChangeActivity}
-          disabled={isChangingActivity}
+          disabled={isChangingActivity || !settings.allowChangeActivity}
           aria-label="Quero outro exercício"
           className="inline-flex min-h-14 items-center justify-center gap-2 rounded-[.75rem_1.75rem_1.75rem_1.75rem] border-2 border-teal-400 bg-gradient-to-r from-teal-500 to-emerald-500 px-4 py-2 text-sm font-extrabold text-white shadow-md transition-all hover:-rotate-1 hover:scale-[1.04] hover:shadow-lg active:scale-[.96] motion-reduce:transform-none disabled:opacity-60"
         >
@@ -363,9 +380,9 @@ function LearnPageInner() {
             showLabel={false}
             imageClassName="w-5 h-5"
           />
-          <span>{isChangingActivity ? "Escolhendo..." : "Quero outro"}</span>
+          <span>{!settings.allowChangeActivity ? "Outra atividade indisponível" : isChangingActivity ? "Escolhendo..." : "Quero outro"}</span>
         </button>
-        <button type="button" onClick={() => { if (settings.soundEnabled) playTap(); setShowChat(true); }}
+        <button type="button" onClick={() => { if (settings.soundEnabled && settings.soundEffectsEnabled) playTap(effectVolume); setShowChat(true); }}
           className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full border-2 border-sky-300 bg-gradient-to-r from-sky-100 to-blue-100 px-4 py-2 text-sm font-extrabold text-sky-800 shadow-md transition-all hover:scale-[1.04] hover:shadow-lg active:scale-[.96] motion-reduce:transform-none">
           <ArasaacPictogram conceptId="communication.help_me" showLabel={false} imageClassName="h-7 w-7" />
           <span>Falar com a TitiA</span>
@@ -377,6 +394,8 @@ function LearnPageInner() {
           <span>Como jogar</span>
         </button>
       </div>
+
+      {showAutoHint && <div className="mx-auto max-w-5xl px-4 pt-2"><p role="status" className="rounded-2xl border-2 border-sky-200 bg-white p-3 text-sm font-bold text-sky-900">💡 {activity.content?.spokenHint ?? 'Se quiser, toque em Como jogar para ver uma ajuda.'}</p></div>}
 
       {/* ── Child chat ── */}
       {showChat && (
@@ -446,7 +465,7 @@ function LearnPageInner() {
             <button
               onClick={() => {
                 setShowTutorial(false);
-                if (settings.soundEnabled) playStart();
+                if (settings.soundEnabled && settings.soundEffectsEnabled) playStart(effectVolume);
               }}
               className="w-full py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-extrabold rounded-2xl hover:opacity-90 transition-opacity text-base shadow-lg"
             >

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Param, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { IsString, MinLength, IsInt, Min, Max } from 'class-validator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -17,6 +17,25 @@ export class AddChildDto {
   @IsString()
   @MinLength(4)
   childPassword: string;
+}
+
+export class UpdateChildAccessDto {
+  @IsString()
+  @MinLength(1)
+  childName: string;
+
+  @IsString()
+  @MinLength(4)
+  childPassword: string;
+}
+
+export class UpdateGuardianPasswordDto {
+  @IsString()
+  currentPassword: string;
+
+  @IsString()
+  @MinLength(8)
+  newPassword: string;
 }
 
 export class ChatDto {
@@ -52,6 +71,25 @@ export class GuardianController {
     @Param('childId') childId: string,
   ) {
     return this.guardianService.getChildDetail(guardianId, childId);
+  }
+
+  @Put('password')
+  @ApiOperation({ summary: 'Change the logged-in guardian password' })
+  updateOwnPassword(
+    @CurrentUser('userId') guardianId: string,
+    @Body() dto: UpdateGuardianPasswordDto,
+  ) {
+    return this.guardianService.updateOwnPassword(guardianId, dto);
+  }
+
+  @Put('children/:childId/access')
+  @ApiOperation({ summary: 'Update a linked child name and short password' })
+  updateChildAccess(
+    @CurrentUser('userId') guardianId: string,
+    @Param('childId') childId: string,
+    @Body() dto: UpdateChildAccessDto,
+  ) {
+    return this.guardianService.updateChildAccess(guardianId, childId, dto);
   }
 
   @Get('children/:childId/longitudinal-analytics')

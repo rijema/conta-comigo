@@ -69,11 +69,20 @@ body {
   filter: saturate(0.6);
 }
 
+.low-stimulation body {
+  filter: saturate(0.75);
+}
+
 /* High contrast mode */
 [data-contrast="high"] {
   --color-primary: #1e1b4b;
   background: #ffffff;
   color: #000000;
+}
+
+.high-contrast body {
+  background: #fff;
+  color: #000;
 }
 
 /* Focus ring for accessibility */
@@ -88,6 +97,13 @@ body {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+.reduce-motion *,
+.low-stimulation * {
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
 }
 
 /* Base accessible font sizing */

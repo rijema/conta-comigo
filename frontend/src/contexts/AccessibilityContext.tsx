@@ -22,6 +22,18 @@ export interface AccessibilitySettings {
   highContrast: boolean;
   language: string;
   animationsReduced: boolean;
+  soundEffectsEnabled: boolean;
+  volume: number;
+  animationSpeed: "slow" | "normal" | "fast";
+  visualStimulus: "low" | "medium" | "high";
+  audioStimulus: "low" | "medium" | "high";
+  feedbackVisual: "minimal" | "normal" | "reinforced";
+  celebrationFrequency: "round_only" | "normal" | "frequent";
+  autoHints: boolean;
+  helpDelaySeconds: number;
+  allowChangeActivity: boolean;
+  predictability: "standard" | "high";
+  reinforcementPreference: "minimal" | "normal" | "frequent";
 }
 
 const defaultSettings: AccessibilitySettings = {
@@ -36,6 +48,18 @@ const defaultSettings: AccessibilitySettings = {
   highContrast: false,
   language: "pt",
   animationsReduced: false,
+  soundEffectsEnabled: true,
+  volume: 0.7,
+  animationSpeed: "normal",
+  visualStimulus: "medium",
+  audioStimulus: "medium",
+  feedbackVisual: "normal",
+  celebrationFrequency: "frequent",
+  autoHints: false,
+  helpDelaySeconds: 30,
+  allowChangeActivity: true,
+  predictability: "standard",
+  reinforcementPreference: "normal",
 };
 
 interface AccessibilityContextType {
@@ -78,6 +102,18 @@ export function AccessibilityProvider({
             voiceEnabled: preferences.voiceEnabled !== false,
             animationsReduced: preferences.animationsEnabled === false,
             automaticInstructionSpeech: preferences.automaticInstructionSpeech !== false,
+            soundEffectsEnabled: preferences.soundEffectsEnabled !== false,
+            volume: typeof preferences.volume === 'number' ? Math.min(1, Math.max(0, preferences.volume)) : defaultSettings.volume,
+            animationSpeed: ['slow', 'normal', 'fast'].includes(String(preferences.animationSpeed)) ? preferences.animationSpeed as AccessibilitySettings['animationSpeed'] : defaultSettings.animationSpeed,
+            visualStimulus: ['low', 'medium', 'high'].includes(String(preferences.visualStimulus)) ? preferences.visualStimulus as AccessibilitySettings['visualStimulus'] : defaultSettings.visualStimulus,
+            audioStimulus: ['low', 'medium', 'high'].includes(String(preferences.audioStimulus)) ? preferences.audioStimulus as AccessibilitySettings['audioStimulus'] : defaultSettings.audioStimulus,
+            feedbackVisual: ['minimal', 'normal', 'reinforced'].includes(String(preferences.feedbackVisual)) ? preferences.feedbackVisual as AccessibilitySettings['feedbackVisual'] : defaultSettings.feedbackVisual,
+            celebrationFrequency: ['round_only', 'normal', 'frequent'].includes(String(preferences.celebrationFrequency)) ? preferences.celebrationFrequency as AccessibilitySettings['celebrationFrequency'] : defaultSettings.celebrationFrequency,
+            autoHints: preferences.autoHints === true,
+            helpDelaySeconds: typeof preferences.helpDelaySeconds === 'number' ? preferences.helpDelaySeconds : defaultSettings.helpDelaySeconds,
+            allowChangeActivity: preferences.allowChangeActivity !== false,
+            predictability: preferences.predictability === 'high' ? 'high' : 'standard',
+            reinforcementPreference: ['minimal', 'normal', 'frequent'].includes(String(preferences.reinforcementPreference)) ? preferences.reinforcementPreference as AccessibilitySettings['reinforcementPreference'] : defaultSettings.reinforcementPreference,
             ...(typeof preferences.speechRate === 'number' ? { speechRate: preferences.speechRate } : {}),
           });
           setProfessionalUserId(user.id);
@@ -93,12 +129,24 @@ export function AccessibilityProvider({
   const effectiveSettings: AccessibilitySettings = {
     ...settings,
     soundEnabled: settings.soundEnabled && appliedPreferences?.soundEnabled !== false,
-    voiceEnabled: settings.voiceEnabled && appliedPreferences?.voiceEnabled !== false,
+    voiceEnabled: settings.voiceEnabled && settings.soundEnabled && appliedPreferences?.voiceEnabled !== false && appliedPreferences?.soundEnabled !== false,
     automaticInstructionSpeech: settings.automaticInstructionSpeech && appliedPreferences?.automaticInstructionSpeech !== false,
     lowStimulationMode: settings.lowStimulationMode || appliedPreferences?.lowStimulationMode === true,
     highContrast: settings.highContrast || appliedPreferences?.highContrast === true,
     animationsReduced: settings.animationsReduced || appliedPreferences?.animationsReduced === true,
     speechRate: appliedPreferences?.speechRate ?? settings.speechRate,
+    soundEffectsEnabled: settings.soundEffectsEnabled && appliedPreferences?.soundEffectsEnabled !== false && !(settings.lowStimulationMode || appliedPreferences?.lowStimulationMode === true),
+    volume: appliedPreferences?.volume ?? settings.volume,
+    animationSpeed: appliedPreferences?.animationSpeed ?? settings.animationSpeed,
+    visualStimulus: appliedPreferences?.visualStimulus ?? settings.visualStimulus,
+    audioStimulus: appliedPreferences?.audioStimulus ?? settings.audioStimulus,
+    feedbackVisual: appliedPreferences?.feedbackVisual ?? settings.feedbackVisual,
+    celebrationFrequency: appliedPreferences?.celebrationFrequency ?? settings.celebrationFrequency,
+    autoHints: appliedPreferences?.autoHints ?? settings.autoHints,
+    helpDelaySeconds: appliedPreferences?.helpDelaySeconds ?? settings.helpDelaySeconds,
+    allowChangeActivity: settings.allowChangeActivity && appliedPreferences?.allowChangeActivity !== false,
+    predictability: appliedPreferences?.predictability ?? settings.predictability,
+    reinforcementPreference: appliedPreferences?.reinforcementPreference ?? settings.reinforcementPreference,
   };
   const childPreferencesReady = user?.role !== 'child' || professionalUserId === user.id;
 

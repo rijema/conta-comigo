@@ -97,7 +97,7 @@ test("catalog search uses the Portuguese ARASAAC API with cached, sanitized resu
 });
 
 test("professional voice preference gates child pictogram speech", () => {
-  assert.match(educator, /voiceEnabled", label: "Leitura dos pictogramas pela TitiA"/);
+  assert.match(educator, /'voiceEnabled', 'Voz da TitiA'/);
   assert.match(dialog, /professionalVoiceEnabled/);
   assert.match(dialog, /profile\.uiPreferences\?\.voiceEnabled === true/);
   assert.match(dialog, /if \(voiceAllowed\) speech\.speakPictogram/);
