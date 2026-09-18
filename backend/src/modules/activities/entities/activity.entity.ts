@@ -32,9 +32,17 @@ export enum ActivityType {
 }
 
 export enum DifficultyLevel {
+  VERY_EASY = 'very_easy',
   EASY = 'easy',
   MEDIUM = 'medium',
   HARD = 'hard',
+  EXTREME = 'extreme',
+}
+
+export interface ActivitySkillWeight {
+  code: string;
+  role: 'primary' | 'secondary';
+  weight: number;
 }
 
 @Entity('activities')
@@ -57,6 +65,9 @@ export class Activity {
   // BNCC skill codes e.g. "EF01MA01", "EF02MA05"
   @Column({ type: 'jsonb', default: [] })
   bnccSkills: string[];
+
+  @Column({ type: 'jsonb', nullable: true })
+  skillWeights?: ActivitySkillWeight[] | null;
 
   // Which ontology modalities this activity targets
   @Column({ type: 'jsonb', default: [] })

@@ -10,6 +10,8 @@ export interface RuleContext {
   asdSupportLevel: string;
   streakCount: number;
   engagementScore: number;       // ML output 0..1
+  recentAttempts?: Array<{ isCorrect: boolean; hintsUsed?: number; timeSpentSeconds?: number; activityId?: string; difficulty?: DifficultyLevel }>;
+  recentSkips?: number;
 }
 
 export interface RuleResult {
@@ -35,52 +37,49 @@ export class RuleEngineService {
 
   evaluate(ctx: RuleContext): RuleResult {
     const rulesFired: string[] = [];
-    let difficulty = DifficultyLevel.EASY;
+    const levels = [DifficultyLevel.VERY_EASY, DifficultyLevel.EASY, DifficultyLevel.MEDIUM, DifficultyLevel.HARD, DifficultyLevel.EXTREME];
+    const historyWindow = this.threshold('ADE_DIFFICULTY_HISTORY_WINDOW', 5);
+    const recent = (ctx.recentAttempts ?? []).slice(0, historyWindow);
+    const current = recent[0]?.difficulty ?? DifficultyLevel.EASY;
+    let index = Math.max(0, levels.indexOf(current));
+    let difficulty = levels[index];
     let shouldReduceStimulation = false;
     let shouldAddBreak = false;
-    const masteryHigh = this.threshold('ADE_MASTERY_HIGH_THRESHOLD', 0.8);
     const masteryMedium = this.threshold('ADE_MASTERY_MEDIUM_THRESHOLD', 0.5);
-    const masteryLow = this.threshold('ADE_MASTERY_LOW_THRESHOLD', 0.3);
     const accuracyHigh = this.threshold('ADE_ACCURACY_HIGH_THRESHOLD', 0.75);
-    const accuracyMedium = this.threshold('ADE_ACCURACY_MEDIUM_THRESHOLD', 0.6);
     const accuracyLow = this.threshold('ADE_ACCURACY_LOW_THRESHOLD', 0.4);
     const engagementLow = this.threshold('ADE_ENGAGEMENT_LOW_THRESHOLD', 0.35);
     const breakTime = this.threshold('ADE_BREAK_TIME_SECONDS_THRESHOLD', 120);
     const breakHints = this.threshold('ADE_BREAK_HINTS_THRESHOLD', 3);
-    const streakThreshold = this.threshold('ADE_STREAK_THRESHOLD', 5);
-    const strongSupportMastery = this.threshold('ADE_STRONG_SUPPORT_MASTERY_THRESHOLD', 0.5);
+    const promotionSuccesses = this.threshold('ADE_PROMOTION_MIN_SUCCESSES', 3);
+    const struggleMinimum = this.threshold('ADE_DIFFICULTY_MIN_STRUGGLES', 2);
+    const skipMinimum = this.threshold('ADE_DIFFICULTY_MIN_SKIPS', 2);
 
     // === DIFFICULTY RULES ===
 
-    // Rule D1: High mastery → increase difficulty
-    if (
-      ctx.currentSkillMastery > masteryHigh &&
-      ctx.recentAccuracy > accuracyHigh
-    ) {
-      difficulty = DifficultyLevel.HARD;
-      rulesFired.push(`D1: mastery>${masteryHigh} AND accuracy>${accuracyHigh} → HARD`);
+    // Require repeated evidence at the current level; retries, hints and skips
+    // prevent promotion even when the final answer was correct.
+    const sameLevel = recent.filter((attempt) => attempt.difficulty === current);
+    const independent = sameLevel.filter((attempt) => attempt.isCorrect &&
+      !attempt.hintsUsed && Number.isFinite(attempt.timeSpentSeconds) &&
+      (attempt.timeSpentSeconds ?? 0) > 0 && (attempt.timeSpentSeconds ?? 0) <= breakTime);
+    const struggle = sameLevel.filter((attempt) => !attempt.isCorrect ||
+      (attempt.hintsUsed ?? 0) >= breakHints || (attempt.timeSpentSeconds ?? 0) > breakTime);
+    const retryCount = sameLevel.length - new Set(sameLevel.map((attempt) => attempt.activityId)).size;
+    if (sameLevel.length >= promotionSuccesses && independent.length >= promotionSuccesses && retryCount === 0 &&
+        !ctx.recentSkips && ctx.currentSkillMastery >= masteryMedium &&
+        ctx.recentAccuracy >= accuracyHigh && ctx.engagementScore >= engagementLow) {
+      index = Math.min(4, index + 1);
+      rulesFired.push('D1: repeated independent success with mastery → advance one level');
+    } else if ((sameLevel.length >= struggleMinimum && struggle.length >= struggleMinimum) ||
+        (ctx.recentSkips ?? 0) >= skipMinimum ||
+        (recent.length >= struggleMinimum && ctx.recentAccuracy < accuracyLow)) {
+      index = Math.max(0, index - 1);
+      rulesFired.push('D2: repeated difficulty or skips → reduce one level');
+    } else {
+      rulesFired.push('D3: insufficient consistent evidence → hold level');
     }
-    // Rule D2: Good performance → medium difficulty
-    else if (
-      ctx.currentSkillMastery > masteryMedium &&
-      ctx.recentAccuracy > accuracyMedium
-    ) {
-      difficulty = DifficultyLevel.MEDIUM;
-      rulesFired.push(`D2: mastery>${masteryMedium} AND accuracy>${accuracyMedium} → MEDIUM`);
-    }
-    // Rule D3: Struggling → easy difficulty
-    else if (
-      ctx.recentAccuracy < accuracyLow ||
-      ctx.currentSkillMastery < masteryLow
-    ) {
-      difficulty = DifficultyLevel.EASY;
-      rulesFired.push(`D3: accuracy<${accuracyLow} OR mastery<${masteryLow} → EASY`);
-    }
-    // Rule D4: Strong support level → cap at MEDIUM
-    else if (ctx.asdSupportLevel === 'strong' && difficulty !== DifficultyLevel.EASY && difficulty !== DifficultyLevel.MEDIUM) {
-      difficulty = DifficultyLevel.MEDIUM;
-      rulesFired.push('D4: strong_support_level → cap_at_MEDIUM');
-    }
+    difficulty = levels[index];
 
     // === ENGAGEMENT / WELLBEING RULES ===
 
@@ -99,23 +98,7 @@ export class RuleEngineService {
       rulesFired.push(`E2: time>${breakTime}s AND hints>${breakHints} → suggest_break`);
     }
 
-    // Rule E3: Long streak → prevent frustration by alternating easy
-    if (
-      ctx.streakCount > streakThreshold &&
-      difficulty === DifficultyLevel.EASY
-    ) {
-      difficulty = DifficultyLevel.MEDIUM;
-      rulesFired.push(`E3: streak>${streakThreshold} AND easy → promote_to_MEDIUM`);
-    }
-
-    // Rule E4: BNCC gate — strong support should always start easy
-    if (
-      ctx.asdSupportLevel === 'strong' &&
-      ctx.currentSkillMastery < strongSupportMastery
-    ) {
-      difficulty = DifficultyLevel.EASY;
-      rulesFired.push('E4: BNCC_gate — strong_support AND low_mastery → EASY');
-    }
+    // Support level affects presentation and scaffolding, not an ability ceiling.
 
     this.logger.debug(
       `Rules fired: [${rulesFired.join(' | ')}] → difficulty: ${difficulty}`,

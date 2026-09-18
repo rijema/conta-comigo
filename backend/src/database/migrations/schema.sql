@@ -26,8 +26,9 @@ CREATE TABLE IF NOT EXISTS activities (
     'composition_decomposition', 'missing_number', 'pattern_completion',
     'representation_matching', 'error_detection', 'contextual_problem_solving'
   )),
-  difficulty VARCHAR NOT NULL DEFAULT 'easy' CHECK (difficulty IN ('easy', 'medium', 'hard')),
+  difficulty VARCHAR NOT NULL DEFAULT 'easy' CHECK (difficulty IN ('very_easy', 'easy', 'medium', 'hard', 'extreme')),
   "bnccSkills" JSONB NOT NULL DEFAULT '[]', "targetModalities" JSONB NOT NULL DEFAULT '[]',
+  "skillWeights" JSONB,
   content JSONB NOT NULL, accessibility JSONB, "isActive" BOOLEAN NOT NULL DEFAULT TRUE,
   "pointsReward" INTEGER NOT NULL DEFAULT 0, "prerequisiteSkillCode" VARCHAR,
   "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(), "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
@@ -58,6 +59,22 @@ BEGIN
     END LOOP;
   END IF;
 END $$;
+
+ALTER TABLE activities ADD COLUMN IF NOT EXISTS "skillWeights" JSONB;
+DO $$
+DECLARE difficulty_type_name TEXT;
+BEGIN
+  SELECT udt_name INTO difficulty_type_name FROM information_schema.columns
+  WHERE table_schema = current_schema() AND table_name = 'activities'
+    AND column_name = 'difficulty' AND data_type = 'USER-DEFINED';
+  IF difficulty_type_name IS NOT NULL THEN
+    EXECUTE format('ALTER TYPE %I ADD VALUE IF NOT EXISTS %L', difficulty_type_name, 'very_easy');
+    EXECUTE format('ALTER TYPE %I ADD VALUE IF NOT EXISTS %L', difficulty_type_name, 'extreme');
+  END IF;
+END $$;
+ALTER TABLE activities DROP CONSTRAINT IF EXISTS activities_difficulty_check;
+ALTER TABLE activities ADD CONSTRAINT activities_difficulty_check
+  CHECK (difficulty IN ('very_easy', 'easy', 'medium', 'hard', 'extreme'));
 
 ALTER TABLE activities DROP CONSTRAINT IF EXISTS activities_type_check;
 ALTER TABLE activities ADD CONSTRAINT activities_type_check CHECK (type IN (

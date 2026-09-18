@@ -113,7 +113,9 @@ export class HybridRecommendationService {
       );
       const interaction = this.interactionFit(candidate, input.observedEvidenceTypes);
       const semanticDecision = semanticDecisions.get(candidate.id);
-      const semanticFit = (semanticDecision?.matchedConcepts.length ?? 0) / maxMatches;
+      const skillWeight = candidate.skillWeights?.find((skill) =>
+        skill.code === input.semanticTrace.targetSkill)?.weight ?? 1;
+      const semanticFit = ((semanticDecision?.matchedConcepts.length ?? 0) / maxMatches) * skillWeight;
       const novelty = this.novelty(candidate.id, input.recentActivityIds);
       const rejectionRisk = this.rejectionRisk(candidate.id, input.recentlyRejectedActivityIds);
       const w = this.configuration.weights;
@@ -179,8 +181,14 @@ export class HybridRecommendationService {
       if (normalized != null) values.push(normalized);
     }
     if (values.length) return values.reduce((sum, value) => sum + value, 0) / values.length;
-    return activity.difficulty === DifficultyLevel.HARD ? 0.8
-      : activity.difficulty === DifficultyLevel.MEDIUM ? 0.5 : 0.2;
+    const levels: Record<DifficultyLevel, number> = {
+      [DifficultyLevel.VERY_EASY]: 0.1,
+      [DifficultyLevel.EASY]: 0.25,
+      [DifficultyLevel.MEDIUM]: 0.5,
+      [DifficultyLevel.HARD]: 0.75,
+      [DifficultyLevel.EXTREME]: 0.9,
+    };
+    return levels[activity.difficulty] ?? 0.25;
   }
 
   private interactionFit(activity: Activity, evidence: string[]): {
