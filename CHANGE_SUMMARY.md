@@ -403,3 +403,9 @@ No recommendation ranking, Generalization Score, full ARASAAC integration, learn
 - Added structured attempt research traces with activity, BNCC, difficulty, format, safe math answer, timing and BKT before/after values; kept recommendation explanations in the existing ADE decisions.
 - Added session start/completion and explicit activity abandonment events. Incorrect attempts no longer emit activity completion in learning events or Kafka.
 - Added the runtime SQL and TypeORM migrations, automated tests and Portuguese research documentation. Free text and arbitrary answer objects are excluded from the new answer snapshot.
+
+## 2026-09-18 — Browser tab identity
+
+- Shortened the browser title to “Mestrado - Conta Comigo”.
+- Reused the existing TitiA icon as a multi-size favicon, PNG fallback and Apple touch icon for browser compatibility.
+- Added automated asset checks and Portuguese research documentation. No database migration was required.
