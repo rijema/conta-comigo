@@ -540,12 +540,13 @@ export class ActivitiesService {
       storedActivities.map((activity) => this.attachSemanticContract(activity)),
     );
 
-    // Group by BNCC skill
+    // Show a multi-skill activity on every linked curriculum island.
     const bySkill: Record<string, any[]> = {};
     allActivities.forEach((act) => {
-      const skill = act.bnccSkills?.[0] ?? 'Geral';
-      if (!bySkill[skill]) bySkill[skill] = [];
-      bySkill[skill].push({
+      const skills = act.bnccSkills?.length ? [...new Set(act.bnccSkills)] : ['Exploracao'];
+      for (const skill of skills) {
+        if (!bySkill[skill]) bySkill[skill] = [];
+        bySkill[skill].push({
         id: act.id,
         title: act.title,
         type: act.type,
@@ -562,7 +563,8 @@ export class ActivitiesService {
         affordances: act.affordances,
         communication: act.communication,
         semanticAnnotation: act.semanticAnnotation,
-      });
+        });
+      }
     });
 
     // Use ontology to determine recommended modalities

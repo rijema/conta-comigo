@@ -256,14 +256,14 @@ test('BNCC competency-query fixtures return the expected curriculum answers', as
       .map(({ code }) => code),
     ['EF01MA03', 'EF01MA07'],
   );
-  assert.equal((activitiesSeed.match(/bnccSkills: \['EF01MA15'\]/g) ?? []).length, 2);
+  assert.equal((activitiesSeed.match(/bnccSkills: \['EF01MA15'\]/g) ?? []).length, 0);
   assert.equal(byCode.has('EF01MA15'), false);
   const activitySkillCodes = [
     ...new Set([...activitiesSeed.matchAll(/bnccSkills: \['(EF\d{2}MA\d{2})'\]/g)].map((match) => match[1])),
   ];
   assert.deepEqual(
     activitySkillCodes.filter((code) => !byCode.has(code)).sort(),
-    ['EF01MA15', 'EF02MA01', 'EF02MA05', 'EF03MA07'],
+    ['EF02MA01', 'EF02MA05', 'EF03MA07'],
   );
 });
 

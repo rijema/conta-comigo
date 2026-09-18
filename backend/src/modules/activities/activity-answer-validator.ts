@@ -24,7 +24,7 @@ function normalizeScalar(value: unknown): unknown {
 function normalizeSubmittedAnswer(answer: unknown): unknown {
   if (!answer || typeof answer !== 'object' || Array.isArray(answer)) return answer;
   const record = answer as Record<string, unknown>;
-  return record.value ?? record.selectedText ?? record.selectedOption ?? record.count ?? answer;
+  return record.value ?? record.selectedText ?? record.selectedOption ?? record.count ?? record.arrangement ?? answer;
 }
 
 function arraysEqual(left: unknown[], right: unknown[]): boolean {

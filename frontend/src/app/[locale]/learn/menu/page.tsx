@@ -301,7 +301,7 @@ export default function ActivityMenuPage() {
                             <div className="min-w-0">
                               <p className="font-extrabold text-white text-sm drop-shadow truncate">{theme.label}</p>
                               <p className="text-white/80 text-xs font-semibold truncate">{skillPt}</p>
-                              <p className="text-white text-xs font-extrabold">BNCC {group.skill}</p>
+                              <p className="text-white text-xs font-extrabold">{group.skill === 'Exploracao' ? 'Sem vínculo BNCC validado' : `BNCC ${group.skill}`}</p>
                               <p className="text-white/65 text-xs">{group.completedCount}/{group.totalActivities} ✓</p>
                             </div>
                           </div>

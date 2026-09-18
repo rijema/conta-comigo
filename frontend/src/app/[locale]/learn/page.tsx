@@ -314,13 +314,14 @@ function LearnPageInner() {
 
       {/* ── Activity type badge + BNCC ── */}
       <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-2 px-4 pt-3">
-        {(activity.bnccSkills?.length ? activity.bnccSkills : ["BNCC não informada"]).map((skill: string) => (
+        {(activity.bnccSkills ?? []).map((skill: string) => (
           <span key={skill} className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-white/80 px-3 py-1 text-xs font-extrabold text-blue-700 shadow-sm">
             BNCC {skill}
           </span>
         ))}
+        {!activity.bnccSkills?.length && <span className="inline-flex rounded-full border border-amber-200 bg-white/80 px-3 py-1 text-xs font-extrabold text-amber-800">Sem vínculo BNCC validado</span>}
         <span className="inline-flex items-center rounded-full border border-emerald-200 bg-white/80 px-3 py-1 text-xs font-extrabold text-emerald-700 shadow-sm">
-          Tipo: {ACTIVITY_TYPE_LABELS[activity.type] ?? activity.type}
+          Tipo: {activity.content?.formatLabel ?? ACTIVITY_TYPE_LABELS[activity.type] ?? activity.type}
         </span>
         {session.selectionSource === "recalculated" && <span className="inline-flex items-center gap-1 rounded-full border border-purple-200 bg-white/70 px-3 py-1 text-xs font-extrabold text-purple-700 shadow-sm">↻ Outra opção escolhida pela TitiA</span>}
       </div>
