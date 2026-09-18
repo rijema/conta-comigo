@@ -16,6 +16,7 @@ import { buildActivitySemanticContract } from './activity-semantic-contract';
 import { validateActivityAnswer } from './activity-answer-validator';
 import { RecommendationExplanationService } from '../ade/recommendation-explanation.service';
 import { OntologyService } from '../ontology/ontology.service';
+import type { SkillRelationEvidence } from '../ontology/ontology.service';
 import { RuntimeSemanticAdapter } from '../ontology/runtime-semantic.adapter';
 import { SemanticFilteringTrace } from '../ontology/semantic-runtime.types';
 import { RecommendationOutcomeService } from '../learning-events/recommendation-outcome.service';
@@ -30,6 +31,14 @@ interface ActivitySelectionResult {
   activity: Activity;
   semanticTrace: SemanticFilteringTrace;
   ranking: HybridRankingResult;
+}
+
+interface LearningSelectionStrategy {
+  mode: 'consolidate' | 'reinforce' | 'review' | 'challenge' | 'explore';
+  originalSkill: string;
+  selectedSkill: string;
+  evidence: string[];
+  relation?: SkillRelationEvidence;
 }
 
 @Injectable()
@@ -649,16 +658,25 @@ export class ActivitiesService {
     const activities = await Promise.all(
       storedActivities.map((activity) => this.attachSemanticContract(activity)),
     );
-    const sameSkill = activities.filter((activity) =>
-      activity.bnccSkills?.includes(adeDecision.recommendedBnccSkill));
-    const skillCandidates = sameSkill.length ? sameSkill : activities;
-    const legacyCandidates = skillCandidates.filter((activity) =>
-      this.matchesLegacyRecommendation(activity, adeDecision),
-    );
     const [recentAttempts, rejectedActivityIds] = await Promise.all([
       this.getRecentAttempts(adeDecision.userId, 20),
       this.learningEventService.getRecentSkippedActivityIds(adeDecision.userId, 20),
     ]);
+    const masteryBySkillCode = typeof this.knowledgeTracingService.getMasteryMapBySkillCode === 'function'
+      ? await this.knowledgeTracingService.getMasteryMapBySkillCode(adeDecision.userId).catch(() => ({}))
+      : {};
+    const eligibleActivities = activities.filter((activity) =>
+      typeof this.ontologyService?.isActivityPrerequisiteSatisfied !== 'function' ||
+      this.ontologyService.isActivityPrerequisiteSatisfied(
+        activity.prerequisiteSkillCode, masteryBySkillCode));
+    if (!eligibleActivities.length) throw new Error('No activity satisfies known prerequisites');
+    const strategy = await this.planLearningStrategy(adeDecision, eligibleActivities, recentAttempts);
+    const sameSkill = eligibleActivities.filter((activity) =>
+      activity.bnccSkills?.includes(adeDecision.recommendedBnccSkill));
+    const skillCandidates = sameSkill.length ? sameSkill : eligibleActivities;
+    const legacyCandidates = skillCandidates.filter((activity) =>
+      this.matchesLegacyRecommendation(activity, adeDecision),
+    );
     const recentIds = [...rejectedActivityIds, ...recentAttempts.map((attempt) => attempt.activityId)];
 
     if (!this.ontologyService || !this.runtimeSemanticAdapter || !this.hybridRecommendationService) {
@@ -672,7 +690,7 @@ export class ActivitiesService {
           activities,
           fallbackReason,
         ),
-        ranking: this.fallbackRanking(activity.id, candidates, fallbackReason),
+        ranking: { ...this.fallbackRanking(activity.id, candidates, fallbackReason), selectionStrategy: strategy },
       };
     }
 
@@ -683,10 +701,11 @@ export class ActivitiesService {
       masteryProbability: adeDecision.xaiLog?.mlPredictions?.masteryProbability,
       recentAccuracy: adeDecision.inputSnapshot?.recentAccuracy,
       observedLearnerEvidence: profile?.ontologyInstanceData,
+      masteryBySkillCode,
     });
     const semanticResult = this.ontologyService.getValidActivityCandidates(facts);
     const validIds = new Set(semanticResult.validCandidateIds);
-    const formallyValid = activities.filter((activity) => validIds.has(activity.id));
+    const formallyValid = eligibleActivities.filter((activity) => validIds.has(activity.id));
 
     if (semanticResult.trace.fallbackUsed) {
       const candidates = this.cooldown(legacyCandidates.length > 0 ? legacyCandidates : skillCandidates, activities, recentIds);
@@ -694,12 +713,12 @@ export class ActivitiesService {
       return {
         activity,
         semanticTrace: semanticResult.trace,
-        ranking: this.fallbackRanking(
+        ranking: { ...this.fallbackRanking(
           activity.id,
           candidates,
           semanticResult.trace.fallbackReason ?? 'Semantic candidate generation required fallback',
           semanticResult.trace.ontologyVersion,
-        ),
+        ), selectionStrategy: strategy },
       };
     }
 
@@ -707,6 +726,7 @@ export class ActivitiesService {
       activity.difficulty === adeDecision.recommendedDifficulty);
     const rankedCandidates = this.cooldown(
       matchingLevel.length ? matchingLevel : formallyValid, activities, recentIds);
+    const activitiesById = new Map(activities.map((activity) => [activity.id, activity]));
     const ranking = this.hybridRecommendationService.rank({
       candidates: rankedCandidates,
       masteryProbability: facts.mastery.probability,
@@ -714,7 +734,18 @@ export class ActivitiesService {
       recentActivityIds: recentAttempts.map((attempt) => attempt.activityId),
       recentlyRejectedActivityIds: rejectedActivityIds,
       observedEvidenceTypes: facts.observedEvidenceTypes,
+      recentActivities: recentAttempts.map((attempt) => ({
+        activityId: attempt.activityId,
+        type: attempt.activity?.type,
+        structureId: attempt.activity?.content?.semantic?.structureId,
+        bnccSkills: attempt.activity?.bnccSkills,
+        representation: activitiesById.get(attempt.activityId)?.representation,
+        isCorrect: attempt.isCorrect,
+        timeSpentSeconds: attempt.timeSpentSeconds,
+      })),
+      preferences: profile?.uiPreferences,
     });
+    ranking.selectionStrategy = strategy;
     const selected = rankedCandidates.find((activity) => activity.id === ranking.selectedActivityId);
     if (!selected) {
       const candidates = this.cooldown(legacyCandidates.length > 0 ? legacyCandidates : skillCandidates, activities, recentIds);
@@ -723,12 +754,12 @@ export class ActivitiesService {
       return {
         activity,
         semanticTrace: semanticResult.trace,
-        ranking: this.fallbackRanking(
+        ranking: { ...this.fallbackRanking(
           activity.id,
           candidates,
           fallbackReason,
           semanticResult.trace.ontologyVersion,
-        ),
+        ), selectionStrategy: strategy },
       };
     }
 
@@ -737,6 +768,101 @@ export class ActivitiesService {
       semanticTrace: semanticResult.trace,
       ranking,
     };
+  }
+
+  private async planLearningStrategy(
+    decision: any,
+    activities: Activity[],
+    recentAttempts: ActivityAttempt[],
+  ): Promise<LearningSelectionStrategy> {
+    const originalSkill = decision.recommendedBnccSkill;
+    const strategy: LearningSelectionStrategy = {
+      mode: 'consolidate', originalSkill, selectedSkill: originalSkill, evidence: [],
+    };
+    const skillAttempts = recentAttempts.filter((attempt) =>
+      attempt.activity?.bnccSkills?.includes(originalSkill));
+    const strategyWindow = this.experimentalCount('ADE_STRATEGY_RECENT_WINDOW', 5);
+    const recent = skillAttempts.slice(0, strategyWindow);
+    const slowThreshold = this.experimentalNumber('ADE_SLOW_RESPONSE_SECONDS', 120);
+    const reinforceErrors = this.experimentalCount('ADE_REINFORCE_MIN_ERRORS', 2);
+    const reinforceSkips = this.experimentalCount('ADE_REINFORCE_MIN_SKIPS', 2);
+    const exploreSuccesses = this.experimentalCount('ADE_EXPLORE_MIN_INDEPENDENT_SUCCESSES', 3);
+    const slowCorrect = recent[0]?.isCorrect &&
+      Number(recent[0].timeSpentSeconds) > slowThreshold;
+    const repeatedErrors = recent.slice(0, strategyWindow)
+      .filter((attempt) => !attempt.isCorrect).length >= reinforceErrors;
+    const repeatedSkips = (decision.inputSnapshot?.recentSkips ?? 0) >= reinforceSkips;
+    const mastery = decision.xaiLog?.mlPredictions?.masteryProbability;
+    const relations = typeof this.ontologyService?.getSkillRelations === 'function'
+      ? this.ontologyService.getSkillRelations(originalSkill) : [];
+    if (slowCorrect) {
+      strategy.mode = 'reinforce';
+      strategy.evidence.push(`correct_response_exceeded_${slowThreshold}_seconds`);
+    } else if (repeatedErrors || repeatedSkips) {
+      strategy.mode = 'reinforce';
+      strategy.evidence.push(repeatedErrors
+        ? `${reinforceErrors}_errors_in_recent_${strategyWindow}_attempts`
+        : `${reinforceSkips}_recent_skips`);
+      const prerequisite = relations.find((relation) => relation.relation === 'prerequisiteSkill' &&
+        activities.some((activity) => activity.bnccSkills?.includes(relation.skillCode)));
+      if (prerequisite && !decision.inputSnapshot?.targetSkillExplicit) {
+        strategy.mode = 'review';
+        strategy.relation = prerequisite;
+      }
+    } else if (!decision.inputSnapshot?.targetSkillExplicit &&
+      !decision.inputSnapshot?.recentSkips &&
+      typeof mastery === 'number' && mastery >= this.experimentalNumber('ADE_EXPLORE_MASTERY_THRESHOLD', 0.8) &&
+      recent.length >= exploreSuccesses && recent.slice(0, exploreSuccesses).every((attempt) =>
+        attempt.isCorrect && !attempt.hintsUsed &&
+        Number(attempt.timeSpentSeconds) > 0 && Number(attempt.timeSpentSeconds) <= slowThreshold) &&
+      new Set(recent.slice(0, exploreSuccesses).map((attempt) => attempt.activityId)).size === exploreSuccesses) {
+      const related = relations.find((relation) => relation.relation === 'relatedSkill' &&
+        activities.some((activity) => activity.bnccSkills?.includes(relation.skillCode)) &&
+        !recentAttempts.slice(0, 5).some((attempt) =>
+          attempt.activity?.bnccSkills?.includes(relation.skillCode)));
+      if (related) {
+        strategy.mode = 'explore';
+        strategy.relation = related;
+        strategy.evidence.push(`${exploreSuccesses}_recent_independent_successes_and_mastery`);
+      } else {
+        strategy.mode = 'challenge';
+        strategy.evidence.push('stable_success_without_available_related_skill');
+      }
+    }
+    if (strategy.relation) {
+      strategy.selectedSkill = strategy.relation.skillCode;
+      decision.recommendedBnccSkill = strategy.selectedSkill;
+      decision.recommendedDifficulty = DifficultyLevel.EASY;
+      decision.inputSnapshot ??= {};
+      decision.xaiLog ??= { mlPredictions: {} };
+      decision.xaiLog.mlPredictions ??= {};
+      const selectedAttempts = recentAttempts.filter((attempt) =>
+        attempt.activity?.bnccSkills?.includes(strategy.selectedSkill));
+      decision.inputSnapshot.recentAccuracy = selectedAttempts.length
+        ? selectedAttempts.filter((attempt) => attempt.isCorrect).length / selectedAttempts.length
+        : null;
+      try {
+        const selectedMastery = await this.knowledgeTracingService.getMasteryBySkillCode(
+          decision.userId, strategy.selectedSkill);
+        decision.xaiLog.mlPredictions.masteryProbability = selectedMastery;
+        decision.inputSnapshot.currentMastery = selectedMastery;
+      } catch (error) {
+        strategy.evidence.push('selected_skill_mastery_unavailable');
+        decision.xaiLog.mlPredictions.masteryProbability = null;
+        decision.inputSnapshot.currentMastery = null;
+      }
+    }
+    decision.inputSnapshot = { ...decision.inputSnapshot, selectionStrategy: strategy };
+    return strategy;
+  }
+
+  private experimentalNumber(key: string, fallback: number): number {
+    const configured = Number(process.env[key]);
+    return Number.isFinite(configured) && configured > 0 ? configured : fallback;
+  }
+
+  private experimentalCount(key: string, fallback: number): number {
+    return Math.floor(this.experimentalNumber(key, fallback));
   }
 
   private cooldown(candidates: Activity[], catalog: Activity[], recentIds: string[]): Activity[] {
@@ -764,7 +890,13 @@ export class ActivitiesService {
 
   private async selectFallbackActivity(userId: string, excludedId?: string): Promise<Activity | null> {
     const catalog = await this.activityRepo.find({ where: { isActive: true } });
-    const candidates = catalog.filter((item) => item.id !== excludedId);
+    const masteryBySkillCode = typeof this.knowledgeTracingService.getMasteryMapBySkillCode === 'function'
+      ? await this.knowledgeTracingService.getMasteryMapBySkillCode(userId).catch(() => ({}))
+      : {};
+    const candidates = catalog.filter((item) => item.id !== excludedId &&
+      (typeof this.ontologyService?.isActivityPrerequisiteSatisfied !== 'function' ||
+        this.ontologyService.isActivityPrerequisiteSatisfied(
+          item.prerequisiteSkillCode, masteryBySkillCode)));
     if (!candidates.length) return null;
     const [attempts, skipped] = await Promise.all([
       this.getRecentAttempts(userId, 20),
@@ -807,7 +939,8 @@ export class ActivitiesService {
       selectedActivityId,
       candidateIds: candidates.map((candidate) => candidate.id),
       candidates: [],
-      weights: { learning: 0, challenge: 0, interaction: 0, semantic: 0, novelty: 0, rejection: 0 },
+      weights: { learning: 0, challenge: 0, interaction: 0, semantic: 0, novelty: 0, rejection: 0,
+        sensory: 0, format: 0, repetition: 0, frustration: 0 },
       configurationVersion: 'unavailable',
       rankingVersion: 'unavailable',
       ontologyVersion,

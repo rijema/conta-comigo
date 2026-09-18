@@ -10,6 +10,7 @@ export interface RuntimeMaterializationInput {
   recentAccuracy?: number | null;
   observedLearnerEvidence?: Record<string, unknown> | null;
   hardConstraints?: Partial<RuntimeSemanticFacts['hardConstraints']>;
+  masteryBySkillCode?: Record<string, number>;
 }
 
 @Injectable()
@@ -22,6 +23,7 @@ export class RuntimeSemanticAdapter {
         source: 'StudentSkillState',
         probability: this.optionalProbability(input.masteryProbability),
       },
+      masteryBySkillCode: input.masteryBySkillCode,
       learningAnalytics: {
         recentAccuracy: this.optionalProbability(input.recentAccuracy),
       },
@@ -37,6 +39,7 @@ export class RuntimeSemanticAdapter {
         activityId: activity.id,
         activityType: activity.activityType ?? 'unmapped',
         bnccSkills: activity.bnccSkills ?? [],
+        prerequisiteSkillCode: activity.prerequisiteSkillCode,
         mathematicalConcepts: activity.mathematicalConcepts ?? [],
         representations: activity.representation ?? [],
         interactionTypes: activity.interactionType ?? [],
