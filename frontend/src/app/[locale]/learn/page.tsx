@@ -104,7 +104,7 @@ function playTap(volume: number) { playTone(620, 0.07, "sine", 0.12 * volume); }
 
 function LearnPageInner() {
   const { user, isLoading: authLoading } = useAuth();
-  const { session, startSession, stopSession, submitAnswer, markActivityStarted, requestActivityHelp, requestHint, skipCurrentActivity, changeCurrentActivity, isChangingActivity, isLoading: sessionLoading, error: sessionError } = useSession();
+  const { session, startSession, stopSession, submitAnswer, markActivityStarted, requestActivityHelp, requestHint, abandonCurrentActivity, recordFirstInteraction, changeCurrentActivity, isChangingActivity, isLoading: sessionLoading, error: sessionError } = useSession();
   const [showReward, setShowReward] = useState(false);
   const [showAutoHint, setShowAutoHint] = useState(false);
   const [rewardWrong, setRewardWrong] = useState(false);
@@ -187,7 +187,7 @@ function LearnPageInner() {
 
   const handleGoToMenu = () => {
     if (settings.soundEnabled && settings.soundEffectsEnabled) playTap(effectVolume);
-    skipCurrentActivity();
+    abandonCurrentActivity();
     stopSession();
     router.push(`/${locale}/learn/menu`);
   };
@@ -286,7 +286,7 @@ function LearnPageInner() {
   const tutorialSteps = getTutorialSteps(activity);
 
   return (
-    <div className="min-h-screen transition-all duration-700" style={{ background: settings.lowStimulationMode || settings.visualStimulus === 'low' ? "#ecfdf5" : bg, filter: settings.visualStimulus === 'high' ? 'saturate(1.1)' : undefined, transitionDuration: settings.animationSpeed === 'slow' ? '1200ms' : settings.animationSpeed === 'fast' ? '350ms' : '700ms' }}>
+    <div className="min-h-screen motion-safe:transition-all motion-safe:duration-700" onPointerDownCapture={() => recordFirstInteraction(activity.id)} onKeyDownCapture={() => recordFirstInteraction(activity.id)} style={{ background: settings.lowStimulationMode || settings.visualStimulus === 'low' ? "#ecfdf5" : bg, filter: settings.visualStimulus === 'high' ? 'saturate(1.1)' : undefined, transitionDuration: settings.animationsReduced || settings.lowStimulationMode ? '0ms' : settings.animationSpeed === 'slow' ? '1200ms' : settings.animationSpeed === 'fast' ? '350ms' : '700ms' }}>
 
       {/* ── Correct answer burst ── */}
       {showReward && (
@@ -372,7 +372,7 @@ function LearnPageInner() {
           onClick={handleChangeActivity}
           disabled={isChangingActivity || !settings.allowChangeActivity}
           aria-label="Quero outro exercício"
-          className="inline-flex min-h-14 items-center justify-center gap-2 rounded-[.75rem_1.75rem_1.75rem_1.75rem] border-2 border-teal-400 bg-gradient-to-r from-teal-500 to-emerald-500 px-4 py-2 text-sm font-extrabold text-white shadow-md transition-all hover:-rotate-1 hover:scale-[1.04] hover:shadow-lg active:scale-[.96] motion-reduce:transform-none disabled:opacity-60"
+          className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl border-2 border-teal-400 bg-gradient-to-r from-teal-500 to-emerald-500 px-4 py-2 text-sm font-extrabold text-white shadow-md motion-safe:transition-all motion-safe:hover:scale-[1.04] hover:shadow-lg motion-safe:active:scale-[.96] disabled:opacity-60"
         >
           <ArasaacPictogram
             conceptId="navigation.repeat"
@@ -388,7 +388,7 @@ function LearnPageInner() {
           <span>Falar com a TitiA</span>
         </button>
         <button type="button" onClick={handleOpenTutorial}
-          className="inline-flex min-h-14 items-center justify-center gap-2 rounded-[1.75rem_.75rem_1.75rem_1.75rem] border-2 border-orange-300 bg-gradient-to-r from-orange-100 to-yellow-100 px-4 py-2 text-sm font-extrabold text-orange-800 shadow-md transition-all hover:rotate-1 hover:scale-[1.04] hover:shadow-lg active:scale-[.96] motion-reduce:transform-none"
+          className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl border-2 border-orange-300 bg-gradient-to-r from-orange-100 to-yellow-100 px-4 py-2 text-sm font-extrabold text-orange-800 shadow-md motion-safe:transition-all motion-safe:hover:scale-[1.04] hover:shadow-lg motion-safe:active:scale-[.96]"
           aria-label="Abrir ajuda visual sobre como jogar">
           <ArasaacPictogram conceptId="navigation.help" showLabel={false} imageClassName="h-7 w-7" />
           <span>Como jogar</span>

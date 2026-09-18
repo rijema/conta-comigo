@@ -56,6 +56,9 @@ export class ActivityAttempt {
     recommendedDifficulty?: string;
   };
 
+  @Column({ type: 'jsonb', nullable: true })
+  researchTrace: Record<string, unknown> | null;
+
   @CreateDateColumn()
   createdAt: Date;
 }

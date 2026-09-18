@@ -12,6 +12,7 @@ export interface SessionState {
   activityStartTime: number;
   recommendationExplanation: string | null;
   currentRecommendationId: string | null;
+  previousDifficulty?: string | null;
   selectionSource: "recommended" | "recalculated";
   roundStats?: { correctAnswers: number; starsEarned: number; practiceLabel: string };
 }
@@ -25,19 +26,25 @@ type ActivityLifecycleEventType =
   | "HINT_REQUESTED"
   | "TUTORIAL_OPENED"
   | "INSTRUCTION_REPLAYED"
-  | "ACTIVITY_SKIPPED";
+  | "ACTIVITY_SKIPPED"
+  | "ACTIVITY_ABANDONED";
 
 interface ActivityInteractionCounters {
   activityId: string | null;
   attempts: number;
   hints: number;
   tutorialOpens: number;
+  firstInteractionAt: number | null;
+  lastAttemptAt: number | null;
 }
 
 interface SkipContext {
   timeBeforeSkipMs: number;
   attemptsBeforeSkip: number;
   hintsBeforeSkip: number;
+  timeBeforeExitMs: number;
+  attemptsBeforeExit: number;
+  hintsBeforeExit: number;
 }
 
 export function useSession() {
@@ -53,6 +60,8 @@ export function useSession() {
     attempts: 0,
     hints: 0,
     tutorialOpens: 0,
+    firstInteractionAt: null,
+    lastAttemptAt: null,
   });
   const studentIdRef = useRef<string | null>(null);
 
@@ -72,6 +81,8 @@ export function useSession() {
         attempts: 0,
         hints: 0,
         tutorialOpens: 0,
+        firstInteractionAt: null,
+        lastAttemptAt: null,
       };
     }
     return interactionCountersRef.current;
@@ -100,6 +111,11 @@ export function useSession() {
     ).catch((err) => {
       console.error(`Failed to track ${eventType}:`, err);
     });
+  }, []);
+
+  const trackSessionEvent = useCallback((sessionId: string, eventType: "SESSION_STARTED" | "SESSION_COMPLETED") => {
+    void api.post("/learning-events/session", { sessionId, eventType }, authService.getStoredToken() ?? undefined)
+      .catch((err) => console.error(`Failed to track ${eventType}:`, err));
   }, []);
 
   const startSession = useCallback(async (studentId: string) => {
@@ -133,6 +149,7 @@ export function useSession() {
         "/activities/next",
         token,
       );
+      trackSessionEvent(sessionId, "SESSION_STARTED");
       setSession({
         id: sessionId,
         currentActivity: activity,
@@ -140,6 +157,7 @@ export function useSession() {
         activityStartTime: Date.now(),
         recommendationExplanation: adeDecision?.childExplanation ?? null,
         currentRecommendationId: adeDecision?.id ?? null,
+        previousDifficulty: null,
         selectionSource: "recommended",
         roundStats: { correctAnswers: 0, starsEarned: 0, practiceLabel: "matemática" },
       });
@@ -152,7 +170,12 @@ export function useSession() {
     } finally {
       setIsLoading(false);
     }
-  }, [getInteractionCounters, trackActivityLifecycle]);
+  }, [getInteractionCounters, trackActivityLifecycle, trackSessionEvent]);
+
+  const recordFirstInteraction = useCallback((activityId: string) => {
+    const counters = getInteractionCounters(activityId);
+    counters.firstInteractionAt ??= Date.now();
+  }, [getInteractionCounters]);
 
   const markActivityStarted = useCallback((activityId: string) => {
     if (!session?.id) return;
@@ -190,6 +213,17 @@ export function useSession() {
     }, session.currentRecommendationId);
   }, [getInteractionCounters, session, trackActivityLifecycle]);
 
+  const abandonCurrentActivity = useCallback(() => {
+    if (!session?.id || !session.currentActivity?.id || session.progress >= 100) return;
+    const activityId = session.currentActivity.id;
+    const counters = getInteractionCounters(activityId);
+    trackActivityLifecycle(session.id, activityId, "ACTIVITY_ABANDONED", {
+      timeBeforeExitMs: Math.max(0, Date.now() - session.activityStartTime),
+      attemptsBeforeExit: counters.attempts,
+      hintsBeforeExit: counters.hints,
+    }, session.currentRecommendationId);
+  }, [getInteractionCounters, session, trackActivityLifecycle]);
+
   const changeCurrentActivity = useCallback(async () => {
     if (!session?.currentActivity?.id || !session.currentRecommendationId || isChangingActivity) return false;
     const token = authService.getStoredToken();
@@ -221,6 +255,7 @@ export function useSession() {
         ...previous,
         currentActivity: result.activity,
         currentRecommendationId: result.adeDecision?.id ?? null,
+        previousDifficulty: previous.currentActivity?.difficulty ?? null,
         recommendationExplanation: result.adeDecision?.childExplanation ?? previous.recommendationExplanation,
         activityStartTime: Date.now(),
         selectionSource: "recalculated",
@@ -240,7 +275,10 @@ export function useSession() {
     timeSpentMs: number;
   }) => {
     const token = authService.getStoredToken();
-    getInteractionCounters(payload.activityId).attempts += 1;
+    const counters = getInteractionCounters(payload.activityId);
+    const answerAt = Date.now();
+    counters.firstInteractionAt ??= answerAt;
+    counters.attempts += 1;
     try {
       const rawAnswer = payload.answer;
       const normalizedAnswer =
@@ -256,19 +294,26 @@ export function useSession() {
           activityId: payload.activityId,
           answer: normalizedAnswer,
           timeSpentSeconds: Math.round(payload.timeSpentMs / 1000),
-          responseTimeMs: payload.timeSpentMs,
+          responseTimeMs: Math.max(0, answerAt - (counters.lastAttemptAt ?? session?.activityStartTime ?? answerAt)),
+          firstInteractionMs: Math.max(0, counters.firstInteractionAt - (session?.activityStartTime ?? counters.firstInteractionAt)),
+          totalTimeMs: payload.timeSpentMs,
+          hintsUsed: counters.hints,
           sessionId: session?.id,
           recommendationId: session?.currentRecommendationId ?? undefined,
+          adeDecisionContext: session?.currentRecommendationId ? { decisionId: session.currentRecommendationId } : undefined,
+          previousDifficulty: session?.previousDifficulty ?? undefined,
         },
         token ?? undefined,
       );
 
       const isCorrect = result.attempt?.isCorrect ?? false;
+      counters.lastAttemptAt = answerAt;
 
       if (isCorrect) {
         activitiesCompletedRef.current += 1;
         const completed = activitiesCompletedRef.current;
         const roundComplete = completed >= 10;
+        if (roundComplete && session?.id) trackSessionEvent(session.id, "SESSION_COMPLETED");
         const nextActivity = result.nextActivity ?? null;
         if (!roundComplete && nextActivity && session?.id) {
           trackActivityLifecycle(
@@ -290,6 +335,7 @@ export function useSession() {
             recommendationExplanation:
               roundComplete ? prev.recommendationExplanation : result.adeDecision?.childExplanation ?? prev.recommendationExplanation,
             currentRecommendationId: roundComplete ? prev.currentRecommendationId : result.adeDecision?.id ?? null,
+            previousDifficulty: roundComplete ? prev.previousDifficulty : prev.currentActivity?.difficulty ?? null,
             selectionSource: "recommended",
             roundStats: {
               correctAnswers: (prev.roundStats?.correctAnswers ?? completed - 1) + 1,
@@ -314,7 +360,9 @@ export function useSession() {
       activityId: null,
       attempts: 0,
       hints: 0,
-      tutorialOpens: 0,
+    tutorialOpens: 0,
+      firstInteractionAt: null,
+      lastAttemptAt: null,
     };
     setSession(null);
     window.localStorage.removeItem(SESSION_STORAGE_KEY);
@@ -331,6 +379,8 @@ export function useSession() {
     requestActivityHelp,
     requestHint,
     skipCurrentActivity,
+    abandonCurrentActivity,
+    recordFirstInteraction,
     changeCurrentActivity,
     isChangingActivity,
     isLoading,

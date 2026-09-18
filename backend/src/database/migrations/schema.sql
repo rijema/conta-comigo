@@ -94,8 +94,9 @@ CREATE TABLE IF NOT EXISTS activity_attempts (
   "activityId" UUID NOT NULL REFERENCES activities(id) ON DELETE CASCADE, "sessionId" VARCHAR,
   "isCorrect" BOOLEAN NOT NULL DEFAULT FALSE, score DOUBLE PRECISION NOT NULL DEFAULT 0,
   "timeSpentSeconds" INTEGER, "hintsUsed" INTEGER, "interactionSignals" JSONB,
-  "adeDecisionContext" JSONB, "createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
+  "adeDecisionContext" JSONB, "researchTrace" JSONB, "createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
 );
+ALTER TABLE activity_attempts ADD COLUMN IF NOT EXISTS "researchTrace" JSONB;
 
 CREATE TABLE IF NOT EXISTS ade_decisions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(), "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -154,6 +155,7 @@ ALTER TYPE learning_event_type_enum ADD VALUE IF NOT EXISTS 'VOICE_COMMAND_UNKNO
 ALTER TYPE learning_event_type_enum ADD VALUE IF NOT EXISTS 'VOICE_HELP_REQUESTED';
 ALTER TYPE learning_event_type_enum ADD VALUE IF NOT EXISTS 'VOICE_INSTRUCTION_REPLAY_REQUESTED';
 ALTER TYPE learning_event_type_enum ADD VALUE IF NOT EXISTS 'VOICE_ACTIVITY_CHANGE_REQUESTED';
+ALTER TYPE learning_event_type_enum ADD VALUE IF NOT EXISTS 'ACTIVITY_ABANDONED';
 
 CREATE TABLE IF NOT EXISTS learning_events (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(), "studentId" UUID NOT NULL,
@@ -167,11 +169,12 @@ CREATE TABLE IF NOT EXISTS recommendation_outcomes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(), "recommendationId" UUID NOT NULL UNIQUE REFERENCES ade_decisions(id),
   "studentId" UUID NOT NULL REFERENCES users(id), "sessionId" VARCHAR NOT NULL,
   "activityId" UUID NOT NULL REFERENCES activities(id), status recommendation_outcome_status_enum NOT NULL,
-  "presentedAt" TIMESTAMPTZ, "startedAt" TIMESTAMPTZ, "completedAt" TIMESTAMPTZ, "skippedAt" TIMESTAMPTZ,
+  "presentedAt" TIMESTAMPTZ, "startedAt" TIMESTAMPTZ, "completedAt" TIMESTAMPTZ, "skippedAt" TIMESTAMPTZ, "abandonedAt" TIMESTAMPTZ,
   attempts INTEGER NOT NULL DEFAULT 0, "hintsUsed" INTEGER NOT NULL DEFAULT 0,
   "instructionReplays" INTEGER NOT NULL DEFAULT 0, "responseTimeMs" INTEGER, correct BOOLEAN,
   "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(), "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
 );
+ALTER TABLE recommendation_outcomes ADD COLUMN IF NOT EXISTS "abandonedAt" TIMESTAMPTZ;
 
 CREATE TABLE IF NOT EXISTS adaptation_transitions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(), "studentId" UUID NOT NULL REFERENCES users(id),

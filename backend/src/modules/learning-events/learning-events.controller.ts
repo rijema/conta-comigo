@@ -6,6 +6,7 @@ import { TrackVisualCommunicationEventDto } from './dto/track-visual-communicati
 import { LearningEventService } from './learning-event.service';
 import { TrackSpeechEventDto } from './dto/track-speech-event.dto';
 import { TrackVoiceEventDto } from './dto/track-voice-event.dto';
+import { TrackSessionEventDto } from './dto/track-session-event.dto';
 
 @ApiTags('learning-events')
 @ApiBearerAuth()
@@ -13,6 +14,15 @@ import { TrackVoiceEventDto } from './dto/track-voice-event.dto';
 @Controller('learning-events')
 export class LearningEventsController {
   constructor(private readonly learningEventService: LearningEventService) {}
+
+  @Post('session')
+  @ApiOperation({ summary: 'Append a session lifecycle event' })
+  async trackSession(@CurrentUser('userId') studentId: string, @Body() dto: TrackSessionEventDto) {
+    const event = await this.learningEventService.track({
+      studentId, sessionId: dto.sessionId, eventType: dto.eventType, timestamp: new Date(),
+    });
+    return { tracked: event !== null };
+  }
 
   @Post('visual-communication')
   @ApiOperation({ summary: 'Append a sanitized child-facing visual communication event' })
