@@ -381,3 +381,11 @@ No recommendation ranking, Generalization Score, full ARASAAC integration, learn
 - Added reinforcement for slow correct responses, controlled related-skill exploration, and checks of authored activity prerequisites against observed BKT mastery.
 - Extended the versioned ranking with sensory, format, structure repetition and response-time-related frustration factors, retaining existing score components and recommendation tracking.
 - Expanded persisted candidate evidence and research explanations. Updated configurable parameter examples, automated tests and Portuguese research documentation. No database migration was needed because existing decision fields are JSON.
+
+## 2026-09-18 — Child exercise completion and account entry
+
+- Added a ten-second TitiA celebration at 100% with truthful child-facing round totals, one playful star per completed activity, speech through the existing voice service, and immediate or automatic return to the adventure map.
+- Prevented premature presentation tracking for the next activity at the end of a round; preserved attempt and recommendation analytics.
+- Applied professional child-profile sound, voice, contrast, motion and low-stimulation preferences to the exercise, refreshing them during an active session without storing them across accounts.
+- Routed legacy login and registration URLs to the existing home modal, added clear child/guardian/professional selection, and directed exercise Exit to the current map.
+- Tightened landscape tablet spacing while retaining large touch controls. Added automated tests and Portuguese research documentation. No database migration was needed because the existing profile and session storage are reused.

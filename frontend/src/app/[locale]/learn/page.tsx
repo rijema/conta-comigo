@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useAuth } from "@/hooks/use-auth";
 import { useSession } from "@/hooks/use-session";
 import { ActivityRenderer } from "@/components/activity/activity-renderer";
+import { ExerciseCelebration } from "@/components/activity/exercise-celebration";
 import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
 import { useAccessibility } from "@/contexts/AccessibilityContext";
 import { useTitiaSpeech } from "@/hooks/use-titia-speech";
@@ -102,7 +103,7 @@ function playStart() {
 function playTap() { playTone(620, 0.07, "sine", 0.12); }
 
 function LearnPageInner() {
-  const { user, isLoading: authLoading, logout } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const { session, startSession, stopSession, submitAnswer, markActivityStarted, requestActivityHelp, requestHint, skipCurrentActivity, changeCurrentActivity, isChangingActivity, isLoading: sessionLoading, error: sessionError } = useSession();
   const [showReward, setShowReward] = useState(false);
   const [rewardWrong, setRewardWrong] = useState(false);
@@ -114,10 +115,11 @@ function LearnPageInner() {
   const [chatAnswer, setChatAnswer] = useState<string | null>(null);
   const [chatLoading, setChatLoading] = useState(false);
   const startCuePlayedRef = useRef(false);
+  const returningRef = useRef(false);
   const router = useRouter();
   const locale = useLocale();
   const searchParams = useSearchParams();
-  const { settings } = useAccessibility();
+  const { settings, childPreferencesReady } = useAccessibility();
   const speech = useTitiaSpeech({ activityId: session?.currentActivity?.id });
 
   useEffect(() => { setMounted(true); }, []);
@@ -126,12 +128,13 @@ function LearnPageInner() {
     if (!mounted) return;
     if (authLoading) return;
     if (!user) { router.replace(`/${locale}/auth/login`); return; }
+    if (!childPreferencesReady) return;
     startSession(String(user.id));
-    if (settings.soundEnabled && !startCuePlayedRef.current) {
+    if (settings.soundEnabled && !settings.lowStimulationMode && !startCuePlayedRef.current) {
       startCuePlayedRef.current = true;
       playStart();
     }
-  }, [mounted, user, authLoading, settings.soundEnabled]);
+  }, [mounted, user, authLoading, childPreferencesReady, settings.soundEnabled, settings.lowStimulationMode, startSession, router, locale]);
 
   /* rotate background on each new activity */
   useEffect(() => {
@@ -149,21 +152,22 @@ function LearnPageInner() {
       timeSpentMs: Date.now() - (session.activityStartTime || Date.now()),
     });
     if (result.isCorrect) {
+      if (result.completed) return;
       if (settings.soundEnabled) playCorrect();
       speech.speakFeedback(
         session.currentActivity.content?.spokenSuccessFeedback || "Muito bem! Você conseguiu.",
       );
-      setShowReward(true);
+      if (!settings.lowStimulationMode && !settings.animationsReduced) setShowReward(true);
       setTimeout(() => setShowReward(false), 4200);
     } else {
       if (settings.soundEnabled) playWrong();
       speech.speakFeedback(
         session.currentActivity.content?.spokenRetryFeedback || "Tudo bem. Vamos tentar novamente.",
       );
-      setRewardWrong(true);
+      if (!settings.lowStimulationMode && !settings.animationsReduced) setRewardWrong(true);
       setTimeout(() => setRewardWrong(false), 3800);
     }
-  }, [session, settings.soundEnabled, speech, submitAnswer]);
+  }, [session, settings.soundEnabled, settings.lowStimulationMode, settings.animationsReduced, speech, submitAnswer]);
 
   const handleGoToMenu = () => {
     if (settings.soundEnabled) playTap();
@@ -172,10 +176,12 @@ function LearnPageInner() {
     router.push(`/${locale}/learn/menu`);
   };
 
-  const handleLogout = () => {
+  const returnToMap = () => {
+    if (returningRef.current) return;
+    returningRef.current = true;
     speech.stopSpeech();
     stopSession();
-    logout();
+    router.push(`/${locale}/learn/menu`);
   };
 
   const handleChangeActivity = async () => {
@@ -221,9 +227,20 @@ function LearnPageInner() {
   const activity = session?.currentActivity;
   const progress = session?.progress ?? 0;
 
+  if (progress >= 100 && session && childPreferencesReady) {
+    return <ExerciseCelebration
+      correctAnswers={session.roundStats?.correctAnswers ?? 10}
+      starsEarned={session.roundStats?.starsEarned ?? 0}
+      practiceLabel={session.roundStats?.practiceLabel ?? "matemática"}
+      lowStimulation={settings.lowStimulationMode || settings.animationsReduced}
+      onReturnToMap={returnToMap}
+      onSpeak={speech.speakFeedback}
+    />;
+  }
+
   if (authLoading || sessionLoading || !activity) {
     return (
-      <div className="flex items-center justify-center min-h-screen" style={{ background: BG_THEMES[0] }}>
+      <div className="flex items-center justify-center min-h-screen" style={{ background: settings.lowStimulationMode ? "#ecfdf5" : BG_THEMES[0] }}>
         <div className="text-center">
           {sessionError ? (
             <>
@@ -238,7 +255,7 @@ function LearnPageInner() {
             </>
           ) : (
             <>
-              <div className="text-8xl animate-bounce mb-4">🌟</div>
+              <div className="text-8xl mb-4">🌟</div>
               <p className="text-2xl text-blue-700 font-extrabold">Preparando sua aventura...</p>
               <p className="text-gray-500 mt-2 text-sm">A TitIA está escolhendo a melhor atividade para você!</p>
             </>
@@ -252,7 +269,7 @@ function LearnPageInner() {
   const tutorialSteps = getTutorialSteps(activity);
 
   return (
-    <div className="min-h-screen transition-all duration-700" style={{ background: bg }}>
+    <div className="min-h-screen transition-all duration-700" style={{ background: settings.lowStimulationMode ? "#ecfdf5" : bg }}>
 
       {/* ── Correct answer burst ── */}
       {showReward && (
@@ -280,10 +297,17 @@ function LearnPageInner() {
         @keyframes feedbackFlash { 0%{opacity:0} 10%,82%{opacity:1} 100%{opacity:0} }
         @keyframes feedbackSweep { 0%{transform:translateX(-105%)} 12%,82%{transform:translateX(0)} 100%{transform:translateX(105%)} }
         @media (prefers-reduced-motion: reduce) { .feedback-motion { animation: none !important; } }
+        @media (min-width: 900px) and (orientation: landscape) and (max-height: 850px) {
+          .exercise-header { padding-top: .25rem; padding-bottom: .25rem; }
+          .exercise-badges { padding-top: .35rem; }
+          .exercise-actions { padding-top: .35rem; gap: .5rem; }
+          .exercise-main { padding-top: .4rem; padding-bottom: .5rem; }
+          .exercise-card-body { padding: .4rem; }
+        }
       `}</style>
 
       {/* ── Header ── */}
-      <header className="sticky top-0 z-20 bg-white/80 px-3 py-2 shadow-sm backdrop-blur-md">
+      <header className="exercise-header sticky top-0 z-20 bg-white/80 px-3 py-2 shadow-sm backdrop-blur-md">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3">
           <button
             onClick={handleGoToMenu}
@@ -307,13 +331,13 @@ function LearnPageInner() {
           </div>
 
           <div className="flex items-center gap-2">
-            <button onClick={handleLogout} className="rounded-lg px-2 py-1 text-xs text-gray-500 transition-transform hover:scale-105 hover:text-red-600">Sair</button>
+            <button onClick={handleGoToMenu} className="min-h-11 rounded-lg px-3 py-1 text-sm font-bold text-gray-600 hover:text-purple-700">Sair</button>
           </div>
         </div>
       </header>
 
       {/* ── Activity type badge + BNCC ── */}
-      <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-2 px-4 pt-3">
+      <div className="exercise-badges mx-auto flex max-w-5xl flex-wrap items-center gap-2 px-4 pt-3">
         {(activity.bnccSkills ?? []).map((skill: string) => (
           <span key={skill} className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-white/80 px-3 py-1 text-xs font-extrabold text-blue-700 shadow-sm">
             BNCC {skill}
@@ -325,7 +349,7 @@ function LearnPageInner() {
         </span>
         {session.selectionSource === "recalculated" && <span className="inline-flex items-center gap-1 rounded-full border border-purple-200 bg-white/70 px-3 py-1 text-xs font-extrabold text-purple-700 shadow-sm">↻ Outra opção escolhida pela TitiA</span>}
       </div>
-      <div className="mx-auto grid max-w-5xl grid-cols-1 gap-3 px-4 pt-3 sm:grid-cols-3">
+      <div className="exercise-actions mx-auto grid max-w-5xl grid-cols-1 gap-3 px-4 pt-3 sm:grid-cols-3">
         <button
           type="button"
           onClick={handleChangeActivity}
@@ -372,7 +396,7 @@ function LearnPageInner() {
                   className="mt-2 w-full resize-none rounded-2xl border-2 border-sky-200 p-3 font-medium focus:border-sky-500 focus:outline-none" />
               </label>
               <div className="flex flex-wrap gap-3">
-                {voice.enabled && <PushToTalkButton state={voice.state} onStart={voice.start} onStop={voice.stop} onReset={voice.reset} idleLabel="Fazer pergunta por voz" />}
+                {voice.enabled && settings.voiceEnabled && <PushToTalkButton state={voice.state} onStart={voice.start} onStop={voice.stop} onReset={voice.reset} idleLabel="Fazer pergunta por voz" />}
                 <button type="button" disabled={!chatQuestion.trim() || chatLoading} onClick={() => { void askTitia(); }}
                   className="min-h-11 flex-1 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 px-5 font-extrabold text-white shadow-md transition-transform hover:scale-[1.02] active:scale-[.98] disabled:opacity-50">
                   {chatLoading ? "TitiA está pensando..." : "Enviar para a TitiA"}
@@ -434,7 +458,7 @@ function LearnPageInner() {
       )}
 
       {/* ── Activity card ── */}
-      <main className="mx-auto w-full max-w-5xl px-3 pb-6 pt-3 sm:px-4">
+      <main className="exercise-main mx-auto w-full max-w-5xl px-3 pb-6 pt-3 sm:px-4">
         <div className="overflow-hidden rounded-3xl border-2 border-white/80 bg-white/80 shadow-xl backdrop-blur-sm">
           {/* Colourful top stripe per activity type */}
           <div className="h-2" style={{
@@ -444,12 +468,21 @@ function LearnPageInner() {
                         activity.type === "number_line"     ? "linear-gradient(90deg,#ec4899,#db2777)" :
                         "linear-gradient(90deg,#06b6d4,#0284c7)"
           }} />
-          <div className="p-3">
+          <div className="exercise-card-body p-3">
             <ActivityRenderer
               activity={activity}
               onAnswer={handleAnswer}
               onRequestHint={() => requestHint(activity.id)}
-              sensoryProfile={undefined}
+              sensoryProfile={{
+                lowStimulationMode: settings.lowStimulationMode,
+                highContrast: settings.highContrast,
+                animationsEnabled: !settings.animationsReduced,
+                soundEnabled: settings.soundEnabled,
+                voiceEnabled: settings.voiceEnabled,
+                speechRate: settings.speechRate,
+                automaticInstructionSpeech: settings.automaticInstructionSpeech,
+                speechLanguage: settings.speechLanguage,
+              }}
             />
           </div>
         </div>

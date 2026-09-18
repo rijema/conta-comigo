@@ -21,7 +21,7 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useModalFocus<HTMLElement>(open, onClose, closeRef);
   const [view, setView] = useState<AuthView>(initialView);
-  const [childLogin, setChildLogin] = useState(false);
+  const [accessRole, setAccessRole] = useState<"child" | "guardian" | "professional">("child");
   const [step, setStep] = useState<1 | 2>(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -47,7 +47,7 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
     event.preventDefault();
     setLoading(true); setError("");
     try {
-      await login(childLogin
+      await login(accessRole === "child"
         ? { childName: form.name, guardianEmail: form.guardianEmail, password: form.password }
         : { email: form.email, password: form.password });
     } catch (reason: any) {
@@ -115,17 +115,28 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
 
           {view === "login" ? (
             <form onSubmit={submitLogin} className="space-y-4">
-              <label className="flex items-center gap-2 font-semibold text-slate-700">
-                <input type="checkbox" checked={childLogin} onChange={(e) => setChildLogin(e.target.checked)} className="h-5 w-5 accent-violet-600" />
-                Sou criança
-              </label>
-              {childLogin ? <>
+              <fieldset>
+                <legend className="mb-2 font-bold text-slate-700">Quem vai entrar?</legend>
+                <div className="grid grid-cols-3 gap-2">
+                  {([
+                    { role: "child", label: "Criança", icon: "👧", selected: "border-pink-500 bg-pink-100 text-pink-900" },
+                    { role: "guardian", label: "Responsável", icon: "👪", selected: "border-sky-500 bg-sky-100 text-sky-900" },
+                    { role: "professional", label: "Profissional", icon: "👩‍🏫", selected: "border-violet-500 bg-violet-100 text-violet-900" },
+                  ] as const).map((option) => (
+                    <button key={option.role} type="button" aria-pressed={accessRole === option.role} onClick={() => setAccessRole(option.role)}
+                      className={`min-h-16 rounded-2xl border-2 p-2 text-center text-xs font-bold sm:text-sm ${accessRole === option.role ? option.selected : "border-slate-200 bg-white text-slate-600"}`}>
+                      <span aria-hidden="true" className="block text-2xl">{option.icon}</span>{option.label}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+              {accessRole === "child" ? <>
                 <Field label="Nome da criança"><input className={fieldClass} required value={form.name} onChange={(e) => update("name", e.target.value)} /></Field>
                 <Field label="E-mail do responsável"><input type="email" className={fieldClass} required value={form.guardianEmail} onChange={(e) => update("guardianEmail", e.target.value)} /></Field>
               </> :
                 <Field label="E-mail"><input type="email" autoComplete="email" className={fieldClass} required value={form.email} onChange={(e) => update("email", e.target.value)} /></Field>}
               <Field label="Senha"><input type="password" autoComplete="current-password" className={fieldClass} required value={form.password} onChange={(e) => update("password", e.target.value)} /></Field>
-              <SubmitButton loading={loading}>Entrar</SubmitButton>
+              <SubmitButton loading={loading}>{accessRole === "child" ? "Vamos aprender!" : "Entrar"}</SubmitButton>
             </form>
           ) : (
             <form onSubmit={submitRegister} className="space-y-4">
