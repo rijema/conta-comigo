@@ -78,4 +78,38 @@ describe('HybridRecommendationService', () => {
     expect(result.decisionSource).toBe('LEGACY_FALLBACK');
     expect(result.fallbackReason).toBeTruthy();
   });
+
+  it('uses explicit sensory and format preferences and records ranking evidence', () => {
+    const low = { ...activity('low', 'medium'), type: 'quiz', targetModalities: ['visual'],
+      accessibility: { sensoryLoad: 'low' } };
+    const high = { ...activity('high', 'medium'), type: 'quiz', targetModalities: ['auditive'],
+      accessibility: { sensoryLoad: 'high' } };
+    const result = service.rank(input([low, high], {
+      preferences: { lowStimulation: true, preferredModality: 'visual' },
+    }));
+    expect(result.selectedActivityId).toBe('low');
+    expect(result.candidates[0]).toEqual(expect.objectContaining({ sensoryFit: 1, formatFit: 1 }));
+    expect(result.candidates[0]).toEqual(expect.objectContaining({
+      difficulty: 'medium', activityType: 'quiz',
+    }));
+    expect(result.evidenceUsed).toEqual(expect.objectContaining({
+      lowStimulation: true, preferredModality: 'visual',
+    }));
+  });
+
+  it('penalizes repeated structure and higher challenge after slow responses', () => {
+    const repeated = { ...activity('repeated', 'hard'), type: 'quiz',
+      content: { semantic: { structureId: 'same-structure' } } };
+    const newFormat = { ...activity('new', 'easy'), type: 'counting',
+      content: { semantic: { structureId: 'new-structure' } } };
+    const result = service.rank(input([repeated, newFormat], {
+      recentActivities: [{ activityId: 'previous', type: 'quiz',
+        structureId: 'same-structure', isCorrect: true, timeSpentSeconds: 150 }],
+    }));
+    expect(result.candidates.find((candidate) => candidate.activityId === 'repeated'))
+      .toEqual(expect.objectContaining({ repetitionRisk: 1 }));
+    expect(result.candidates.find((candidate) => candidate.activityId === 'repeated')!.frustrationRisk)
+      .toBeGreaterThan(result.candidates.find((candidate) => candidate.activityId === 'new')!.frustrationRisk);
+    expect(result.selectedActivityId).toBe('new');
+  });
 });

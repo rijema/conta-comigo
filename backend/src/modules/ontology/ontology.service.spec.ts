@@ -67,6 +67,17 @@ describe('OntologyService', () => {
     expect((service as any).ontology).toBe(firstCache);
   });
 
+  it('derives shared-concept links without asserting unsupported prerequisites', () => {
+    const service = new OntologyService(config());
+    service.loadOnce();
+    const relations = service.getSkillRelations('EF01MA06');
+    expect(relations).toEqual(expect.arrayContaining([
+      expect.objectContaining({ skillCode: 'EF01MA08', relation: 'relatedSkill',
+        source: 'SHARED_CONCEPT_DERIVED', concepts: expect.arrayContaining(['AdditionConcept']) }),
+    ]));
+    expect(relations.some((relation) => relation.relation === 'prerequisiteSkill')).toBe(false);
+  });
+
   it('includes a semantically aligned candidate and excludes an invalid one', () => {
     const service = new OntologyService(config());
     service.loadOnce();
@@ -82,6 +93,21 @@ describe('OntologyService', () => {
       .toContain('TARGET_SKILL_NOT_DECLARED_BY_ACTIVITY');
     expect(result.trace.ontologyVersion).toBe('0.4.0');
     expect(result.trace.fallbackUsed).toBe(false);
+  });
+
+  it('checks an explicitly authored activity prerequisite against BKT evidence', () => {
+    const service = new OntologyService(config());
+    service.loadOnce();
+    const candidate = { ...activity('requires-skill', ['EF01MA08'], ['AdditionConcept']),
+      prerequisiteSkillCode: 'EF01MA06' };
+    const result = service.getValidActivityCandidates({
+      ...facts([candidate]), masteryBySkillCode: { EF01MA06: 0.2 },
+    });
+    expect(result.trace.candidateDecisions[0].reasons)
+      .toContain('ACTIVITY_PREREQUISITE_NOT_MASTERED');
+    expect(result.trace.runtimeFactsUsed.prerequisiteMasteryBySkillCode)
+      .toEqual({ EF01MA06: 0.2 });
+    expect(result.trace.fallbackUsed).toBe(true);
   });
 
   it('identifies the legacy fallback when formal semantic data is missing', () => {

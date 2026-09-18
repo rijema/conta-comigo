@@ -5,12 +5,20 @@ import { SemanticFilteringTrace } from '../ontology/semantic-runtime.types';
 
 export interface HybridCandidateScore {
   activityId: string;
+  bnccSkills: string[];
+  difficulty: DifficultyLevel;
+  activityType: string;
+  structureId: string | null;
   learningNeed: number;
   challengeFit: number;
   interactionFit: number;
   semanticFit: number;
   novelty: number;
   rejectionRisk: number;
+  sensoryFit: number;
+  formatFit: number;
+  repetitionRisk: number;
+  frustrationRisk: number;
   finalScore: number;
   predictedSuccess: number;
   insufficientEvidence: string[];
@@ -32,10 +40,27 @@ export interface HybridRankingResult {
   decisionSource: 'HYBRID_RANKING' | 'LEGACY_FALLBACK';
   fallbackUsed: boolean;
   fallbackReason: string | null;
+  evidenceUsed?: {
+    masteryProbability: number | null;
+    recentAccuracy: number | null;
+    preferredModality: string | null;
+    lowStimulation: boolean | null;
+    recentActivityIds: string[];
+    recentlyRejectedActivityIds: string[];
+    observedEvidenceTypes: string[];
+  };
+  selectionStrategy?: {
+    mode: 'consolidate' | 'reinforce' | 'review' | 'challenge' | 'explore';
+    originalSkill: string;
+    selectedSkill: string;
+    evidence: string[];
+    relation?: { skillCode: string; relation: string; concepts: string[]; source: string };
+  };
   selectionExplanation: {
     selectedActivityId: string | null;
     comparedWith: string[];
     scoreMargin: number | null;
+    reason?: string;
   };
 }
 
@@ -46,6 +71,11 @@ interface HybridRankingConfiguration {
   rejectionDecay: number;
   maximumNumericalMagnitude: number;
   maximumStepCount: number;
+  maximumResponseTimeSeconds: number;
+  difficultyLevelWeight: number;
+  frustrationHistoryWindow: number;
+  sameFormatRepetitionRisk: number;
+  sameRepresentationRisk: number;
   weights: {
     learning: number;
     challenge: number;
@@ -53,6 +83,10 @@ interface HybridRankingConfiguration {
     semantic: number;
     novelty: number;
     rejection: number;
+    sensory: number;
+    format: number;
+    repetition: number;
+    frustration: number;
   };
   configurationVersion: string;
   rankingVersion: string;
@@ -65,6 +99,16 @@ export interface HybridRankingInput {
   recentActivityIds: string[];
   recentlyRejectedActivityIds: string[];
   observedEvidenceTypes: string[];
+  preferences?: { lowStimulation?: boolean; preferredModality?: string } | null;
+  recentActivities?: Array<{
+    activityId: string;
+    type?: string;
+    structureId?: string;
+    bnccSkills?: string[];
+    representation?: string[];
+    isCorrect?: boolean;
+    timeSpentSeconds?: number | null;
+  }>;
 }
 
 @Injectable()
@@ -79,6 +123,11 @@ export class HybridRecommendationService {
       rejectionDecay: this.positive(config, 'HYBRID_REJECTION_DECAY', 3),
       maximumNumericalMagnitude: this.positive(config, 'HYBRID_MAX_NUMERICAL_MAGNITUDE', 20),
       maximumStepCount: this.positive(config, 'HYBRID_MAX_STEP_COUNT', 5),
+      maximumResponseTimeSeconds: this.positive(config, 'ADE_SLOW_RESPONSE_SECONDS', 120),
+      difficultyLevelWeight: this.number(config, 'HYBRID_DIFFICULTY_LEVEL_WEIGHT', 0.5),
+      frustrationHistoryWindow: this.positive(config, 'HYBRID_FRUSTRATION_HISTORY_WINDOW', 3),
+      sameFormatRepetitionRisk: this.number(config, 'HYBRID_SAME_FORMAT_REPETITION_RISK', 0.3),
+      sameRepresentationRisk: this.number(config, 'HYBRID_SAME_REPRESENTATION_RISK', 0.4),
       weights: {
         learning: this.number(config, 'HYBRID_WEIGHT_LEARNING', 1),
         challenge: this.number(config, 'HYBRID_WEIGHT_CHALLENGE', 1),
@@ -86,12 +135,25 @@ export class HybridRecommendationService {
         semantic: this.number(config, 'HYBRID_WEIGHT_SEMANTIC', 1),
         novelty: this.number(config, 'HYBRID_WEIGHT_NOVELTY', 0.5),
         rejection: this.number(config, 'HYBRID_WEIGHT_REJECTION', 1),
+        sensory: this.number(config, 'HYBRID_WEIGHT_SENSORY', 0.5),
+        format: this.number(config, 'HYBRID_WEIGHT_FORMAT', 0.3),
+        repetition: this.number(config, 'HYBRID_WEIGHT_REPETITION', 0.7),
+        frustration: this.number(config, 'HYBRID_WEIGHT_FRUSTRATION', 0.5),
       },
       configurationVersion: config.get('HYBRID_CONFIGURATION_VERSION', 'experimental-v1'),
-      rankingVersion: 'contacomigo-hybrid-ranking/1.0.0',
+      rankingVersion: 'contacomigo-hybrid-ranking/2.0.0',
     };
     if (this.configuration.targetSuccessProbability < 0 || this.configuration.targetSuccessProbability > 1) {
       throw new Error('HYBRID_TARGET_SUCCESS_PROBABILITY must be between 0 and 1');
+    }
+    if (this.configuration.difficultyLevelWeight < 0 || this.configuration.difficultyLevelWeight > 1) {
+      throw new Error('HYBRID_DIFFICULTY_LEVEL_WEIGHT must be between 0 and 1');
+    }
+    if (this.configuration.sameFormatRepetitionRisk < 0 || this.configuration.sameFormatRepetitionRisk > 1) {
+      throw new Error('HYBRID_SAME_FORMAT_REPETITION_RISK must be between 0 and 1');
+    }
+    if (this.configuration.sameRepresentationRisk < 0 || this.configuration.sameRepresentationRisk > 1) {
+      throw new Error('HYBRID_SAME_REPRESENTATION_RISK must be between 0 and 1');
     }
   }
 
@@ -118,6 +180,11 @@ export class HybridRecommendationService {
       const semanticFit = ((semanticDecision?.matchedConcepts.length ?? 0) / maxMatches) * skillWeight;
       const novelty = this.novelty(candidate.id, input.recentActivityIds);
       const rejectionRisk = this.rejectionRisk(candidate.id, input.recentlyRejectedActivityIds);
+      const sensoryFit = this.sensoryFit(candidate, input.preferences);
+      const formatFit = this.formatFit(candidate, input.preferences);
+      const repetitionRisk = this.repetitionRisk(candidate, input.recentActivities ?? []);
+      const frustrationRisk = this.frustrationRisk(difficulty, (input.recentActivities ?? []).filter((item) =>
+        !input.semanticTrace.targetSkill || item.bnccSkills?.includes(input.semanticTrace.targetSkill)));
       const w = this.configuration.weights;
       const positiveContributions = {
         learningNeed: w.learning * learningNeed,
@@ -125,18 +192,32 @@ export class HybridRecommendationService {
         interactionFit: w.interaction * interaction.value,
         semanticFit: w.semantic * semanticFit,
         novelty: w.novelty * novelty,
+        sensoryFit: w.sensory * sensoryFit,
+        formatFit: w.format * formatFit,
       };
-      const penalties = { rejectionRisk: w.rejection * rejectionRisk };
+      const penalties = {
+        rejectionRisk: w.rejection * rejectionRisk,
+        repetitionRisk: w.repetition * repetitionRisk,
+        frustrationRisk: w.frustration * frustrationRisk,
+      };
       const finalScore = Object.values(positiveContributions).reduce((sum, value) => sum + value, 0)
-        - penalties.rejectionRisk;
+        - Object.values(penalties).reduce((sum, value) => sum + value, 0);
       return {
         activityId: candidate.id,
+        bnccSkills: candidate.bnccSkills ?? [],
+        difficulty: candidate.difficulty,
+        activityType: candidate.type,
+        structureId: candidate.content?.semantic?.structureId ?? null,
         learningNeed,
         challengeFit,
         interactionFit: interaction.value,
         semanticFit,
         novelty,
         rejectionRisk,
+        sensoryFit,
+        formatFit,
+        repetitionRisk,
+        frustrationRisk,
         finalScore,
         predictedSuccess,
         insufficientEvidence: interaction.insufficientEvidence,
@@ -159,10 +240,22 @@ export class HybridRecommendationService {
       decisionSource: candidates.length ? 'HYBRID_RANKING' : 'LEGACY_FALLBACK',
       fallbackUsed: candidates.length === 0,
       fallbackReason: candidates.length ? null : 'No semantically valid candidate could be ranked',
+      evidenceUsed: {
+        masteryProbability: input.masteryProbability,
+        recentAccuracy: input.semanticTrace.runtimeFactsUsed?.recentAccuracy ?? null,
+        preferredModality: input.preferences?.preferredModality ?? null,
+        lowStimulation: input.preferences?.lowStimulation ?? null,
+        recentActivityIds: input.recentActivityIds,
+        recentlyRejectedActivityIds: input.recentlyRejectedActivityIds,
+        observedEvidenceTypes: input.observedEvidenceTypes,
+      },
       selectionExplanation: {
         selectedActivityId: candidates[0]?.activityId ?? null,
         comparedWith: candidates.slice(1).map((candidate) => candidate.activityId),
         scoreMargin: candidates.length > 1 ? candidates[0].finalScore - candidates[1].finalScore : null,
+        reason: candidates.length ?
+          `Highest valid weighted score (${candidates[0].finalScore.toFixed(3)}) after curriculum, challenge, interaction, sensory, format and history evidence` :
+          'No semantically valid candidate was available',
       },
     };
   }
@@ -180,7 +273,6 @@ export class HybridRecommendationService {
       const normalized = this.level(value);
       if (normalized != null) values.push(normalized);
     }
-    if (values.length) return values.reduce((sum, value) => sum + value, 0) / values.length;
     const levels: Record<DifficultyLevel, number> = {
       [DifficultyLevel.VERY_EASY]: 0.1,
       [DifficultyLevel.EASY]: 0.25,
@@ -188,7 +280,11 @@ export class HybridRecommendationService {
       [DifficultyLevel.HARD]: 0.75,
       [DifficultyLevel.EXTREME]: 0.9,
     };
-    return levels[activity.difficulty] ?? 0.25;
+    const declared = levels[activity.difficulty] ?? 0.25;
+    if (!values.length) return declared;
+    const profileValue = values.reduce((sum, value) => sum + value, 0) / values.length;
+    return this.configuration.difficultyLevelWeight * declared +
+      (1 - this.configuration.difficultyLevelWeight) * profileValue;
   }
 
   private interactionFit(activity: Activity, evidence: string[]): {
@@ -219,6 +315,45 @@ export class HybridRecommendationService {
   private rejectionRisk(activityId: string, history: string[]): number {
     const index = history.indexOf(activityId);
     return index < 0 ? 0 : Math.exp(-index / this.configuration.rejectionDecay);
+  }
+
+  private sensoryFit(activity: Activity, preferences?: HybridRankingInput['preferences']): number {
+    if (preferences?.lowStimulation !== true) return 0.5;
+    const load = String(activity.difficultyProfile?.sensoryLoad ??
+      activity.accessibility?.sensoryLoad ?? '').toLowerCase();
+    if (load === 'low') return 1;
+    if (load === 'medium') return 0.5;
+    if (load === 'high') return 0;
+    return 0.5;
+  }
+
+  private formatFit(activity: Activity, preferences?: HybridRankingInput['preferences']): number {
+    const preference = preferences?.preferredModality;
+    if (!preference) return 0.5;
+    return activity.targetModalities?.includes(preference) ? 1 : 0.25;
+  }
+
+  private repetitionRisk(activity: Activity, recent: NonNullable<HybridRankingInput['recentActivities']>): number {
+    const structure = activity.content?.semantic?.structureId;
+    const index = recent.findIndex((item) =>
+      item.activityId === activity.id || (structure && item.structureId === structure));
+    if (index >= 0) return Math.exp(-index / this.configuration.rejectionDecay);
+    const sameFormat = recent[0]?.type === activity.type
+      ? this.configuration.sameFormatRepetitionRisk : 0;
+    const previousRepresentations = recent[0]?.representation ?? [];
+    const sameRepresentation = previousRepresentations.length &&
+      activity.representation?.some((item) => previousRepresentations.includes(item))
+      ? this.configuration.sameRepresentationRisk : 0;
+    return Math.max(sameFormat, sameRepresentation);
+  }
+
+  private frustrationRisk(difficulty: number, recent: NonNullable<HybridRankingInput['recentActivities']>): number {
+    const observations = recent.slice(0, this.configuration.frustrationHistoryWindow);
+    if (!observations.length) return 0;
+    const slowThreshold = this.configuration.maximumResponseTimeSeconds;
+    const strain = observations.filter((item) => item.isCorrect === false ||
+      (item.timeSpentSeconds != null && item.timeSpentSeconds > slowThreshold)).length / observations.length;
+    return strain * difficulty;
   }
 
   private level(value: unknown): number | null {

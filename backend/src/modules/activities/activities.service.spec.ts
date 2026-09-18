@@ -89,6 +89,80 @@ describe('Weighted BNCC activity creation', () => {
   });
 });
 
+describe('Learning selection strategy', () => {
+  const service = new ActivitiesService({} as any, {} as any, {} as any, {} as any,
+    {} as any, {} as any, {} as any,
+    { getMasteryBySkillCode: jest.fn().mockResolvedValue(0.1) } as any,
+    undefined, { getSkillRelations: jest.fn().mockReturnValue([
+      { skillCode: 'EF01MA08', relation: 'relatedSkill',
+        concepts: ['AdditionConcept'], source: 'SHARED_CONCEPT_DERIVED' },
+    ]) } as any);
+  const decision = () => ({
+    userId: 'student-1', recommendedBnccSkill: 'EF01MA06', recommendedDifficulty: 'hard',
+    xaiLog: { mlPredictions: { masteryProbability: 0.85 } }, inputSnapshot: {},
+  });
+  const activities = [{ bnccSkills: ['EF01MA06'] }, { bnccSkills: ['EF01MA08'] }] as any;
+  const attempt = (id: string, seconds: number) => ({
+    activityId: id, activity: { bnccSkills: ['EF01MA06'] }, isCorrect: true,
+    hintsUsed: 0, timeSpentSeconds: seconds,
+  }) as any;
+
+  it('treats a slow correct answer as reinforcement evidence without changing skills', async () => {
+    const selected = decision();
+    const strategy = await (service as any).planLearningStrategy(selected, activities,
+      [attempt('a', 150), attempt('b', 20), attempt('c', 20)]);
+    expect(strategy.mode).toBe('reinforce');
+    expect(selected.recommendedBnccSkill).toBe('EF01MA06');
+  });
+
+  it('explores a concept-linked skill after repeated independent success', async () => {
+    const selected = decision();
+    const strategy = await (service as any).planLearningStrategy(selected, activities,
+      [attempt('a', 20), attempt('b', 20), attempt('c', 20)]);
+    expect(strategy).toEqual(expect.objectContaining({ mode: 'explore',
+      selectedSkill: 'EF01MA08', relation: expect.objectContaining({ source: 'SHARED_CONCEPT_DERIVED' }) }));
+    expect(selected.recommendedBnccSkill).toBe('EF01MA08');
+    expect(selected.xaiLog.mlPredictions.masteryProbability).toBe(0.1);
+  });
+
+  it('does not switch an explicitly requested skill', async () => {
+    const selected = { ...decision(), inputSnapshot: { targetSkillExplicit: true } };
+    const strategy = await (service as any).planLearningStrategy(selected, activities,
+      [attempt('a', 20), attempt('b', 20), attempt('c', 20)]);
+    expect(strategy.mode).toBe('consolidate');
+    expect(selected.recommendedBnccSkill).toBe('EF01MA06');
+  });
+
+  it('reinforces after repeated skips even when recent answers were correct', async () => {
+    const selected = { ...decision(), inputSnapshot: { recentSkips: 2 } };
+    const strategy = await (service as any).planLearningStrategy(selected, activities,
+      [attempt('a', 20), attempt('b', 20), attempt('c', 20)]);
+    expect(strategy.mode).toBe('reinforce');
+    expect(selected.recommendedBnccSkill).toBe('EF01MA06');
+  });
+});
+
+describe('Prerequisite fallback safety', () => {
+  it('does not select an activity with a known unmet prerequisite', async () => {
+    const blocked = { id: 'blocked', prerequisiteSkillCode: 'EF01MA06',
+      content: {}, type: 'quiz', title: 'Blocked' };
+    const available = { id: 'available', content: {}, type: 'counting', title: 'Available' };
+    const service = new ActivitiesService(
+      { find: jest.fn().mockResolvedValue([blocked, available]) } as any,
+      { find: jest.fn().mockResolvedValue([]) } as any,
+      {} as any, {} as any, {} as any,
+      { getRecentSkippedActivityIds: jest.fn().mockResolvedValue([]) } as any,
+      {} as any,
+      { getMasteryMapBySkillCode: jest.fn().mockResolvedValue({ EF01MA06: 0.2 }) } as any,
+      undefined,
+      { isActivityPrerequisiteSatisfied: (code: string | undefined, mastery: Record<string, number>) =>
+        !code || (mastery[code] ?? 1) >= 0.5 } as any,
+    );
+    const selected = await (service as any).selectFallbackActivity('student-1');
+    expect(selected.id).toBe('available');
+  });
+});
+
 describe('ActivitiesService semantic activity responses', () => {
   it('adds the semantic contract while preserving legacy difficulty', async () => {
     const activity = {

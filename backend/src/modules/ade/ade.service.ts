@@ -141,6 +141,8 @@ export class AdeService {
         weaknesses,
         recentAccuracy,
         currentMastery,
+        targetSkillExplicit: Boolean(input.targetSkillCode),
+        recentSkips: input.recentSkips ?? 0,
         supportLevel: profile.asdSupportLevel,
         shouldReduceStimulation: ruleResult.shouldReduceStimulation,
         shouldAddBreak: ruleResult.shouldAddBreak,
@@ -206,7 +208,27 @@ export class AdeService {
     decision.decisionSource = ranking.decisionSource;
     decision.fallbackUsed = ranking.fallbackUsed;
     decision.fallbackReason = ranking.fallbackReason;
-    return this.decisionRepo.save(decision);
+    const saved = await this.decisionRepo.save(decision);
+    if (ranking.selectedActivityId && typeof this.kafkaProducer.publishAdeDecision === 'function') {
+      this.kafkaProducer.publishAdeDecision({
+        eventId: `ade-selection-${saved.id}`,
+        eventType: 'ADE_SELECTION_FINALIZED',
+        learnerId: saved.userId,
+        sessionId: saved.sessionId || '',
+        timestamp: new Date().toISOString(),
+        payload: {
+          decisionId: saved.id,
+          selectedActivityId: ranking.selectedActivityId,
+          recommendedBnccSkill: saved.recommendedBnccSkill,
+          recommendedDifficulty: saved.recommendedDifficulty,
+          strategy: ranking.selectionStrategy?.mode ?? null,
+          finalScore: ranking.candidates.find((candidate) =>
+            candidate.activityId === ranking.selectedActivityId)?.finalScore ?? null,
+          rankingVersion: ranking.rankingVersion,
+        },
+      }).catch((error: any) => this.logger.error('Kafka selection publish failed', error));
+    }
+    return saved;
   }
 
   private pickCurrentSkillCode(

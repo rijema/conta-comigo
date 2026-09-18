@@ -10,6 +10,7 @@ export interface RuntimeActivityFact {
   activityId: string;
   activityType: SemanticActivityType;
   bnccSkills: string[];
+  prerequisiteSkillCode?: string | null;
   mathematicalConcepts: string[];
   representations: Representation[];
   interactionTypes: InteractionType[];
@@ -25,6 +26,7 @@ export interface RuntimeSemanticFacts {
     source: 'StudentSkillState';
     probability: number | null;
   };
+  masteryBySkillCode?: Record<string, number>;
   learningAnalytics: {
     recentAccuracy: number | null;
   };
@@ -52,6 +54,7 @@ export interface SemanticFilteringTrace {
     recentAccuracy: number | null;
     observedEvidenceTypes: string[];
     hardConstraints: RuntimeSemanticFacts['hardConstraints'];
+    prerequisiteMasteryBySkillCode?: Record<string, number | null>;
   };
   candidateActivities: string[];
   validCandidateIds: string[];

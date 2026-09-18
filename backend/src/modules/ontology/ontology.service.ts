@@ -35,6 +35,13 @@ interface CachedOntology {
   prerequisites: PrerequisiteDefinition[];
 }
 
+export interface SkillRelationEvidence {
+  skillCode: string;
+  relation: 'prerequisiteSkill' | 'relatedSkill' | 'complementarySkill' | 'contrastSkill';
+  concepts: string[];
+  source: 'ASSERTED_CONCEPT_PREREQUISITE' | 'SHARED_CONCEPT_DERIVED';
+}
+
 @Injectable()
 export class OntologyService implements OnModuleInit {
   private readonly logger = new Logger(OntologyService.name);
@@ -76,6 +83,10 @@ export class OntologyService implements OnModuleInit {
 
       if (!activity.bnccSkills.includes(facts.targetSkill)) {
         reasons.push('TARGET_SKILL_NOT_DECLARED_BY_ACTIVITY');
+      }
+      if (!this.isActivityPrerequisiteSatisfied(
+        activity.prerequisiteSkillCode, facts.masteryBySkillCode ?? {})) {
+        reasons.push('ACTIVITY_PREREQUISITE_NOT_MASTERED');
       }
       if (
         targetSkill.mathematicalConcepts.length > 0 &&
@@ -151,6 +162,49 @@ export class OntologyService implements OnModuleInit {
     );
   }
 
+  getSkillRelations(skillCode: string): SkillRelationEvidence[] {
+    const ontology = this.requireOntology();
+    const target = ontology.skillsByCode.get(skillCode);
+    if (!target) return [];
+    const relations: SkillRelationEvidence[] = [];
+    for (const candidate of ontology.skillsByCode.values()) {
+      if (candidate.code === skillCode) continue;
+      const prerequisiteConcepts = ontology.prerequisites
+        .filter((relation) => target.mathematicalConcepts.includes(relation.dependentConcept) &&
+          candidate.mathematicalConcepts.includes(relation.prerequisiteConcept))
+        .map((relation) => relation.prerequisiteConcept);
+      if (prerequisiteConcepts.length) {
+        relations.push({ skillCode: candidate.code, relation: 'prerequisiteSkill',
+          concepts: [...new Set(prerequisiteConcepts)], source: 'ASSERTED_CONCEPT_PREREQUISITE' });
+        continue;
+      }
+      const shared = candidate.mathematicalConcepts.filter((concept) =>
+        target.mathematicalConcepts.includes(concept));
+      if (shared.length) relations.push({ skillCode: candidate.code, relation: 'relatedSkill',
+        concepts: [...new Set(shared)], source: 'SHARED_CONCEPT_DERIVED' });
+    }
+    return relations.sort((left, right) => left.skillCode.localeCompare(right.skillCode));
+  }
+
+  isActivityPrerequisiteSatisfied(
+    prerequisiteSkillCode: string | null | undefined,
+    masteryBySkillCode: Record<string, number>,
+  ): boolean {
+    if (!prerequisiteSkillCode) return true;
+    const mastery = masteryBySkillCode[prerequisiteSkillCode];
+    if (typeof mastery !== 'number' || !Number.isFinite(mastery)) return true;
+    return mastery >= this.prerequisiteThreshold();
+  }
+
+  private prerequisiteThreshold(): number {
+    const threshold = Number(this.configService.get<string | number>(
+      'ONTOLOGY_PREREQUISITE_MASTERY_THRESHOLD') ?? 0.5);
+    if (!Number.isFinite(threshold) || threshold < 0 || threshold > 1) {
+      throw new Error('ONTOLOGY_PREREQUISITE_MASTERY_THRESHOLD must be between 0 and 1');
+    }
+    return threshold;
+  }
+
   private buildTrace(
     facts: RuntimeSemanticFacts,
     targetSkill: SkillDefinition,
@@ -189,6 +243,10 @@ export class OntologyService implements OnModuleInit {
         recentAccuracy: facts.learningAnalytics.recentAccuracy,
         observedEvidenceTypes: facts.observedEvidenceTypes,
         hardConstraints: facts.hardConstraints,
+        prerequisiteMasteryBySkillCode: Object.fromEntries(
+          [...new Set(facts.activities.flatMap((activity) =>
+            activity.prerequisiteSkillCode ? [activity.prerequisiteSkillCode] : []))]
+            .map((code) => [code, facts.masteryBySkillCode?.[code] ?? null])),
       },
       candidateActivities: facts.activities.map((activity) => activity.activityId),
       validCandidateIds: decisions

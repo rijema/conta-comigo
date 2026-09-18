@@ -38,4 +38,29 @@ describe('AdeService hybrid decision persistence', () => {
       fallbackUsed: false,
     }));
   });
+
+  it('publishes the finalized selection with the persisted skill and score', async () => {
+    const publishAdeDecision = jest.fn().mockResolvedValue(undefined);
+    const service = new AdeService(
+      { save: jest.fn(async (value) => value) } as any,
+      {} as any, {} as any, {} as any,
+      { publishAdeDecision } as any,
+      {} as any,
+    );
+    await service.recordHybridRanking({ id: 'recommendation-2', userId: 'student-1',
+      sessionId: 'session-1', recommendedBnccSkill: 'EF01MA08',
+      recommendedDifficulty: 'easy' } as any, {
+      selectedActivityId: 'activity-2', candidateIds: ['activity-2'],
+      candidates: [{ activityId: 'activity-2', finalScore: 3.2 }],
+      decisionSource: 'HYBRID_RANKING', fallbackUsed: false, fallbackReason: null,
+      rankingVersion: 'contacomigo-hybrid-ranking/2.0.0',
+      selectionStrategy: { mode: 'explore', originalSkill: 'EF01MA06',
+        selectedSkill: 'EF01MA08', evidence: [] },
+    } as any);
+    expect(publishAdeDecision).toHaveBeenCalledWith(expect.objectContaining({
+      eventType: 'ADE_SELECTION_FINALIZED',
+      payload: expect.objectContaining({ recommendedBnccSkill: 'EF01MA08',
+        selectedActivityId: 'activity-2', finalScore: 3.2, strategy: 'explore' }),
+    }));
+  });
 });

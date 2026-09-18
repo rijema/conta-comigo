@@ -31,6 +31,10 @@ export interface RecommendationSemanticTrace {
   semanticFit?: number;
   novelty?: number;
   rejectionRisk?: number;
+  sensoryFit?: number;
+  formatFit?: number;
+  repetitionRisk?: number;
+  frustrationRisk?: number;
   finalScore?: number;
 }
 
@@ -72,6 +76,12 @@ export interface ResearchRecommendationExplanation {
   semanticFit: TraceValue<number>;
   novelty: TraceValue<number>;
   rejectionRisk: TraceValue<number>;
+  sensoryFit: TraceValue<number>;
+  formatFit: TraceValue<number>;
+  repetitionRisk: TraceValue<number>;
+  frustrationRisk: TraceValue<number>;
+  selectionStrategy: TraceValue<unknown>;
+  rankingEvidence: TraceValue<unknown>;
   finalScore: TraceValue<number>;
   candidateRanking: TraceValue<unknown[]>;
   ontologyCandidateTrace: TraceValue<unknown[]>;
@@ -276,6 +286,13 @@ export class RecommendationExplanationService {
       semanticFit: this.optionalMetric(trace.semanticFit),
       novelty: this.optionalMetric(trace.novelty),
       rejectionRisk: this.optionalMetric(trace.rejectionRisk),
+      sensoryFit: this.optionalMetric(trace.sensoryFit),
+      formatFit: this.optionalMetric(trace.formatFit),
+      repetitionRisk: this.optionalMetric(trace.repetitionRisk),
+      frustrationRisk: this.optionalMetric(trace.frustrationRisk),
+      selectionStrategy: this.optionalValue(decision.hybridRanking?.selectionStrategy ??
+        decision.inputSnapshot?.selectionStrategy),
+      rankingEvidence: this.optionalValue(decision.hybridRanking?.evidenceUsed),
       finalScore: this.optionalMetric(trace.finalScore),
       candidateRanking: this.optionalValue(trace.candidateRanking),
       ontologyCandidateTrace: this.optionalValue(trace.candidateTrace),
@@ -335,6 +352,10 @@ export class RecommendationExplanationService {
       semanticFit: selected?.semanticFit,
       novelty: selected?.novelty,
       rejectionRisk: selected?.rejectionRisk,
+      sensoryFit: selected?.sensoryFit,
+      formatFit: selected?.formatFit,
+      repetitionRisk: selected?.repetitionRisk,
+      frustrationRisk: selected?.frustrationRisk,
       finalScore: selected?.finalScore,
     };
   }

@@ -360,3 +360,10 @@ No recommendation ranking, Generalization Score, full ARASAAC integration, learn
 - Reused ADE, BKT, hybrid ranking and learning events for evidence based progression and cooldown across attempts and skips.
 - Added 60 authored activity structures across 12 niches, with five levels per niche and contextual/sensory metadata.
 - Updated the runtime SQL migration, tests and Portuguese research documentation. Thresholds and curricular mappings require experimental and specialist validation.
+
+## 2026-09-18 — Ontology-informed recommendation refinement
+
+- Reused the formal ontology filter and existing hybrid ranking to identify concept-linked skills with explicit provenance; no unsupported prerequisite, complement or contrast assertions were added.
+- Added reinforcement for slow correct responses, controlled related-skill exploration, and checks of authored activity prerequisites against observed BKT mastery.
+- Extended the versioned ranking with sensory, format, structure repetition and response-time-related frustration factors, retaining existing score components and recommendation tracking.
+- Expanded persisted candidate evidence and research explanations. Updated configurable parameter examples, automated tests and Portuguese research documentation. No database migration was needed because existing decision fields are JSON.
