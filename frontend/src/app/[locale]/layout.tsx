@@ -5,13 +5,17 @@ import { getMessages } from "next-intl/server";
 import { AccessibilityProvider } from "@/contexts/AccessibilityContext";
 
 export const metadata: Metadata = {
-  title: "Conta Comigo — Matemática que aprende com cada criança",
+  title: "Conta Comigo - Matemática que aprende com cada criança",
   description:
     "Plataforma adaptativa de ensino de matemática para crianças com TEA, alinhada à BNCC.",
   authors: [{ name: "Conta Comigo" }],
   icons: {
-    icon: "/assets/iconbrowser.png",
-    apple: "/assets/iconbrowser.png",
+    icon: [
+      { url: "/favicon.ico", sizes: "any", type: "image/x-icon" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
   },
 };
 
