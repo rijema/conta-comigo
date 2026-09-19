@@ -1,0 +1,715 @@
+@import url('https://fonts.googleapis.com/css2?family=Cal+Sans&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;0,800;0,900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Varela+Round&display=swap');
+
+/* Reset básico e box-sizing global */
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: inherit;
+}
+
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    font-family: "Varela Round", sans-serif;
+    background-color: #ffffff;
+    overflow-x: hidden;
+}
+
+.brand-footer {
+    padding: 10px 20px 16px;
+    text-align: center;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.brand-footer-titia {
+    background: #fff8ff;
+    color: #7c3aed;
+}
+
+.content-area-below-top-bar {
+    display: flex;
+    flex: 1;
+    margin-top: 60px; /* Altura da SharedTopBar */
+    overflow: hidden;
+    min-width: 100vw;
+}
+.sidebar {
+    width: 280px;
+    background-color: #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 10px;
+    height: calc(100vh - 60px); /* Altura total da viewport menos a SharedTopBar */
+    overflow-y: auto;
+    flex-shrink: 0;
+    border-right: 1px solid #e0e0e0;
+}
+
+
+.logo-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.logo-section img {
+    width: 40px;
+    height: 40px;
+}
+
+.icon-section {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    width: 100%;
+    justify-content: center;
+    border-bottom: 1px solid #dcdcdc;
+    padding-bottom: 15px;
+}
+
+.icon-section .send-button {
+    font-size: 22px;
+    color: #888;
+    transition: color 0.2s ease;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.icon-section .send-button:hover {
+    color: #181d54;
+}
+
+.conversations-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.conversation-item {
+    padding: 10px 15px;
+    background-color: #f7f7f7;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border: 1px solid #dcdcdc;
+    transition: background-color 0.2s ease;
+}
+
+.conversation-item:hover {
+    background-color: #e9e9e9;
+}
+
+.no-conversations-message {
+    text-align: center;
+    color: #777;
+    font-size: 0.9rem;
+    padding: 20px 0;
+}
+
+.main-chat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #f0f2f5;
+    position: relative; /* Para o posicionamento absoluto do chat-input-container */
+    height: calc(100vh - 60px); /* Altura total da viewport menos a SharedTopBar */
+}
+
+.chat-header {
+    background-color: #b6d9ec;
+    height: 70px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.chat-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    overflow-y: auto;
+}
+
+/* Novo container para quando o chat está vazio */
+
+.empty-chat-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Alinhado para a esquerda (início) */
+    gap: 20px;
+    padding: 20px;
+    margin-top: auto;
+    width: 100%;
+}
+
+.chat-card {
+    background-color: #a9e8dc; /* Restaurando cor original */
+    padding: 40px; /* Restaurando padding original */
+    border-radius: 12px;
+    text-align: center;
+    width:100%;
+    margin: 0; /* Restaurando margem original, que ajuda na centralização se o pai não for flex com align-items */
+}
+
+.chat-card h2 {
+    margin-bottom: 20px;
+    color: #181d54;
+}
+
+body[data-brand="titia"] .sidebar {
+    background: #f7e8ff;
+    border-right-color: #efd4ff;
+}
+
+body[data-brand="titia"] .main-chat,
+body[data-brand="titia"] .chat-input-container,
+body[data-brand="titia"] .brand-footer-titia {
+    background: #fff8ff;
+}
+
+body[data-brand="titia"] .chat-header {
+    background: linear-gradient(90deg, #f5d0fe 0%, #ddd6fe 100%);
+}
+
+body[data-brand="titia"] .chat-card {
+    background: linear-gradient(135deg, #fdf2f8 0%, #ede9fe 100%);
+}
+
+body[data-brand="titia"] .chat-card h2 {
+    color: #6d28d9;
+}
+
+body[data-brand="titia"] .chat-bubble.autbot {
+    background-color: #9333ea;
+}
+
+body[data-brand="titia"] .chat-bubble.user {
+    background-color: #f5d0fe;
+    color: #701a75;
+}
+
+body[data-brand="titia"] .chat-bubble.user .message-time {
+    color: #86198f;
+}
+
+.chat-messages-live {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Espaço entre as bolhas de mensagem */
+    padding-top: 20px;    /* Manter padding vertical */
+    padding-left: 0;      /* Remover padding horizontal */
+    padding-right: 0;     /* Remover padding horizontal */
+    padding-bottom: 80px;
+}
+
+.chat-bubble {
+    max-width: 70%;
+    padding: 12px 18px;
+    border-radius: 20px;
+    position: relative;
+    word-wrap: break-word;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+.chat-bubble.autbot {
+    background-color: #1a4d86;
+    color: #ffffff;
+    align-self: flex-start;
+    border-bottom-left-radius: 5px;
+}
+.chat-bubble.user {
+    background-color: #A9CCE3;
+    color: #181d54;
+    align-self: flex-end;
+    border-bottom-right-radius: 5px;
+}
+
+.chat-bubble.autbot p.message-text {
+  white-space: pre-wrap; 
+}
+
+
+.message-text {
+    margin: 0;
+    padding: 0;
+    font-size: 0.95em;
+    color: #fff;
+}
+
+.message-time {
+    font-size: 0.75em;
+    color: rgba(255, 255, 255, 0.7);
+    align-self: flex-end;
+    margin-top: 5px;
+}
+
+.chat-bubble.user .message-time {
+    color: #4e5590;
+}
+
+.chat-input-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    background: #f0f2f5;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    padding: 5px 20px;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+}
+
+input,
+textarea {
+    background-color: #fff;
+    color: #2c3e50;
+    font-family: "Poppins", sans-serif;
+}
+
+.chat-input-container input {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 10px 15px;
+    font-size: 14px;
+    border-radius: 30px;
+    box-shadow: 0 0 8px rgba(115, 110, 110, 0.1);
+}
+
+.chat-input-container .send-button {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #181d54;
+    font-size: 20px;
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s ease;
+}
+
+.chat-input-container .send-button:hover {
+    color: #2c337a;
+}
+
+.history-list-groups {
+    flex: 1;
+}
+
+.history-group-title {
+    color: #555;
+    font-size: 0.9em;
+    font-weight: 600;
+    margin: 15px 15px 5px;
+    text-transform: uppercase;
+}
+
+.history-group-items {
+    display: flex;
+    flex-direction: column;
+}
+
+.history-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease;
+    background-color: #a9e8dc;
+    border-radius: 6px;
+    margin-right: 5px;
+}
+
+.history-list-item:hover {
+    background-color: #e5e5e5;
+}
+
+.history-list-item.selected {
+    background-color: #d9e9f6;
+    border-left: 3px solid #181d54;
+    padding-left: 12px;
+}
+
+.history-item-text-content {
+    flex-grow: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.history-item-title-preview {
+    font-size: 0.95em;
+    color: #181d54;
+    font-weight: 500;
+}
+
+.history-item-time {
+    font-size: 0.8em;
+    color: #777;
+    flex-shrink: 0;
+    margin-left: 10px;
+}
+
+.chat-area-placeholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    color: #888;
+    font-size: 1.1em;
+    text-align: center;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    margin: 20px;
+}
+
+.conversation-detail-view {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background-color: #ffffff;
+    border-radius: 12px;
+    margin: 20px;
+    height: calc(100% - 40px);
+}
+
+/* Esta classe é usada dentro de ConversationDetailView para exibir mensagens do histórico */
+.conversation-detail-view .chat-messages-container {
+    flex: 1;
+    overflow-y: auto;
+    padding-top: 20px;    /* Manter padding vertical */
+    padding-left: 0;      /* Remover padding horizontal */
+    padding-right: 0;     /* Remover padding horizontal */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 80px;
+    background-color: #a9e8dc; /* Adicionado da definição anterior de .chat-messages-container */
+}
+
+.chat-input-area-readonly {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    height: 70px;
+    background-color: #f0f2f5;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 10px;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+    border-radius: 0 0 12px 12px;
+}
+
+.chat-input-area-readonly input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    font-size: 1em;
+    background-color: #ffffff;
+    color: #555;
+    cursor: not-allowed;
+    box-shadow: 0 0 8px rgba(115, 110, 110, 0.1);
+}
+
+.chat-input-area-readonly input::placeholder {
+    color: #999;
+}
+
+.chat-input-area-readonly button {
+    background: transparent;
+    border: none;
+    cursor: not-allowed;
+    padding: 8px;
+    font-size: 1.5em;
+    color: #181d54;
+}
+
+.history-section-loading,
+.history-section-error {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    font-size: 1.2em;
+    color: #555;
+    background-color: #ffffff;
+    border-radius: 12px;
+    margin: 20px;
+}
+
+.loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #181d54;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 10px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* --- Responsividade --- */
+
+/* Tablet e Celular em Paisagem (até 768px) */
+@media (max-width: 768px) {
+    /* Estilos da antiga .top-bar e seus botões foram removidos daqui,
+       pois SharedTopBar tem seu próprio CSS e altura fixa. */
+
+    /* Se houver necessidade de ajustar o ícone de perfil do SharedTopBar em telas menores,
+       isso deve ser feito em SharedTopBar.css. Exemplo: */
+    /* .shared-nav-button.icon-button svg { font-size: 22px; margin: 0; } */
+    /* .shared-nav-button .profile-text { display: none; } */
+
+    .content-area-below-top-bar {
+        flex-direction: column;
+        margin-top: 60px;
+        height: calc(100vh - 60px); /* Altura da SharedTopBar */
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        max-height: 40vh;
+        border-right: none;
+        border-bottom: 1px solid #e0e0e0;
+        padding: 15px 10px; /* height: calc(...) não é mais necessário devido ao max-height e content-area */
+    }
+
+    .main-chat {
+        height: auto;
+        flex-grow: 1;
+    }
+
+    .chat-messages-live,
+    .conversation-detail-view .chat-messages-container {
+        padding-bottom: 70px;
+    }
+
+    .chat-header {
+        height: 60px;
+        padding: 0 20px;
+    }
+
+    .chat-card {
+        width: 100%;
+        margin: 15px auto;
+        margin-top: 15px;
+        margin-bottom: 15px;
+        padding: 20px;
+    }
+
+    .chat-card h2 {
+        font-size: 1.5em;
+    }
+
+    .chat-input-container,
+    .chat-input-area-readonly {
+        height: 60px;
+        padding: 0 15px;
+    }
+
+    .conversation-detail-view .chat-input-area-readonly {
+        bottom: 15px;
+        left: 15px;
+        right: 15px;
+    }
+
+    .chat-input-container input,
+    .chat-input-area-readonly input {
+        font-size: 0.9em;
+        padding: 8px 12px;
+    }
+
+    .chat-input-container .send-button,
+    .chat-input-area-readonly button {
+        font-size: 1.3em;
+    }
+
+    .chat-bubble {
+        max-width: 85%;
+    }
+
+    .conversation-detail-view,
+    .chat-area-placeholder,
+    .history-section-loading,
+    .history-section-error {
+        margin: 15px;
+        height: calc(100% - 30px);
+    }
+}
+
+/* Celular em Retrato (até 480px) */
+@media (max-width: 480px) {
+    /* Estilos da antiga .top-bar e seus botões foram removidos daqui. */
+    /* Ajustes no ícone de perfil do SharedTopBar (se necessário): */
+    /* .shared-nav-button.icon-button svg { font-size: 20px; } */
+
+    .sidebar {
+        max-height: 35vh;
+        padding: 10px;
+    }
+
+    .sidebar .icon-section .send-button {
+        font-size: 20px;
+    }
+
+    .history-group-title {
+        margin: 10px 10px 5px;
+        font-size: 0.85em;
+    }
+
+    .history-list-item {
+        padding: 8px 10px;
+    }
+
+    .history-item-title-preview {
+        font-size: 0.85em;
+    }
+
+    .chat-header {
+        padding: 0 15px;
+        height: 55px;
+    }
+    
+    .chat-card {
+
+    }
+
+
+    .chat-messages-live,
+    .conversation-detail-view .chat-messages-container {
+        padding: 15px;
+        padding-top: 15px; /* Ajustar padding vertical para mobile */
+        padding-left: 0;
+        padding-right: 0;
+        padding-bottom: 65px;
+    }
+
+    .chat-bubble {
+        padding: 8px 12px;
+        max-width: 90%;
+    }
+
+    .message-text {
+        font-size: 0.85em;
+    }
+
+    .chat-input-container,
+    .chat-input-area-readonly {
+        height: 55px;
+        padding: 0 10px;
+    }
+
+    .conversation-detail-view .chat-input-area-readonly {
+        bottom: 10px;
+        left: 10px;
+        right: 10px;
+    }
+
+    .chat-input-container input,
+    .chat-input-area-readonly input {
+        font-size: 0.85em;
+    }
+
+    .chat-input-container .send-button,
+    .chat-input-area-readonly button {
+        font-size: 1.2em;
+        padding: 0 10px;
+    }
+
+    .conversation-detail-view,
+    .chat-area-placeholder,
+    .history-section-loading,
+    .history-section-error {
+        margin: 10px;
+        height: calc(100% - 20px);
+    }
+} /* Fim da media query @media (max-width: 480px) */
+
+/* Estilos para o componente de Perguntas Frequentes */
+/* Movido para fora da media query, pois são estilos globais para o componente FAQ */
+.faq-container {
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    text-align: center;
+    min-width: 100%; /* Esta regra fará o "esticamento" */
+
+}
+
+.faq-title {
+    color: #000; /* Cor do texto do título */
+    margin-bottom: 15px;
+    font-size: 1.2em;
+}
+
+.faq-list {
+    display: flex;
+    flex-direction: column; /* Empilha os botões verticalmente */
+    gap: 10px; /* Espaço entre os botões */
+}
+
+.faq-button {
+    background-color: #e7f3fe; /* Cor de fundo mais clara para os botões */
+    color: #185abc; /* Cor do texto dos botões */
+    border: 1px solid #cce0f5; /* Borda sutil */
+    padding: 10px 15px; /* Padding ajustado */
+    border-radius: 20px; /* Bordas mais arredondadas */
+    cursor: pointer;
+    text-align: left; /* Alinha o texto do botão à esquerda */
+    transition: background-color 0.2s ease-in-out;
+    font-size: 0.95em;
+}
+
+.faq-button:hover {
+    background-color: #d0e6fd;
+    border-color: #b8d6f5;
+}

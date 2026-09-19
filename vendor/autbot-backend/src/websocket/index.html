@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>WebSocket Test</title>
+  </head>
+  <body>
+    <h1>Chat WebSocket</h1>
+
+    <input type="text" id="token" placeholder="Seu token JWT" style="width: 300px;" />
+    <br /><br />
+
+    <input type="text" id="userId" placeholder="ID do usuário" />
+    <input type="text" id="pergunta" placeholder="Sua pergunta" />
+    <select id="publico">
+      <option value="PROFESSOR">Professor</option>
+      <option value="CUIDADOR">Cuidador</option>
+      <option value="RESPONSAVEL">Responsável</option>
+      <option value="USUARIO">Pessoa com TEA</option>
+      <option value="TEA_NIVEL_1">Pessoa com TEA - Nível 1</option>
+      <option value="TEA_NIVEL_2">Pessoa com TEA - Nível 2</option>
+      <option value="TEA_NIVEL_3">Pessoa com TEA - Nível 3</option>
+    </select>
+    <button onclick="conectar()">Conectar</button>
+    <button onclick="enviarMensagem()" disabled id="sendBtn">Enviar</button>
+
+    <h2>Resposta:</h2>
+    <pre id="resposta"></pre>
+
+    <script>
+      let socket;
+
+      function conectar() {
+        const token = document.getElementById("token").value.trim();
+        if (!token) {
+          alert("Por favor, insira o token JWT antes de conectar.");
+          return;
+        }
+
+        const protocol = location.protocol === "https:" ? "wss" : "ws";
+        const host = location.host;
+
+        socket = new WebSocket(`${protocol}://${host}/ws?token=${encodeURIComponent(token)}`);
+
+        socket.onopen = () => {
+          console.log("WebSocket conectado!");
+          document.getElementById("sendBtn").disabled = false;
+          document.getElementById("resposta").textContent = "Conectado ao servidor WebSocket.";
+        };
+
+        socket.onmessage = function (event) {
+          const data = JSON.parse(event.data);
+
+          if (data.error) {
+            document.getElementById("resposta").textContent = "Erro: " + data.error;
+          } else {
+            document.getElementById("resposta").textContent = data.content;
+          }
+        };
+
+        socket.onerror = (err) => {
+          console.error("WebSocket error:", err);
+          document.getElementById("resposta").textContent = "Erro na conexão WebSocket.";
+        };
+
+        socket.onclose = () => {
+          console.log("WebSocket desconectado.");
+          document.getElementById("sendBtn").disabled = true;
+          document.getElementById("resposta").textContent += "\nConexão fechada.";
+        };
+      }
+
+      function enviarMensagem() {
+        if (!socket || socket.readyState !== WebSocket.OPEN) {
+          alert("Você precisa se conectar primeiro.");
+          return;
+        }
+
+        const userId = document.getElementById("userId").value;
+        const pergunta = document.getElementById("pergunta").value;
+        const publico = document.getElementById("publico").value;
+
+        const mensagem = {
+          userId,
+          pergunta,
+          publico,
+        };
+
+        console.log("Mensagem enviada:", JSON.stringify(mensagem));
+
+        socket.send(JSON.stringify(mensagem));
+      }
+    </script>
+  </body>
+</html>

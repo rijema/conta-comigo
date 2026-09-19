@@ -8,6 +8,9 @@ CREATE TABLE IF NOT EXISTS users (
   "lgpdConsentDate" TIMESTAMP, language VARCHAR NOT NULL DEFAULT 'pt-BR', preferences JSONB,
   "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(), "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
 );
+ALTER TABLE users ADD COLUMN IF NOT EXISTS "externalAuthProvider" VARCHAR(64);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS "externalAuthId" VARCHAR(255);
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_users_external_auth_id" ON users("externalAuthId") WHERE "externalAuthId" IS NOT NULL;
 
 CREATE TABLE IF NOT EXISTS child_profiles (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(), "userId" UUID UNIQUE REFERENCES users(id) ON DELETE CASCADE,

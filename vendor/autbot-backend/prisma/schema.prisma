@@ -1,0 +1,111 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+enum UserType {
+  PROFESSOR
+  CUIDADOR
+  RESPONSAVEL
+  USUARIO
+  TEA_NIVEL_1
+  TEA_NIVEL_2
+  TEA_NIVEL_3
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  externalAuthProvider String?
+  externalAuthId String? @unique
+  externalMetadata Json?
+  birthDate DateTime
+  userType  UserType
+  dataConsent Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  resetPasswordToken       String?   @unique
+  resetPasswordTokenExpiry DateTime?
+  historics Historic[]
+}
+
+enum Role {
+  system
+  user
+  assistant
+}
+
+model Message {
+  id          String      @id @default(uuid())
+  role        Role
+  content     String
+  createdAt   DateTime    @default(now()) 
+  historicId  String
+  historic    Historic    @relation(fields: [historicId], references: [historicId]) 
+}
+
+model Historic {
+  historicId  String    @id @default(uuid())
+  startedAt   DateTime  @default(now())
+  endedAt     DateTime 
+  messages    Message[]
+  terminated  Boolean
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  summary ConversationSummary?
+}
+
+model ChatCache {
+  id          String   @id @default(uuid())
+  userId      String
+  question    String
+  answer      String
+  publicKey   String
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime
+  @@index([userId, question])
+}
+
+model FrequentQuestion {
+  id          String   @id @default(uuid())
+  question    String   @unique
+  count       Int      @default(1)
+  lastAskedAt DateTime @default(now())
+  answer      String? 
+}
+
+model ConversationSummary {
+  id                String             @id @default(uuid())
+  summary           String
+  historicId        String             @unique
+  historic          Historic           @relation(fields: [historicId], references: [historicId])
+}
+
+model Lembrete {
+  id         Int      @id @default(autoincrement())
+  titulo     String
+  descricao  String?  // '?' = opcional
+  data       DateTime // Armazena a data
+  horaInicio String?  // Armazena "HH:MM" (opcional)
+  horaFim    String?  // Armazena "HH:MM" (opcional)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Professional {
+  id          String   @id @default(uuid())
+  name        String
+  specialty   String   // Especialidade (Psicólogo, Fonoaudiólogo, etc)
+  address     String   // Endereço completo (Rua, Número)
+  city        String   // Cidade (para filtro)
+  state       String   // Estado UF (para filtro)
+  phone       String?  // Telefone/Whatsapp
+  createdAt   DateTime @default(now())
+}

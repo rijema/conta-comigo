@@ -1,0 +1,267 @@
+/* Geral */
+.profile-page-container {
+  display: flex;
+  flex-direction: column; /* Organiza SharedTopBar e profile-content verticalmente */
+  min-height: 100vh;
+  background-color: #ffffff;
+}
+
+/* O .profile-content é o container que deve crescer e centralizar o card */
+.profile-content {
+  flex-grow: 1; /* Faz com que este container ocupe o espaço vertical restante abaixo da SharedTopBar */
+  display: flex;
+  /* justify-content: center !important; /* Removido para delegar centralização horizontal ao card */
+  align-items: center !important;    /* FORÇA a centralização vertical do card dentro deste container */
+  width: 100% !important; /* FORÇA que o container tente ocupar a largura total do pai */
+  padding: 20px;
+  box-sizing: border-box;
+  overflow: auto; /* Permite rolagem se o card for maior que o espaço disponível */
+}
+
+/* Card de Perfil */
+.profile-card {
+  background-color: #ffffff; /* Fundo branco para o card */
+  border-radius: 20px; /* Bordas mais arredondadas */
+  
+  /* Largura responsiva com mínimo, valor preferencial e máximo */
+  width: clamp(320px, 50vw, 500px); 
+  margin-left: 400px !important; /* Calculado para tela de 1920px de largura */
+   margin-right: 400px !important;/* Calculado para tela de 1920px de largura */
+  /* aspect-ratio: 1 / 1; /* Removido para flexibilidade de altura, ou defina um min-height */
+  min-height: 400px; /* Exemplo de altura mínima, ajuste conforme necessário */
+  padding: 20px; /* Padding interno do card */
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); /* Sombra suave e moderna */
+  border: 1px solid #e0e0e0; /* Borda sutil */
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column; /* Organiza os filhos (header, fields-container, actions) verticalmente */
+  overflow: hidden; /* Essencial para o container de rolagem interno funcionar corretamente */
+}
+
+/* Cabeçalho do Card */
+.profile-header {
+  text-align: center;
+  margin-bottom: 15px; /* Espaço abaixo do cabeçalho (imagem + título) */
+  flex-shrink: 0; /* Impede que o header encolha */
+}
+
+.profile-header h2 {
+  font-size: 1.6em; /* Ajustado para um card mais compacto */
+  color: #333;
+  margin-top: 0; /* Espaço acima do título, abaixo da imagem */
+  margin-bottom: 0;
+  font-weight: 600;
+}
+
+/* Container para os campos com rolagem interna */
+.profile-fields-scroll-container {
+  flex-grow: 1; /* Faz o container ocupar o espaço disponível */
+  overflow-y: auto; /* Habilita a rolagem vertical APENAS para esta seção se o conteúdo transbordar */
+  padding: 5px 15px 5px 5px; /* Padding à direita para a barra de rolagem, outros para espaçamento do conteúdo */
+  margin-right: -10px; /* Compensa visualmente a largura da barra de rolagem, se necessário */
+}
+
+/* Estilização básica da barra de rolagem (Webkit) */
+.profile-fields-scroll-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.profile-fields-scroll-container::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
+.profile-fields-scroll-container::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+/* Campos do Perfil */
+.profile-field {
+  margin-bottom: 12px; /* Espaço reduzido entre os campos */
+}
+
+.profile-field label {
+  display: flex;
+  align-items: center;
+  font-weight: 500; /* Um pouco menos negrito */
+  margin-bottom: 5px;
+  font-size: 0.95em; /* Rótulos menores */
+  color: #555;
+}
+
+.field-icon {
+  margin-right: 8px;
+  color: #007bff; /* Cor do ícone para combinar com o tema */
+  font-size: 1em; 
+}
+
+.profile-field span,
+.profile-field .profile-bio {
+  font-size: 0.9em; /* Texto menor para visualização */
+  color: #333;
+  padding: 8px 10px;
+  background-color: #f8f9fa; /* Cor levemente diferente para campos de leitura */
+  border-radius: 4px;
+  display: block;
+  border: 1px solid #ced4da;
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+.profile-field .profile-bio {
+  min-height: 50px; /* Altura mínima ajustada para a bio */
+  white-space: pre-wrap;
+}
+
+.profile-field input[type="text"],
+.profile-field input[type="email"],
+.profile-field textarea {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 0.9em; /* Fonte menor para inputs */
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  box-sizing: border-box;
+  background-color: #fff;
+  color: #333;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.profile-field input:focus,
+.profile-field textarea:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+  outline: none;
+}
+
+.profile-field textarea {
+  min-height: 60px; /* Ajustado para card compacto */
+  resize: vertical;
+  line-height: 1.5;
+}
+
+/* Ações (Botões) */
+.profile-actions {
+  margin-top: 15px; /* Espaço acima dos botões */
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 15px;
+  border-top: 1px solid #e0e0e0; /* Linha separadora mais clara */
+  flex-shrink: 0; /* Impede que a seção de ações encolha */
+}
+
+.profile-button {
+  padding: 8px 16px; /* Botões menores */
+  font-size: 0.9em; /* Texto menor nos botões */
+  font-weight: 500;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.profile-button:hover {
+  opacity: 0.85;
+}
+.profile-button:active {
+  transform: translateY(1px);
+}
+
+.edit-button, .save-button {
+  background-color: #007bff;
+  color: white;
+}
+.edit-button:hover, .save-button:hover{ background-color: #0056b3; }
+
+.cancel-button {
+  background-color: #6c757d;
+  color: white;
+}
+.cancel-button:hover { background-color: #545b62; }
+
+.profile-field select {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 0.9em;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  box-sizing: border-box;
+  background-color: #fff;
+  color: #333;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.profile-field select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  outline: none;
+}
+
+/* Responsividade */
+@media (max-width: 1024px) { /* Telas menores de desktop/tablets maiores */
+  .profile-card {
+    width: clamp(320px, 60vw, 450px); 
+    margin-left: 206px !important; /* 1024px * (165/820) */
+    margin-right: 206px !important;
+  }
+}
+
+@media (max-width: 768px) { /* Tablets */
+  .profile-content { padding: 15px; }
+  .profile-card {
+    width: clamp(300px, 80vw, 400px);
+    margin-left: 155px !important; /* 768px * (165/820) */
+    margin-right: 155px !important;
+    padding: 15px;
+    /* aspect-ratio: auto; */ /* Opcionalmente, relaxar restrição quadrada */
+    /* min-height: 400px; */ /* Ou definir min-height se aspect-ratio for removido */
+
+  }
+  .profile-header h2 { font-size: 1.4em; }
+  .profile-field label, .profile-field span, .profile-field .profile-bio,
+  .profile-field input, .profile-field textarea { font-size: 0.85em; }
+  .profile-button { padding: 7px 14px; font-size: 0.85em; }
+  .profile-actions { flex-direction: column; gap: 8px; }
+  .profile-actions .profile-button { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 480px) { /* Celulares */
+  .profile-content { 
+    padding: 10px; 
+    /* A centralização vertical e horizontal é herdada das regras base do .profile-content */
+  }
+  .profile-card {
+    width: 100%; 
+    max-width: none;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    border-radius: 10px;
+    aspect-ratio: auto; /* Sem restrição quadrada */
+    /* min-height: calc(100vh - 20px - 70px); */ /* Ajustar conforme necessário */
+  }
+  .profile-header h2 { font-size: 1.3em; }
+  .profile-fields-scroll-container { padding: 5px 10px 5px 5px; margin-right: -5px; }
+  .profile-fields-scroll-container::-webkit-scrollbar { width: 5px; }
+}
+
+/* Margens específicas para resoluções solicitadas */
+
+/* Para tela de 820px de largura */
+@media (min-width: 819px) and (max-width: 821px) {
+  .profile-card {
+    margin-left: 165px !important;
+    margin-right: 165px !important;
+  }
+}
+
+/* Para tela de 1159px de largura (aproximadamente) */
+@media (min-width: 1158px) and (max-width: 1160px) {
+  .profile-card {
+    margin-left: 233px !important; /* 1159px * (165/820) */
+    margin-right: 233px !important;
+  }
+}

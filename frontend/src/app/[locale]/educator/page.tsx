@@ -7,6 +7,7 @@ import { ADEDecisionLog } from "@/components/educator/ade-decision-log";
 import { BNCCCoverageMap } from "@/components/educator/bncc-coverage-map";
 import { LearnerProfileCard } from "@/components/educator/learner-profile-card";
 import { EngagementBarChart } from "@/components/charts/engagement-bar-chart";
+import { ChatNowCard } from "@/components/titia/chat-now-card";
 
 export default function EducatorPage() {
   const { user } = useAuth();
@@ -83,6 +84,8 @@ export default function EducatorPage() {
 
           {/* Main Content */}
           <main className="col-span-9 space-y-6">
+            <ChatNowCard />
+
             {selectedLearner && (
               <>
                 <LearnerProfileCard learnerId={selectedLearner} />

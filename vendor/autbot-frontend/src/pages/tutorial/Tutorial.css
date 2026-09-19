@@ -1,0 +1,195 @@
+@import url('https://fonts.googleapis.com/css2?family=Varela+Round&display=swap');
+
+/* --- Global Styles & Resets --- */
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: "Varela Round", sans-serif;
+    background-color: #ffffff; 
+    box-sizing: border-box;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+
+.tutorial-page-container { 
+    display: flex;
+    flex-direction: column; 
+    min-height: 100vh;    
+    width: 100vw;
+    font-family: "Varela Round", sans-serif;
+    background-color: #ffffff;
+}
+
+/* --- Tutorial Carousel Styles --- */
+.manual-carousel {
+    width: 90%; 
+    max-width: 800px; 
+    margin: 0 auto;   
+    padding: 20px;    
+    padding-top: 90px; 
+    font-family: "Varela Round", sans-serif;
+    text-align: center;
+    flex-grow: 1; 
+    display: flex; 
+    flex-direction: column;
+    align-items: center;
+}
+
+.manual-carousel h2 {
+    font-size: 2em; 
+    margin-bottom: 30px; 
+    color: #181d54;
+}
+
+.slide {
+    background-color: #e6f0f7;
+    border-radius: 15px; 
+    padding: 25px 30px; 
+    width: 100%; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+}
+
+.slide img {
+    max-width: 100%;
+    height: auto; 
+    border-radius: 10px;
+    margin-bottom: 20px; 
+    display: block; 
+    margin-left: auto;
+    margin-right: auto;
+    max-height: 300px; 
+}
+
+.slide p {
+    margin-top: 15px;
+    font-size: 1.1em; 
+    color: #181d54;
+    line-height: 1.6; 
+}
+
+.controls {
+    margin-top: 20px; 
+}
+
+.controls button {
+    margin: 0 10px; 
+    font-size: 1.5em;
+    padding: 8px 12px;
+    background-color: #181d54; 
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.controls button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.controls button:hover:not(:disabled) {
+    background-color: #2c337a; 
+}
+
+.dots {
+    margin-top: 20px;
+    display: flex; 
+    justify-content: center; 
+}
+
+.dots span { 
+    font-size: 1.8em; 
+    margin: 0 5px;    
+    color: #ccc;   
+    cursor: default;  
+    line-height: 1;   
+}
+
+.dots span.active {
+    color: #181d54; 
+}
+
+
+/* --- Tablet Responsiveness --- */
+@media (max-width: 768px) {
+
+    .manual-carousel {
+        width: 95%;
+        padding-top: 90px;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .manual-carousel h2 {
+        font-size: 1.8em;
+        margin-bottom: 25px;
+    }
+
+    .slide {
+        padding: 20px 25px;
+    }
+
+    .slide img {
+        max-height: 250px;
+    }
+
+    .slide p {
+        font-size: 1em;
+    }
+
+    .controls button {
+        font-size: 1.4em;
+        padding: 7px 10px;
+    }
+
+    .dots span {
+        font-size: 1.7em;
+    }
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 480px) {
+ 
+    .manual-carousel {
+        width: 100%; 
+        padding-top: 80px; 
+        padding-left: 10px; 
+        padding-right: 10px;
+    }
+
+    .manual-carousel h2 {
+        font-size: 1.5em;
+        margin-bottom: 20px;
+    }
+
+    .slide {
+        padding: 15px 20px;
+    }
+
+    .slide img {
+        max-height: 200px; 
+        margin-bottom: 15px;
+    }
+
+    .slide p {
+        font-size: 0.9em;
+        line-height: 1.5;
+    }
+
+    .controls button {
+        font-size: 1.3em; 
+        padding: 6px 9px;
+        margin: 0 8px;
+    }
+
+    .dots span {
+        font-size: 1.6em; 
+        margin: 0 4px;
+    }
+}

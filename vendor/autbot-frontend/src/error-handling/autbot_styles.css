@@ -1,0 +1,87 @@
+body {
+    font-family: sans-serif;
+    margin: 20px;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+h1, h2 {
+    color: #333;
+}
+
+/* Estilos do Formulário */
+.form-field {
+    margin-bottom: 15px;
+}
+
+.form-field label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-field input[type="text"] {
+    width: calc(100% - 18px);
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Destaque de erro para campos de formulário */
+.input-error {
+    background-color: #fdd হালকা !important; /* Fundo vermelho claro */
+    border-color: #d32f2f !important; /* Borda vermelha */
+}
+
+/* Mensagens de Erro */
+.error-message {
+    padding: 10px;
+    margin-top: 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    border: 1px solid;
+}
+
+.error-icon {
+    margin-right: 8px;
+    font-size: 1.1em;
+}
+
+/* Erros de Formulário Específicos */
+.error-message.form-error {
+    background-color: #ffebee; /* Fundo vermelho bem claro */
+    color: #c62828; /* Texto vermelho escuro */
+    border-color: #ef9a9a; /* Borda vermelha clara */
+}
+
+/* Erros de Sistema Específicos */
+.error-message.system-error {
+    background-color: #fff3e0; /* Fundo laranja claro */
+    color: #e65100; /* Texto laranja escuro */
+    border-color: #ffcc80; /* Borda laranja clara */
+    margin-bottom: 10px;
+}
+
+.retry-button {
+    margin-left: auto; /* Alinha o botão à direita */
+    padding: 6px 12px;
+    border: 1px solid #e65100;
+    background-color: #fff;
+    color: #e65100;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.retry-button:hover {
+    background-color: #fff8e1;
+}
+
+#system-messages-container {
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px dashed #ccc;
+    min-height: 40px; /* Para visualização mesmo vazio */
+}

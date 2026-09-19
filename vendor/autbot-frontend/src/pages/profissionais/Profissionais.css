@@ -1,0 +1,217 @@
+@import url('https://fonts.googleapis.com/css2?family=Varela+Round&display=swap');
+
+.profissionais-page-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  font-family: 'Varela Round', sans-serif;
+  background-color: #f8fafc;
+}
+
+.profissionais-content-area {
+  padding-top: 60px;
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.main-profissionais {
+  min-width: 100vw;
+  width: 100%;
+  min-height: 90vh;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 40px;
+  box-sizing: border-box;
+}
+
+.profissionais-left, .profissionais-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  box-sizing: border-box;
+  align-items: center;
+}
+
+.profissionais-left > h1,
+.profissionais-right > h1 {
+  color: #181d54;
+  font-size: 2em;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.profissionais-card {
+  width: 100%;
+  max-width: 400px;
+  background: #b6d9ec;
+  border-radius: 15px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  box-sizing: border-box;
+  margin: 0 auto;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.profissionais-card h2 {
+  color: #2c3e50;
+  text-align: center;
+  font-size: 1.8em;
+  margin-bottom: 15px;
+}
+
+.profissionais-textfield {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+
+.profissionais-textfield > label {
+  color: #2c3e50;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.profissionais-textfield > input,
+.profissionais-textfield > select {
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 15px;
+  background: rgb(238, 238, 238);
+  color: #2c3e50;
+  font-size: 0.95em;
+  outline: none;
+  box-sizing: border-box;
+  transition: background 0.2s;
+}
+
+.profissionais-textfield > input:focus,
+.profissionais-textfield > select:focus {
+  background: #e5f3ff;
+}
+
+.profissionais-button {
+  width: 100%;
+  padding: 15px 0;
+  border: none;
+  border-radius: 10px;
+  background-color: #181d54;
+  color: #e0e1ff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.profissionais-button:hover {
+  background-color: #13204a;
+}
+
+.whatsapp-btn {
+  margin-top: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #25d366;
+  color: white;
+  text-align: center;
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.whatsapp-btn:hover {
+  background: #1ebe5d;
+}
+
+.profissionais-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 450px;
+}
+
+.prof-card {
+  background-color: rgba(169, 204, 227, 0.35);
+  padding: 20px 25px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease;
+}
+
+.prof-card:hover {
+  transform: translateY(-3px);
+}
+
+.prof-card h3 {
+  margin: 0;
+  color: #181d54;
+  font-size: 1.1em;
+}
+
+.prof-card p {
+  margin: 0;
+  font-size: 0.95em;
+  color: #333;
+}
+
+.prof-card span {
+  color: #555;
+  font-size: 0.85em;
+}
+
+@media (max-width: 768px) {
+  .main-profissionais {
+    flex-direction: column;
+    padding: 20px;
+    align-items: center;
+  }
+
+  .profissionais-left, .profissionais-right {
+    width: 100%;
+    max-width: 500px;
+  }
+
+  .profissionais-card {
+    width: 90%;
+    padding: 25px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-profissionais {
+    padding: 10px;
+  }
+
+  .profissionais-card {
+    width: 95%;
+    padding: 20px;
+  }
+
+  .profissionais-left > h1,
+  .profissionais-right > h1 {
+    font-size: 1.5em;
+  }
+
+  .profissionais-textfield > input,
+  .profissionais-textfield > select {
+    font-size: 0.85em;
+    padding: 10px;
+  }
+
+  .profissionais-button {
+    font-size: 0.9em;
+    padding: 12px 0;
+  }
+}

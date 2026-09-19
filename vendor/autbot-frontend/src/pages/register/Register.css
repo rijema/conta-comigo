@@ -1,0 +1,282 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Cal+Sans&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Varela+Round&display=swap');
+
+
+.cadastro-page-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.cadastro-content-area {
+    padding-top: 60px; 
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+body {
+    margin: 0;
+    font-family: "Varela Round", sans-serif;
+    background: #ffffff;
+}
+
+.cadastro-form {
+    width: 100%;
+}
+
+.main-cadastro {
+    min-width: 100vw;
+    width: 100%;
+    min-height: 90vh;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.left-cadastro, .right-cadastro {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+    flex-direction: column;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.left-cadastro > h1 {
+    color: #181d54;
+    font-size: 2em;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.left-cadastro img {
+    width: 90%;
+    max-width: 300px;
+    height: auto;
+}
+
+.card-cadastro {
+    width: 100%;
+    max-height: 480px; 
+    overflow-y: auto;  
+    min-width: 350px;
+    max-width: 350px; 
+    display: flex;
+    justify-content: flex-start; 
+    align-items: center; 
+    flex-direction: column;
+    padding: 30px;
+    background: #b6d9ec;
+    border-radius: 15px;
+    box-sizing: border-box;
+}
+
+.card-cadastro > h1 {
+    color: #2c3e50;
+    font-weight: 800;
+    margin-bottom: 20px;
+}
+
+.textfield {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+}
+
+.textfield > label {
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.textfield > input {
+    width: 100%;
+    border: none;
+    border-radius: 10px;
+    padding: 15px;
+    background: rgb(238, 238, 238);
+    color: #2c3e50;
+    font-size: 12px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.botao-cadastro {
+    width: 100%;
+    padding: 15px 0;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 7px;
+    outline: none;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: rgb(224, 225, 255);
+    background: #181d54;
+    cursor: pointer;
+}
+
+.textfield > select {
+    width: 100%;
+    border: none;
+    border-radius: 10px;
+    padding: 15px;
+    background: rgb(238, 238, 238);
+    color: #2c3e50;
+    font-size: 12px;
+    outline: none;
+    box-sizing: border-box;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='%232c3e50' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px 16px;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    gap: 10px;
+}
+
+.checkbox-container input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #181d54;
+    cursor: pointer;
+}
+
+.checkbox-container label {
+    color: #2c3e50;
+    font-size: 0.9em;
+    cursor: pointer;
+    line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+    .main-cadastro {
+        flex-direction: column;
+        padding: 20px; 
+        padding-top: 90px; 
+        align-items: center; 
+    }
+
+    .left-cadastro, .right-cadastro {
+        flex: none;
+        width: 100%;
+        max-width: 500px; 
+        height: auto;
+        padding: 15px 0; 
+    }
+
+    .card-cadastro {
+        width: 90%;
+        max-width: 400px;
+        margin-top: 20px; 
+    }
+
+    .left-cadastro img {
+        max-width: 250px;
+    }
+
+    .left-cadastro > h1 {
+        font-size: 1.8em;
+        margin-top: 0;
+    }
+
+    .top-bar {
+        padding: 0 15px; 
+    }
+
+    .top-bar img {
+        height: 35px; 
+    }
+
+    .botao-inicio {
+        font-size: 18px;
+    }
+
+    .botao-sobre {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-cadastro {
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-bottom: 20px; 
+        padding-top: 80px; 
+    }
+
+    .left-cadastro {
+        padding: 10px 0;
+    }
+
+    .left-cadastro > h1 {
+        font-size: 1.3em; 
+        margin-bottom: 15px;
+    }
+
+    .left-cadastro img {
+        max-width: 180px; 
+    }
+
+    .card-cadastro {
+        width: 95%;
+        padding: 15px 10px; 
+        margin-top: 10px; 
+        margin-bottom: 20px; 
+        max-height: 420px;
+    }
+
+    .card-cadastro > h1 {
+        font-size: 1.4em;
+        margin-bottom: 15px;
+    }
+
+    .textfield {
+        margin-bottom: 12px; 
+    }
+
+    .textfield > input {
+        padding: 10px;
+        font-size: 0.9em;
+    }
+    
+    .botao-cadastro {
+        padding: 10px 0;
+        font-size: 0.85em;
+        margin-top: 15px;
+        margin-bottom: 20px; 
+    }
+
+    .top-bar img {
+        max-height: 28px; 
+    }
+    .botao-inicio {
+        font-size: 16px;
+    }
+    .botao-sobre {
+        font-size: 13px;
+    }
+}
+
+.error-message {
+    color: red;
+    font-size: 0.875em; 
+    font-weight: bold;
+    margin-top: 2px;
+    line-height: 1.3; 
+}
