@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale } from "next-intl";
 import { isResearchDebugEnabled } from "@/lib/research-debug";
 import { ResearchDebugPanel } from "@/components/recommendation/research-debug-panel";
+import { ChatNowCard } from "@/components/titia/chat-now-card";
 
 const SKILLS = ["visual", "auditive", "logical", "motor", "sensory"] as const;
 type Skill = typeof SKILLS[number];
@@ -213,6 +214,10 @@ export default function EducatorDashboardPage() {
 
         {/* Main content */}
         <main className="flex-1 min-w-0">
+          <div className="mb-4">
+            <ChatNowCard />
+          </div>
+
           {!selected && (
             <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
               <div className="text-5xl mb-3">👈</div>

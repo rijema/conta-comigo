@@ -6,6 +6,7 @@ import { api } from "@/lib/api-client";
 import { authService } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
+import { ChatNowCard } from "@/components/titia/chat-now-card";
 
 const SKILL_LABELS: Record<string, string> = {
   visual: "👁️ Visual",
@@ -292,6 +293,8 @@ export default function GuardianDashboardPage() {
       </header>
 
       <div className="max-w-4xl mx-auto p-4 space-y-4">
+        <ChatNowCard />
+
         {/* Children tabs */}
         {children.length > 0 && (
           <div className="flex gap-2 overflow-x-auto pb-1">
