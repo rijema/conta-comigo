@@ -1,7 +1,7 @@
 // Profile.tsx
 import { useEffect, useState, type ChangeEvent, type FormEvent, type MouseEvent } from 'react';
 import SharedTopBar from '../../components/topbar/SharedTopBar';
-import './profile.css';
+import './Profile.css';
 import { FaUserCircle, FaEnvelope, FaEdit, FaSave, FaTimes, FaUserTag } from 'react-icons/fa';
 import { fetchUserData, updateUserData } from "../../service/User"
 
