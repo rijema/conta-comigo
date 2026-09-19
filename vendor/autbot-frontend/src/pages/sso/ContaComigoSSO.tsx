@@ -24,9 +24,23 @@ export default function ContaComigoSSO() {
           token,
         });
 
-        localStorage.setItem("authToken", response.data.token);
-        localStorage.setItem("id", response.data.user.id);
-        localStorage.setItem("userId", response.data.user.id);
+        const authToken = response.data?.token;
+        const userId =
+          response.data?.user?.id ??
+          response.data?.userId ??
+          response.data?.decoded?.userId;
+
+        if (!authToken) {
+          throw new Error("Token de autenticação não retornado pela integração.");
+        }
+
+        if (!userId) {
+          throw new Error("ID do usuário não retornado pela integração.");
+        }
+
+        localStorage.setItem("authToken", authToken);
+        localStorage.setItem("id", userId);
+        localStorage.setItem("userId", userId);
         localStorage.setItem("brand", brand);
 
         navigate("/chat", { replace: true });
