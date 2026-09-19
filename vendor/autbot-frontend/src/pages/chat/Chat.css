@@ -33,8 +33,8 @@ body {
 }
 
 .brand-footer-titia {
-    background: #fff8ff;
-    color: #7c3aed;
+    background: rgba(255, 255, 255, 0.75);
+    color: rgba(109, 40, 217, 0.65);
 }
 
 .content-area-below-top-bar {
@@ -181,39 +181,39 @@ body {
 }
 
 body[data-brand="titia"] .sidebar {
-    background: #f7e8ff;
-    border-right-color: #efd4ff;
+    background: linear-gradient(180deg, #f2fbff 0%, #f9f0ff 100%);
+    border-right-color: #dbeafe;
 }
 
 body[data-brand="titia"] .main-chat,
 body[data-brand="titia"] .chat-input-container,
 body[data-brand="titia"] .brand-footer-titia {
-    background: #fff8ff;
+    background: linear-gradient(180deg, #f8fbff 0%, #fff9fc 100%);
 }
 
 body[data-brand="titia"] .chat-header {
-    background: linear-gradient(90deg, #f5d0fe 0%, #ddd6fe 100%);
+    background: linear-gradient(90deg, #e0f2fe 0%, #e9edff 52%, #f5e8ff 100%);
 }
 
 body[data-brand="titia"] .chat-card {
-    background: linear-gradient(135deg, #fdf2f8 0%, #ede9fe 100%);
+    background: linear-gradient(135deg, #eef8ff 0%, #f7f0ff 100%);
 }
 
 body[data-brand="titia"] .chat-card h2 {
-    color: #6d28d9;
+    color: #4c1d95;
 }
 
 body[data-brand="titia"] .chat-bubble.autbot {
-    background-color: #9333ea;
+    background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 60%, #d946ef 100%);
 }
 
 body[data-brand="titia"] .chat-bubble.user {
-    background-color: #f5d0fe;
-    color: #701a75;
+    background-color: #eff6ff;
+    color: #1e3a5f;
 }
 
 body[data-brand="titia"] .chat-bubble.user .message-time {
-    color: #86198f;
+    color: #64748b;
 }
 
 .chat-messages-live {

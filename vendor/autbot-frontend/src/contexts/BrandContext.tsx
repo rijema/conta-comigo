@@ -9,6 +9,7 @@ interface BrandContextValue {
   logoSrc: string;
   homePath: string;
   footerText: string;
+  returnUrl?: string;
 }
 
 const BrandContext = createContext<BrandContextValue>({
@@ -18,6 +19,7 @@ const BrandContext = createContext<BrandContextValue>({
   logoSrc: "/AutBot_Logo.png",
   homePath: "/",
   footerText: "",
+  returnUrl: undefined,
 });
 
 export function BrandProvider({
@@ -29,13 +31,15 @@ export function BrandProvider({
 }) {
   const value = useMemo<BrandContextValue>(() => {
     if (brand === "titia") {
+      const query = new URLSearchParams(window.location.search);
       return {
         brand,
         appName: "TitiA",
         assistantName: "TitiA",
         logoSrc: "/AutBot_Logo.png",
         homePath: "/sso/conta-comigo",
-        footerText: "Constructed under AutBot - a free software.",
+        footerText: "TitiA (made with AutBot)",
+        returnUrl: query.get("returnUrl") || undefined,
       };
     }
 
@@ -46,6 +50,7 @@ export function BrandProvider({
       logoSrc: "/AutBot_Logo.png",
       homePath: "/",
       footerText: "",
+      returnUrl: undefined,
     };
   }, [brand]);
 
