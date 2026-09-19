@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import './SharedTopBar.css';
-import { FaUserCircle, FaArrowLeft, FaChartBar } from 'react-icons/fa';
+import { FaUserCircle, FaArrowLeft, FaChartBar, FaExternalLinkAlt } from 'react-icons/fa';
 import { useBrand } from '../../contexts/BrandContext';
 
 interface SharedTopBarProps {
@@ -12,7 +12,7 @@ interface SharedTopBarProps {
 
 const SharedTopBar = ({ pageType, onShowChatView, onShowHistoryView, isHistoryViewActive }: SharedTopBarProps) => {
   const navigate = useNavigate();
-  const { appName, logoSrc, homePath } = useBrand();
+  const { appName, logoSrc, homePath, returnUrl, brand } = useBrand();
 
   const showBackButton = ['tutorial', 'profile', 'info', 'agenda', 'dashboard', 'profissionais'].includes(pageType);
 
@@ -22,6 +22,14 @@ const SharedTopBar = ({ pageType, onShowChatView, onShowHistoryView, isHistoryVi
     } else {
       navigate(homePath);
     }
+  };
+
+  const handleReturnToContaComigo = () => {
+    if (returnUrl) {
+      window.location.assign(returnUrl);
+      return;
+    }
+    navigate(homePath);
   };
 
   return (
@@ -77,6 +85,13 @@ const SharedTopBar = ({ pageType, onShowChatView, onShowHistoryView, isHistoryVi
         {(pageType === 'chat' && !isHistoryViewActive) && (
           <button className="shared-nav-button" onClick={() => navigate(homePath)}>
             Sair
+          </button>
+        )}
+
+        {brand === 'titia' && (
+          <button className="shared-nav-button shared-return-button" onClick={handleReturnToContaComigo}>
+            <FaExternalLinkAlt size={14} />
+            <span>Voltar ao Conta Comigo</span>
           </button>
         )}
 

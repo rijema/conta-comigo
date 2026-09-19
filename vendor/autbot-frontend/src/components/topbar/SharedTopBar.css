@@ -1,12 +1,12 @@
 .shared-top-bar {
   width: 100%;
   height: 60px;
-  background-color: #b6d9ec;
+  background: linear-gradient(90deg, #dff3ff 0%, #edf4ff 52%, #f8efff 100%);
   padding: 0 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
   position: fixed;
   top: 0;
   left: 0;
@@ -22,6 +22,7 @@
 .shared-logo {
   height: 40px;
   margin-right: 10px;
+  border-radius: 9999px;
 }
 
 .shared-app-name-button,
@@ -29,7 +30,7 @@
   background: transparent;
   border: none;
   cursor: pointer;
-    color: #181d54;
+  color: #1e3a5f;
   font-size: 1em;
   padding: 8px 12px;
   font-family: inherit;
@@ -46,11 +47,20 @@
 
 .shared-app-name-button:hover,
 .shared-nav-button:hover {
-  color: #007bff;
+  color: #2563eb;
   box-sizing: border-box;
 }
 
 .shared-nav-button.icon-button {
   padding: 8px;
   line-height: 1;
+}
+
+.shared-return-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.72);
+  font-weight: 700;
 }
