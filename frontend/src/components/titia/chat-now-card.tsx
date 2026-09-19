@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useAuth } from "@/hooks/use-auth";
 import { apiClient } from "@/lib/api-client";
@@ -25,6 +25,19 @@ export function ChatNowCard() {
     () => normalizeAutbotUrl(process.env.NEXT_PUBLIC_AUTBOT_URL),
     [],
   );
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      const data = event.data;
+      if (data?.type === "titia:return") {
+        setIsModalOpen(false);
+        setEmbedUrl("");
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
 
   const openTitia = async () => {
     const accessToken = localStorage.getItem("access_token");
@@ -80,7 +93,7 @@ export function ChatNowCard() {
       ? "Acompanhe conversas acolhedoras para orientar famílias e apoiar intervenções."
       : user?.role === "child"
         ? "Converse com a TitiA com linguagem leve, acessível e acolhedora."
-        : "Converse com a TitiA sem sair do Conta Comigo, mantendo a sessão e o histórico.";
+        : "Converse com a TitiA sem sair do Conta Comigo, mantendo a sessão, o contexto e o retorno rápido ao painel.";
 
   return (
     <>

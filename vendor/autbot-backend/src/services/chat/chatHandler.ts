@@ -1,4 +1,4 @@
-import { PublicoKey, sendPrompt, generateSummary } from "./chatService";
+import { PublicoKey, sendPrompt, generateSummary, generateConversationInsights } from "./chatService";
 import { updateFrequentQuestion } from "./faqService";
 import { getResponseWithSemanticCache } from "./cacheService";
 import prisma from "../../prisma";
@@ -60,6 +60,30 @@ export async function handleChatMessage(rawMsg: ClientMessage) {
   }
 
   const historicId = chatHistoric.historicId;
+
+  const recentHistorics = await prisma.historic.findMany({
+    where: { userId },
+    include: {
+      messages: {
+        orderBy: { createdAt: "asc" },
+        take: 6,
+      },
+      summary: true,
+    },
+    orderBy: { startedAt: "desc" },
+    take: 4,
+  });
+
+  const conversationMemory = recentHistorics
+    .map((historic, index) => {
+      const summary = historic.summary?.summary ? `Resumo: ${historic.summary.summary}` : "Resumo: conversa em andamento";
+      const snippet = historic.messages
+        .slice(-4)
+        .map((message) => `${message.role === "user" ? "Usuário" : "Assistente"}: ${message.content}`)
+        .join("\n");
+      return `Conversa ${index + 1}\n${summary}\n${snippet}`.trim();
+    })
+    .join("\n\n");
 
   await prisma.message.create({
     data: {
@@ -128,7 +152,7 @@ export async function handleChatMessage(rawMsg: ClientMessage) {
     return { resposta: respostaCache, historicId };
   }
 
-  const resposta = await sendPrompt(publico, pergunta);
+  const resposta = await sendPrompt(publico, pergunta, conversationMemory);
   const isRecusa = resposta.trim() === invalidQuestion;
 
   if (!isRecusa) {
@@ -149,6 +173,38 @@ export async function handleChatMessage(rawMsg: ClientMessage) {
       where: { historicId },
       data: { endedAt: new Date() },
     });
+
+    const messageCount = await prisma.message.count({
+      where: {
+        historic: {
+          userId,
+        },
+      },
+    });
+
+    if (messageCount >= 4) {
+      const sampleForInsights = recentHistorics
+        .flatMap((historic) => historic.messages)
+        .slice(-12)
+        .map((message) => `${message.role === "user" ? "Usuário" : "Assistente"}: ${message.content}`)
+        .join("\n");
+
+      if (sampleForInsights.trim()) {
+        const insights = await generateConversationInsights(publico, sampleForInsights);
+        await prisma.conversationSummary.upsert({
+          where: { historicId },
+          update: {
+            summary: insights,
+          },
+          create: {
+            historic: {
+              connect: { historicId },
+            },
+            summary: insights,
+          },
+        });
+      }
+    }
   } else {
   }
 
