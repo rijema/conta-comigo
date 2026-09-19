@@ -93,6 +93,66 @@ services:
     depends_on:
       - backend
 
+  autbot-postgres:
+    image: postgres:16
+    container_name: autbot_postgres
+    environment:
+      POSTGRES_DB: ${AUTBOT_POSTGRES_DB:-autbot}
+      POSTGRES_USER: ${AUTBOT_POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${AUTBOT_POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "5434:5432"
+    volumes:
+      - autbot_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${AUTBOT_POSTGRES_USER:-postgres} -d ${AUTBOT_POSTGRES_DB:-autbot}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  autbot-backend:
+    build:
+      context: ./vendor/autbot-backend
+      dockerfile: Dockerfile
+    container_name: autbot_backend
+    environment:
+      PORT: 3000
+      DATABASE_URL: ${AUTBOT_DATABASE_URL:-******autbot-postgres:5432/autbot}
+      JWT_SECRET: ${AUTBOT_JWT_SECRET:-change-me}
+      JWT_EXPIRES_IN: ${AUTBOT_JWT_EXPIRES_IN:-3600}
+      CONTA_COMIGO_SHARED_SECRET: ${AUTBOT_CONTA_COMIGO_SHARED_SECRET:-change-me-shared-secret}
+      CLIENTE_URL: ${AUTBOT_CLIENT_URL:-http://localhost:5173}
+      API_KEY: ${AUTBOT_API_KEY:-}
+      MODEL_NAME: ${AUTBOT_MODEL_NAME:-openai/gpt-4o-mini}
+      HUGGINGFACE_API_TOKEN: ${AUTBOT_HUGGINGFACE_API_TOKEN:-}
+      CACHE_EXPIRATION_MS: ${AUTBOT_CACHE_EXPIRATION_MS:-3600000}
+      SIMILARITY_THRESHOLD: ${AUTBOT_SIMILARITY_THRESHOLD:-0.8}
+      EMAIL_HOST: ${AUTBOT_EMAIL_HOST:-}
+      EMAIL_PORT: ${AUTBOT_EMAIL_PORT:-587}
+      EMAIL_USER: ${AUTBOT_EMAIL_USER:-}
+      EMAIL_PASS: ${AUTBOT_EMAIL_PASS:-}
+      EMAIL_FROM: ${AUTBOT_EMAIL_FROM:-}
+    ports:
+      - "3002:3000"
+    depends_on:
+      autbot-postgres:
+        condition: service_healthy
+
+  autbot-frontend:
+    build:
+      context: ./vendor/autbot-frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${AUTBOT_FRONTEND_API_URL:-http://localhost:3002/api}
+    container_name: autbot_frontend
+    environment:
+      VITE_API_URL: ${AUTBOT_FRONTEND_API_URL:-http://localhost:3002/api}
+    ports:
+      - "5173:5173"
+    depends_on:
+      - autbot-backend
+
 volumes:
   postgres_data:
   ml_models:
+  autbot_postgres_data:

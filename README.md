@@ -139,6 +139,8 @@ cd contacomigo
 cp backend/.env.example    backend/.env
 cp frontend/.env.example   frontend/.env.local
 cp ml-service/.env.example ml-service/.env
+cp vendor/autbot-backend/.env.example vendor/autbot-backend/.env
+cp vendor/autbot-frontend/.env.example vendor/autbot-frontend/.env
 
 # 3. Preencha as variáveis mínimas (veja a seção abaixo)
 #    Edite backend/.env com seu editor favorito
@@ -158,6 +160,8 @@ open http://localhost:3000   # Frontend
 open http://localhost:3001   # Backend API
 open http://localhost:8000   # ML Service / Swagger
 open http://localhost:8000/docs  # FastAPI Swagger UI
+open http://localhost:5173   # AutBot frontend / TitiA
+open http://localhost:3002/api/docs  # AutBot backend Swagger
 
 Credenciais padrão (seed):
 
