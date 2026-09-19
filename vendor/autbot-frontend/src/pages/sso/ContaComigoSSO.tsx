@@ -4,6 +4,8 @@ import axios from "axios";
 import { useBrand } from "../../contexts/BrandContext";
 
 const apiUrl = import.meta.env.VITE_API_URL;
+const requestedBrandFromStorage =
+  typeof window !== "undefined" ? localStorage.getItem("brand") : null;
 
 export default function ContaComigoSSO() {
   const [searchParams] = useSearchParams();
@@ -35,6 +37,12 @@ export default function ContaComigoSSO() {
         return;
       }
 
+      if (!apiUrl) {
+        addLog("Fluxo interrompido: VITE_API_URL ausente neste build.");
+        setError("VITE_API_URL não está configurada no frontend da TitiA.");
+        return;
+      }
+
       try {
         addLog(`Chamando integração em ${apiUrl}/auth/exchange/conta-comigo`);
         const response = await axios.post(`${apiUrl}/auth/exchange/conta-comigo`, {
@@ -44,6 +52,11 @@ export default function ContaComigoSSO() {
         addLog(`HTTP ${response.status} recebido da integração.`);
         addLog(`Chaves da resposta: ${Object.keys(response.data ?? {}).join(", ") || "nenhuma"}`);
         addLog(`Payload bruto: ${JSON.stringify(response.data ?? null)}`);
+
+        if (!response.data || Array.isArray(response.data) || typeof response.data !== "object") {
+          addLog("Falha: resposta recebida não é um objeto JSON de sessão.");
+          throw new Error("A integração retornou um formato inválido.");
+        }
 
         const authToken = response.data?.token;
         const userId =
@@ -114,7 +127,7 @@ export default function ContaComigoSSO() {
       >
         <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.5rem" }}>
           <img
-            src={logoSrc}
+            src={requestedBrand === "titia" ? "/AutBot_Logo.png" : logoSrc}
             alt={`${appName} logo`}
             style={{ width: "72px", height: "72px", objectFit: "contain", borderRadius: "20px", background: "#fff" }}
           />
@@ -145,11 +158,12 @@ export default function ContaComigoSSO() {
           <div style={{ display: "grid", gap: "0.5rem", color: "#475569", fontSize: "0.9rem" }}>
             <div><strong>BrandContext:</strong> {activeBrand}</div>
             <div><strong>Brand salvo no navegador:</strong> {runtimeBrand}</div>
+            <div><strong>Brand no boot do app:</strong> {requestedBrandFromStorage || "ausente"}</div>
             <div><strong>Query brand:</strong> {requestedBrand}</div>
             <div><strong>Token na URL:</strong> {token ? "presente" : "ausente"}</div>
             <div><strong>VITE_API_URL:</strong> {apiUrl || "ausente"}</div>
-            <div><strong>Logo ativa:</strong> {logoSrc}</div>
-            <div><strong>Footer configurado:</strong> {footerText || "ausente"}</div>
+            <div><strong>Logo ativa:</strong> {requestedBrand === "titia" ? "/AutBot_Logo.png" : logoSrc}</div>
+            <div><strong>Footer configurado:</strong> {requestedBrand === "titia" ? "Constructed under AutBot - a free software." : footerText || "ausente"}</div>
           </div>
         </div>
 
@@ -178,9 +192,9 @@ export default function ContaComigoSSO() {
           )}
         </div>
 
-        {footerText ? (
+        {requestedBrand === "titia" || footerText ? (
           <div style={{ marginTop: "1rem", textAlign: "center", color: "#7c3aed", fontSize: "0.9rem", fontWeight: 600 }}>
-            {footerText}
+            {requestedBrand === "titia" ? "Constructed under AutBot - a free software." : footerText}
           </div>
         ) : null}
       </div>
