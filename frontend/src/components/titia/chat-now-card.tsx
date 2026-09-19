@@ -13,18 +13,26 @@ export function ChatNowCard() {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [debugMessage, setDebugMessage] = useState("");
+  const autbotUrl = process.env.NEXT_PUBLIC_AUTBOT_URL;
 
   const openTitia = async () => {
+    setDebugMessage("Clique detectado. Preparando integração...");
     const accessToken = localStorage.getItem("access_token");
-    const autbotUrl = process.env.NEXT_PUBLIC_AUTBOT_URL;
 
     if (!accessToken || !autbotUrl) {
-      setError("A integração com a TitiA não está configurada.");
+      setError(
+        !autbotUrl
+          ? "NEXT_PUBLIC_AUTBOT_URL não está configurada no frontend do Conta Comigo."
+          : "Sua sessão não está disponível no navegador."
+      );
+      setDebugMessage(!autbotUrl ? "Faltando NEXT_PUBLIC_AUTBOT_URL no build atual." : "Token de sessão não encontrado no navegador.");
       return;
     }
 
     setIsLoading(true);
     setError("");
+    setDebugMessage(`Integração pronta. Destino configurado: ${autbotUrl}`);
 
     try {
       const childId =
@@ -37,6 +45,7 @@ export function ChatNowCard() {
         childId ? { childId } : {},
         accessToken,
       );
+      setDebugMessage("Token de integração recebido. Redirecionando para a TitiA...");
 
       const url = new URL("/sso/conta-comigo", autbotUrl);
       url.searchParams.set("token", response.token);
@@ -45,6 +54,7 @@ export function ChatNowCard() {
       window.location.assign(url.toString());
     } catch (reason: any) {
       setError(reason?.message || "Não foi possível abrir a TitiA agora.");
+      setDebugMessage(reason?.message || "A integração falhou antes do redirecionamento.");
       setIsLoading(false);
     }
   };
@@ -84,6 +94,10 @@ export function ChatNowCard() {
           >
             {isLoading ? "Abrindo..." : "Chat now with TitiA"}
           </button>
+          <p className="text-xs text-slate-500">
+            {autbotUrl ? `Destino: ${autbotUrl}` : "Destino ainda não configurado neste build."}
+          </p>
+          {debugMessage && <p className="text-xs font-medium text-slate-500">{debugMessage}</p>}
           {error && <p className="text-sm font-semibold text-rose-600">{error}</p>}
         </div>
       </div>
