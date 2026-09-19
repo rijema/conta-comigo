@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./ForgotPassword.css";
 import SharedTopBar from "../../components/topbar/SharedTopBar";
 import { PasswordModal } from "../../components/modal/PasswordModal";
-import AutbotImage from '../../assets/Autbot_Image.png';
+import AutbotImage from '../../assets/AutBot_Image.png';
 
 
 const ForgotPassword = () => {

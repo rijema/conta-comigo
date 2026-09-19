@@ -1,6 +1,6 @@
 import SharedTopBar from "../../components/topbar/SharedTopBar";
 import "./Info.css";
-import AutbotImage from '../../assets/Autbot_Image.png';
+import AutbotImage from '../../assets/AutBot_Image.png';
 
 const Info = () => {
   return (
