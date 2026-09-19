@@ -25,6 +25,19 @@ dotenv.config();
 
 const app = express();
 
+const defaultAllowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://autbot-fe-production.up.railway.app',
+  'https://autbot-be-production.up.railway.app',
+  'https://frontend-conta-comigo-production.up.railway.app',
+];
+
+const allowedOrigins = (
+  process.env.ALLOWED_ORIGINS?.split(',').map((origin) => origin.trim()).filter(Boolean) ??
+  defaultAllowedOrigins
+);
+
 // Conexão com o Banco
 prisma.$connect()
   .then(() => console.log('Conectado ao PostgreSQL via Prisma!'))
@@ -32,11 +45,19 @@ prisma.$connect()
 
 // Configuração de CORS e JSON
 app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+
+    callback(new Error(`Origin ${origin} não permitida pelo CORS.`));
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 }));
+app.options('*', cors());
 app.use(express.json());
 
 // --- Definição das Rotas ---
