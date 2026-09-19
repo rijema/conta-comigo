@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import SharedTopBar from "../../components/topbar/SharedTopBar";
 import { PasswordModal } from "../../components/modal/PasswordModal";
 import "./ForgotPassword.css";
-import AutbotImage from '../../assets/Autbot_Image.png';
+import AutbotImage from '../../assets/AutBot_Image.png';
 
 const ResetPassword = () => {
   const { token } = useParams<{ token: string }>();
