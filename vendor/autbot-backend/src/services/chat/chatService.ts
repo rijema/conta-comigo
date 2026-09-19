@@ -126,45 +126,45 @@ export async function sendPrompt(
         "Content-Type": "application/json",
       },
     }
-
-    export async function generateConversationInsights(
-      publicoKey: PublicoKey,
-      conversationSample: string
-    ): Promise<string> {
-      if (!apiKey) {
-        throw new Error("API_KEY não está definida nas variáveis de ambiente.");
-      }
-
-      const response = await axios.post(
-        "https://openrouter.ai/api/v1/chat/completions",
-        {
-          model: modelName,
-          messages: [
-            {
-              role: "system",
-              content:
-                "Você resume evidências observadas em conversas sobre TEA, inclusão e acessibilidade. Responda em português do Brasil. Gere no máximo 5 linhas curtas. Inclua: 1) temas recorrentes, 2) intenção predominante do usuário, 3) estilo de apoio mais útil. Não invente diagnóstico. Use linguagem observacional e cuidadosa.",
-            },
-            {
-              role: "user",
-              content: `Perfil de linguagem do público: ${publicos[publicoKey]}\n\nAmostra de conversas:\n${conversationSample}`,
-            },
-          ],
-          temperature: 0.3,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      return response.data.choices[0].message.content.trim();
-    }
   );
 
   return response.data.choices[0].message.content;
+}
+
+export async function generateConversationInsights(
+  publicoKey: PublicoKey,
+  conversationSample: string
+): Promise<string> {
+  if (!apiKey) {
+    throw new Error("API_KEY não está definida nas variáveis de ambiente.");
+  }
+
+  const response = await axios.post(
+    "https://openrouter.ai/api/v1/chat/completions",
+    {
+      model: modelName,
+      messages: [
+        {
+          role: "system",
+          content:
+            "Você resume evidências observadas em conversas sobre TEA, inclusão e acessibilidade. Responda em português do Brasil. Gere no máximo 5 linhas curtas. Inclua: 1) temas recorrentes, 2) intenção predominante do usuário, 3) estilo de apoio mais útil. Não invente diagnóstico. Use linguagem observacional e cuidadosa.",
+        },
+        {
+          role: "user",
+          content: `Perfil de linguagem do público: ${publicos[publicoKey]}\n\nAmostra de conversas:\n${conversationSample}`,
+        },
+      ],
+      temperature: 0.3,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  return response.data.choices[0].message.content.trim();
 }
 
 export async function generateSummary(text: string): Promise<string> {
