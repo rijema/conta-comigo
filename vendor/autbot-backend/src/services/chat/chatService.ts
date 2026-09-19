@@ -92,17 +92,22 @@ Nunca invente informações. Se não souber ou se a pergunta for fora do tema, u
 - https://www.who.int/news-room/fact-sheets/detail/autism-spectrum-disorders`;
 }
 
+function formatConversationMemory(memory?: string) {
+  if (!memory?.trim()) return "";
+  return `\n\nContexto observado de conversas anteriores do mesmo usuário:\n${memory.trim()}`;
+}
 
 export async function sendPrompt(
   publicoKey: PublicoKey,
-  pergunta: string
+  pergunta: string,
+  conversationMemory?: string
 ): Promise<string> {
   if (!apiKey) {
     throw new Error("API_KEY não está definida nas variáveis de ambiente.");
   }
 
   const prefixo = publicos[publicoKey];
-  const promptCompleto = `${prefixo}\n\n${pergunta}`;
+  const promptCompleto = `${prefixo}${formatConversationMemory(conversationMemory)}\n\nPergunta atual:\n${pergunta}`;
   const promptSystem = buildPromptSystem(invalidQuestion);
 
   const response = await axios.post(
@@ -120,6 +125,42 @@ export async function sendPrompt(
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
+    }
+
+    export async function generateConversationInsights(
+      publicoKey: PublicoKey,
+      conversationSample: string
+    ): Promise<string> {
+      if (!apiKey) {
+        throw new Error("API_KEY não está definida nas variáveis de ambiente.");
+      }
+
+      const response = await axios.post(
+        "https://openrouter.ai/api/v1/chat/completions",
+        {
+          model: modelName,
+          messages: [
+            {
+              role: "system",
+              content:
+                "Você resume evidências observadas em conversas sobre TEA, inclusão e acessibilidade. Responda em português do Brasil. Gere no máximo 5 linhas curtas. Inclua: 1) temas recorrentes, 2) intenção predominante do usuário, 3) estilo de apoio mais útil. Não invente diagnóstico. Use linguagem observacional e cuidadosa.",
+            },
+            {
+              role: "user",
+              content: `Perfil de linguagem do público: ${publicos[publicoKey]}\n\nAmostra de conversas:\n${conversationSample}`,
+            },
+          ],
+          temperature: 0.3,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      return response.data.choices[0].message.content.trim();
     }
   );
 

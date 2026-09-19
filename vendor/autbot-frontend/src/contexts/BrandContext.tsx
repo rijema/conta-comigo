@@ -30,8 +30,12 @@ export function BrandProvider({
   brand: BrandName;
 }) {
   const value = useMemo<BrandContextValue>(() => {
+    const query =
+      typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search)
+        : new URLSearchParams();
+
     if (brand === "titia") {
-      const query = new URLSearchParams(window.location.search);
       return {
         brand,
         appName: "TitiA",

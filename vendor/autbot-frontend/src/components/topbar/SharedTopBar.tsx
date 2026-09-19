@@ -26,7 +26,14 @@ const SharedTopBar = ({ pageType, onShowChatView, onShowHistoryView, isHistoryVi
 
   const handleReturnToContaComigo = () => {
     if (returnUrl) {
-      window.location.assign(returnUrl);
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage(
+          { type: "titia:return", url: returnUrl },
+          "*"
+        );
+      } else {
+        window.location.assign(returnUrl);
+      }
       return;
     }
     navigate(homePath);
