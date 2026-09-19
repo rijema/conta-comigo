@@ -15,6 +15,7 @@ export function ChatNowCard() {
   const [error, setError] = useState("");
   const [debugMessage, setDebugMessage] = useState("");
   const autbotUrl = process.env.NEXT_PUBLIC_AUTBOT_URL;
+  const envLabel = autbotUrl ?? "NEXT_PUBLIC_AUTBOT_URL ausente neste build";
 
   const openTitia = async () => {
     setDebugMessage("Clique detectado. Preparando integração...");
@@ -94,9 +95,7 @@ export function ChatNowCard() {
           >
             {isLoading ? "Abrindo..." : "Chat now with TitiA"}
           </button>
-          <p className="text-xs text-slate-500">
-            {autbotUrl ? `Destino: ${autbotUrl}` : "Destino ainda não configurado neste build."}
-          </p>
+          <p className="text-xs text-slate-500">NEXT_PUBLIC_AUTBOT_URL: {envLabel}</p>
           {debugMessage && <p className="text-xs font-medium text-slate-500">{debugMessage}</p>}
           {error && <p className="text-sm font-semibold text-rose-600">{error}</p>}
         </div>
