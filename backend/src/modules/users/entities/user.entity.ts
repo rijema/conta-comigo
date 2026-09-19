@@ -42,6 +42,12 @@ export class User {
   @Column({ type: 'jsonb', nullable: true })
   preferences: Record<string, any>;
 
+  @Column({ nullable: true, length: 64 })
+  externalAuthProvider?: string;
+
+  @Column({ nullable: true, unique: true, length: 255 })
+  externalAuthId?: string;
+
   @OneToOne(() => ChildProfile, (profile) => profile.user, {
     cascade: true,
     nullable: true,

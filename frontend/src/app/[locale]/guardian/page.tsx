@@ -8,6 +8,7 @@ import { SessionHistoryTable } from "@/components/tables/session-history-table";
 import { SkillMasteryGrid } from "@/components/charts/skill-mastery-grid";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { ConsentManager } from "@/components/lgpd/consent-manager";
+import { ChatNowCard } from "@/components/titia/chat-now-card";
 import type { LearnerReport } from "@/types";
 
 export default function GuardianPage() {
@@ -60,6 +61,8 @@ export default function GuardianPage() {
       </header>
 
       <main className="max-w-6xl mx-auto p-6 space-y-6">
+        <ChatNowCard />
+
         {/* Child selector */}
         {(user?.guardianChildren?.length ?? 0) > 1 && (
           <div className="flex gap-2">

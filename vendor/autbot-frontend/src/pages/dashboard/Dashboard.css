@@ -1,0 +1,108 @@
+:root {
+    /* Cores de Alto Contraste (WCAG AA ou AAA) */
+    --color-primary: #1e88e5; /* Azul claro para acento */
+    --color-background: #f5f5f5; /* Fundo claro e suave */
+    --color-text-dark: #212121; /* Texto principal escuro (alto contraste) */
+    --color-text-light: #757575; /* Texto secundário/label */
+    --color-card-background: #ffffff; /* Fundo do card limpo */
+    --color-shadow: rgba(0, 0, 0, 0.05); /* Sombra suave */
+
+    /* Espaçamento (Para usar o Espaço Negativo) */
+    --spacing-default: 20px;
+    --spacing-gap: 30px;
+    --border-radius: 8px;
+}
+
+/* Estrutura e Layout */
+.dashboard-page {
+    width: 100%; 
+    min-height: 100vh; /* Garante que a página ocupe toda a altura */
+}
+
+.dashboard-title {
+    color: var(--color-text-dark);
+    font-size: 2.2rem;
+    font-weight: 300; 
+    margin-bottom: var(--spacing-gap);
+}
+
+
+.dashboard-grid-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: var(--spacing-gap);
+    width: 100%;
+}
+
+/*Cards (KPIs) */
+.dashboard-cards {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-gap);
+}
+
+.dashboard-card {
+    background-color: var(--color-card-background);
+    padding: var(--spacing-default);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 8px var(--color-shadow);
+    transition: transform 0.2s;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-2px);
+}
+
+.card-label {
+    font-size: 0.9rem;
+    color: var(--color-text-light);
+    margin: 0 0 5px 0;
+    font-weight: 400;
+}
+
+.card-value {
+    font-size: 2.5rem;
+    color: var(--color-primary); 
+    font-weight: 700;
+    margin: 0;
+    line-height: 1; 
+}
+
+/*Área do Gráfico */
+.dashboard-chart-area {
+    background-color: var(--color-card-background);
+    padding: var(--spacing-default);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 8px var(--color-shadow);
+    width: 100%;
+}
+
+.chart-title {
+    font-size: 1.5rem;
+    color: var(--color-text-dark);
+    font-weight: 500;
+    margin: 0 0 var(--spacing-default) 0;
+}
+
+/* 4. Acessibilidade Adicional (Foco Visual) */
+/* Garante que elementos focáveis (como links ou campos dentro de cards) tenham um contorno visível */
+*:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/*  Responsividade */
+@media (max-width: 2000px) {
+    .dashboard-grid-layout {
+        grid-template-columns: 1fr;
+    }
+    .dashboard-cards {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: var(--spacing-default);
+    }
+    .dashboard-card {
+        flex: 1 1 calc(50% - var(--spacing-default) / 2);
+        min-width: 150px;
+    }
+}

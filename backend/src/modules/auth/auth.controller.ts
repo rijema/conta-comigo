@@ -14,6 +14,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
+import { AutbotBridgeDto } from './dto/autbot-bridge.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -40,5 +41,16 @@ export class AuthController {
   @ApiOperation({ summary: 'Get current user profile' })
   async getProfile(@CurrentUser() user: any) {
     return user;
+  }
+
+  @Post('bridge/autbot')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create a trusted bootstrap token for AutBot/TitiA' })
+  async createAutbotBridge(
+    @CurrentUser() user: any,
+    @Body() dto: AutbotBridgeDto,
+  ) {
+    return this.authService.createAutbotBridgeToken(user.userId, dto.childId);
   }
 }

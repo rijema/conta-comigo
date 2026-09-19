@@ -1,0 +1,56 @@
+.shared-top-bar {
+  width: 100%;
+  height: 60px;
+  background-color: #b6d9ec;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  font-family: "Varela Round", sans-serif;
+}
+
+.shared-top-bar-left {
+  display: flex;
+  align-items: center;
+}
+
+.shared-logo {
+  height: 40px;
+  margin-right: 10px;
+}
+
+.shared-app-name-button,
+.shared-nav-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+    color: #181d54;
+  font-size: 1em;
+  padding: 8px 12px;
+  font-family: inherit;
+}
+
+.shared-app-name-button {
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+.shared-nav-button {
+  margin-left: 15px;
+}
+
+.shared-app-name-button:hover,
+.shared-nav-button:hover {
+  color: #007bff;
+  box-sizing: border-box;
+}
+
+.shared-nav-button.icon-button {
+  padding: 8px;
+  line-height: 1;
+}

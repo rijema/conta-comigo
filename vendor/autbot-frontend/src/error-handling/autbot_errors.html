@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutBot - Demonstração de Erros</title>
+    <link rel="stylesheet" href="autbot_styles.css">
+</head>
+<body>
+    <h1>Interação com AutBot</h1>
+
+    <form id="autbot-form" novalidate>
+        <div class="form-field">
+            <label for="childName">Nome da Criança (obrigatório):</label>
+            <input type="text" id="childName" name="childName">
+            <!-- Mensagem de erro do formulário será inserida aqui via JS -->
+        </div>
+
+        <div class="form-field">
+            <label for="userQuery">Sua Pergunta (obrigatório):</label>
+            <input type="text" id="userQuery" name="userQuery">
+            <!-- Mensagem de erro do formulário será inserida aqui via JS -->
+        </div>
+        <button type="submit">Enviar Pergunta</button>
+    </form>
+
+    <h2>Mensagens do Sistema</h2>
+    <div id="system-messages-container">
+        <!-- Mensagens de erro do sistema serão inseridas aqui via JS -->
+    </div>
+
+    <div style="margin-top: 20px;">
+        <button id="btn-simulate-ia-error">Simular Erro de IA</button>
+        <button id="btn-simulate-network-error">Simular Erro de Rede</button>
+        <button id="btn-simulate-generic-error">Simular Erro Genérico do Servidor</button>
+        <button id="btn-clear-system-errors">Limpar Erros de Sistema</button>
+    </div>
+
+    <script src="autbot_scripts.js"></script>
+</body>
+</html>

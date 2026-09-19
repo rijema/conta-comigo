@@ -10,6 +10,7 @@ import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ConfigService } from '@nestjs/config';
+import { UserRole } from '../users/enums/user-role.enum';
 
 @Injectable()
 export class AuthService {
@@ -92,6 +93,57 @@ export class AuthService {
 
   async refreshToken(userId: string, email: string, role: string) {
     return this.generateTokens(userId, email, role);
+  }
+
+  async createAutbotBridgeToken(userId: string, childId?: string) {
+    const requester = await this.usersService.findById(userId);
+    if (!requester || !requester.isActive) {
+      throw new UnauthorizedException('Account is inactive');
+    }
+
+    let subjectUser = requester;
+
+    if (childId) {
+      if (requester.role !== UserRole.GUARDIAN) {
+        throw new UnauthorizedException('Only guardians can bridge as a child');
+      }
+
+      const child = await this.usersService.findById(childId);
+      if (!child || child.role !== UserRole.CHILD) {
+        throw new UnauthorizedException('Child not found');
+      }
+
+      const childProfile = await this.usersService.getChildProfile(child.id);
+      if (childProfile.guardianId !== requester.id) {
+        throw new UnauthorizedException('Child does not belong to this guardian');
+      }
+
+      subjectUser = child;
+    }
+
+    const bridgeSecret = this.configService.get<string>('AUTBOT_BRIDGE_SECRET');
+    if (!bridgeSecret) {
+      throw new UnauthorizedException('AutBot bridge secret is not configured');
+    }
+
+    const displayName = subjectUser.name;
+    const externalAuthId = `${requester.id}:${subjectUser.id}`;
+    const token = await this.jwtService.signAsync(
+      {
+        sub: externalAuthId,
+        contaComigoUserId: requester.id,
+        contaComigoSubjectUserId: subjectUser.id,
+        email: subjectUser.email,
+        name: displayName,
+        role: subjectUser.role,
+      },
+      {
+        secret: bridgeSecret,
+        expiresIn: this.configService.get('AUTBOT_BRIDGE_EXPIRES_IN', '5m'),
+      },
+    );
+
+    return { token };
   }
 
   private async generateTokens(userId: string, email: string, role: string) {

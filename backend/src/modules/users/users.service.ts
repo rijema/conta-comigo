@@ -23,6 +23,13 @@ export class UsersService {
     return this.userRepo.save(user);
   }
 
+  async findByExternalAuthId(externalAuthId: string): Promise<User | null> {
+    return this.userRepo.findOne({
+      where: { externalAuthId },
+      relations: ['childProfile'],
+    });
+  }
+
   async createChildAccount(guardianId: string, childName: string, hashedPassword: string, age: number): Promise<User> {
     const slug = childName.toLowerCase().replace(/\s+/g, '.');
     const email = `${slug}.filho.${guardianId.substring(0, 6)}@contacomigo.internal`;
