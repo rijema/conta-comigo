@@ -99,8 +99,7 @@ export function TitiaModal({
                 Abrindo a TitiA
               </h3>
               <p className="mt-2 max-w-md text-sm leading-relaxed text-slate-500">
-                Estamos conectando sua sessão para manter a experiência contínua,
-                sem fazer você sair do Conta Comigo.
+                Estamos conectando sua sessão. Isso costuma levar só alguns segundos.
               </p>
             </div>
           )}
