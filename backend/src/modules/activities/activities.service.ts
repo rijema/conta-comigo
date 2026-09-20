@@ -781,13 +781,28 @@ export class ActivitiesService {
       };
     }
 
+    const observedLearnerEvidence = {
+      ...(profile?.ontologyInstanceData || {}),
+      // Map profile strengths/weaknesses to evidence for hybrid recommendation
+      ...(profile?.strengths?.visual && { visualstrength: true }),
+      ...(profile?.strengths?.auditive && { auditivestrength: true }),
+      ...(profile?.strengths?.motor && { motorstrength: true }),
+      ...(profile?.strengths?.logical && { logicalstrength: true }),
+      ...(profile?.strengths?.sensory && { sensorystrength: true }),
+      ...(profile?.weaknesses?.visual && { visualweakness: true }),
+      ...(profile?.weaknesses?.auditive && { auditiveweakness: true }),
+      ...(profile?.weaknesses?.motor && { motorweakness: true }),
+      ...(profile?.weaknesses?.logical && { logicalweakness: true }),
+      ...(profile?.weaknesses?.sensory && { sensoryweakness: true }),
+    };
+
     const facts = this.runtimeSemanticAdapter.materialize({
       studentId: adeDecision.userId,
       targetSkill: adeDecision.recommendedBnccSkill,
       activities,
       masteryProbability: adeDecision.xaiLog?.mlPredictions?.masteryProbability,
       recentAccuracy: adeDecision.inputSnapshot?.recentAccuracy,
-      observedLearnerEvidence: profile?.ontologyInstanceData,
+      observedLearnerEvidence,
       masteryBySkillCode,
     });
     const semanticResult = this.ontologyService.getValidActivityCandidates(facts);
