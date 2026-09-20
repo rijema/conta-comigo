@@ -10,6 +10,8 @@ import type { Activity, SensoryProfile } from "@/types";
 import { GuidedInstructions } from "./guided-instructions";
 import { CategorizationActivity } from "./categorization-activity";
 import { QuantityBuilderActivity } from "./quantity-builder-activity";
+import { BasketMinigame } from "../minigames/basket-minigame";
+import { ComparisonMinigame } from "../minigames/comparison-minigame";
 
 interface ActivityRendererProps {
   activity: Activity;
@@ -47,9 +49,28 @@ export function ActivityRenderer({
     }
     const hasOptions = (activity.content?.options?.length ?? 0) > 0;
 
+    // Check if this is a comparison activity (greater/less/equal)
+    const isComparisonActivity = 
+      activity.content?.semantic?.structureId?.includes('less') ||
+      activity.content?.semantic?.structureId?.includes('greater') ||
+      activity.content?.semantic?.structureId?.includes('compare') ||
+      activity.content?.semantic?.structureId?.includes('equal');
+
     switch (activity.type) {
       case "quiz":
       case "multiple_choice":
+        // Use ComparisonMinigame if it's a comparison-type quiz
+        if (isComparisonActivity && sensoryProfile?.preferredModality !== 'text') {
+          return (
+            <ComparisonMinigame
+              key={activity.id}
+              skill={activity.bnccSkills?.[0] ?? 'EF01MA03'}
+              difficulty={(activity.difficulty as any) || 'easy'}
+              onComplete={(score, isCorrect) => onAnswer({ correct: isCorrect, score })}
+              isTEAMode={true}
+            />
+          );
+        }
         return (
           <MultipleChoiceActivity
             key={activity.id}
@@ -58,7 +79,22 @@ export function ActivityRenderer({
             sensoryProfile={sensoryProfile}
           />
         );
+
       case "drag_drop":
+        // Use BasketMinigame for visual/sensory drag-drop activities
+        if (activity.targetModalities?.includes('sensory') ||
+            activity.targetModalities?.includes('visual') ||
+            activity.content?.interaction === 'drag_drop') {
+          return (
+            <BasketMinigame
+              key={activity.id}
+              skill={activity.bnccSkills?.[0] ?? 'EF01MA01'}
+              difficulty={(activity.difficulty as any) || 'easy'}
+              onComplete={(score, isCorrect) => onAnswer({ correct: isCorrect, score })}
+              isTEAMode={true}
+            />
+          );
+        }
         return (
           <DragDropActivity
             key={activity.id}
@@ -67,6 +103,7 @@ export function ActivityRenderer({
             sensoryProfile={sensoryProfile}
           />
         );
+
       case "counting":
         if (hasOptions) {
           return (
@@ -86,6 +123,7 @@ export function ActivityRenderer({
             sensoryProfile={sensoryProfile}
           />
         );
+
       case "number_line":
         return (
           <NumberLineActivity
@@ -95,6 +133,7 @@ export function ActivityRenderer({
             sensoryProfile={sensoryProfile}
           />
         );
+
       case "composition_decomposition":
       case "missing_number":
       case "pattern_completion":
