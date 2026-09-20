@@ -200,11 +200,12 @@ export class ActivitiesService {
   }
 
   private logSelectionSequence(userId: string, selection: ActivitySelectionResult): void {
-    const ranked = selection.ranking.candidates.slice(0, 3);
+    const ranked = selection.ranking.candidates.slice(0, 5);
     const selected = ranked.find((candidate) => candidate.activityId === selection.activity.id) ??
       selection.ranking.candidates[0];
     const topStructures = ranked.map((candidate) => candidate.structureId ?? 'n/a');
     const topTypes = ranked.map((candidate) => candidate.activityType);
+    const topNiches = ranked.map((candidate) => candidate.bnccSkills?.[0] ?? 'n/a');
     const history = selection.ranking.evidenceUsed?.recentActivityIds?.slice(-5) ?? [];
     const historySummary = history.length ? history.join(' > ') : 'none';
     const repeatedStructure = ranked.filter((candidate) => candidate.structureId === selected?.structureId).length > 1;
@@ -214,7 +215,7 @@ export class ActivitiesService {
       `[sequence] user=${userId} selected=${selection.activity.id} ` +
       `structure=${selected?.structureId ?? 'n/a'} type=${selected?.activityType ?? 'n/a'} ` +
       `repeatedStructure=${repeatedStructure} repeatedType=${repeatedType} ` +
-      `topStructures=${topStructures.join(',')} topTypes=${topTypes.join(',')} ` +
+      `topStructures=${topStructures.join(',')} topTypes=${topTypes.join(',')} topNiches=${topNiches.join(',')} ` +
       `topScores=${ranked.map((candidate) => candidate.finalScore.toFixed(3)).join(',')} ` +
       `learningNeed=${selectedCandidate?.learningNeed?.toFixed(3) ?? 'n/a'} ` +
       `challengeFit=${selectedCandidate?.challengeFit?.toFixed(3) ?? 'n/a'} ` +
@@ -225,6 +226,7 @@ export class ActivitiesService {
       `progressDerivative=${selectedCandidate?.progressDerivative?.toFixed(3) ?? 'n/a'} ` +
       `performanceIntegral=${selectedCandidate?.performanceIntegral?.toFixed(3) ?? 'n/a'} ` +
       `dominanceNormalization=${selectedCandidate?.dominanceNormalization?.toFixed(3) ?? 'n/a'} ` +
+      `recencyPenalty=${selectedCandidate?.recencyPenalty?.toFixed(3) ?? 'n/a'} ` +
       `recent=${historySummary}`,
     );
   }
