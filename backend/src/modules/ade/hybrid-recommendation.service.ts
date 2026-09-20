@@ -158,13 +158,26 @@ export class HybridRecommendationService {
   }
 
   rank(input: HybridRankingInput): HybridRankingResult {
+    const recentStructures = new Set(
+      (input.recentActivities ?? [])
+        .map((item) => item.structureId)
+        .filter((structure): structure is string => typeof structure === 'string' && structure.length > 0),
+    );
+    const lastRecentActivity = input.recentActivities?.[0] ?? null;
+    const lastRecentStructure = lastRecentActivity?.structureId ?? null;
     const semanticDecisions = new Map(
       input.semanticTrace.candidateDecisions.map((decision) => [decision.activityId, decision]),
     );
     const maxMatches = Math.max(1, ...input.candidates.map((candidate) =>
       semanticDecisions.get(candidate.id)?.matchedConcepts.length ?? 0));
 
-    const candidates = input.candidates.map((candidate) => {
+    const filteredCandidates = input.candidates.filter((candidate) => {
+      const structureId = candidate.content?.semantic?.structureId ?? null;
+      if (!structureId || !lastRecentStructure) return true;
+      return structureId !== lastRecentStructure;
+    });
+
+    const candidates = filteredCandidates.map((candidate) => {
       const mastery = input.masteryProbability ?? 0.5;
       const learningNeed = 1 - mastery;
       const difficulty = this.difficulty(candidate);
@@ -178,7 +191,7 @@ export class HybridRecommendationService {
       const skillWeight = candidate.skillWeights?.find((skill) =>
         skill.code === input.semanticTrace.targetSkill)?.weight ?? 1;
       const semanticFit = ((semanticDecision?.matchedConcepts.length ?? 0) / maxMatches) * skillWeight;
-      const novelty = this.novelty(candidate.id, input.recentActivityIds);
+      const novelty = this.novelty(candidate.id, input.recentActivityIds, recentStructures);
       const rejectionRisk = this.rejectionRisk(candidate.id, input.recentlyRejectedActivityIds);
       const sensoryFit = this.sensoryFit(candidate, input.preferences);
       const formatFit = this.formatFit(candidate, input.preferences);
@@ -307,9 +320,11 @@ export class HybridRecommendationService {
     return { value: observations.reduce((sum, value) => sum + value, 0) / observations.length, insufficientEvidence: [] };
   }
 
-  private novelty(activityId: string, history: string[]): number {
+  private novelty(activityId: string, history: string[], recentStructures: Set<string>): number {
     const index = history.indexOf(activityId);
-    return index < 0 ? 1 : 1 - Math.exp(-index / this.configuration.noveltyWindow);
+    const base = index < 0 ? 1 : 1 - Math.exp(-index / this.configuration.noveltyWindow);
+    const structurePenalty = recentStructures.size ? Math.exp(-recentStructures.size / this.configuration.noveltyWindow) : 1;
+    return base * structurePenalty;
   }
 
   private rejectionRisk(activityId: string, history: string[]): number {
