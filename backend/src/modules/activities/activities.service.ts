@@ -178,6 +178,7 @@ export class ActivitiesService {
       );
       activity = selection.activity;
       await this.persistSelection(adeDecision, selection);
+      this.logSelectionSequence(userId, selection);
     } catch (matchErr: any) {
       this.logger.error(`findMatchingActivity failed: ${matchErr?.message}`);
       const fallback = await this.selectFallbackActivity(userId, context?.excludedActivityId);
@@ -196,6 +197,36 @@ export class ActivitiesService {
         { selectedActivityId: activity.id, selectedActivityType: activity.type },
       ),
     };
+  }
+
+  private logSelectionSequence(userId: string, selection: ActivitySelectionResult): void {
+    const ranked = selection.ranking.candidates.slice(0, 3);
+    const selected = ranked.find((candidate) => candidate.activityId === selection.activity.id) ??
+      selection.ranking.candidates[0];
+    const topStructures = ranked.map((candidate) => candidate.structureId ?? 'n/a');
+    const topTypes = ranked.map((candidate) => candidate.activityType);
+    const history = selection.ranking.evidenceUsed?.recentActivityIds?.slice(-5) ?? [];
+    const historySummary = history.length ? history.join(' > ') : 'none';
+    const repeatedStructure = ranked.filter((candidate) => candidate.structureId === selected?.structureId).length > 1;
+    const repeatedType = ranked.filter((candidate) => candidate.activityType === selected?.activityType).length > 1;
+    const selectedCandidate = selection.ranking.candidates.find((candidate) => candidate.activityId === selection.activity.id);
+    this.logger.log(
+      `[sequence] user=${userId} selected=${selection.activity.id} ` +
+      `structure=${selected?.structureId ?? 'n/a'} type=${selected?.activityType ?? 'n/a'} ` +
+      `repeatedStructure=${repeatedStructure} repeatedType=${repeatedType} ` +
+      `topStructures=${topStructures.join(',')} topTypes=${topTypes.join(',')} ` +
+      `topScores=${ranked.map((candidate) => candidate.finalScore.toFixed(3)).join(',')} ` +
+      `learningNeed=${selectedCandidate?.learningNeed?.toFixed(3) ?? 'n/a'} ` +
+      `challengeFit=${selectedCandidate?.challengeFit?.toFixed(3) ?? 'n/a'} ` +
+      `interactionFit=${selectedCandidate?.interactionFit?.toFixed(3) ?? 'n/a'} ` +
+      `semanticFit=${selectedCandidate?.semanticFit?.toFixed(3) ?? 'n/a'} ` +
+      `novelty=${selectedCandidate?.novelty?.toFixed(3) ?? 'n/a'} ` +
+      `rejectionRisk=${selectedCandidate?.rejectionRisk?.toFixed(3) ?? 'n/a'} ` +
+      `progressDerivative=${selectedCandidate?.progressDerivative?.toFixed(3) ?? 'n/a'} ` +
+      `performanceIntegral=${selectedCandidate?.performanceIntegral?.toFixed(3) ?? 'n/a'} ` +
+      `dominanceNormalization=${selectedCandidate?.dominanceNormalization?.toFixed(3) ?? 'n/a'} ` +
+      `recent=${historySummary}`,
+    );
   }
 
   async changeActivity(userId: string, dto: ChangeActivityDto) {
