@@ -206,7 +206,7 @@ export class ActivitiesService {
     const topStructures = ranked.map((candidate) => candidate.structureId ?? 'n/a');
     const topTypes = ranked.map((candidate) => candidate.activityType);
     const topNiches = ranked.map((candidate) => candidate.bnccSkills?.[0] ?? 'n/a');
-    const history = selection.ranking.evidenceUsed?.recentActivityIds?.slice(-5) ?? [];
+    const history = selection.ranking.evidenceUsed?.recentActivityIds?.slice(-10) ?? [];
     const historySummary = history.length ? history.join(' > ') : 'none';
     const repeatedStructure = ranked.filter((candidate) => candidate.structureId === selected?.structureId).length > 1;
     const repeatedType = ranked.filter((candidate) => candidate.activityType === selected?.activityType).length > 1;
@@ -227,7 +227,7 @@ export class ActivitiesService {
       `performanceIntegral=${selectedCandidate?.performanceIntegral?.toFixed(3) ?? 'n/a'} ` +
       `dominanceNormalization=${selectedCandidate?.dominanceNormalization?.toFixed(3) ?? 'n/a'} ` +
       `recencyPenalty=${selectedCandidate?.recencyPenalty?.toFixed(3) ?? 'n/a'} ` +
-      `recent=${historySummary}`,
+      `blockWindow=10 recent=${historySummary}`,
     );
   }
 

@@ -72,6 +72,7 @@ interface HybridRankingConfiguration {
   targetSuccessProbability: number;
   challengeSigma: number;
   noveltyWindow: number;
+  blockWindow: number;
   rejectionDecay: number;
   maximumNumericalMagnitude: number;
   maximumStepCount: number;
@@ -128,6 +129,7 @@ export class HybridRecommendationService {
       targetSuccessProbability: this.number(config, 'HYBRID_TARGET_SUCCESS_PROBABILITY', 0.7),
       challengeSigma: this.positive(config, 'HYBRID_CHALLENGE_SIGMA', 0.15),
       noveltyWindow: this.positive(config, 'HYBRID_NOVELTY_WINDOW', 5),
+      blockWindow: this.positive(config, 'HYBRID_BLOCK_WINDOW', 10),
       rejectionDecay: this.positive(config, 'HYBRID_REJECTION_DECAY', 3),
       maximumNumericalMagnitude: this.positive(config, 'HYBRID_MAX_NUMERICAL_MAGNITUDE', 20),
       maximumStepCount: this.positive(config, 'HYBRID_MAX_STEP_COUNT', 5),
@@ -178,12 +180,13 @@ export class HybridRecommendationService {
   }
 
   rank(input: HybridRankingInput): HybridRankingResult {
+    const recentBlock = (input.recentActivities ?? []).slice(0, this.configuration.blockWindow);
     const recentStructures = new Set(
-      (input.recentActivities ?? [])
+      recentBlock
         .map((item) => item.structureId)
         .filter((structure): structure is string => typeof structure === 'string' && structure.length > 0),
     );
-    const lastRecentActivity = input.recentActivities?.[0] ?? null;
+    const lastRecentActivity = recentBlock[0] ?? null;
     const lastRecentStructure = lastRecentActivity?.structureId ?? null;
     const semanticDecisions = new Map(
       input.semanticTrace.candidateDecisions.map((decision) => [decision.activityId, decision]),
@@ -216,7 +219,7 @@ export class HybridRecommendationService {
       const sensoryFit = this.sensoryFit(candidate, input.preferences);
       const formatFit = this.formatFit(candidate, input.preferences);
       const repetitionRisk = this.repetitionRisk(candidate, input.recentActivities ?? []);
-      const recencyPenalty = this.recencyPenalty(candidate, input.recentActivities ?? []);
+      const recencyPenalty = this.recencyPenalty(candidate, recentBlock);
       const frustrationRisk = this.frustrationRisk(difficulty, (input.recentActivities ?? []).filter((item) =>
         !input.semanticTrace.targetSkill || item.bnccSkills?.includes(input.semanticTrace.targetSkill)));
       const progressDerivative = this.progressDerivative(input.recentActivities ?? []);
@@ -414,11 +417,13 @@ export class HybridRecommendationService {
     const niche = activity.bnccSkills?.[0] ?? null;
     const recentActivityIds = new Set(recent.map((item) => item.activityId));
     const recentStructures = new Set(recent.map((item) => item.structureId).filter((item): item is string => Boolean(item)));
-    const recentNiches = new Set(recent.flatMap((item) => item.bnccSkills ?? []).filter(Boolean));
+    const recentTypes = new Set(recent.map((item) => item.type).filter((item): item is string => Boolean(item)));
+    const recentNiches = new Set(recent.flatMap((item) => item.bnccSkills ?? []).filter((item): item is string => Boolean(item)));
     let penalty = 0;
-    if (recentActivityIds.has(activity.id)) penalty += 0.9;
-    if (structure && recentStructures.has(structure)) penalty += 0.6;
-    if (niche && recentNiches.has(niche)) penalty += 0.3;
+    if (recentActivityIds.has(activity.id)) penalty += 1.5;
+    if (structure && recentStructures.has(structure)) penalty += 1.0;
+    if (activity.type && recentTypes.has(activity.type)) penalty += 0.7;
+    if (niche && recentNiches.has(niche)) penalty += 0.8;
     return this.clamp(penalty);
   }
 

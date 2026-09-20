@@ -98,6 +98,7 @@ describe('Within-Session Diversity & Repetition Prevention', () => {
 
       const sequence: string[] = [];
       let recentActivityIds: string[] = [];
+      const recentActivities: Array<{ activityId: string; structureId?: string; type?: string; bnccSkills?: string[] }> = [];
 
       for (let i = 0; i < 10; i++) {
         const result = service.rank({
@@ -107,12 +108,20 @@ describe('Within-Session Diversity & Repetition Prevention', () => {
           recentActivityIds,
           recentlyRejectedActivityIds: [],
           observedEvidenceTypes: [],
+          recentActivities: recentActivities.slice(-10),
         } as any);
 
         const selectedActivityId = result.selectedActivityId!;
         sequence.push(selectedActivityId);
 
         recentActivityIds.push(selectedActivityId);
+        const selectedActivity = largePool.find(a => a.id === selectedActivityId)!;
+        recentActivities.push({
+          activityId: selectedActivityId,
+          structureId: selectedActivity.content?.semantic?.structureId ?? undefined,
+          type: selectedActivity.type ?? undefined,
+          bnccSkills: selectedActivity.bnccSkills ?? undefined,
+        });
         if (recentActivityIds.length > 5) {
           recentActivityIds.shift();
         }
@@ -133,7 +142,7 @@ describe('Within-Session Diversity & Repetition Prevention', () => {
         console.log(`  ${structure}: ${count}x (${(count / 10 * 100).toFixed(0)}%)`);
       });
 
-      // Enforce: no structure >3 times
+      // Enforce: no structure >3 times in the block of 10
       counts.forEach(([structure, count]) => {
         expect(count).toBeLessThanOrEqual(3);
       });

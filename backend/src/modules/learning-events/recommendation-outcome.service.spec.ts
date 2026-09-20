@@ -66,6 +66,18 @@ describe('RecommendationOutcomeService', () => {
     expect(outcomes[0].startedAt).toBeInstanceOf(Date);
   });
 
+  it('does not create duplicate outcomes for the same recommendationId', async () => {
+    const presented = event('40000000-0000-0000-0000-00000000000a', LearningEventType.ACTIVITY_PRESENTED);
+    await service.synchronize(presented, activity);
+    await service.synchronize(event('40000000-0000-0000-0000-00000000000b', LearningEventType.ACTIVITY_STARTED), activity);
+
+    expect(outcomes).toHaveLength(1);
+    expect(outcomes[0]).toEqual(expect.objectContaining({
+      recommendationId: presented.recommendationId,
+      status: RecommendationOutcomeStatus.STARTED,
+    }));
+  });
+
   it('links skip to its recommendation and creates a pending transition', async () => {
     const skipped = event('40000000-0000-0000-0000-000000000003', LearningEventType.ACTIVITY_SKIPPED);
     skipped.metadata = { attemptsBeforeSkip: 1, childText: 'must not persist' };
