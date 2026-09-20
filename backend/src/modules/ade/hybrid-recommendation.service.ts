@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Activity, DifficultyLevel } from '../activities/entities/activity.entity';
 import { SemanticFilteringTrace } from '../ontology/semantic-runtime.types';
+import { ProgressionAnalyzer } from './progression-analyzer';
 
 export interface HybridCandidateScore {
   activityId: string;
@@ -181,6 +182,15 @@ export class HybridRecommendationService {
 
   rank(input: HybridRankingInput): HybridRankingResult {
     const recentBlock = (input.recentActivities ?? []).slice(0, this.configuration.blockWindow);
+    
+    // [PROPOSTA CONTA COMIGO] Count structure occurrences in block to prevent cycles
+    const structureFrequency = new Map<string, number>();
+    recentBlock.forEach((item) => {
+      if (item.structureId) {
+        structureFrequency.set(item.structureId, (structureFrequency.get(item.structureId) ?? 0) + 1);
+      }
+    });
+
     const recentStructures = new Set(
       recentBlock
         .map((item) => item.structureId)
@@ -194,11 +204,62 @@ export class HybridRecommendationService {
     const maxMatches = Math.max(1, ...input.candidates.map((candidate) =>
       semanticDecisions.get(candidate.id)?.matchedConcepts.length ?? 0));
 
-    const filteredCandidates = input.candidates.filter((candidate) => {
+    // [PROPOSTA CONTA COMIGO] Hard block: filter out structures that appeared 2+ times
+    // [PARÂMETRO EXPERIMENTAL] maxRepetitionsInBlock = 2
+    const maxRepetitionsInBlock = 2;
+    let filteredCandidates = input.candidates.filter((candidate) => {
       const structureId = candidate.content?.semantic?.structureId ?? null;
-      if (!structureId || !lastRecentStructure) return true;
-      return structureId !== lastRecentStructure;
+      if (!structureId) return true;
+      
+      const frequency = structureFrequency.get(structureId) ?? 0;
+      // Hard block: if structure appeared maxRepetitionsInBlock times, exclude it
+      if (frequency >= maxRepetitionsInBlock) {
+        return false;
+      }
+      
+      // Additional: always exclude last recent structure (prevent immediate cycle)
+      if (structureId === lastRecentStructure) {
+        return false;
+      }
+      
+      return true;
     });
+
+    // If filtering removed all candidates, relax to allow structures that appeared only once
+    if (filteredCandidates.length === 0 && input.candidates.length > 0) {
+      filteredCandidates = input.candidates.filter((candidate) => {
+        const structureId = candidate.content?.semantic?.structureId ?? null;
+        if (!structureId) return true;
+        const frequency = structureFrequency.get(structureId) ?? 0;
+        return frequency < maxRepetitionsInBlock;
+      });
+    }
+
+    // [PROPOSTA CONTA COMIGO] Automatic difficulty progression
+    // If child demonstrated mastery at current level (2+ correct with diverse structures),
+    // filter to show only next level candidates to force progression
+    const progressionRecords = (input.recentActivities ?? []).map((item) => {
+      const recentCandidate = input.candidates.find((c) => c.id === item.activityId);
+      return {
+        activityId: item.activityId,
+        isCorrect: item.isCorrect ?? false,
+        difficulty: recentCandidate?.difficulty ?? DifficultyLevel.EASY,
+        structureId: item.structureId,
+        type: item.type,
+        timestamp: (item as any).timestamp,
+      };
+    });
+    
+    const progression = ProgressionAnalyzer.analyze(progressionRecords, this.configuration.blockWindow);
+    if (progression.shouldPromote) {
+      const progressionFiltered = ProgressionAnalyzer.filterByProgression(
+        filteredCandidates,
+        progression,
+      );
+      if (progressionFiltered.length > 0) {
+        filteredCandidates = progressionFiltered;
+      }
+    }
 
     const candidates = filteredCandidates.map((candidate) => {
       const mastery = input.masteryProbability ?? 0.5;
@@ -416,14 +477,31 @@ export class HybridRecommendationService {
     const structure = activity.content?.semantic?.structureId ?? null;
     const niche = activity.bnccSkills?.[0] ?? null;
     const recentActivityIds = new Set(recent.map((item) => item.activityId));
-    const recentStructures = new Set(recent.map((item) => item.structureId).filter((item): item is string => Boolean(item)));
+    const recentStructures = recent.map((item) => item.structureId).filter((item): item is string => Boolean(item));
     const recentTypes = new Set(recent.map((item) => item.type).filter((item): item is string => Boolean(item)));
     const recentNiches = new Set(recent.flatMap((item) => item.bnccSkills ?? []).filter((item): item is string => Boolean(item)));
+    
     let penalty = 0;
+    
+    // [PROPOSTA CONTA COMIGO] Activity penalty: 1.5 if appeared in recent block
     if (recentActivityIds.has(activity.id)) penalty += 1.5;
-    if (structure && recentStructures.has(structure)) penalty += 1.0;
+    
+    // [PROPOSTA CONTA COMIGO] Structure penalty: proportional to frequency
+    // [PARÂMETRO EXPERIMENTAL] Increase penalty based on how many times structure appeared
+    if (structure) {
+      const structureCount = recentStructures.filter(s => s === structure).length;
+      if (structureCount > 0) {
+        // Exponential penalty: 1x → 1.0, 2x → 2.5, 3x → 4.5, etc.
+        penalty += Math.pow(structureCount, 1.5);
+      }
+    }
+    
+    // [PROPOSTA CONTA COMIGO] Type penalty: 0.7 per occurrence
     if (activity.type && recentTypes.has(activity.type)) penalty += 0.7;
+    
+    // [PROPOSTA CONTA COMIGO] Niche penalty: 0.8 per occurrence
     if (niche && recentNiches.has(niche)) penalty += 0.8;
+    
     return this.clamp(penalty);
   }
 
