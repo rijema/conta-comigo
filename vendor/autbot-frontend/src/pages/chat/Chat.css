@@ -30,6 +30,10 @@ body {
     text-align: center;
     font-size: 0.82rem;
     font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 .brand-footer-titia {
@@ -326,9 +330,9 @@ textarea {
 }
 
 .history-group-title {
-    color: #555;
+    color: #475569;
     font-size: 0.9em;
-    font-weight: 600;
+    font-weight: 800;
     margin: 15px 15px 5px;
     text-transform: uppercase;
 }
@@ -346,18 +350,19 @@ textarea {
     cursor: pointer;
     border-bottom: 1px solid #f0f0f0;
     transition: background-color 0.2s ease;
-    background-color: #a9e8dc;
+    background-color: #ffffff;
     border-radius: 6px;
     margin-right: 5px;
+    border: 1px solid #dbeafe;
 }
 
 .history-list-item:hover {
-    background-color: #e5e5e5;
+    background-color: #eff6ff;
 }
 
 .history-list-item.selected {
-    background-color: #d9e9f6;
-    border-left: 3px solid #181d54;
+    background-color: #dbeafe;
+    border-left: 3px solid #2563eb;
     padding-left: 12px;
 }
 
@@ -370,13 +375,13 @@ textarea {
 
 .history-item-title-preview {
     font-size: 0.95em;
-    color: #181d54;
-    font-weight: 500;
+    color: #0f172a;
+    font-weight: 700;
 }
 
 .history-item-time {
     font-size: 0.8em;
-    color: #777;
+    color: #64748b;
     flex-shrink: 0;
     margin-left: 10px;
 }
@@ -417,7 +422,18 @@ textarea {
     flex-direction: column;
     gap: 10px;
     padding-bottom: 80px;
-    background-color: #a9e8dc; /* Adicionado da definição anterior de .chat-messages-container */
+    background: linear-gradient(180deg, #f8fbff 0%, #fff7fb 100%);
+}
+
+.chat-inline-error {
+    margin: 8px 20px 0;
+    border-radius: 16px;
+    border: 1px solid #fecaca;
+    background: #fff1f2;
+    color: #b91c1c;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    font-weight: 700;
 }
 
 .chat-input-area-readonly {

@@ -20,7 +20,7 @@ export async function getResponseWithSemanticCache(
   userId: string,
   userType: UserType,
   question: string
-): Promise<string> {
+): Promise<string | null> {
   const now = new Date();
   const cleanQuestion = cleanText(question);
 
@@ -54,19 +54,31 @@ export async function getResponseWithSemanticCache(
     }
   }
 
-  const answer = await sendPrompt(userType, question);
+  return null;
+}
 
-  await prisma.chatCache.create({
-    data: {
-      userId,
-      question,
-      answer,
-      createdAt: now,
-      expiresAt: new Date(now.getTime() + CACHE_EXPIRATION_MS),
-      publicKey: userType,
-    },
-  });
+export async function saveResponseToSemanticCache(
+  userId: string,
+  userType: UserType,
+  question: string,
+  answer: string
+) {
+  const now = new Date();
 
-  console.log('Resposta criada e salva no cache semântico.');
-  return answer;
+  try {
+    await prisma.chatCache.create({
+      data: {
+        userId,
+        question,
+        answer,
+        createdAt: now,
+        expiresAt: new Date(now.getTime() + CACHE_EXPIRATION_MS),
+        publicKey: userType,
+      },
+    });
+
+    console.log('Resposta criada e salva no cache semântico.');
+  } catch (error) {
+    console.warn('Falha ao salvar resposta no cache semântico:', error);
+  }
 }

@@ -48,41 +48,6 @@ export function TitiaModal({
         aria-labelledby="titia-modal-title"
         className="flex h-[92vh] w-full max-w-7xl flex-col overflow-hidden rounded-[2rem] border border-sky-100 bg-white shadow-[0_30px_90px_rgba(15,23,42,0.25)]"
       >
-        <header className="flex items-center justify-between border-b border-sky-100 bg-[linear-gradient(135deg,#eef8ff_0%,#f7f0ff_100%)] px-4 py-4 md:px-6">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="relative h-14 w-14 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-sky-100">
-              <Image
-                src="/assets/mainiconfirstpage.png"
-                alt="TitiA"
-                fill
-                className="object-contain p-2"
-              />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-black uppercase tracking-[0.22em] text-sky-500">
-                TitiA
-              </p>
-              <h2
-                id="titia-modal-title"
-                className="truncate text-xl font-black text-slate-900"
-              >
-                {title}
-              </h2>
-              <p className="truncate text-sm text-slate-500">{subtitle}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 transition hover:border-sky-200 hover:text-sky-700"
-            >
-              Voltar ao Conta Comigo
-            </button>
-          </div>
-        </header>
-
         <div className="relative flex-1 bg-[linear-gradient(180deg,#f8fbff_0%,#fff7fb_100%)]">
           {status === "loading" && (
             <div className="flex h-full flex-col items-center justify-center px-6 text-center">
@@ -137,9 +102,13 @@ export function TitiaModal({
           )}
         </div>
 
-        <footer className="border-t border-sky-100 bg-white/80 px-5 py-3 text-center text-xs font-semibold text-slate-400">
-          TitiA <span className="opacity-65">(made with AutBot)</span>
-        </footer>
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-6 top-6 rounded-full border border-white/80 bg-white/90 px-5 py-3 text-sm font-black text-slate-700 shadow-sm transition hover:border-sky-200 hover:text-sky-700"
+        >
+          Voltar ao Conta Comigo
+        </button>
       </section>
     </div>
   );

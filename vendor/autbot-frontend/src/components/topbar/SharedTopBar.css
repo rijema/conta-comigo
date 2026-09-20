@@ -17,6 +17,7 @@
 .shared-top-bar-left {
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
 .shared-logo {

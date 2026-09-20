@@ -28,6 +28,23 @@ export type PublicoKey = keyof typeof publicos;
 const invalidQuestion =
   "Peço desculpas, mas não disponho de informações para responder a essa pergunta. Posso ajudar com algo relacionado à acessibilidade, inclusão ou Transtorno do Espectro Autista (TEA)?";
 
+const fallbackResponses: Record<PublicoKey, string> = {
+  PROFESSOR:
+    "No momento estou com uma instabilidade técnica, mas posso seguir ajudando com uma orientação inicial: observe a situação da criança em contexto, registre exemplos concretos do que acontece, combine pequenas adaptações na rotina e retorne com a pergunta em alguns instantes para que eu aprofunde a resposta.",
+  CUIDADOR:
+    "Estou com uma instabilidade técnica agora, mas posso deixar uma orientação inicial: tente observar o que aconteceu antes, durante e depois da situação, mantenha uma rotina previsível e foque em uma ajuda de cada vez. Se quiser, envie a pergunta novamente em alguns instantes.",
+  RESPONSAVEL:
+    "Estou com uma instabilidade técnica neste momento, mas posso oferecer uma orientação inicial: observe em quais momentos a dificuldade aparece, mantenha explicações curtas e uma rotina previsível, e procure apoio da escola ou da equipe de saúde quando necessário. Se quiser, tente novamente em alguns instantes.",
+  USUARIO:
+    "Estou com uma instabilidade técnica agora, mas continuo aqui para ajudar assim que a conexão normalizar. Se quiser, envie a pergunta novamente em alguns instantes.",
+  TEA_NIVEL_1:
+    "Estou com uma instabilidade técnica no momento. Se quiser, tente novamente em alguns instantes e eu vou tentar responder de forma clara e objetiva.",
+  TEA_NIVEL_2:
+    "Estou com uma instabilidade técnica agora. Você pode tentar de novo em alguns instantes e eu vou responder com calma e clareza.",
+  TEA_NIVEL_3:
+    "Estou com uma instabilidade técnica agora. Tente novamente em alguns instantes. Vou responder de forma simples e com cuidado.",
+};
+
 function buildPromptSystem(invalidResponse: string) {
   return `Você é um assistente que responde a perguntas sobre o Transtorno do Espectro Autista (TEA), inclusão e acessibilidade.
 
@@ -103,32 +120,37 @@ export async function sendPrompt(
   conversationMemory?: string
 ): Promise<string> {
   if (!apiKey) {
-    throw new Error("API_KEY não está definida nas variáveis de ambiente.");
+    return fallbackResponses[publicoKey];
   }
 
   const prefixo = publicos[publicoKey];
   const promptCompleto = `${prefixo}${formatConversationMemory(conversationMemory)}\n\nPergunta atual:\n${pergunta}`;
   const promptSystem = buildPromptSystem(invalidQuestion);
 
-  const response = await axios.post(
-    "https://openrouter.ai/api/v1/chat/completions",
-    {
-      model: modelName,
-      messages: [
-        { role: "system", content: promptSystem },
-        { role: "user", content: promptCompleto },
-      ],
-      temperature: 0.7,
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
+  try {
+    const response = await axios.post(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        model: modelName,
+        messages: [
+          { role: "system", content: promptSystem },
+          { role: "user", content: promptCompleto },
+        ],
+        temperature: 0.7,
       },
-    }
-  );
+      {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-  return response.data.choices[0].message.content;
+    return response.data.choices[0].message.content;
+  } catch (error) {
+    console.warn("Falha ao consultar modelo principal do chat:", error);
+    return fallbackResponses[publicoKey];
+  }
 }
 
 export async function generateConversationInsights(
@@ -136,67 +158,77 @@ export async function generateConversationInsights(
   conversationSample: string
 ): Promise<string> {
   if (!apiKey) {
-    throw new Error("API_KEY não está definida nas variáveis de ambiente.");
+    return "Conversa Sobre Apoio";
   }
 
-  const response = await axios.post(
-    "https://openrouter.ai/api/v1/chat/completions",
-    {
-      model: modelName,
-      messages: [
-        {
-          role: "system",
-          content:
-            "Você resume evidências observadas em conversas sobre TEA, inclusão e acessibilidade. Responda em português do Brasil. Gere no máximo 5 linhas curtas. Inclua: 1) temas recorrentes, 2) intenção predominante do usuário, 3) estilo de apoio mais útil. Não invente diagnóstico. Use linguagem observacional e cuidadosa.",
-        },
-        {
-          role: "user",
-          content: `Perfil de linguagem do público: ${publicos[publicoKey]}\n\nAmostra de conversas:\n${conversationSample}`,
-        },
-      ],
-      temperature: 0.3,
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
+  try {
+    const response = await axios.post(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        model: modelName,
+        messages: [
+          {
+            role: "system",
+            content:
+              "Você resume evidências observadas em conversas sobre TEA, inclusão e acessibilidade. Responda em português do Brasil. Gere no máximo 5 linhas curtas. Inclua: 1) temas recorrentes, 2) intenção predominante do usuário, 3) estilo de apoio mais útil. Não invente diagnóstico. Use linguagem observacional e cuidadosa.",
+          },
+          {
+            role: "user",
+            content: `Perfil de linguagem do público: ${publicos[publicoKey]}\n\nAmostra de conversas:\n${conversationSample}`,
+          },
+        ],
+        temperature: 0.3,
       },
-    }
-  );
+      {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-  return response.data.choices[0].message.content.trim();
+    return response.data.choices[0].message.content.trim();
+  } catch (error) {
+    console.warn("Falha ao gerar insights conversacionais:", error);
+    return "Temas recorrentes observados em conversa recente. Intenção predominante de buscar orientação prática. Estilo de apoio mais útil: respostas claras, acolhedoras e objetivas.";
+  }
 }
 
 export async function generateSummary(text: string): Promise<string> {
   if (!apiKey) {
-    throw new Error("API_KEY não está definida nas variáveis de ambiente.");
+    return "Conversa Sobre Apoio";
   }
 
   const contexto = `Tema: Transtorno do Espectro Autista\n\n${text}`;
 
-  const response = await axios.post(
-    "https://openrouter.ai/api/v1/chat/completions",
-    {
-      model: modelName,
-      messages: [
-        {
-          role: "system",
-          content: `Gere um título muito curto (máximo de 6 palavras) que resuma a intenção da pergunta do usuário, sem responder ou interpretar o conteúdo. Foque apenas na ação ou objetivo da pergunta. Comece cada substantivo com letra maiúscula e sem pontuação final. Ignore qualquer explicação ou resposta.`,
-        },
-        {
-          role: "user",
-          content: contexto,
-        },
-      ],
-      temperature: 0.3,
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
+  try {
+    const response = await axios.post(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        model: modelName,
+        messages: [
+          {
+            role: "system",
+            content: `Gere um título muito curto (máximo de 6 palavras) que resuma a intenção da pergunta do usuário, sem responder ou interpretar o conteúdo. Foque apenas na ação ou objetivo da pergunta. Comece cada substantivo com letra maiúscula e sem pontuação final. Ignore qualquer explicação ou resposta.`,
+          },
+          {
+            role: "user",
+            content: contexto,
+          },
+        ],
+        temperature: 0.3,
       },
-    }
-  );
+      {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-  return response.data.choices[0].message.content.trim();
+    return response.data.choices[0].message.content.trim();
+  } catch (error) {
+    console.warn("Falha ao gerar resumo do histórico:", error);
+    return "Conversa Sobre Apoio";
+  }
 }

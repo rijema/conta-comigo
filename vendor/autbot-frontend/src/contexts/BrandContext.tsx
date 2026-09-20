@@ -42,7 +42,7 @@ export function BrandProvider({
         assistantName: "TitiA",
         logoSrc: "/AutBot_Logo.png",
         homePath: "/sso/conta-comigo",
-        footerText: "TitiA (made with AutBot)",
+        footerText: "made with AutBot",
         returnUrl: query.get("returnUrl") || undefined,
       };
     }

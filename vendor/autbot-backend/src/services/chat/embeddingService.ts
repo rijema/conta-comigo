@@ -24,28 +24,38 @@ const BASE_TEACH_PHRASES = [
 ];
 
 export async function getSimilarityScores(sourceSentence: string, sentences: string[]): Promise<number[]> {
+  if (!hfToken) {
+    return [];
+  }
+
   const cleanSource = cleanText(sourceSentence);
   const cleanSentences = sentences.map(cleanText);
 
-  const response = await axios.post(
-    'https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2',
-    {
-      inputs: {
-        source_sentence: cleanSource,
-        sentences: cleanSentences,
+  try {
+    const response = await axios.post(
+      'https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2',
+      {
+        inputs: {
+          source_sentence: cleanSource,
+          sentences: cleanSentences,
+        },
       },
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${hfToken}`,
-        'Content-Type': 'application/json',
-      },
+      {
+        headers: {
+          Authorization: `Bearer ${hfToken}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!Array.isArray(response.data)) {
+      console.warn('Resposta inválida da API Hugging Face para similaridade.');
+      return [];
     }
-  );
 
-  if (!Array.isArray(response.data)) {
-    throw new Error('Resposta inválida da API Hugging Face para similaridade');
+    return response.data;
+  } catch (error) {
+    console.warn('Falha ao consultar similaridade semântica:', error);
+    return [];
   }
-
-  return response.data; 
 }
