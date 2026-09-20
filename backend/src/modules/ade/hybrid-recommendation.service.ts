@@ -24,6 +24,7 @@ export interface HybridCandidateScore {
   progressDerivative: number;
   performanceIntegral: number;
   dominanceNormalization: number;
+  recencyPenalty: number;
   insufficientEvidence: string[];
   explanation: {
     semanticValidityReasons: string[];
@@ -215,6 +216,7 @@ export class HybridRecommendationService {
       const sensoryFit = this.sensoryFit(candidate, input.preferences);
       const formatFit = this.formatFit(candidate, input.preferences);
       const repetitionRisk = this.repetitionRisk(candidate, input.recentActivities ?? []);
+      const recencyPenalty = this.recencyPenalty(candidate, input.recentActivities ?? []);
       const frustrationRisk = this.frustrationRisk(difficulty, (input.recentActivities ?? []).filter((item) =>
         !input.semanticTrace.targetSkill || item.bnccSkills?.includes(input.semanticTrace.targetSkill)));
       const progressDerivative = this.progressDerivative(input.recentActivities ?? []);
@@ -229,6 +231,7 @@ export class HybridRecommendationService {
         formatFit,
         rejectionRisk,
         repetitionRisk,
+        recencyPenalty,
         frustrationRisk,
         progressDerivative,
         performanceIntegral,
@@ -248,6 +251,7 @@ export class HybridRecommendationService {
       const penalties = {
         rejectionRisk: w.rejection * rejectionRisk,
         repetitionRisk: w.repetition * repetitionRisk,
+        recencyPenalty: recencyPenalty,
         frustrationRisk: w.frustration * frustrationRisk,
         dominanceNormalization: this.configuration.dominanceNormalizationWeight * dominanceNormalization,
       };
@@ -269,6 +273,7 @@ export class HybridRecommendationService {
         sensoryFit,
         formatFit,
         repetitionRisk,
+        recencyPenalty,
         frustrationRisk,
         progressDerivative,
         performanceIntegral,
@@ -402,6 +407,19 @@ export class HybridRecommendationService {
       activity.representation?.some((item) => previousRepresentations.includes(item))
       ? this.configuration.sameRepresentationRisk : 0;
     return Math.max(sameFormat, sameRepresentation);
+  }
+
+  private recencyPenalty(activity: Activity, recent: NonNullable<HybridRankingInput['recentActivities']>): number {
+    const structure = activity.content?.semantic?.structureId ?? null;
+    const niche = activity.bnccSkills?.[0] ?? null;
+    const recentActivityIds = new Set(recent.map((item) => item.activityId));
+    const recentStructures = new Set(recent.map((item) => item.structureId).filter((item): item is string => Boolean(item)));
+    const recentNiches = new Set(recent.flatMap((item) => item.bnccSkills ?? []).filter(Boolean));
+    let penalty = 0;
+    if (recentActivityIds.has(activity.id)) penalty += 0.9;
+    if (structure && recentStructures.has(structure)) penalty += 0.6;
+    if (niche && recentNiches.has(niche)) penalty += 0.3;
+    return this.clamp(penalty);
   }
 
   private frustrationRisk(difficulty: number, recent: NonNullable<HybridRankingInput['recentActivities']>): number {
