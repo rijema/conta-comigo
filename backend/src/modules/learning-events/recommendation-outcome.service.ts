@@ -66,7 +66,7 @@ export class RecommendationOutcomeService {
       where: { recommendationId: event.recommendationId! },
     });
     if (existing) return existing;
-    return this.outcomeRepository.create({
+    const created = this.outcomeRepository.create({
       recommendationId: event.recommendationId!,
       studentId: event.studentId,
       sessionId: event.sessionId,
@@ -83,6 +83,7 @@ export class RecommendationOutcomeService {
       responseTimeMs: null,
       correct: null,
     });
+    return this.outcomeRepository.save(created);
   }
 
   private applyEvent(outcome: RecommendationOutcome, event: LearningEvent): void {
