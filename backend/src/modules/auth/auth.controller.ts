@@ -6,6 +6,8 @@ import {
   HttpStatus,
   UseGuards,
   Get,
+  Query,
+  Res,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -15,6 +17,7 @@ import { CurrentUser } from './decorators/current-user.decorator';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { AutbotBridgeDto } from './dto/autbot-bridge.dto';
+import { Response } from 'express';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -41,6 +44,29 @@ export class AuthController {
   @ApiOperation({ summary: 'Get current user profile' })
   async getProfile(@CurrentUser() user: any) {
     return user;
+  }
+
+  @Get('google/start')
+  @ApiOperation({ summary: 'Start Google login flow' })
+  async googleStart(@Res() res: Response) {
+    const url = this.authService.buildGoogleAuthUrl();
+    return res.redirect(url);
+  }
+
+  @Get('google/callback')
+  @ApiOperation({ summary: 'Handle Google login callback' })
+  async googleCallback(
+    @Query('code') code: string,
+    @Res() res: Response,
+  ) {
+    const result = await this.authService.loginWithGoogleCode(code);
+    const frontendUrl = this.authService.getFrontendAuthRedirectUrl();
+    const redirectUrl = new URL(frontendUrl);
+    redirectUrl.searchParams.set('accessToken', result.accessToken);
+    if (result.refreshToken) {
+      redirectUrl.searchParams.set('refreshToken', result.refreshToken);
+    }
+    return res.redirect(redirectUrl.toString());
   }
 
   @Post('bridge/autbot')

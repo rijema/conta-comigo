@@ -105,7 +105,7 @@ export function TitiaModal({
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-6 top-6 rounded-full border border-white/80 bg-white/90 px-5 py-3 text-sm font-black text-slate-700 shadow-sm transition hover:border-sky-200 hover:text-sky-700"
+          className="absolute left-1/2 top-6 -translate-x-1/2 rounded-full border border-white/80 bg-white/90 px-5 py-3 text-sm font-black text-slate-700 shadow-sm transition hover:border-sky-200 hover:text-sky-700"
         >
           Voltar ao Conta Comigo
         </button>

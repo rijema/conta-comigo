@@ -38,7 +38,21 @@ body {
 
 .brand-footer-titia {
     background: rgba(255, 255, 255, 0.75);
-    color: rgba(109, 40, 217, 0.65);
+    color: rgba(71, 85, 105, 0.78);
+}
+
+.brand-footer-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: inherit;
+    text-decoration: none;
+}
+
+.brand-footer-icon {
+    width: 12px;
+    height: 12px;
+    object-fit: contain;
 }
 
 .content-area-below-top-bar {
@@ -53,7 +67,7 @@ body {
     background-color: #e0e0e0;
     display: flex;
     flex-direction: column;
-    padding: 20px 10px;
+    padding: 16px 12px;
     height: calc(100vh - 60px); /* Altura total da viewport menos a SharedTopBar */
     overflow-y: auto;
     flex-shrink: 0;
@@ -125,8 +139,9 @@ body {
 
 .no-conversations-message {
     text-align: center;
-    color: #777;
-    font-size: 0.9rem;
+    color: #475569;
+    font-size: 0.92rem;
+    line-height: 1.45;
     padding: 20px 0;
 }
 
@@ -171,32 +186,42 @@ body {
 }
 
 .chat-card {
-    background-color: #a9e8dc; /* Restaurando cor original */
-    padding: 40px; /* Restaurando padding original */
-    border-radius: 12px;
+    background: linear-gradient(135deg, #eff6ff 0%, #f8f0ff 100%);
+    padding: 32px;
+    border-radius: 18px;
     text-align: center;
     width:100%;
-    margin: 0; /* Restaurando margem original, que ajuda na centralização se o pai não for flex com align-items */
+    margin: 0;
+    border: 1px solid #dbeafe;
 }
 
 .chat-card h2 {
-    margin-bottom: 20px;
-    color: #181d54;
+    margin-bottom: 12px;
+    color: #1e1b4b;
+}
+
+.chat-card p {
+    margin: 0;
+    color: #475569;
+    font-size: 0.98rem;
+    line-height: 1.5;
 }
 
 body[data-brand="titia"] .sidebar {
-    background: linear-gradient(180deg, #f2fbff 0%, #f9f0ff 100%);
+    background: linear-gradient(180deg, #f8fbff 0%, #f8f4ff 100%);
     border-right-color: #dbeafe;
 }
 
 body[data-brand="titia"] .main-chat,
 body[data-brand="titia"] .chat-input-container,
 body[data-brand="titia"] .brand-footer-titia {
-    background: linear-gradient(180deg, #f8fbff 0%, #fff9fc 100%);
+    background: linear-gradient(180deg, #ffffff 0%, #fbf7ff 100%);
 }
 
 body[data-brand="titia"] .chat-header {
     background: linear-gradient(90deg, #e0f2fe 0%, #e9edff 52%, #f5e8ff 100%);
+    color: #334155;
+    font-weight: 800;
 }
 
 body[data-brand="titia"] .chat-card {
@@ -212,8 +237,8 @@ body[data-brand="titia"] .chat-bubble.autbot {
 }
 
 body[data-brand="titia"] .chat-bubble.user {
-    background-color: #eff6ff;
-    color: #1e3a5f;
+    background-color: #e0f2fe;
+    color: #0f172a;
 }
 
 body[data-brand="titia"] .chat-bubble.user .message-time {
@@ -264,7 +289,8 @@ body[data-brand="titia"] .chat-bubble.user .message-time {
     margin: 0;
     padding: 0;
     font-size: 0.95em;
-    color: #fff;
+    color: inherit;
+    line-height: 1.5;
 }
 
 .message-time {
@@ -353,7 +379,7 @@ textarea {
     background-color: #ffffff;
     border-radius: 6px;
     margin-right: 5px;
-    border: 1px solid #dbeafe;
+    border: 1px solid #cbd5e1;
 }
 
 .history-list-item:hover {

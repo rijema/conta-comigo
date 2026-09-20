@@ -27,9 +27,7 @@ const Chat = () => {
     ActiveConversationMessage[]
   >([]);
 
-  const [currentView, setCurrentView] = useState<"chat" | "history">(
-    () => (localStorage.getItem(tabStorageKey) === "history" ? "history" : "chat")
-  );
+  const [currentView, setCurrentView] = useState<"chat" | "history">("history");
 
   const {
     loading: historyLoading,
@@ -44,6 +42,7 @@ const Chat = () => {
   const [botStreamingMessage, setBotStreamingMessage] = useState<string>("");
   const [userType, setUserType] = useState<string>("");
   const [socketError, setSocketError] = useState<string>("");
+  const [hasDraftConversation, setHasDraftConversation] = useState(false);
   const { assistantName, footerText, brand } = useBrand();
 
   const socketRef = useRef<WebSocket | null>(null);
@@ -70,11 +69,25 @@ const Chat = () => {
 
   useEffect(() => {
     localStorage.setItem(chatStorageKey, JSON.stringify(activeChatMessages));
+    setHasDraftConversation(activeChatMessages.length > 0);
   }, [activeChatMessages, chatStorageKey]);
 
   useEffect(() => {
-    localStorage.setItem(tabStorageKey, currentView);
+    if (hasDraftConversation && currentView === "chat") {
+      localStorage.setItem(tabStorageKey, currentView);
+      return;
+    }
+    localStorage.setItem(tabStorageKey, "history");
   }, [currentView, tabStorageKey]);
+
+  useEffect(() => {
+    const storedView = localStorage.getItem(tabStorageKey);
+    if (storedView === "chat" && hasDraftConversation) {
+      setCurrentView("chat");
+      return;
+    }
+    setCurrentView("history");
+  }, [hasDraftConversation, tabStorageKey]);
 
   useEffect(() => {
     if (!userId) {
@@ -325,7 +338,7 @@ const Chat = () => {
         <div className="main-chat">
           <header className="chat-header">
             {currentView === "chat" ? (
-              <div>Chat Ativo</div>
+              <div>Nova conversa</div>
             ) : (
               <div>Histórico de Conversas</div>
             )}
@@ -337,12 +350,15 @@ const Chat = () => {
                 <div className="chat-messages-live">
                   {activeChatMessages.length === 0 && !isTyping ? (
                     <div className="empty-chat-container">
+                      <div className="chat-card">
+                        <h2>Em que a {assistantName} pode ajudar?</h2>
+                        <p>
+                          Comece uma nova conversa ou volte para uma conversa já salva no histórico.
+                        </p>
+                      </div>
                       <FrequentlyAskedQuestions
                         onQuestionClick={handleFaqQuestionSelect}
                       />
-                      <div className="chat-card">
-                        <h2>Em que a {assistantName} pode ajudar?</h2>
-                      </div>
                     </div>
                   ) : (
                     <>
@@ -411,8 +427,15 @@ const Chat = () => {
                 )}
                 {footerText && (
                   <div className={`brand-footer brand-footer-${brand}`}>
-                    <img src="/AutBot_Logo.png" alt="AutBot" className="h-4 w-4" />
-                    <span>{footerText}</span>
+                    <a
+                      href="https://github.com/App-AutBot/autBot-frontend"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="brand-footer-link"
+                    >
+                      <img src="/AutBot_Logo.png" alt="AutBot" className="brand-footer-icon" />
+                      <span>{footerText}</span>
+                    </a>
                   </div>
                 )}
               </>

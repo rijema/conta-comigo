@@ -54,4 +54,25 @@ export const authService = {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
   },
+
+  storeOauthResultFromUrl: () => {
+    if (typeof window === "undefined") return null;
+
+    const url = new URL(window.location.href);
+    const accessToken = url.searchParams.get("accessToken");
+    const refreshToken = url.searchParams.get("refreshToken");
+
+    if (!accessToken) return null;
+
+    localStorage.setItem("access_token", accessToken);
+    if (refreshToken) {
+      localStorage.setItem("refresh_token", refreshToken);
+    }
+
+    url.searchParams.delete("accessToken");
+    url.searchParams.delete("refreshToken");
+    window.history.replaceState({}, document.title, url.toString());
+
+    return { accessToken, refreshToken: refreshToken ?? undefined };
+  },
 };
