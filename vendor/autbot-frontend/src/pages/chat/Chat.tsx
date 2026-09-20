@@ -30,7 +30,7 @@ const Chat = () => {
     ActiveConversationMessage[]
   >([]);
 
-  const [currentView, setCurrentView] = useState<"chat" | "history">("history");
+  const [currentView, setCurrentView] = useState<"chat" | "history">("chat");
 
   const {
     loading: historyLoading,
@@ -117,7 +117,7 @@ const Chat = () => {
   }, [activeChatMessages, chatStorageKey, draftMetaStorageKey, draftStartedAt]);
 
   useEffect(() => {
-    if (hasDraftConversation && currentView === "chat") {
+    if (currentView === "chat") {
       localStorage.setItem(tabStorageKey, currentView);
       return;
     }
@@ -126,11 +126,16 @@ const Chat = () => {
 
   useEffect(() => {
     const storedView = localStorage.getItem(tabStorageKey);
-    if (storedView === "chat" && hasDraftConversation) {
+    if (storedView === "history") {
+      setCurrentView("history");
+      return;
+    }
+
+    if (storedView === "chat" || hasDraftConversation) {
       setCurrentView("chat");
       return;
     }
-    setCurrentView("history");
+    setCurrentView("chat");
   }, [hasDraftConversation, tabStorageKey]);
 
   useEffect(() => {
@@ -400,9 +405,21 @@ const Chat = () => {
 
           {currentView === "chat" ? (
             <div className="conversations-list">
-              <p className="no-conversations-message">
-                Inicie uma nova conversa para que ela apareça aqui.
-              </p>
+              {hasDraftConversation ? (
+                <button className="draft-conversation-card" onClick={resumeDraftConversation}>
+                  <span className="draft-conversation-kicker">Interação atual</span>
+                  <strong>{activeChatMessages.find((message) => message.author === "user")?.text || "Continuar conversa em andamento"}</strong>
+                  <small>
+                    {draftStartedAt
+                      ? `Em andamento desde ${new Date(draftStartedAt).toLocaleString("pt-BR")}`
+                      : "Retome de onde parou"}
+                  </small>
+                </button>
+              ) : (
+                <p className="no-conversations-message">
+                  Inicie uma nova conversa para que ela apareça aqui.
+                </p>
+              )}
             </div>
           ) : (
             <div className="conversations-list">
@@ -573,9 +590,23 @@ const Chat = () => {
                 )}
               </>
             ) : (
-              <ConversationDetailView
-                conversation={selectedConversation ?? null}
-              />
+              <>
+                <div className="history-return-banner">
+                  <button type="button" className="history-return-button" onClick={resumeDraftConversation}>
+                    Voltar para interação atual
+                  </button>
+                  <p>
+                    {currentMessage.trim()
+                      ? `Texto atual: "${currentMessage.trim()}"`
+                      : activeChatMessages.find((message) => message.author === "user")?.text
+                        ? `Última mensagem em andamento: "${activeChatMessages.find((message) => message.author === "user")?.text}"`
+                        : "Retome a interação atual quando quiser continuar escrevendo."}
+                  </p>
+                </div>
+                <ConversationDetailView
+                  conversation={selectedConversation ?? null}
+                />
+              </>
             )}
           </main>
         </div>

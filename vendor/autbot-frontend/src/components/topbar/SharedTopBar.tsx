@@ -89,13 +89,6 @@ const SharedTopBar = ({ pageType, onShowChatView, onShowHistoryView, isHistoryVi
           </button>
         )}
 
-        {brand === 'titia' && (
-          <button className="shared-nav-button shared-return-button" onClick={handleReturnToContaComigo}>
-            <FaArrowLeft size={16} />
-            <span>Voltar ao Conta Comigo</span>
-          </button>
-        )}
-
         {pageType === 'login' && (
           <>
             <button className="shared-nav-button" onClick={() => navigate('/cadastro')}>

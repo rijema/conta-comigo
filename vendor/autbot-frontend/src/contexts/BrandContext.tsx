@@ -40,7 +40,7 @@ export function BrandProvider({
         brand,
         appName: "TitiA",
         assistantName: "TitiA",
-        logoSrc: "/AutBot_Logo.png",
+        logoSrc: "/assets/mainiconfirstpage.png",
         homePath: "/sso/conta-comigo",
         footerText: "made with AutBot",
         returnUrl: query.get("returnUrl") || undefined,
