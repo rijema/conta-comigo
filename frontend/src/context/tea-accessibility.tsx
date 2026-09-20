@@ -14,6 +14,8 @@
  * ✅ Break reminders (prevent fatigue)
  */
 
+import React from 'react';
+
 export interface TEAAccessibilityProfile {
   // Sensory preferences
   sensoryLoad: 'low' | 'medium' | 'high';
@@ -249,7 +251,6 @@ export const loadTEAProfile = (
 /**
  * TEA Accessibility Context for React
  */
-import React from 'react';
 
 export interface TEAContextType {
   profile: TEAAccessibilityProfile;

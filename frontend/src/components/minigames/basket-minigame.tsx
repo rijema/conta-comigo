@@ -138,11 +138,10 @@ export const BasketMinigame: React.FC<BasketMinigameProps> = ({
             }}
           >
             {remainingItems.map((item) => (
-              <motion.div
+              <div
                 key={item.id}
                 draggable
-                onDragStart={(e) => handleDragStart(e, item.id)}
-                whileHover={{ scale: 1.05 }}
+                onDragStart={(e: React.DragEvent<HTMLDivElement>) => handleDragStart(e, item.id)}
                 style={{
                   padding: '15px',
                   backgroundColor: '#fff',
@@ -155,10 +154,17 @@ export const BasketMinigame: React.FC<BasketMinigameProps> = ({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  transition: 'transform 0.2s ease-in-out',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
                 }}
               >
                 {item.emoji} {item.label}
-              </motion.div>
+              </div>
             ))}
             {remainingItems.length === 0 && (
               <div style={{ textAlign: 'center', color: '#999', fontSize: '14px' }}>
