@@ -88,6 +88,54 @@ export function useSession() {
     return interactionCountersRef.current;
   }, []);
 
+  const logBlockChange = useCallback((
+    label: string,
+    payload: {
+      sessionId: string;
+      currentActivityId?: string | null;
+      nextActivityId?: string | null;
+      currentRecommendationId?: string | null;
+      selected?: {
+        activityId: string | null;
+        structureId?: string | null;
+        activityType?: string | null;
+        learningNeed?: number | null;
+        challengeFit?: number | null;
+        interactionFit?: number | null;
+        semanticFit?: number | null;
+        novelty?: number | null;
+        rejectionRisk?: number | null;
+        progressDerivative?: number | null;
+        performanceIntegral?: number | null;
+        dominanceNormalization?: number | null;
+        finalScore?: number | null;
+      } | null;
+      topCandidates?: Array<{
+        activityId: string | null;
+        structureId?: string | null;
+        activityType?: string | null;
+        finalScore?: number | null;
+      }>;
+      recentActivityIds?: string[];
+      repeatedStructure?: boolean;
+      repeatedType?: boolean;
+      repeatedNiche?: boolean;
+    },
+  ) => {
+    console.log(`[sequence:${label}]`, {
+      sessionId: payload.sessionId,
+      currentActivityId: payload.currentActivityId ?? null,
+      nextActivityId: payload.nextActivityId ?? null,
+      currentRecommendationId: payload.currentRecommendationId ?? null,
+      selected: payload.selected ?? null,
+      topCandidates: payload.topCandidates ?? [],
+      recentActivityIds: payload.recentActivityIds ?? [],
+      repeatedStructure: payload.repeatedStructure ?? false,
+      repeatedType: payload.repeatedType ?? false,
+      repeatedNiche: payload.repeatedNiche ?? false,
+    });
+  }, []);
+
   const trackActivityLifecycle = useCallback((
     sessionId: string,
     activityId: string,
@@ -211,7 +259,7 @@ export function useSession() {
       attemptsBeforeSkip: counters.attempts,
       hintsBeforeSkip: counters.hints,
     }, session.currentRecommendationId);
-  }, [getInteractionCounters, session, trackActivityLifecycle]);
+  }, [getInteractionCounters, session, trackActivityLifecycle, logBlockChange]);
 
   const abandonCurrentActivity = useCallback(() => {
     if (!session?.id || !session.currentActivity?.id || session.progress >= 100) return;
@@ -243,6 +291,19 @@ export function useSession() {
         },
         token,
       );
+      logBlockChange("change", {
+        sessionId: session.id,
+        currentActivityId: session.currentActivity.id,
+        nextActivityId: result.activity.id,
+        currentRecommendationId: session.currentRecommendationId,
+        selected: {
+          activityId: result.activity.id,
+          structureId: result.activity?.content?.semantic?.structureId ?? null,
+          activityType: result.activity?.type ?? null,
+        },
+        topCandidates: [],
+        recentActivityIds: [],
+      });
       trackActivityLifecycle(
         session.id,
         result.activity.id,
@@ -267,7 +328,7 @@ export function useSession() {
     } finally {
       setIsChangingActivity(false);
     }
-  }, [getInteractionCounters, isChangingActivity, session, trackActivityLifecycle]);
+  }, [getInteractionCounters, isChangingActivity, session, trackActivityLifecycle, logBlockChange]);
 
   const submitAnswer = async (payload: {
     activityId: string;
@@ -316,6 +377,18 @@ export function useSession() {
         if (roundComplete && session?.id) trackSessionEvent(session.id, "SESSION_COMPLETED");
         const nextActivity = result.nextActivity ?? null;
         if (!roundComplete && nextActivity && session?.id) {
+          logBlockChange("submit", {
+            sessionId: session.id,
+            currentActivityId: payload.activityId,
+            nextActivityId: nextActivity.id,
+            currentRecommendationId: session.currentRecommendationId,
+            selected: {
+              activityId: nextActivity.id,
+              structureId: nextActivity?.content?.semantic?.structureId ?? null,
+              activityType: nextActivity?.type ?? null,
+            },
+            recentActivityIds: [payload.activityId],
+          });
           trackActivityLifecycle(
             session.id,
             nextActivity.id,
