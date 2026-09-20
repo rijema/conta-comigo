@@ -31,6 +31,11 @@ export function useAuth() {
   }, [setAuth, clearAuth, setLoading]);
 
   useEffect(() => {
+    const oauthTokens = authService.storeOauthResultFromUrl();
+    if (oauthTokens?.accessToken) {
+      void fetchProfile();
+      return;
+    }
     // Wait for Zustand to finish hydrating from localStorage
     if (!isHydrated) return;
     // If already authenticated (hydrated from store), skip remote fetch

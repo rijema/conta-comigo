@@ -3,6 +3,7 @@ import {
   UnauthorizedException,
   ConflictException,
   Logger,
+  BadRequestException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
@@ -11,6 +12,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ConfigService } from '@nestjs/config';
 import { UserRole } from '../users/enums/user-role.enum';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -93,6 +95,99 @@ export class AuthService {
 
   async refreshToken(userId: string, email: string, role: string) {
     return this.generateTokens(userId, email, role);
+  }
+
+  buildGoogleAuthUrl() {
+    const clientId = this.configService.get<string>('GOOGLE_CLIENT_ID');
+    const redirectUri = this.configService.get<string>('GOOGLE_REDIRECT_URI');
+
+    if (!clientId || !redirectUri) {
+      throw new BadRequestException('Google login is not configured');
+    }
+
+    const url = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+    url.searchParams.set('client_id', clientId);
+    url.searchParams.set('redirect_uri', redirectUri);
+    url.searchParams.set('response_type', 'code');
+    url.searchParams.set('scope', 'openid email profile');
+    url.searchParams.set('access_type', 'offline');
+    url.searchParams.set('prompt', 'consent');
+    return url.toString();
+  }
+
+  getFrontendAuthRedirectUrl() {
+    return this.configService.get<string>('FRONTEND_AUTH_CALLBACK_URL', 'http://localhost:3000/pt/dashboard');
+  }
+
+  async loginWithGoogleCode(code: string) {
+    if (!code) {
+      throw new BadRequestException('Google authorization code is required');
+    }
+
+    const clientId = this.configService.get<string>('GOOGLE_CLIENT_ID');
+    const clientSecret = this.configService.get<string>('GOOGLE_CLIENT_SECRET');
+    const redirectUri = this.configService.get<string>('GOOGLE_REDIRECT_URI');
+
+    if (!clientId || !clientSecret || !redirectUri) {
+      throw new BadRequestException('Google login is not configured');
+    }
+
+    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        code,
+        client_id: clientId,
+        client_secret: clientSecret,
+        redirect_uri: redirectUri,
+        grant_type: 'authorization_code',
+      }),
+    });
+
+    if (!tokenResponse.ok) {
+      throw new UnauthorizedException('Google login failed during token exchange');
+    }
+
+    const tokenData: any = await tokenResponse.json();
+    const profileResponse = await fetch('https://openidconnect.googleapis.com/v1/userinfo', {
+      headers: {
+        Authorization: `Bearer ${tokenData.access_token}`,
+      },
+    });
+
+    if (!profileResponse.ok) {
+      throw new UnauthorizedException('Google login failed while loading profile');
+    }
+
+    const profile: any = await profileResponse.json();
+    const email = profile.email;
+    const googleId = profile.sub;
+    const name = profile.name || profile.given_name || 'Usuário Google';
+
+    if (!email || !googleId) {
+      throw new UnauthorizedException('Google profile did not return the expected identifiers');
+    }
+
+    let user = await this.usersService.findByExternalAuthId(googleId);
+    if (!user) {
+      user = await this.usersService.findByEmail(email);
+    }
+
+    if (!user) {
+      user = await this.usersService.create({
+        name,
+        email,
+        password: await bcrypt.hash(randomUUID(), 12),
+        role: UserRole.GUARDIAN,
+      });
+      user = await this.usersService.attachExternalAuth(user.id, 'google', googleId);
+      await this.usersService.grantLgpdConsent(user.id);
+    } else if (!user.externalAuthId) {
+      user = await this.usersService.attachExternalAuth(user.id, 'google', googleId);
+    }
+
+    const tokens = await this.generateTokens(user.id, user.email, user.role);
+    return { user: this.sanitizeUser(user), ...tokens };
   }
 
   async createAutbotBridgeToken(userId: string, childId?: string) {

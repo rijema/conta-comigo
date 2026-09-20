@@ -26,6 +26,7 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({
     name: "", email: "", password: "", guardianEmail: "",
     role: "guardian" as "guardian" | "professional",
@@ -54,6 +55,16 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
       setError(reason?.message || "Não foi possível entrar. Confira os dados.");
       setLoading(false);
     }
+  };
+
+  const startGoogleLogin = () => {
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!backendUrl) {
+      setError("Login com Google não está configurado neste ambiente.");
+      return;
+    }
+
+    window.location.assign(`${backendUrl}/auth/google/start`);
   };
 
   const submitRegister = async (event: React.FormEvent) => {
@@ -135,8 +146,37 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
                 <Field label="E-mail do responsável"><input type="email" className={fieldClass} required value={form.guardianEmail} onChange={(e) => update("guardianEmail", e.target.value)} /></Field>
               </> :
                 <Field label="E-mail"><input type="email" autoComplete="email" className={fieldClass} required value={form.email} onChange={(e) => update("email", e.target.value)} /></Field>}
-              <Field label="Senha"><input type="password" autoComplete="current-password" className={fieldClass} required value={form.password} onChange={(e) => update("password", e.target.value)} /></Field>
+              <Field label="Senha">
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    className={`${fieldClass} pr-12`}
+                    required
+                    value={form.password}
+                    onChange={(e) => update("password", e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((current) => !current)}
+                    aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-violet-700"
+                  >
+                    {showPassword ? "Ocultar" : "Mostrar"}
+                  </button>
+                </div>
+              </Field>
               <SubmitButton loading={loading}>{accessRole === "child" ? "Vamos aprender!" : "Entrar"}</SubmitButton>
+              {accessRole !== "child" && (
+                <button
+                  type="button"
+                  onClick={startGoogleLogin}
+                  className="flex w-full items-center justify-center gap-3 rounded-2xl border-2 border-slate-200 bg-white px-6 py-3 font-bold text-slate-700 shadow-sm transition hover:border-violet-300 hover:bg-violet-50"
+                >
+                  <span className="text-lg" aria-hidden="true">G</span>
+                  Entrar com Google
+                </button>
+              )}
             </form>
           ) : (
             <form onSubmit={submitRegister} className="space-y-4">

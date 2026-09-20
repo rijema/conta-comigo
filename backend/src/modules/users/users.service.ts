@@ -90,6 +90,18 @@ export class UsersService {
       .getOne();
   }
 
+  async attachExternalAuth(userId: string, provider: string, externalAuthId: string): Promise<User> {
+    await this.userRepo.update(userId, {
+      externalAuthProvider: provider,
+      externalAuthId,
+    });
+    const updated = await this.findById(userId);
+    if (!updated) {
+      throw new NotFoundException(`User ${userId} not found after external auth attach`);
+    }
+    return updated;
+  }
+
   async findAll(): Promise<User[]> {
     return this.userRepo.find({ relations: ['childProfile'] });
   }
