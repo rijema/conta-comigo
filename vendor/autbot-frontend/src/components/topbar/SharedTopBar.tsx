@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import './SharedTopBar.css';
-import { FaUserCircle, FaArrowLeft, FaChartBar, FaExternalLinkAlt } from 'react-icons/fa';
+import { FaUserCircle, FaArrowLeft, FaChartBar } from 'react-icons/fa';
 import { useBrand } from '../../contexts/BrandContext';
 
 interface SharedTopBarProps {
@@ -49,7 +49,7 @@ const SharedTopBar = ({ pageType, onShowChatView, onShowHistoryView, isHistoryVi
             </button>
           )}
         </div>
-        <img src={logoSrc} alt={`${appName} Logo`} className="shared-logo" />
+        {brand !== 'titia' && <img src={logoSrc} alt={`${appName} Logo`} className="shared-logo" />}
         <button className="shared-app-name-button" onClick={handleAutBotClick}>
           {appName}
         </button>
@@ -97,7 +97,7 @@ const SharedTopBar = ({ pageType, onShowChatView, onShowHistoryView, isHistoryVi
 
         {brand === 'titia' && (
           <button className="shared-nav-button shared-return-button" onClick={handleReturnToContaComigo}>
-            <FaExternalLinkAlt size={14} />
+            <FaArrowLeft size={16} />
             <span>Voltar ao Conta Comigo</span>
           </button>
         )}

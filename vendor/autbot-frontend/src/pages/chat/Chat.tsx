@@ -20,12 +20,16 @@ interface ActiveConversationMessage {
 }
 
 const Chat = () => {
+  const chatStorageKey = `titia-chat-live-${localStorage.getItem("id") ?? "anonymous"}`;
+  const tabStorageKey = `titia-chat-tab-${localStorage.getItem("id") ?? "anonymous"}`;
   const [currentMessage, setCurrentMessage] = useState<string>("");
   const [activeChatMessages, setActiveChatMessages] = useState<
     ActiveConversationMessage[]
   >([]);
 
-  const [currentView, setCurrentView] = useState<"chat" | "history">("chat");
+  const [currentView, setCurrentView] = useState<"chat" | "history">(
+    () => (localStorage.getItem(tabStorageKey) === "history" ? "history" : "chat")
+  );
 
   const {
     loading: historyLoading,
@@ -39,14 +43,38 @@ const Chat = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [botStreamingMessage, setBotStreamingMessage] = useState<string>("");
   const [userType, setUserType] = useState<string>("");
+  const [socketError, setSocketError] = useState<string>("");
   const { assistantName, footerText, brand } = useBrand();
 
   const socketRef = useRef<WebSocket | null>(null);
+  const hasConnectedRef = useRef(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const authToken = localStorage.getItem("authToken") ?? "";
   const userId = localStorage.getItem("id") ?? "";
+
+  useEffect(() => {
+    try {
+      const storedMessages = localStorage.getItem(chatStorageKey);
+      if (storedMessages) {
+        const parsed = JSON.parse(storedMessages);
+        if (Array.isArray(parsed)) {
+          setActiveChatMessages(parsed);
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao restaurar mensagens salvas:", error);
+    }
+  }, [chatStorageKey]);
+
+  useEffect(() => {
+    localStorage.setItem(chatStorageKey, JSON.stringify(activeChatMessages));
+  }, [activeChatMessages, chatStorageKey]);
+
+  useEffect(() => {
+    localStorage.setItem(tabStorageKey, currentView);
+  }, [currentView, tabStorageKey]);
 
   useEffect(() => {
     if (!userId) {
@@ -76,6 +104,7 @@ const Chat = () => {
   const connectWebSocket = () => {
     if (!authToken) {
       console.error("Token não encontrado no localStorage");
+      setSocketError("Sua sessão da TitiA não está pronta para conversar.");
       return;
     }
 
@@ -91,7 +120,9 @@ const Chat = () => {
 
     ws.onopen = () => {
       console.log("WebSocket conectado!");
+      hasConnectedRef.current = true;
       setIsTyping(false);
+      setSocketError("");
     };
 
     ws.onmessage = (event) => {
@@ -128,7 +159,7 @@ const Chat = () => {
           setBotStreamingMessage("");
           setIsTyping(false);
         } else if (data.error) {
-          alert("Erro do servidor: " + data.error);
+          setSocketError(`Erro do servidor: ${data.error}`);
           setIsTyping(false);
           setBotStreamingMessage("");
         }
@@ -140,12 +171,16 @@ const Chat = () => {
     ws.onerror = (err) => {
       console.error("WebSocket error:", err);
       setIsTyping(false);
+      setSocketError("A conexão da conversa falhou. Tente novamente em alguns segundos.");
     };
 
     ws.onclose = () => {
       console.log("WebSocket desconectado.");
       setIsTyping(false);
       setBotStreamingMessage("");
+      if (hasConnectedRef.current) {
+        setSocketError("A conexão da TitiA foi interrompida.");
+      }
     };
 
     socketRef.current = ws;
@@ -169,7 +204,7 @@ const Chat = () => {
     if (currentMessage.trim() === "") return;
 
     if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
-      alert("WebSocket não está conectado.");
+      setSocketError("A conversa ainda está reconectando. Aguarde um instante.");
       return;
     }
 
@@ -182,6 +217,7 @@ const Chat = () => {
 
     setActiveChatMessages((prev) => [...prev, userMessage]);
     setCurrentMessage("");
+    setSocketError("");
 
     const messagePayload = {
       userId,
@@ -368,8 +404,16 @@ const Chat = () => {
                     )}
                   </button>
                 </div>
+                {socketError && (
+                  <div className="chat-inline-error" role="status">
+                    {socketError}
+                  </div>
+                )}
                 {footerText && (
-                  <div className={`brand-footer brand-footer-${brand}`}>{footerText}</div>
+                  <div className={`brand-footer brand-footer-${brand}`}>
+                    <img src="/AutBot_Logo.png" alt="AutBot" className="h-4 w-4" />
+                    <span>{footerText}</span>
+                  </div>
                 )}
               </>
             ) : (

@@ -1,6 +1,6 @@
 import { PublicoKey, sendPrompt, generateSummary, generateConversationInsights } from "./chatService";
 import { updateFrequentQuestion } from "./faqService";
-import { getResponseWithSemanticCache } from "./cacheService";
+import { getResponseWithSemanticCache, saveResponseToSemanticCache } from "./cacheService";
 import prisma from "../../prisma";
 
 interface ClientMessage {
@@ -156,6 +156,7 @@ export async function handleChatMessage(rawMsg: ClientMessage) {
   const isRecusa = resposta.trim() === invalidQuestion;
 
   if (!isRecusa) {
+    await saveResponseToSemanticCache(userId, publico, pergunta, resposta);
     await updateFrequentQuestion(pergunta, resposta);
 
     await prisma.message.create({
