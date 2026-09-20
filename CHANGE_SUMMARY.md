@@ -1,5 +1,13 @@
 # Change Summary
 
+# Change Summary
+
+## Batch B9 — Temporal ranking refinement
+
+- Extended the hybrid recommendation explanation with a normalized temporal refinement term using progress derivative, performance integral, and dominance risk.
+- Kept the ontological filter and BKT mastery source unchanged; the new terms only refine ordering among already valid candidates.
+- Added regression coverage for the new ranking fields in the ADE service tests.
+
 ## Batch B8.1 — Friendly activity names
 
 - Replaced technical seeded titles such as `Interativo order_numbers: introdução`, `Pool number_quantity: match_two`, and relation IDs with plain Portuguese names suitable for guardians, professionals, and children.

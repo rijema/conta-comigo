@@ -21,6 +21,9 @@ export interface HybridCandidateScore {
   frustrationRisk: number;
   finalScore: number;
   predictedSuccess: number;
+  progressDerivative: number;
+  performanceIntegral: number;
+  dominanceNormalization: number;
   insufficientEvidence: string[];
   explanation: {
     semanticValidityReasons: string[];
@@ -76,6 +79,9 @@ interface HybridRankingConfiguration {
   frustrationHistoryWindow: number;
   sameFormatRepetitionRisk: number;
   sameRepresentationRisk: number;
+  progressDerivativeWeight: number;
+  performanceIntegralWeight: number;
+  dominanceNormalizationWeight: number;
   weights: {
     learning: number;
     challenge: number;
@@ -108,6 +114,7 @@ export interface HybridRankingInput {
     representation?: string[];
     isCorrect?: boolean;
     timeSpentSeconds?: number | null;
+    masteryAfter?: number | null;
   }>;
 }
 
@@ -128,6 +135,9 @@ export class HybridRecommendationService {
       frustrationHistoryWindow: this.positive(config, 'HYBRID_FRUSTRATION_HISTORY_WINDOW', 3),
       sameFormatRepetitionRisk: this.number(config, 'HYBRID_SAME_FORMAT_REPETITION_RISK', 0.3),
       sameRepresentationRisk: this.number(config, 'HYBRID_SAME_REPRESENTATION_RISK', 0.4),
+      progressDerivativeWeight: this.number(config, 'HYBRID_PROGRESS_DERIVATIVE_WEIGHT', 0.4),
+      performanceIntegralWeight: this.number(config, 'HYBRID_PERFORMANCE_INTEGRAL_WEIGHT', 0.25),
+      dominanceNormalizationWeight: this.number(config, 'HYBRID_DOMINANCE_NORMALIZATION_WEIGHT', 0.5),
       weights: {
         learning: this.number(config, 'HYBRID_WEIGHT_LEARNING', 1),
         challenge: this.number(config, 'HYBRID_WEIGHT_CHALLENGE', 1),
@@ -154,6 +164,15 @@ export class HybridRecommendationService {
     }
     if (this.configuration.sameRepresentationRisk < 0 || this.configuration.sameRepresentationRisk > 1) {
       throw new Error('HYBRID_SAME_REPRESENTATION_RISK must be between 0 and 1');
+    }
+    if (this.configuration.progressDerivativeWeight < 0) {
+      throw new Error('HYBRID_PROGRESS_DERIVATIVE_WEIGHT must be non-negative');
+    }
+    if (this.configuration.performanceIntegralWeight < 0) {
+      throw new Error('HYBRID_PERFORMANCE_INTEGRAL_WEIGHT must be non-negative');
+    }
+    if (this.configuration.dominanceNormalizationWeight < 0) {
+      throw new Error('HYBRID_DOMINANCE_NORMALIZATION_WEIGHT must be non-negative');
     }
   }
 
@@ -198,6 +217,22 @@ export class HybridRecommendationService {
       const repetitionRisk = this.repetitionRisk(candidate, input.recentActivities ?? []);
       const frustrationRisk = this.frustrationRisk(difficulty, (input.recentActivities ?? []).filter((item) =>
         !input.semanticTrace.targetSkill || item.bnccSkills?.includes(input.semanticTrace.targetSkill)));
+      const progressDerivative = this.progressDerivative(input.recentActivities ?? []);
+      const performanceIntegral = this.performanceIntegral(input.recentActivities ?? []);
+      const dominanceNormalization = this.dominanceNormalization([
+        learningNeed,
+        challengeFit,
+        interaction.value,
+        semanticFit,
+        novelty,
+        sensoryFit,
+        formatFit,
+        rejectionRisk,
+        repetitionRisk,
+        frustrationRisk,
+        progressDerivative,
+        performanceIntegral,
+      ]);
       const w = this.configuration.weights;
       const positiveContributions = {
         learningNeed: w.learning * learningNeed,
@@ -207,14 +242,18 @@ export class HybridRecommendationService {
         novelty: w.novelty * novelty,
         sensoryFit: w.sensory * sensoryFit,
         formatFit: w.format * formatFit,
+        progressDerivative: this.configuration.progressDerivativeWeight * progressDerivative,
+        performanceIntegral: this.configuration.performanceIntegralWeight * performanceIntegral,
       };
       const penalties = {
         rejectionRisk: w.rejection * rejectionRisk,
         repetitionRisk: w.repetition * repetitionRisk,
         frustrationRisk: w.frustration * frustrationRisk,
+        dominanceNormalization: this.configuration.dominanceNormalizationWeight * dominanceNormalization,
       };
-      const finalScore = Object.values(positiveContributions).reduce((sum, value) => sum + value, 0)
+      const rawScore = Object.values(positiveContributions).reduce((sum, value) => sum + value, 0)
         - Object.values(penalties).reduce((sum, value) => sum + value, 0);
+      const finalScore = rawScore / (1 + dominanceNormalization);
       return {
         activityId: candidate.id,
         bnccSkills: candidate.bnccSkills ?? [],
@@ -231,6 +270,9 @@ export class HybridRecommendationService {
         formatFit,
         repetitionRisk,
         frustrationRisk,
+        progressDerivative,
+        performanceIntegral,
+        dominanceNormalization,
         finalScore,
         predictedSuccess,
         insufficientEvidence: interaction.insufficientEvidence,
@@ -369,6 +411,24 @@ export class HybridRecommendationService {
     const strain = observations.filter((item) => item.isCorrect === false ||
       (item.timeSpentSeconds != null && item.timeSpentSeconds > slowThreshold)).length / observations.length;
     return strain * difficulty;
+  }
+
+  private progressDerivative(recent: NonNullable<HybridRankingInput['recentActivities']>): number {
+    const values = recent
+      .map((item) => item.masteryAfter)
+      .filter((value): value is number => typeof value === 'number');
+    if (values.length < 2) return 0;
+    return this.clamp((values[0] - values[values.length - 1]) * 0.5 + 0.5);
+  }
+
+  private performanceIntegral(recent: NonNullable<HybridRankingInput['recentActivities']>): number {
+    if (!recent.length) return 0;
+    const correctCount = recent.filter((item) => item.isCorrect === true).length;
+    return this.clamp(correctCount / recent.length);
+  }
+
+  private dominanceNormalization(features: number[]): number {
+    return this.clamp(Math.max(...features) - Math.min(...features));
   }
 
   private level(value: unknown): number | null {

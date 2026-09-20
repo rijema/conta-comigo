@@ -12,8 +12,6 @@ brasileira, fundamentada em modelagem ontológica de usuário e Learning Analyti
 [🌐 Deploy](#-deployment) · 
 [🔬 Research](#-valor-acadêmico)
 
-</div>
-
 ---
 
 ## 📋 Índice

@@ -120,4 +120,19 @@ describe('HybridRecommendationService', () => {
     expect(result.candidates.length).toBeGreaterThan(0);
     expect(result.selectedActivityId).toBe('new');
   });
+
+  it('raises score when recent mastery is improving', () => {
+    const easy = activity('easy-progress', 'easy');
+    const hard = activity('hard-progress', 'hard');
+    const improving = service.rank(input([easy, hard], {
+      recentActivities: [
+        { activityId: 'a1', structureId: 's1', isCorrect: true, masteryAfter: 0.3 },
+        { activityId: 'a2', structureId: 's2', isCorrect: true, masteryAfter: 0.6 },
+      ],
+    }));
+
+    expect(improving.candidates[0].progressDerivative).toBeGreaterThanOrEqual(0);
+    expect(improving.candidates[0].performanceIntegral).toBeGreaterThan(0);
+    expect(improving.candidates[0].dominanceNormalization).toBeGreaterThanOrEqual(0);
+  });
 });

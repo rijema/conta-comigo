@@ -21,6 +21,24 @@
 
 `challengeFit = exp(-((predictedSuccess - targetSuccessProbability)²) / (2 × challengeSigma²))`
 
+## Extensão com variação temporal
+
+[DECISÃO DE ENGENHARIA]
+
+A versão operacional mais recente acrescenta termos temporais normalizados ao ranking:
+
+`score' = (score + wD × dProgress/dt + wA × ∫performance dt - wDom × dominanceRisk) / (1 + dominanceRisk)`
+
+Onde `dProgress/dt` representa a tendência recente de progresso, `∫performance dt` agrega desempenho na janela recente e `dominanceRisk` reduz o efeito de um fator que esteja dominando o restante do vetor de decisão. Esses termos não substituem BKT nem o filtro ontológico; eles apenas refinam a ordenação entre candidatos já válidos.
+
+## Fórmula consolidada
+
+[DECISÃO DE ENGENHARIA]
+
+`score_final = (wL·L_BKT + wC·C + wI·I + wS·S_ontologia + wV·V - wR·R + wD·dProgress/dt + wA·∫performance dt - wDom·dominanceRisk) / (1 + dominanceRisk)`
+
+Em que `L_BKT = 1 - masteryProbability`, `C` é o ajuste de desafio, `I` é a adequação de interação, `S_ontologia` mede a compatibilidade semântica dos candidatos já validados, `V` representa novidade, `R` representa risco de rejeição, `dProgress/dt` mede a tendência recente de progresso, `∫performance dt` agrega o desempenho na janela e `dominanceRisk` normaliza fatores excessivamente dominantes. A ontologia continua como restrição prévia de validade e o BKT permanece a fonte principal de domínio; a expressão consolidada apenas ordena os candidatos semanticamente aceitos.
+
 ## Parâmetros configuráveis
 
 [PARÂMETRO EXPERIMENTAL] Pesos, probabilidade-alvo, sigma, janelas de novidade/rejeição, magnitudes máximas e versão da configuração vêm de variáveis de ambiente. Os valores padrão são iniciais de engenharia, não valores aprendidos, clínicos ou pedagogicamente ótimos.
