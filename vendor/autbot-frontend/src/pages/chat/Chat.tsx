@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import "./Chat.css";
 import { FaPaperPlane } from "react-icons/fa";
 import { IoMdSearch, IoMdChatboxes } from "react-icons/io";
-import { useHistoryData } from "../../hooks/useHistoryData";
+import { useHistoryData, type ConversationHistory } from "../../hooks/useHistoryData";
 import HistoryListItem from "../../components/historico/HistoryListItem";
 import FrequentlyAskedQuestions from "../../components/faq/FrequentlyAskedQuestions";
 import ConversationDetailView from "../../components/historico/ConversationDetailView";
@@ -19,9 +19,12 @@ interface ActiveConversationMessage {
   timestamp: string;
 }
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 const Chat = () => {
   const chatStorageKey = `titia-chat-live-${localStorage.getItem("id") ?? "anonymous"}`;
   const tabStorageKey = `titia-chat-tab-${localStorage.getItem("id") ?? "anonymous"}`;
+  const draftMetaStorageKey = `titia-chat-draft-meta-${localStorage.getItem("id") ?? "anonymous"}`;
   const [currentMessage, setCurrentMessage] = useState<string>("");
   const [activeChatMessages, setActiveChatMessages] = useState<
     ActiveConversationMessage[]
@@ -36,6 +39,7 @@ const Chat = () => {
     setSelectedConversationId,
     groupedConversations,
     selectedConversation,
+    refreshHistory,
   } = useHistoryData();
 
   const [isTyping, setIsTyping] = useState(false);
@@ -43,6 +47,8 @@ const Chat = () => {
   const [userType, setUserType] = useState<string>("");
   const [socketError, setSocketError] = useState<string>("");
   const [hasDraftConversation, setHasDraftConversation] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [draftStartedAt, setDraftStartedAt] = useState<string | null>(null);
   const { assistantName, footerText, brand } = useBrand();
 
   const socketRef = useRef<WebSocket | null>(null);
@@ -53,6 +59,24 @@ const Chat = () => {
   const authToken = localStorage.getItem("authToken") ?? "";
   const userId = localStorage.getItem("id") ?? "";
 
+  const filteredConversationGroups = Object.entries(groupedConversations).reduce(
+    (accumulator, [groupName, groupConversations]) => {
+      const filtered = groupConversations.filter((conversation) =>
+        conversation.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        conversation.messages.some((message) =>
+          message.text.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      );
+
+      if (filtered.length > 0) {
+        accumulator[groupName] = filtered;
+      }
+
+      return accumulator;
+    },
+    {} as Record<string, ConversationHistory[]>
+  );
+
   useEffect(() => {
     try {
       const storedMessages = localStorage.getItem(chatStorageKey);
@@ -62,15 +86,35 @@ const Chat = () => {
           setActiveChatMessages(parsed);
         }
       }
+
+      const storedDraftMeta = localStorage.getItem(draftMetaStorageKey);
+      if (storedDraftMeta) {
+        const parsedMeta = JSON.parse(storedDraftMeta);
+        if (parsedMeta?.startedAt) {
+          setDraftStartedAt(parsedMeta.startedAt);
+        }
+      }
     } catch (error) {
       console.error("Erro ao restaurar mensagens salvas:", error);
     }
-  }, [chatStorageKey]);
+  }, [chatStorageKey, draftMetaStorageKey]);
 
   useEffect(() => {
     localStorage.setItem(chatStorageKey, JSON.stringify(activeChatMessages));
     setHasDraftConversation(activeChatMessages.length > 0);
-  }, [activeChatMessages, chatStorageKey]);
+    if (activeChatMessages.length > 0) {
+      const nextStartedAt = draftStartedAt ?? activeChatMessages[0]?.timestamp ?? new Date().toISOString();
+      setDraftStartedAt(nextStartedAt);
+      localStorage.setItem(
+        draftMetaStorageKey,
+        JSON.stringify({ startedAt: nextStartedAt })
+      );
+      return;
+    }
+
+    setDraftStartedAt(null);
+    localStorage.removeItem(draftMetaStorageKey);
+  }, [activeChatMessages, chatStorageKey, draftMetaStorageKey, draftStartedAt]);
 
   useEffect(() => {
     if (hasDraftConversation && currentView === "chat") {
@@ -191,7 +235,7 @@ const Chat = () => {
       console.log("WebSocket desconectado.");
       setIsTyping(false);
       setBotStreamingMessage("");
-      if (hasConnectedRef.current) {
+      if (hasConnectedRef.current && document.visibilityState === "visible") {
         setSocketError("A conexão da TitiA foi interrompida.");
       }
     };
@@ -226,6 +270,61 @@ const Chat = () => {
       author: "user",
       text: currentMessage.trim(),
       timestamp: new Date().toISOString(),
+    };
+
+    const persistConversationToHistory = async () => {
+      if (!authToken || activeChatMessages.length === 0) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`${apiUrl}/chat/history/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const historics = await response.json();
+        const currentHistoric = Array.isArray(historics)
+          ? historics.find((historic: any) => historic.terminated === false)
+          : null;
+
+        if (!currentHistoric?.historicId) {
+          return;
+        }
+
+        await fetch(`${apiUrl}/chat/history/${currentHistoric.historicId}/terminate`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+
+        await refreshHistory();
+        localStorage.removeItem(chatStorageKey);
+        localStorage.removeItem(draftMetaStorageKey);
+      } catch (error) {
+        console.error("Erro ao salvar histórico ativo:", error);
+      }
+    };
+
+    const handleCreateNewChat = async () => {
+      await persistConversationToHistory();
+      setActiveChatMessages([]);
+      setCurrentMessage("");
+      setBotStreamingMessage("");
+      setIsTyping(false);
+      setSocketError("");
+      setCurrentView("chat");
+    };
+
+    const resumeDraftConversation = () => {
+      setCurrentView("chat");
+      setSocketError("");
     };
 
     setActiveChatMessages((prev) => [...prev, userMessage]);
@@ -284,9 +383,19 @@ const Chat = () => {
             <button title="buscar chat" className="send-button">
               <IoMdSearch />
             </button>
-            <button title="criar um novo chat" className="send-button">
+            <button title="criar um novo chat" className="send-button" onClick={handleCreateNewChat}>
               <IoMdChatboxes />
             </button>
+          </div>
+
+          <div className="history-search-container">
+            <input
+              type="search"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder="Buscar no histórico"
+              className="history-search-input"
+            />
           </div>
 
           {currentView === "chat" ? (
@@ -306,19 +415,43 @@ const Chat = () => {
                 <div className="history-section-error">
                   <p>Erro: {historyError}</p>
                 </div>
-              ) : Object.keys(groupedConversations).length === 0 ? (
-                <p className="no-conversations-message">
-                  Você ainda não teve nenhuma conversa salva.
-                  <br />
-                  Interaja com o AutBot para começar!
-                </p>
+              ) : Object.keys(filteredConversationGroups).length === 0 ? (
+                <>
+                  {hasDraftConversation && (
+                    <button className="draft-conversation-card" onClick={resumeDraftConversation}>
+                      <span className="draft-conversation-kicker">Conversa em andamento</span>
+                      <strong>Continuar rascunho atual</strong>
+                      <small>
+                        {draftStartedAt
+                          ? new Date(draftStartedAt).toLocaleString("pt-BR")
+                          : "Retome de onde parou"}
+                      </small>
+                    </button>
+                  )}
+                  <p className="no-conversations-message">
+                    {searchTerm
+                      ? "Nenhuma conversa encontrada para essa busca."
+                      : "Você ainda não teve nenhuma conversa salva.\nInteraja com o AutBot para começar!"}
+                  </p>
+                </>
               ) : (
                 <div className="history-list-groups">
-                  {Object.keys(groupedConversations).map((groupName) => (
+                  {hasDraftConversation && (
+                    <button className="draft-conversation-card" onClick={resumeDraftConversation}>
+                      <span className="draft-conversation-kicker">Conversa em andamento</span>
+                      <strong>Continuar rascunho atual</strong>
+                      <small>
+                        {draftStartedAt
+                          ? new Date(draftStartedAt).toLocaleString("pt-BR")
+                          : "Retome de onde parou"}
+                      </small>
+                    </button>
+                  )}
+                  {Object.keys(filteredConversationGroups).map((groupName) => (
                     <div key={groupName} className="history-group">
                       <h3 className="history-group-title">{groupName}</h3>
                       <div className="history-group-items">
-                        {groupedConversations[groupName].map((conv) => (
+                        {filteredConversationGroups[groupName].map((conv) => (
                           <HistoryListItem
                             key={conv.id}
                             conversation={conv}

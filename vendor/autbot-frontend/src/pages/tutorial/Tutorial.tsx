@@ -35,20 +35,27 @@ const Tutorial = () => {
     };
 
     return (
-        <div className="tutorial-page-container"> {/* Renomeado para clareza */}
+        <div className="tutorial-page-container">
             <SharedTopBar pageType="tutorial" />
-            <main className="tutorial-content-area"> {/* Wrapper para o conteúdo principal */}
+            <main className="tutorial-content-area">
+                <div className="tutorial-hero">
+                    <span className="tutorial-kicker">Guia rápido</span>
+                    <h1>Como usar a TitiA no dia a dia</h1>
+                    <p>Um passo a passo simples para responsáveis, profissionais e usuários que querem conversar com mais segurança e clareza.</p>
+                </div>
                 <div className="manual-carousel">
-                    <h2>Como usar o AutBot?</h2>
+                    <div className="tutorial-progress">
+                        <span>Passo {currentIndex + 1} de {slides.length}</span>
+                    </div>
                     <div className="slide">
                         <p>{slides[currentIndex].text}</p>
                     </div>
                     <div className="controls">
                         <button onClick={prevSlide} disabled={currentIndex === 0}>
-                            ◀
+                            Anterior
                         </button>
                         <button onClick={nextSlide} disabled={currentIndex === slides.length - 1}>
-                            ▶
+                            Próximo
                         </button>
                     </div>
                     <div className="dots">

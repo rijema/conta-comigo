@@ -1,108 +1,182 @@
 :root {
-    /* Cores de Alto Contraste (WCAG AA ou AAA) */
-    --color-primary: #1e88e5; /* Azul claro para acento */
-    --color-background: #f5f5f5; /* Fundo claro e suave */
-    --color-text-dark: #212121; /* Texto principal escuro (alto contraste) */
-    --color-text-light: #757575; /* Texto secundário/label */
-    --color-card-background: #ffffff; /* Fundo do card limpo */
-    --color-shadow: rgba(0, 0, 0, 0.05); /* Sombra suave */
-
-    /* Espaçamento (Para usar o Espaço Negativo) */
-    --spacing-default: 20px;
-    --spacing-gap: 30px;
-    --border-radius: 8px;
+    --dashboard-text: #0f172a;
+    --dashboard-muted: #475569;
 }
 
-/* Estrutura e Layout */
 .dashboard-page {
-    width: 100%; 
-    min-height: 100vh; /* Garante que a página ocupe toda a altura */
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at top left, rgba(186, 230, 253, 0.45), transparent 30%),
+        radial-gradient(circle at top right, rgba(233, 213, 255, 0.4), transparent 28%),
+        linear-gradient(180deg, #f8fbff 0%, #fff8fc 100%);
+}
+
+.dashboard-content {
+    width: min(1200px, calc(100% - 32px));
+    margin: 0 auto;
+    padding: 96px 0 36px;
+}
+
+.dashboard-hero {
+    margin-bottom: 24px;
+}
+
+.dashboard-kicker {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    color: #6d28d9;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
 }
 
 .dashboard-title {
-    color: var(--color-text-dark);
-    font-size: 2.2rem;
-    font-weight: 300; 
-    margin-bottom: var(--spacing-gap);
+    color: var(--dashboard-text);
+    font-size: clamp(2rem, 2.6vw, 2.8rem);
+    font-weight: 800;
+    line-height: 1.08;
+    margin: 8px 0 10px;
 }
 
+.dashboard-subtitle {
+    margin: 0;
+    color: var(--dashboard-muted);
+    line-height: 1.6;
+    max-width: 760px;
+}
+
+.dashboard-status,
+.dashboard-error {
+    margin: 0 0 18px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    font-weight: 700;
+}
+
+.dashboard-status {
+    background: #eef6ff;
+    color: #334155;
+}
+
+.dashboard-error {
+    background: #fff1f2;
+    color: #b91c1c;
+}
 
 .dashboard-grid-layout {
     display: grid;
-    grid-template-columns: 300px 1fr;
-    gap: var(--spacing-gap);
+    grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+    gap: 24px;
     width: 100%;
 }
 
-/*Cards (KPIs) */
 .dashboard-cards {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-gap);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+}
+
+.dashboard-card,
+.dashboard-chart-area {
+    position: relative;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    border-radius: 28px;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+    backdrop-filter: blur(14px);
 }
 
 .dashboard-card {
-    background-color: var(--color-card-background);
-    padding: var(--spacing-default);
-    border-radius: var(--border-radius);
-    box-shadow: 0 4px 8px var(--color-shadow);
-    transition: transform 0.2s;
+    padding: 22px;
+    transition: transform 0.2s ease;
 }
 
 .dashboard-card:hover {
     transform: translateY(-2px);
 }
 
+.dashboard-card-accent {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    height: 5px;
+}
+
+.dashboard-card-accent-users {
+    background: linear-gradient(90deg, #0ea5e9, #6366f1);
+}
+
+.dashboard-card-accent-chats {
+    background: linear-gradient(90deg, #6366f1, #8b5cf6);
+}
+
+.dashboard-card-accent-messages {
+    background: linear-gradient(90deg, #d946ef, #8b5cf6);
+}
+
+.dashboard-card-accent-active {
+    background: linear-gradient(90deg, #0ea5e9, #14b8a6);
+}
+
 .card-label {
     font-size: 0.9rem;
-    color: var(--color-text-light);
-    margin: 0 0 5px 0;
-    font-weight: 400;
+    color: var(--dashboard-muted);
+    margin: 0 0 10px;
+    font-weight: 700;
 }
 
 .card-value {
-    font-size: 2.5rem;
-    color: var(--color-primary); 
-    font-weight: 700;
+    font-size: clamp(2rem, 3vw, 2.8rem);
+    color: #1e1b4b;
+    font-weight: 800;
     margin: 0;
-    line-height: 1; 
+    line-height: 1;
 }
 
-/*Área do Gráfico */
 .dashboard-chart-area {
-    background-color: var(--color-card-background);
-    padding: var(--spacing-default);
-    border-radius: var(--border-radius);
-    box-shadow: 0 4px 8px var(--color-shadow);
-    width: 100%;
+    padding: 24px;
 }
 
 .chart-title {
-    font-size: 1.5rem;
-    color: var(--color-text-dark);
-    font-weight: 500;
-    margin: 0 0 var(--spacing-default) 0;
+    font-size: 1.25rem;
+    color: var(--dashboard-text);
+    font-weight: 800;
+    margin: 0 0 16px 0;
 }
 
-/* 4. Acessibilidade Adicional (Foco Visual) */
-/* Garante que elementos focáveis (como links ou campos dentro de cards) tenham um contorno visível */
 *:focus {
-    outline: 2px solid var(--color-primary);
+    outline: 2px solid #6366f1;
     outline-offset: 2px;
 }
 
-/*  Responsividade */
-@media (max-width: 2000px) {
+@media (max-width: 920px) {
     .dashboard-grid-layout {
         grid-template-columns: 1fr;
     }
+
     .dashboard-cards {
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: var(--spacing-default);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .dashboard-card {
-        flex: 1 1 calc(50% - var(--spacing-default) / 2);
-        min-width: 150px;
+}
+
+@media (max-width: 640px) {
+    .dashboard-content {
+        width: min(100% - 20px, 100%);
+        padding: 88px 0 24px;
+    }
+
+    .dashboard-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-card,
+    .dashboard-chart-area {
+        border-radius: 22px;
     }
 }
