@@ -12,6 +12,8 @@ import { CategorizationActivity } from "./categorization-activity";
 import { QuantityBuilderActivity } from "./quantity-builder-activity";
 import { BasketMinigame } from "../minigames/basket-minigame";
 import { ComparisonMinigame } from "../minigames/comparison-minigame";
+import { MemoryMinigame } from "../minigames/memory-minigame";
+import { CategoryMinigame } from "../minigames/category-minigame";
 
 interface ActivityRendererProps {
   activity: Activity;
@@ -42,6 +44,18 @@ export function ActivityRenderer({
 
   const renderActivity = () => {
     if (activity.content?.interaction === "categorize") {
+      // Use CategoryMinigame for categorization
+      if (sensoryProfile?.preferredModality !== 'text') {
+        return (
+          <CategoryMinigame
+            key={activity.id}
+            skill={activity.bnccSkills?.[0] ?? 'EF01MA01'}
+            difficulty={(activity.difficulty as any) || 'easy'}
+            onComplete={(score, isCorrect) => onAnswer({ correct: isCorrect, score })}
+            isTEAMode={true}
+          />
+        );
+      }
       return <CategorizationActivity key={activity.id} activity={activity} onAnswer={onAnswer} />;
     }
     if (activity.content?.interaction === "quantity_builder") {
@@ -55,6 +69,12 @@ export function ActivityRenderer({
       activity.content?.semantic?.structureId?.includes('greater') ||
       activity.content?.semantic?.structureId?.includes('compare') ||
       activity.content?.semantic?.structureId?.includes('equal');
+
+    // Check if this should use memory game (pattern/matching activities)
+    const isMemoryActivity =
+      activity.content?.semantic?.structureId?.includes('pattern') ||
+      activity.type === 'pattern_completion' ||
+      activity.content?.interaction === 'memory';
 
     switch (activity.type) {
       case "quiz":
@@ -138,8 +158,31 @@ export function ActivityRenderer({
       case "missing_number":
       case "pattern_completion":
       case "representation_matching":
+        // Use MemoryMinigame for pattern activities
+        if (isMemoryActivity && sensoryProfile?.preferredModality !== 'text') {
+          return (
+            <MemoryMinigame
+              key={activity.id}
+              skill={activity.bnccSkills?.[0] ?? 'EF01MA02'}
+              difficulty={(activity.difficulty as any) || 'easy'}
+              onComplete={(score, isCorrect) => onAnswer({ correct: isCorrect, score })}
+              isTEAMode={true}
+            />
+          );
+        }
+        return (
+          <ParametricMathActivity
+            key={activity.id}
+            activity={activity}
+            onAnswer={onAnswer}
+            onRequestHint={onRequestHint}
+            sensoryProfile={sensoryProfile}
+          />
+        );
+
       case "error_detection":
       case "contextual_problem_solving":
+      case "visual_puzzle":
         return (
           <ParametricMathActivity
             key={activity.id}
