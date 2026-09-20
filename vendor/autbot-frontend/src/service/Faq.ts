@@ -15,7 +15,7 @@ export async function getTopFaqQuestions(): Promise<string[]> {
     },
   });
 
-  const data = response.data as { question: string }[];
+  const data = Array.isArray(response.data) ? response.data as { question: string }[] : [];
 
   return data.map((item) => item.question);
 }
