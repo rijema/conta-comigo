@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./Chat.css";
 import { FaPaperPlane } from "react-icons/fa";
 import { IoMdSearch, IoMdChatboxes } from "react-icons/io";
@@ -25,12 +25,17 @@ const Chat = () => {
   const chatStorageKey = `titia-chat-live-${localStorage.getItem("id") ?? "anonymous"}`;
   const tabStorageKey = `titia-chat-tab-${localStorage.getItem("id") ?? "anonymous"}`;
   const draftMetaStorageKey = `titia-chat-draft-meta-${localStorage.getItem("id") ?? "anonymous"}`;
-  const [currentMessage, setCurrentMessage] = useState<string>("");
-  const [activeChatMessages, setActiveChatMessages] = useState<
-    ActiveConversationMessage[]
-  >([]);
 
+  const [currentMessage, setCurrentMessage] = useState("");
+  const [activeChatMessages, setActiveChatMessages] = useState<ActiveConversationMessage[]>([]);
   const [currentView, setCurrentView] = useState<"chat" | "history">("chat");
+  const [isTyping, setIsTyping] = useState(false);
+  const [botStreamingMessage, setBotStreamingMessage] = useState("");
+  const [userType, setUserType] = useState("");
+  const [socketError, setSocketError] = useState("");
+  const [hasDraftConversation, setHasDraftConversation] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [draftStartedAt, setDraftStartedAt] = useState<string | null>(null);
 
   const {
     loading: historyLoading,
@@ -42,18 +47,9 @@ const Chat = () => {
     refreshHistory,
   } = useHistoryData();
 
-  const [isTyping, setIsTyping] = useState(false);
-  const [botStreamingMessage, setBotStreamingMessage] = useState<string>("");
-  const [userType, setUserType] = useState<string>("");
-  const [socketError, setSocketError] = useState<string>("");
-  const [hasDraftConversation, setHasDraftConversation] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [draftStartedAt, setDraftStartedAt] = useState<string | null>(null);
   const { assistantName, footerText, brand } = useBrand();
-
   const socketRef = useRef<WebSocket | null>(null);
   const hasConnectedRef = useRef(false);
-
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const authToken = localStorage.getItem("authToken") ?? "";
@@ -102,9 +98,13 @@ const Chat = () => {
   useEffect(() => {
     localStorage.setItem(chatStorageKey, JSON.stringify(activeChatMessages));
     setHasDraftConversation(activeChatMessages.length > 0);
+
     if (activeChatMessages.length > 0) {
-      const nextStartedAt = draftStartedAt ?? activeChatMessages[0]?.timestamp ?? new Date().toISOString();
-      setDraftStartedAt(nextStartedAt);
+      const nextStartedAt =
+        draftStartedAt ?? activeChatMessages[0]?.timestamp ?? new Date().toISOString();
+      if (nextStartedAt !== draftStartedAt) {
+        setDraftStartedAt(nextStartedAt);
+      }
       localStorage.setItem(
         draftMetaStorageKey,
         JSON.stringify({ startedAt: nextStartedAt })
@@ -112,16 +112,14 @@ const Chat = () => {
       return;
     }
 
-    setDraftStartedAt(null);
+    if (draftStartedAt !== null) {
+      setDraftStartedAt(null);
+    }
     localStorage.removeItem(draftMetaStorageKey);
   }, [activeChatMessages, chatStorageKey, draftMetaStorageKey, draftStartedAt]);
 
   useEffect(() => {
-    if (currentView === "chat") {
-      localStorage.setItem(tabStorageKey, currentView);
-      return;
-    }
-    localStorage.setItem(tabStorageKey, "history");
+    localStorage.setItem(tabStorageKey, currentView);
   }, [currentView, tabStorageKey]);
 
   useEffect(() => {
@@ -131,12 +129,8 @@ const Chat = () => {
       return;
     }
 
-    if (storedView === "chat" || hasDraftConversation) {
-      setCurrentView("chat");
-      return;
-    }
     setCurrentView("chat");
-  }, [hasDraftConversation, tabStorageKey]);
+  }, [tabStorageKey]);
 
   useEffect(() => {
     if (!userId) {
@@ -155,12 +149,8 @@ const Chat = () => {
       });
   }, [userId]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
   useEffect(() => {
-    scrollToBottom();
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [activeChatMessages, botStreamingMessage]);
 
   const connectWebSocket = () => {
@@ -170,18 +160,15 @@ const Chat = () => {
       return;
     }
 
-    let apiUrl = import.meta.env.VITE_API_URL || "";
-    if (apiUrl.endsWith("/api")) {
-      apiUrl = apiUrl.slice(0, -4);
+    let wsApiUrl = import.meta.env.VITE_API_URL || "";
+    if (wsApiUrl.endsWith("/api")) {
+      wsApiUrl = wsApiUrl.slice(0, -4);
     }
-    const wsUrl = apiUrl.replace(/^http/, "ws");
 
-    const ws = new WebSocket(
-      `${wsUrl}/ws?token=${encodeURIComponent(authToken)}`
-    );
+    const wsUrl = wsApiUrl.replace(/^http/, "ws");
+    const ws = new WebSocket(`${wsUrl}/ws?token=${encodeURIComponent(authToken)}`);
 
     ws.onopen = () => {
-      console.log("WebSocket conectado!");
       hasConnectedRef.current = true;
       setIsTyping(false);
       setSocketError("");
@@ -191,14 +178,14 @@ const Chat = () => {
       try {
         const data = JSON.parse(event.data);
 
-        console.log("Mensagem recebida do WS:", data);
-
         if (data.type === "partial") {
           setBotStreamingMessage((prev) => prev + data.content);
           setIsTyping(true);
-        } else if (data.type === "complete") {
+          return;
+        }
+
+        if (data.type === "complete" || (data.role === "assistant" && data.content)) {
           const contentWithoutStars = (botStreamingMessage + (data.content || "")).replace(/\*\*/g, "");
-
           const botMessage: ActiveConversationMessage = {
             id: Date.now().toString(),
             author: "autbot",
@@ -208,19 +195,10 @@ const Chat = () => {
           setActiveChatMessages((prev) => [...prev, botMessage]);
           setBotStreamingMessage("");
           setIsTyping(false);
-        } else if (data.role === "assistant" && data.content) {
-          const contentWithoutStars = data.content.replace(/\*\*/g, "");
+          return;
+        }
 
-          const botMessage: ActiveConversationMessage = {
-            id: Date.now().toString(),
-            author: "autbot",
-            text: contentWithoutStars,
-            timestamp: new Date().toISOString(),
-          };
-          setActiveChatMessages((prev) => [...prev, botMessage]);
-          setBotStreamingMessage("");
-          setIsTyping(false);
-        } else if (data.error) {
+        if (data.error) {
           setSocketError(`Erro do servidor: ${data.error}`);
           setIsTyping(false);
           setBotStreamingMessage("");
@@ -237,7 +215,6 @@ const Chat = () => {
     };
 
     ws.onclose = () => {
-      console.log("WebSocket desconectado.");
       setIsTyping(false);
       setBotStreamingMessage("");
       if (hasConnectedRef.current && document.visibilityState === "visible") {
@@ -262,6 +239,61 @@ const Chat = () => {
     setCurrentMessage(event.target.value);
   };
 
+  const persistConversationToHistory = async () => {
+    if (!authToken || activeChatMessages.length === 0) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${apiUrl}/chat/history/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        return;
+      }
+
+      const historics = await response.json();
+      const currentHistoric = Array.isArray(historics)
+        ? historics.find((historic: any) => historic.terminated === false)
+        : null;
+
+      if (!currentHistoric?.historicId) {
+        return;
+      }
+
+      await fetch(`${apiUrl}/chat/history/${currentHistoric.historicId}/terminate`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      await refreshHistory();
+      localStorage.removeItem(chatStorageKey);
+      localStorage.removeItem(draftMetaStorageKey);
+    } catch (error) {
+      console.error("Erro ao salvar histórico ativo:", error);
+    }
+  };
+
+  const handleCreateNewChat = async () => {
+    await persistConversationToHistory();
+    setActiveChatMessages([]);
+    setCurrentMessage("");
+    setBotStreamingMessage("");
+    setIsTyping(false);
+    setSocketError("");
+    setCurrentView("chat");
+  };
+
+  const resumeDraftConversation = () => {
+    setCurrentView("chat");
+    setSocketError("");
+  };
+
   const handleSendMessage = () => {
     if (currentMessage.trim() === "") return;
 
@@ -277,74 +309,17 @@ const Chat = () => {
       timestamp: new Date().toISOString(),
     };
 
-    const persistConversationToHistory = async () => {
-      if (!authToken || activeChatMessages.length === 0) {
-        return;
-      }
-
-      try {
-        const response = await fetch(`${apiUrl}/chat/history/${userId}`, {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        });
-
-        if (!response.ok) {
-          return;
-        }
-
-        const historics = await response.json();
-        const currentHistoric = Array.isArray(historics)
-          ? historics.find((historic: any) => historic.terminated === false)
-          : null;
-
-        if (!currentHistoric?.historicId) {
-          return;
-        }
-
-        await fetch(`${apiUrl}/chat/history/${currentHistoric.historicId}/terminate`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        });
-
-        await refreshHistory();
-        localStorage.removeItem(chatStorageKey);
-        localStorage.removeItem(draftMetaStorageKey);
-      } catch (error) {
-        console.error("Erro ao salvar histórico ativo:", error);
-      }
-    };
-
-    const handleCreateNewChat = async () => {
-      await persistConversationToHistory();
-      setActiveChatMessages([]);
-      setCurrentMessage("");
-      setBotStreamingMessage("");
-      setIsTyping(false);
-      setSocketError("");
-      setCurrentView("chat");
-    };
-
-    const resumeDraftConversation = () => {
-      setCurrentView("chat");
-      setSocketError("");
-    };
-
     setActiveChatMessages((prev) => [...prev, userMessage]);
     setCurrentMessage("");
     setSocketError("");
 
-    const messagePayload = {
-      userId,
-      pergunta: userMessage.text,
-      publico: userType,
-    };
-
-    console.log("Enviando mensagem:", messagePayload);
-
-    socketRef.current.send(JSON.stringify(messagePayload));
+    socketRef.current.send(
+      JSON.stringify({
+        userId,
+        pergunta: userMessage.text,
+        publico: userType,
+      })
+    );
 
     setIsTyping(true);
     setBotStreamingMessage("");
@@ -362,10 +337,7 @@ const Chat = () => {
 
   const showHistoryView = () => {
     setCurrentView("history");
-    if (
-      !selectedConversationId &&
-      Object.keys(groupedConversations).length > 0
-    ) {
+    if (!selectedConversationId && Object.keys(groupedConversations).length > 0) {
       setSelectedConversationId(Object.values(groupedConversations)[0][0].id);
     }
   };
@@ -373,6 +345,10 @@ const Chat = () => {
   const handleFaqQuestionSelect = (question: string) => {
     setCurrentMessage(question);
   };
+
+  const draftPreview =
+    activeChatMessages.find((message) => message.author === "user")?.text ||
+    "Continuar conversa em andamento";
 
   return (
     <>
@@ -408,7 +384,7 @@ const Chat = () => {
               {hasDraftConversation ? (
                 <button className="draft-conversation-card" onClick={resumeDraftConversation}>
                   <span className="draft-conversation-kicker">Interação atual</span>
-                  <strong>{activeChatMessages.find((message) => message.author === "user")?.text || "Continuar conversa em andamento"}</strong>
+                  <strong>{draftPreview}</strong>
                   <small>
                     {draftStartedAt
                       ? `Em andamento desde ${new Date(draftStartedAt).toLocaleString("pt-BR")}`
@@ -437,7 +413,7 @@ const Chat = () => {
                   {hasDraftConversation && (
                     <button className="draft-conversation-card" onClick={resumeDraftConversation}>
                       <span className="draft-conversation-kicker">Conversa em andamento</span>
-                      <strong>Continuar rascunho atual</strong>
+                      <strong>{draftPreview}</strong>
                       <small>
                         {draftStartedAt
                           ? new Date(draftStartedAt).toLocaleString("pt-BR")
@@ -456,7 +432,7 @@ const Chat = () => {
                   {hasDraftConversation && (
                     <button className="draft-conversation-card" onClick={resumeDraftConversation}>
                       <span className="draft-conversation-kicker">Conversa em andamento</span>
-                      <strong>Continuar rascunho atual</strong>
+                      <strong>{draftPreview}</strong>
                       <small>
                         {draftStartedAt
                           ? new Date(draftStartedAt).toLocaleString("pt-BR")
@@ -464,6 +440,7 @@ const Chat = () => {
                       </small>
                     </button>
                   )}
+
                   {Object.keys(filteredConversationGroups).map((groupName) => (
                     <div key={groupName} className="history-group">
                       <h3 className="history-group-title">{groupName}</h3>
@@ -487,11 +464,7 @@ const Chat = () => {
 
         <div className="main-chat">
           <header className="chat-header">
-            {currentView === "chat" ? (
-              <div>Nova conversa</div>
-            ) : (
-              <div>Histórico de Conversas</div>
-            )}
+            {currentView === "chat" ? <div>Nova conversa</div> : <div>Histórico de Conversas</div>}
           </header>
 
           <main className="chat-body">
@@ -506,41 +479,29 @@ const Chat = () => {
                           Comece uma nova conversa ou volte para uma conversa já salva no histórico.
                         </p>
                       </div>
-                      <FrequentlyAskedQuestions
-                        onQuestionClick={handleFaqQuestionSelect}
-                      />
+                      <FrequentlyAskedQuestions onQuestionClick={handleFaqQuestionSelect} />
                     </div>
                   ) : (
                     <>
                       {activeChatMessages.map((message, index) => (
-                        <div
-                          key={index}
-                          className={`chat-bubble ${message.author}`}
-                        >
+                        <div key={index} className={`chat-bubble ${message.author}`}>
                           <p className="message-text">{message.text}</p>
                           <span className="message-time">
-                            {new Date(message.timestamp).toLocaleTimeString(
-                              "pt-BR",
-                              {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }
-                            )}
+                            {new Date(message.timestamp).toLocaleTimeString("pt-BR", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
                           </span>
                         </div>
                       ))}
 
                       {isTyping && botStreamingMessage && (
                         <div className="chat-bubble autbot">
-                          <StreamingMessage
-                            message={botStreamingMessage}
-                            onComplete={() => {}}
-                          />
+                          <StreamingMessage message={botStreamingMessage} onComplete={() => {}} />
                         </div>
                       )}
 
                       {isTyping && !botStreamingMessage && <TypingIndicator />}
-
                       <div ref={messagesEndRef} />
                     </>
                   )}
@@ -563,18 +524,16 @@ const Chat = () => {
                     aria-label="Enviar mensagem"
                     disabled={isTyping || currentMessage.trim() === ""}
                   >
-                    {isTyping ? (
-                      <div className="loading-spinner" />
-                    ) : (
-                      <FaPaperPlane />
-                    )}
+                    {isTyping ? <div className="loading-spinner" /> : <FaPaperPlane />}
                   </button>
                 </div>
+
                 {socketError && (
                   <div className="chat-inline-error" role="status">
                     {socketError}
                   </div>
                 )}
+
                 {footerText && (
                   <div className={`brand-footer brand-footer-${brand}`}>
                     <a
@@ -603,9 +562,7 @@ const Chat = () => {
                         : "Retome a interação atual quando quiser continuar escrevendo."}
                   </p>
                 </div>
-                <ConversationDetailView
-                  conversation={selectedConversation ?? null}
-                />
+                <ConversationDetailView conversation={selectedConversation ?? null} />
               </>
             )}
           </main>
