@@ -750,10 +750,36 @@ export async function ActivitiesSeed(dataSource: DataSource) {
   const existingRecords = await repo.find({ select: ['id', 'title', 'content', 'bnccSkills'] });
   const existingTitles = new Set(existingRecords.map((record: any) => record.title));
   const existingByTitle = new Map(existingRecords.map((record: any) => [record.title, record]));
+  const existingByStructureId = new Map(existingRecords
+    .map((record: any) => [record.content?.semantic?.structureId, record] as const)
+    .filter(([structureId]) => typeof structureId === 'string' && structureId.length > 0));
   let created = 0;
   let speechMetadataUpdated = 0;
   let authoredContentUpdated = 0;
+  let titleMetadataUpdated = 0;
   for (const activity of activities) {
+    const structureId = (activity.content as Record<string, any>)?.semantic?.structureId;
+    if (typeof structureId === 'string' && existingByStructureId.has(structureId)) {
+      const existing = existingByStructureId.get(structureId) as any;
+      let shouldSave = false;
+      if (existing.title !== activity.title) {
+        existing.title = activity.title;
+        shouldSave = true;
+      }
+      if (existing.description !== activity.description) {
+        existing.description = activity.description;
+        shouldSave = true;
+      }
+      if (JSON.stringify(existing.bnccSkills) !== JSON.stringify(activity.bnccSkills)) {
+        existing.bnccSkills = activity.bnccSkills;
+        shouldSave = true;
+      }
+      if (shouldSave) {
+        await repo.save(existing);
+        titleMetadataUpdated += 1;
+      }
+      continue;
+    }
     if (existingTitles.has(activity.title)) {
       const existing = existingByTitle.get(activity.title) as any;
       const correctedSkill = ['Que forma é essa?', 'Círculo ou quadrado?'].includes(activity.title)
@@ -793,5 +819,5 @@ export async function ActivitiesSeed(dataSource: DataSource) {
     created += 1;
   }
 
-  console.log(`✅ ${created} new activities seeded; ${speechMetadataUpdated} speech metadata records updated; ${authoredContentUpdated} authored content corrections (${activities.length} defined)`);
+  console.log(`✅ ${created} new activities seeded; ${titleMetadataUpdated} title metadata records updated; ${speechMetadataUpdated} speech metadata records updated; ${authoredContentUpdated} authored content corrections (${activities.length} defined)`);
 }

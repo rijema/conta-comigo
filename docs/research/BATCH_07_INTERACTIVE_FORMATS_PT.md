@@ -22,6 +22,12 @@
 
 [LITERATURA] Nenhuma inferência causal sobre aprendizagem ou validação curricular é atribuída a este lote. Os vínculos curriculares usados vêm do seed BNCC existente; padrões, posição, tamanho e cor permanecem sem código quando não existe mapeamento local validado.
 
+## Nomenclatura apresentada a famílias, profissionais e crianças
+
+[DECISÃO DE ENGENHARIA] Os identificadores técnicos `formatId`, `structureId` e `niche` permanecem apenas como metadados semânticos estáveis para seed idempotente, analytics e recomendação. Os títulos persistidos das atividades parametrizadas passaram a usar linguagem natural em português, adequada para dashboard e mapa de aventuras.
+
+[PROPOSTA CONTA COMIGO] Exemplos dessa tradução incluem “Colocar números em ordem” no lugar de `order_numbers`, “Ligar a quantidade ao número” no lugar de `match_two` e “Descobrir o que está embaixo” no lugar de `below`. A camada de interface continua consumindo `activity.title`, mas deixa de expor nomes internos do catálogo.
+
 ## Texto potencial para a dissertação
 
 ### Metodologia

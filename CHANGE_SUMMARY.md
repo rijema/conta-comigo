@@ -1,5 +1,11 @@
 # Change Summary
 
+## Batch B8.1 — Friendly activity names
+
+- Replaced technical seeded titles such as `Interativo order_numbers: introdução`, `Pool number_quantity: match_two`, and relation IDs with plain Portuguese names suitable for guardians, professionals, and children.
+- Preserved semantic identifiers as stable backend metadata while updating the idempotent seed to refresh existing records by `semantic.structureId`, avoiding duplicate activities.
+- Added regression coverage for friendly titles and documented the naming decision in the Portuguese Batch 07 research notes. No database migration is needed.
+
 ## Batch B8 — Shared ARASAAC library
 
 - Restored the section toolbar and pictogram details from the historical experience in one modal shared by public home, the library route, and the logged learning map.
