@@ -1,11 +1,17 @@
 import { DataSource } from 'typeorm';
 import { expandedActivityPools } from './activity-pools.seed';
 import { interactiveFormatActivities } from './interactive-formats.seed';
+import { generate77ExercisesBreakingCycle } from './exercises-77-breaking-cycle.seed';
 
 export async function ActivitiesSeed(dataSource: DataSource) {
   const repo = dataSource.getRepository('activities');
 
+  // 🚀 ADD 77 EXERCISES TO BREAK REPETITION CYCLE (EF01MA03 priority)
+  const newExercises = generate77ExercisesBreakingCycle();
+
   const activities = [
+    // ── NEW: 77 DIVERSE EXERCISES (Breaking the cycle!)
+    ...newExercises,
     // ── EF01MA01: Counting 1–10 ─────────────────────────────────────────
     {
       title: 'Conta as estrelas!',
