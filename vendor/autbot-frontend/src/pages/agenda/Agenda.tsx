@@ -3,6 +3,8 @@ import axios from 'axios';
 import SharedTopBar from "../../components/topbar/SharedTopBar";
 import './Agenda.css';
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 interface Lembrete {
   id: number;
   titulo: string;
@@ -24,10 +26,11 @@ const Agenda = () => {
   useEffect(() => {
     const fetchLembretes = async () => {
       try {
-        const res = await axios.get('/api/lembretes');
-        setLembretes(res.data);
+        const res = await axios.get(`${apiUrl}/lembretes`);
+        setLembretes(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         console.error('Erro ao carregar lembretes:', err);
+        setLembretes([]);
       } finally {
         setLoading(false);
       }
@@ -39,14 +42,14 @@ const Agenda = () => {
     if (!titulo || !data) return alert('Preencha o título e a data.');
 
     try {
-      const res = await axios.post('/api/lembretes', {
+      const res = await axios.post(`${apiUrl}/lembretes`, {
         titulo,
         descricao,
         data,
         horaInicio,
         horaFim,
       });
-      setLembretes([res.data, ...lembretes]);
+      setLembretes((current) => [res.data, ...current]);
       setTitulo('');
       setDescricao('');
       setData('');
@@ -59,8 +62,8 @@ const Agenda = () => {
 
   const handleRemoverLembrete = async (id: number) => {
     try {
-      await axios.delete(`/api/lembretes/${id}`);
-      setLembretes(lembretes.filter((l) => l.id !== id));
+      await axios.delete(`${apiUrl}/lembretes/${id}`);
+      setLembretes((current) => current.filter((l) => l.id !== id));
     } catch (err) {
       console.error('Erro ao remover lembrete:', err);
     }

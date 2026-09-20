@@ -75,6 +75,7 @@ export const useHistoryData = () => {
     const fetchHistory = async () => {
       try {
         setLoading(true);
+        setError(null);
         const authToken = localStorage.getItem("authToken");
         const userId = localStorage.getItem("id");
 
@@ -91,23 +92,30 @@ export const useHistoryData = () => {
           }
         );
 
+        if (response.status === 404) {
+          setConversations([]);
+          setSelectedConversationId(null);
+          return;
+        }
+
         if (!response.ok) {
           throw new Error("Falha ao buscar histórico");
         }
 
         const apiData = await response.json();
+        const historics = Array.isArray(apiData) ? apiData : [];
 
-        const formattedData: ConversationHistory[] = apiData.map(
+        const formattedData: ConversationHistory[] = historics.map(
           (conv: any) => ({
             id: conv.historicId,
             timestamp: conv.startedAt,
             title:
-              conv.messages.length > 0
+              Array.isArray(conv.messages) && conv.messages.length > 0
                 ? conv.messages
                     .find((m: any) => m.role === "user")
                     ?.content.slice(0, 30) + "..."
                 : "Conversa",
-            messages: conv.messages.map((msg: any) => ({
+            messages: (Array.isArray(conv.messages) ? conv.messages : []).map((msg: any) => ({
               author: msg.role === "user" ? "user" : "autoBot",
               text: msg.content,
               timestamp: msg.createdAt,
