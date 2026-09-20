@@ -90,4 +90,32 @@ chatRoutes.get('/chat/history/:userId', authMiddleware, async (req: Request, res
   }
 });
 
+chatRoutes.post('/chat/history/:historicId/terminate', authMiddleware, async (req: Request, res: Response): Promise<void> => {
+  const { historicId } = req.params;
+
+  try {
+    const historic = await prisma.historic.findUnique({
+      where: { historicId },
+    });
+
+    if (!historic) {
+      res.status(404).json({ error: 'Histórico não encontrado.' });
+      return;
+    }
+
+    await prisma.historic.update({
+      where: { historicId },
+      data: {
+        terminated: true,
+        endedAt: new Date(),
+      },
+    });
+
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error('Erro ao finalizar histórico:', error);
+    res.status(500).json({ error: 'Erro interno no servidor.' });
+  }
+});
+
 export default chatRoutes;

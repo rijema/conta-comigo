@@ -3,6 +3,8 @@ import axios from "axios";
 import "./Profissionais.css";
 import SharedTopBar from "../../components/topbar/SharedTopBar";
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 interface Profissional {
   id: string;
   nome: string;
@@ -18,17 +20,19 @@ const Profissionais = () => {
 
   const [resultados, setResultados] = useState<Profissional[]>([]);
   const [loading, setLoading] = useState(false);
+  const [feedback, setFeedback] = useState("");
 
   const buscarProfissionais = async () => {
     if (!cidade || !estado) {
-      alert("Cidade e Estado são obrigatórios!");
+      setFeedback("Cidade e estado são obrigatórios para a busca.");
       return;
     }
 
     setLoading(true);
+    setFeedback("");
 
     try {
-      const res = await axios.get("api/profissionais", {
+      const res = await axios.get(`${apiUrl}/profissionais`, {
         params: {
           cidade,
           estado,
@@ -36,10 +40,11 @@ const Profissionais = () => {
         },
       });
 
-      setResultados(res.data);
+      setResultados(Array.isArray(res.data) ? res.data : []);
+      setFeedback(Array.isArray(res.data) && res.data.length === 0 ? "Nenhum profissional encontrado para esses filtros." : "");
     } catch (error) {
       console.log(error);
-      alert("Erro ao buscar profissionais.");
+      setFeedback("Erro ao buscar profissionais.");
     } finally {
       setLoading(false);
     }
@@ -51,7 +56,11 @@ const Profissionais = () => {
       <div className="profissionais-content-area">
         <main className="main-profissionais">
           <section className="profissionais-left">
-            <h1>Buscar Profissionais</h1>
+            <div className="profissionais-section-heading">
+              <span className="profissionais-kicker">Rede de apoio</span>
+              <h1>Buscar profissionais</h1>
+              <p>Encontre especialistas por cidade, estado e área de atuação com uma interface mais acolhedora e legível.</p>
+            </div>
             <div className="profissionais-card">
               <div className="profissionais-textfield">
                 <label>Cidade*</label>
@@ -86,14 +95,20 @@ const Profissionais = () => {
               <button className="profissionais-button" onClick={buscarProfissionais}>
                 {loading ? "Buscando..." : "Buscar"}
               </button>
+
+              {feedback && <p className="profissionais-feedback">{feedback}</p>}
             </div>
           </section>
 
           <section className="profissionais-right">
-            <h1>Resultados</h1>
+            <div className="profissionais-section-heading profissionais-section-heading-right">
+              <span className="profissionais-kicker">Resultados</span>
+              <h1>Profissionais encontrados</h1>
+              <p>Veja contatos e especialidades para decidir quem pode apoiar melhor cada família, criança ou estudante.</p>
+            </div>
 
             <div className="profissionais-list">
-              {!loading && resultados.length === 0 && (
+              {!loading && resultados.length === 0 && !feedback && (
                 <p>Nenhum profissional encontrado.</p>
               )}
 

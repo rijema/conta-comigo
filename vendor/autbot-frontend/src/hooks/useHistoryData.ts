@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -38,6 +38,7 @@ const groupConversationsByDate = (conversations: ConversationHistory[]) => {
     if (!groups[groupKey]) {
       groups[groupKey] = [];
     }
+
     groups[groupKey].push(conv);
   });
 
@@ -55,8 +56,7 @@ const groupConversationsByDate = (conversations: ConversationHistory[]) => {
   const orderedGroups: { [key: string]: ConversationHistory[] } = {};
   orderedKeys.forEach((key) => {
     orderedGroups[key] = groups[key].sort(
-      (a, b) =>
-        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
     );
   });
 
@@ -67,73 +67,78 @@ export const useHistoryData = () => {
   const [conversations, setConversations] = useState<ConversationHistory[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedConversationId, setSelectedConversationId] = useState<
-    string | null
-  >(null);
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
+
+  const fetchHistory = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const authToken = localStorage.getItem("authToken");
+      const userId = localStorage.getItem("id");
+
+      if (!authToken || !userId) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await fetch(`${apiUrl}/chat/history/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      if (response.status === 404) {
+        setConversations([]);
+        setSelectedConversationId(null);
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("Falha ao buscar histórico");
+      }
+
+      const apiData = await response.json();
+      const historics = Array.isArray(apiData) ? apiData : [];
+
+      const formattedData: ConversationHistory[] = historics.map((conv: any) => {
+        const messages = Array.isArray(conv.messages) ? conv.messages : [];
+        const firstUserMessage = messages.find((m: any) => m.role === "user");
+        const preview =
+          typeof firstUserMessage?.content === "string"
+            ? firstUserMessage.content.slice(0, 42)
+            : "Conversa";
+
+        return {
+          id: conv.historicId,
+          timestamp: conv.startedAt,
+          title: preview.length === 42 ? `${preview}...` : preview,
+          messages: messages.map((msg: any) => ({
+            author: msg.role === "user" ? "user" : "autoBot",
+            text: msg.content,
+            timestamp: msg.createdAt,
+          })),
+        };
+      });
+
+      setConversations(formattedData);
+      setSelectedConversationId((currentSelectedId) => {
+        if (
+          currentSelectedId &&
+          formattedData.some((conversation) => conversation.id === currentSelectedId)
+        ) {
+          return currentSelectedId;
+        }
+
+        return formattedData.length > 0 ? formattedData[0].id : null;
+      });
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const authToken = localStorage.getItem("authToken");
-        const userId = localStorage.getItem("id");
-
-        if (!authToken || !userId) {
-          throw new Error("Usuário não autenticado");
-        }
-
-        const response = await fetch(
-          `${apiUrl}/chat/history/${userId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-            },
-          }
-        );
-
-        if (response.status === 404) {
-          setConversations([]);
-          setSelectedConversationId(null);
-          return;
-        }
-
-        if (!response.ok) {
-          throw new Error("Falha ao buscar histórico");
-        }
-
-        const apiData = await response.json();
-        const historics = Array.isArray(apiData) ? apiData : [];
-
-        const formattedData: ConversationHistory[] = historics.map(
-          (conv: any) => ({
-            id: conv.historicId,
-            timestamp: conv.startedAt,
-            title:
-              Array.isArray(conv.messages) && conv.messages.length > 0
-                ? conv.messages
-                    .find((m: any) => m.role === "user")
-                    ?.content.slice(0, 30) + "..."
-                : "Conversa",
-            messages: (Array.isArray(conv.messages) ? conv.messages : []).map((msg: any) => ({
-              author: msg.role === "user" ? "user" : "autoBot",
-              text: msg.content,
-              timestamp: msg.createdAt,
-            })),
-          })
-        );
-
-        setConversations(formattedData);
-
-        if (formattedData.length > 0) {
-          setSelectedConversationId(formattedData[0].id);
-        }
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchHistory();
   }, []);
 
@@ -150,5 +155,6 @@ export const useHistoryData = () => {
     setSelectedConversationId,
     groupedConversations,
     selectedConversation,
+    refreshHistory: fetchHistory,
   };
 };

@@ -22,6 +22,8 @@ const Agenda = () => {
   const [horaFim, setHoraFim] = useState('');
   const [lembretes, setLembretes] = useState<Lembrete[]>([]);
   const [loading, setLoading] = useState(true);
+  const [feedback, setFeedback] = useState<string>("");
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchLembretes = async () => {
@@ -39,9 +41,14 @@ const Agenda = () => {
   }, []);
 
   const handleAdicionarLembrete = async () => {
-    if (!titulo || !data) return alert('Preencha o título e a data.');
+    if (!titulo || !data) {
+      setFeedback("Preencha o título e a data para salvar o lembrete.");
+      return;
+    }
 
     try {
+      setSubmitting(true);
+      setFeedback("");
       const res = await axios.post(`${apiUrl}/lembretes`, {
         titulo,
         descricao,
@@ -55,8 +62,12 @@ const Agenda = () => {
       setData('');
       setHoraInicio('');
       setHoraFim('');
+      setFeedback("Lembrete salvo com sucesso.");
     } catch (err) {
       console.error('Erro ao adicionar lembrete:', err);
+      setFeedback("Não foi possível salvar o lembrete agora.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -64,8 +75,10 @@ const Agenda = () => {
     try {
       await axios.delete(`${apiUrl}/lembretes/${id}`);
       setLembretes((current) => current.filter((l) => l.id !== id));
+      setFeedback("Lembrete removido.");
     } catch (err) {
       console.error('Erro ao remover lembrete:', err);
+      setFeedback("Não foi possível remover esse lembrete.");
     }
   };
 
@@ -75,7 +88,11 @@ const Agenda = () => {
       <div className="agenda-content-area">
         <div className="main-agenda">
           <div className="agenda-left">
-            <h1>Adicionar Lembrete</h1>
+            <div className="agenda-section-heading">
+              <span className="agenda-kicker">Organização da rotina</span>
+              <h1>Agenda da TitiA</h1>
+              <p>Registre consultas, tarefas e combinados importantes para acompanhar a rotina com clareza.</p>
+            </div>
 
             <div className="agenda-card">
               <div className="agenda-textfield">
@@ -126,14 +143,20 @@ const Agenda = () => {
                 </div>
               </div>
 
-              <button className="agenda-button" onClick={handleAdicionarLembrete}>
-                Adicionar
+              <button className="agenda-button" onClick={handleAdicionarLembrete} disabled={submitting}>
+                {submitting ? "Salvando..." : "Adicionar lembrete"}
               </button>
+
+              {feedback && <p className="agenda-feedback">{feedback}</p>}
             </div>
           </div>
 
           <div className="agenda-right">
-            <h1>Meus Lembretes</h1>
+            <div className="agenda-section-heading agenda-section-heading-right">
+              <span className="agenda-kicker">Visão rápida</span>
+              <h1>Próximos lembretes</h1>
+              <p>Veja o que já foi salvo e mantenha tudo acessível para a família e os profissionais.</p>
+            </div>
 
             <div className="agenda-list">
               {loading ? (

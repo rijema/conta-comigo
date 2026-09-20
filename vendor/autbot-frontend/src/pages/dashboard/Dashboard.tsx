@@ -32,34 +32,40 @@ export default function Dashboard() {
     }, []);
 
     return (
-        
         <div className="dashboard-page">
             <SharedTopBar pageType="dashboard" />
-
-            
             <div className="dashboard-content">
-                <h1 className="dashboard-title">Dashboard</h1>
+                <div className="dashboard-hero">
+                    <span className="dashboard-kicker">Visão geral</span>
+                    <h1 className="dashboard-title">Painel da TitiA</h1>
+                    <p className="dashboard-subtitle">
+                        Acompanhe rapidamente uso, conversas e atividade recente com uma leitura mais clara e acolhedora.
+                    </p>
+                </div>
 
-                {loading && <p>Carregando...</p>}
-                {error && <p className="error">{error}</p>}
+                {loading && <p className="dashboard-status">Carregando indicadores...</p>}
+                {error && <p className="dashboard-error">{error}</p>}
 
                 {data && (
                     <div className="dashboard-grid-layout">
-                        
                         <div className="dashboard-cards">
                             <div className="dashboard-card">
+                                <span className="dashboard-card-accent dashboard-card-accent-users" />
                                 <p className="card-label">Total de Usuários</p>
                                 <h2 className="card-value">{data.totalUsuarios}</h2>
                             </div>
                             <div className="dashboard-card">
+                                <span className="dashboard-card-accent dashboard-card-accent-chats" />
                                 <p className="card-label">Total de Chats</p>
                                 <h2 className="card-value">{data.totalChats}</h2>
                             </div>
                             <div className="dashboard-card">
+                                <span className="dashboard-card-accent dashboard-card-accent-messages" />
                                 <p className="card-label">Mensagens Enviadas</p>
                                 <h2 className="card-value">{data.mensagensEnviadas || 0}</h2>
                             </div>
                             <div className="dashboard-card">
+                                <span className="dashboard-card-accent dashboard-card-accent-active" />
                                 <p className="card-label">Usuários Ativos Hoje</p>
                                 <h2 className="card-value">{data.usuariosAtivosHoje || 0}</h2>
                             </div>
