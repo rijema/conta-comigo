@@ -44,7 +44,9 @@ export class RecommendationOutcomeService {
 
     const outcome = await this.findOrCreateOutcome(event);
     this.applyEvent(outcome, event);
-    await this.outcomeRepository.save(outcome);
+    
+    // Use upsert to handle race conditions (concurrent events)
+    await this.outcomeRepository.upsert(outcome, ['recommendationId']);
 
     if (event.eventType === LearningEventType.ACTIVITY_SKIPPED) {
       await this.createPendingTransition(event);
