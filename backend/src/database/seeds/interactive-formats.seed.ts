@@ -23,6 +23,44 @@ const formatLabels: Record<string, string> = {
   compare_length: 'Comprido ou curto', full_empty: 'Cheio ou vazio',
 };
 
+const formatTitleVariants: Record<string, [string, string]> = {
+  visual_counting: ['Contar figuras', 'Contar mais figuras'],
+  number_to_quantity: ['Ligar número e quantidade', 'Ligar mais números e quantidades'],
+  quantity_to_number: ['Ligar quantidade e número', 'Ligar mais quantidades e números'],
+  order_numbers: ['Colocar números em ordem', 'Ordenar números maiores'],
+  complete_sequence: ['Completar a sequência', 'Descobrir o próximo número'],
+  before_after: ['Descobrir o número anterior', 'Pensar no antes e depois'],
+  greater_less_equal: ['Comparar quantidades', 'Comparar grupos maiores'],
+  more_less: ['Encontrar o grupo com mais', 'Encontrar o grupo com menos'],
+  group_by_quantity: ['Separar por quantidade', 'Agrupar mais quantidades'],
+  classify_shape: ['Agrupar formas iguais', 'Comparar diferentes formas'],
+  classify_size: ['Separar figuras por tamanho', 'Comparar tamanhos das figuras'],
+  classify_attribute: ['Agrupar figuras por cor', 'Comparar cores das figuras'],
+  complete_pattern: ['Completar o padrão', 'Descobrir a repetição'],
+  shape_real_object: ['Encontrar a forma do objeto', 'Comparar objeto e forma'],
+  build_quantity: ['Montar a quantidade', 'Montar quantidades maiores'],
+  visual_addition: ['Somar dois grupos', 'Somar mais figuras'],
+  visual_subtraction: ['Descobrir quantos restam', 'Tirar e contar o que sobrou'],
+  everyday_problem: ['Resolver um problema do dia a dia', 'Resolver outro problema do dia a dia'],
+  visual_strategy: ['Escolher como resolver a soma', 'Escolher a melhor estratégia'],
+  odd_one_out: ['Encontrar a figura diferente', 'Descobrir o item diferente'],
+  equivalent_set: ['Encontrar a mesma quantidade', 'Comparar quantidades iguais'],
+  one_to_one: ['Fazer pares um a um', 'Conferir se todos têm par'],
+  spatial_position: ['Descobrir onde está', 'Observar outra posição'],
+  magnitude: ['Comparar qual tem mais', 'Comparar grupos maiores'],
+  compare_length: ['Descobrir o que é mais comprido', 'Comparar comprimentos'],
+  full_empty: ['Descobrir o que está cheio', 'Comparar recipientes'],
+};
+
+const spatialRelationTitles: Record<string, [string, string]> = {
+  above: ['Descobrir o que está em cima', 'Observar quem fica mais acima'],
+  below: ['Descobrir o que está embaixo', 'Observar quem fica mais abaixo'],
+  inside: ['Descobrir o que está dentro', 'Observar quem fica por dentro'],
+  outside: ['Descobrir o que está fora', 'Observar quem fica por fora'],
+  left: ['Descobrir o que está à esquerda', 'Observar quem fica mais à esquerda'],
+  right: ['Descobrir o que está à direita', 'Observar quem fica mais à direita'],
+};
+
 const formats: Format[] = [
   { id: 'visual_counting', niche: 'counting', skills: ['EF01MA02'], type: 'quiz', prompt: 'Conte os dados. Quantos há?', levels: [2, 5], build: (v) => choice(visual(v), numbers([v - 1, v, v + 1]), String(v)) },
   { id: 'number_to_quantity', niche: 'number_quantity', skills: ['EF01MA01', 'EF01MA02'], type: 'drag_drop', prompt: 'Leve cada número para o conjunto correspondente.', levels: [2, 4], build: (v) => drag([item('a', n(v), String(v)), item('b', n(v + 1), String(v + 1))], ['b', 'a'], ['Conjunto 1', 'Conjunto 2'], [group(v + 1).pictogramConceptIds, group(v).pictogramConceptIds]) },
@@ -54,7 +92,7 @@ const formats: Format[] = [
 
 export function interactiveFormatActivities(): Record<string, unknown>[] {
   const base = formats.flatMap((format) => format.levels.map((level, index) => ({
-    title: `Interativo ${format.id}: ${index === 0 ? 'introdução' : 'ampliação'}`,
+    title: formatTitleVariants[format.id]?.[index] ?? formatLabels[format.id],
     description: `${format.niche} / ${format.id}`,
     type: format.type,
     difficulty: index === 0 ? 'very_easy' : 'medium',
@@ -71,7 +109,7 @@ export function interactiveFormatActivities(): Record<string, unknown>[] {
     ['outside', 'fora'], ['left', 'à esquerda'], ['right', 'à direita'],
   ];
   const spatialExamples = spatialRelations.flatMap(([relation, label]) => [0, 1].map((stage) => ({
-    title: `Interativo posição ${relation}: ${stage === 0 ? 'introdução' : 'ampliação'}`,
+    title: spatialRelationTitles[relation]?.[stage] ?? formatLabels.spatial_position,
     description: `spatial_position / ${relation}`,
     type: 'quiz', difficulty: stage === 0 ? 'very_easy' : 'medium', bnccSkills: [], skillWeights: [],
     targetModalities: ['visual'], pointsReward: stage === 0 ? 10 : 20, isActive: true,

@@ -29,4 +29,12 @@ describe('expanded activity pools', () => {
     expect(activities.find((item) => item.content.semantic.niche === 'magnitudes').bnccSkills)
       .toEqual([]);
   });
+
+  it('uses friendly titles for pooled activities', () => {
+    const titles = activities.map((item) => item.title);
+    expect(titles).toContain('Ligar a quantidade ao número');
+    expect(titles).toContain('Completar a contagem');
+    expect(titles).not.toContain('Pool number_quantity: match_two');
+    expect(titles).not.toContain('Pool sequence: next_small');
+  });
 });

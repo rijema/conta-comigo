@@ -41,6 +41,13 @@ describe('interactive format catalog', () => {
     }
   });
 
+  it('generates child-friendly titles instead of semantic ids', () => {
+    for (const activity of activities) {
+      expect(activity.title).not.toMatch(/^(Interativo\b|Pool\b)/);
+      expect(activity.title).not.toMatch(/\b(order_numbers|complete_sequence|before_after|spatial_position)\b/);
+    }
+  });
+
   it('uses registered ARASAAC IDs for every authored visual concept', () => {
     const registrySource = readFileSync(resolve(process.cwd(), '../frontend/src/lib/pictograms.ts'), 'utf8');
     const registered = new Set([...registrySource.matchAll(/definition\(["']([^"']+)["'],[^\n]*?,\s*\d+\)/g)].map((match) => match[1]));
