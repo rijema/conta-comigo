@@ -3,6 +3,7 @@ import "../globals.css";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { AccessibilityProvider } from "@/contexts/AccessibilityContext";
+import Head from "next/head";
 
 export const metadata: Metadata = {
   title: "Conta Comigo - Matemática que aprende com cada criança",
@@ -35,6 +36,16 @@ export default async function RootLayout({
 
   return (
     <html lang={locale}>
+      <Head>
+        <link rel="preload" as="image" href="/assets/correctanswer.png" />
+        <link rel="preload" as="image" href="/assets/tryagain.png" />
+        <link rel="preload" as="image" href="/assets/mainiconfirstpage.png" />
+        <link rel="preload" as="image" href="/assets/wildcard.png" />
+        <link rel="preload" as="image" href="/assets/answeryeymotion.png" />
+        <link rel="preload" as="image" href="/assets/severalreactionstitia.png" />
+        <link rel="preload" as="image" href="/assets/senseofmotion.png" />
+        <link rel="preload" as="image" href="/assets/rainbowGiff.gif" />
+      </Head>
       <body className="antialiased">
         <NextIntlClientProvider locale={locale} messages={messages}>
           <AccessibilityProvider>{children}</AccessibilityProvider>
