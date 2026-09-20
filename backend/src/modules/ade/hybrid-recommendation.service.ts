@@ -277,8 +277,8 @@ export class HybridRecommendationService {
       const semanticFit = ((semanticDecision?.matchedConcepts.length ?? 0) / maxMatches) * skillWeight;
       const novelty = this.novelty(candidate.id, input.recentActivityIds, recentStructures);
       const rejectionRisk = this.rejectionRisk(candidate.id, input.recentlyRejectedActivityIds);
-      const sensoryFit = this.sensoryFit(candidate, input.preferences);
-      const formatFit = this.formatFit(candidate, input.preferences);
+      const sensoryFit = this.sensoryFit(candidate, input.preferences, input.observedEvidenceTypes);
+      const formatFit = this.formatFit(candidate, input.preferences, input.observedEvidenceTypes);
       const repetitionRisk = this.repetitionRisk(candidate, input.recentActivities ?? []);
       const recencyPenalty = this.recencyPenalty(candidate, recentBlock);
       const frustrationRisk = this.frustrationRisk(difficulty, (input.recentActivities ?? []).filter((item) =>
@@ -411,24 +411,98 @@ export class HybridRecommendationService {
       (1 - this.configuration.difficultyLevelWeight) * profileValue;
   }
 
+  /**
+   * Calculate interaction fit based on student's TEA profile strengths/weaknesses.
+   * Returns values in [0, 1] range:
+   * - 1.0 = perfect match for student's strengths
+   * - 0.5 = neutral
+   * - 0.0 = conflicts with student's weaknesses
+   *
+   * [LITERATURA] Vygotsky ZPD - match activity modality to student strengths
+   * [PROPOSTA CONTA COMIGO] Considerar perfil TEA (visual/auditivo/motor) para adaptar
+   */
   private interactionFit(activity: Activity, evidence: string[]): {
     value: number;
     insufficientEvidence: string[];
   } {
     if (!evidence.length) return { value: 0.5, insufficientEvidence: ['interactionEvidence'] };
+    
     const normalized = evidence.map((item) => item.toLowerCase());
     const observations: number[] = [];
-    if (normalized.some((item) => item.includes('visualstrength'))) {
-      observations.push(activity.representation?.includes('pictorial') ? 1 : 0.5);
+    
+    // Extract strength values: "visualstrength:0.87" or "visualstrength"
+    const strengthMap = this.parseModalityEvidence(evidence);
+    
+    // Visual strength/weakness
+    if (strengthMap.visualstrength !== undefined || normalized.some((item) => item.includes('visualstrength'))) {
+      const visualStrengthValue = strengthMap.visualstrength ?? 1.0; // Default 1.0 if just boolean
+      const hasVisual = activity.representation?.includes('pictorial') || activity.targetModalities?.includes('visual');
+      observations.push(hasVisual ? visualStrengthValue : (1 - visualStrengthValue) * 0.5);
     }
-    if (normalized.some((item) => item.includes('auditivestrength'))) {
-      observations.push(activity.affordances?.usesAudio ? 1 : 0.5);
+    
+    if (strengthMap.visualweakness !== undefined || normalized.some((item) => item.includes('visualweakness'))) {
+      const visualWeaknessValue = strengthMap.visualweakness ?? 1.0;
+      const hasVisual = activity.representation?.includes('pictorial') || activity.targetModalities?.includes('visual');
+      observations.push(hasVisual ? (1 - visualWeaknessValue) * 0.3 : 0.7); // Avoid visual when weak
     }
-    if (normalized.some((item) => item.includes('motorweakness'))) {
-      observations.push(activity.affordances?.requiresDragging ? 0 : 1);
+    
+    // Auditory strength/weakness
+    if (strengthMap.auditivestrength !== undefined || normalized.some((item) => item.includes('auditivestrength'))) {
+      const auditoryStrengthValue = strengthMap.auditivestrength ?? 1.0;
+      const hasAudio = activity.affordances?.usesAudio || activity.targetModalities?.includes('audio');
+      observations.push(hasAudio ? auditoryStrengthValue : (1 - auditoryStrengthValue) * 0.5);
     }
+    
+    if (strengthMap.auditiveweakness !== undefined || normalized.some((item) => item.includes('auditiveweakness'))) {
+      const auditoryWeaknessValue = strengthMap.auditiveweakness ?? 1.0;
+      const hasAudio = activity.affordances?.usesAudio || activity.targetModalities?.includes('audio');
+      observations.push(hasAudio ? (1 - auditoryWeaknessValue) * 0.3 : 0.7); // Avoid audio when weak
+    }
+    
+    // Motor strength/weakness
+    if (strengthMap.motorstrength !== undefined || normalized.some((item) => item.includes('motorstrength'))) {
+      const motorStrengthValue = strengthMap.motorstrength ?? 1.0;
+      const requiresMotor = activity.affordances?.requiresDragging || activity.type === 'drag_drop';
+      observations.push(requiresMotor ? motorStrengthValue : (1 - motorStrengthValue) * 0.5);
+    }
+    
+    if (strengthMap.motorweakness !== undefined || normalized.some((item) => item.includes('motorweakness'))) {
+      const motorWeaknessValue = strengthMap.motorweakness ?? 1.0;
+      const requiresMotor = activity.affordances?.requiresDragging || activity.type === 'drag_drop';
+      observations.push(requiresMotor ? (1 - motorWeaknessValue) * 0.3 : 0.7); // Avoid motor when weak
+    }
+    
     if (!observations.length) return { value: 0.5, insufficientEvidence: ['recognizedInteractionEvidence'] };
-    return { value: observations.reduce((sum, value) => sum + value, 0) / observations.length, insufficientEvidence: [] };
+    
+    // Average all observations, clamped to [0, 1]
+    const avgValue = observations.reduce((sum, value) => sum + value, 0) / observations.length;
+    return { 
+      value: this.clamp(avgValue), 
+      insufficientEvidence: [] 
+    };
+  }
+
+  /**
+   * Parse modality evidence with optional strength values.
+   * Supports formats like "visualstrength:0.87" or just "visualstrength"
+   */
+  private parseModalityEvidence(evidence: string[]): Record<string, number | undefined> {
+    const map: Record<string, number | undefined> = {};
+    
+    for (const item of evidence) {
+      const lower = item.toLowerCase();
+      const [key, valueStr] = item.split(':');
+      const value = valueStr ? parseFloat(valueStr) : undefined;
+      
+      if (lower.includes('visualstrength')) map.visualstrength = value;
+      if (lower.includes('visualweakness')) map.visualweakness = value;
+      if (lower.includes('auditivestrength')) map.auditivestrength = value;
+      if (lower.includes('auditiveweakness')) map.auditiveweakness = value;
+      if (lower.includes('motorstrength')) map.motorstrength = value;
+      if (lower.includes('motorweakness')) map.motorweakness = value;
+    }
+    
+    return map;
   }
 
   private novelty(activityId: string, history: string[], recentStructures: Set<string>): number {
@@ -443,20 +517,93 @@ export class HybridRecommendationService {
     return index < 0 ? 0 : Math.exp(-index / this.configuration.rejectionDecay);
   }
 
-  private sensoryFit(activity: Activity, preferences?: HybridRankingInput['preferences']): number {
-    if (preferences?.lowStimulation !== true) return 0.5;
-    const load = String(activity.difficultyProfile?.sensoryLoad ??
-      activity.accessibility?.sensoryLoad ?? '').toLowerCase();
-    if (load === 'low') return 1;
-    if (load === 'medium') return 0.5;
-    if (load === 'high') return 0;
-    return 0.5;
+  /**
+   * Calculate sensory fit based on activity's sensory load vs student's preferences.
+   * If student has low stimulation preference OR visual weakness, penalize high-load activities.
+   * Returns [0, 1] range value.
+   *
+   * [LITERATURA] Sensory processing differences in TEA
+   * [PROPOSTA CONTA COMIGO] Respeitar preferências de estímulo sensório
+   */
+  private sensoryFit(activity: Activity, preferences?: HybridRankingInput['preferences'], evidence?: string[]): number {
+    let baseScore = 0.5; // Default neutral
+    
+    // Check low stimulation preference
+    if (preferences?.lowStimulation === true) {
+      const load = String(activity.difficultyProfile?.sensoryLoad ??
+        activity.accessibility?.sensoryLoad ?? '').toLowerCase();
+      
+      if (load === 'low') baseScore = 1.0;
+      else if (load === 'medium') baseScore = 0.5;
+      else if (load === 'high') baseScore = 0.0;
+    }
+    
+    // If we have evidence of visual/auditory/motor weakness, penalize accordingly
+    if (evidence) {
+      const normalized = evidence.map((e) => e.toLowerCase());
+      
+      // Any weakness + high sensory load = penalty
+      if ((normalized.some((e) => e.includes('weakness'))) && 
+          String(activity.difficultyProfile?.sensoryLoad ?? '').toLowerCase() === 'high') {
+        baseScore *= 0.5; // Halve the score
+      }
+    }
+    
+    return this.clamp(baseScore);
   }
 
-  private formatFit(activity: Activity, preferences?: HybridRankingInput['preferences']): number {
+  /**
+   * Calculate format fit: how well activity's modality matches student's strengths/preferences.
+   * Returns continuous value in [0, 1] range based on:
+   * - Preferred modality match
+   * - Student's modality strengths
+   * - Alternative modalities if primary is weak
+   *
+   * [PROPOSTA CONTA COMIGO] Personalizar por modalidade preferida (visual/auditivo/motor)
+   */
+  private formatFit(activity: Activity, preferences?: HybridRankingInput['preferences'], evidence?: string[]): number {
     const preference = preferences?.preferredModality;
-    if (!preference) return 0.5;
-    return activity.targetModalities?.includes(preference) ? 1 : 0.25;
+    let baseScore = 0.5; // Default neutral
+    
+    if (!preference && !evidence?.length) return baseScore;
+    
+    const targetModalities = activity.targetModalities ?? [];
+    const strengthMap = evidence ? this.parseModalityEvidence(evidence) : {};
+    
+    // 1. Check preferred modality match
+    if (preference) {
+      if (targetModalities.includes(preference)) {
+        // Primary preference matched - boost to 0.9
+        baseScore = 0.9;
+        
+        // Check if student also has strength in that modality
+        const strengthKey = `${preference}strength`;
+        if (strengthMap[strengthKey] !== undefined) {
+          baseScore = 0.7 + (strengthMap[strengthKey] * 0.3); // 0.7-1.0
+        }
+      } else {
+        // Preference not matched - lower to 0.3
+        baseScore = 0.3;
+        
+        // But give points if we have ANY modality match with student strengths
+        for (const modality of targetModalities) {
+          const strengthKey = `${modality}strength`;
+          if (strengthMap[strengthKey] !== undefined && strengthMap[strengthKey] > 0.6) {
+            baseScore = Math.max(baseScore, 0.6); // At least 0.6 if strength available
+          }
+        }
+      }
+    }
+    
+    // 2. Penalize if activity requires modality where student is weak
+    for (const modality of targetModalities) {
+      const weaknessKey = `${modality}weakness`;
+      if (strengthMap[weaknessKey] !== undefined && strengthMap[weaknessKey] > 0.6) {
+        baseScore *= 0.5; // Halve score if weak in required modality
+      }
+    }
+    
+    return this.clamp(baseScore);
   }
 
   private repetitionRisk(activity: Activity, recent: NonNullable<HybridRankingInput['recentActivities']>): number {
