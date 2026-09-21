@@ -39,7 +39,7 @@ export class Add77ExercisesBreakingCycle1726868400000
 
     // 1. Selection - "Qual tem mais?" - Visual + Audio
     exercises.push({
-      id: 'ef01ma03-selection-more-1',
+      id: '88713c04-5331-50f3-8be1-0ed354603e73',
       title: 'Qual grupo tem MAIS maçãs?',
       description:
         'Selecione o grupo com mais maçãs. Suporta crianças TEA com timing lento.',
@@ -89,7 +89,7 @@ export class Add77ExercisesBreakingCycle1726868400000
 
     // 2. Drag and Drop - "Leve para a cesta" - Kinesthetic + Visual
     exercises.push({
-      id: 'ef01ma03-dragdrop-basket-1',
+      id: 'e9634945-edba-53fc-80b0-48d310a41b54',
       title: 'Leve as maçãs para a cesta!',
       description: 'Arraste as maçãs para a cesta. Ótimo para crianças TEA!',
       type: 'drag_drop',
@@ -127,7 +127,7 @@ export class Add77ExercisesBreakingCycle1726868400000
 
     // 3. Matching - "Ligar número e quantidade"
     exercises.push({
-      id: 'ef01ma03-matching-number-1',
+      id: 'f83969ad-1004-5c7d-a6e6-4f43d2f8a58b',
       title: 'Ligue o número ao seu valor!',
       description: 'Ligar número com representação visual. TEA-friendly!',
       type: 'representation_matching',
@@ -180,7 +180,7 @@ export class Add77ExercisesBreakingCycle1726868400000
 
     // 4. Manipulative - "Blocos de montar"
     exercises.push({
-      id: 'ef01ma03-manipulative-blocks-1',
+      id: 'cda691a5-ae67-5fd6-b0d2-5e90e1c3ecbc',
       title: 'Stacking Game - Monte 5 blocos!',
       description:
         'Monte blocos coloridos para aprender comparação. Sensorial!',
@@ -221,7 +221,7 @@ export class Add77ExercisesBreakingCycle1726868400000
 
     // 5. Number Line - "Coloque na reta"
     exercises.push({
-      id: 'ef01ma03-numberline-compare-1',
+      id: '3c8de605-49e4-5038-bb22-1018faaf4460',
       title: 'Coloque na reta numérica!',
       description: 'Onde fica o 3? E o 7? Comparação pela posição.',
       type: 'quiz',
@@ -254,7 +254,7 @@ export class Add77ExercisesBreakingCycle1726868400000
 
     // 6. Word Problem - "História matemática" (com audio)
     exercises.push({
-      id: 'ef01ma03-wordproblem-story-1',
+      id: '6a1e8994-973d-5655-bcab-6aa3b4b6a364',
       title: 'Problema: João e Maria têm frutas',
       description: 'João tem 2 maçãs. Maria tem 5. Quem tem mais?',
       type: 'contextual_problem_solving',
@@ -294,7 +294,7 @@ export class Add77ExercisesBreakingCycle1726868400000
 
     // 7. Multi-selection - "Marque TODOS os que são triângulos"
     exercises.push({
-      id: 'ef01ma03-multiselect-shapes-1',
+      id: 'b8a31305-75ea-529b-b379-93e202168f46',
       title: 'Marque TODOS os triângulos!',
       description: 'Encontre e marque todos os triângulos. Pode ter mais de um!',
       type: 'visual_puzzle',
@@ -334,7 +334,7 @@ export class Add77ExercisesBreakingCycle1726868400000
 
     // 8. Equation Builder - "Complete: 2 + ? = 5"
     exercises.push({
-      id: 'ef01ma03-equation-builder-1',
+      id: '5dea0e73-b6b2-571d-9a8b-2e2c7bec836d',
       title: 'Complete a equação!',
       description: '2 + ? = 5. Qual número falta?',
       type: 'missing_number',
@@ -372,7 +372,7 @@ export class Add77ExercisesBreakingCycle1726868400000
 
     // 9. Voice Answer - "Responda oralmente"
     exercises.push({
-      id: 'ef01ma03-voice-answer-1',
+      id: 'de00cdda-e1e4-5e1a-a701-98ca8886f0bd',
       title: 'Responda com sua voz!',
       description:
         'Titia pergunta, você responde oralmente. Para crianças expressivas!',
@@ -404,7 +404,7 @@ export class Add77ExercisesBreakingCycle1726868400000
 
     // 10-13. Grid variations - "Completar quadro"
     exercises.push({
-      id: 'ef01ma03-grid-tenframe-1',
+      id: 'f8f40b31-07e1-56e9-8966-61d39a8ef856',
       title: 'Preencha o quadro de 10!',
       description: 'Quantos faltam para completar 10?',
       type: 'counting',
@@ -445,7 +445,7 @@ export class Add77ExercisesBreakingCycle1726868400000
 
     // Pattern Completion - "Qual vem depois?"
     exercises.push({
-      id: 'ef01ma03-pattern-completion-1',
+      id: '4ae07d03-c32a-5539-acd7-06ec29e67e58',
       title: 'Padrão: qual vem depois?',
       description: 'Vermelho, azul, vermelho, azul... qual vem depois?',
       type: 'pattern_completion',
@@ -482,7 +482,7 @@ export class Add77ExercisesBreakingCycle1726868400000
 
     // True/False - "Verdadeiro ou Falso?"
     exercises.push({
-      id: 'ef01ma03-truefalse-1',
+      id: '9a75aa36-85d3-5215-ab01-c6f6060b84ab',
       title: 'Verdadeiro ou Falso?',
       description: '5 > 3? Certo ou Errado?',
       type: 'yes_no',
