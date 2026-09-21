@@ -295,7 +295,7 @@ function LearnPageInner() {
           <div className="feedback-motion flex w-full items-center justify-center gap-4 border-y-4 border-emerald-200 bg-emerald-600/90 py-4 shadow-2xl" style={{ animation: `feedbackSweep ${feedbackDuration}ms ease-in-out both` }}>
             <Image src="/assets/correctanswer.png" width={520} height={390} alt="TitiA comemorando o acerto" className="h-64 w-auto object-contain sm:h-80" />
             <p className="text-3xl font-extrabold text-white drop-shadow-lg">
-              Muito bem! {settings.feedbackVisual === 'reinforced' || settings.reinforcementPreference === 'frequent' ? '🎉 ⭐ ✨' : '🎉'}
+              Muito bem!
             </p>
           </div>
         </div>
@@ -437,8 +437,8 @@ function LearnPageInner() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-extrabold text-blue-700">💡 Como jogar</h2>
-              <button onClick={() => setShowTutorial(false)} className="text-2xl text-gray-400 hover:text-gray-600">✕</button>
+              <h2 className="text-xl font-extrabold text-blue-700">Como jogar</h2>
+              <button onClick={() => setShowTutorial(false)} className="text-2xl text-gray-400 hover:text-gray-600">×</button>
             </div>
             <div className="flex justify-center">
               <Image src="/assets/wildcard.png" width={180} height={135}
