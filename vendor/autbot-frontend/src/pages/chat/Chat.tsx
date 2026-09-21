@@ -37,6 +37,7 @@ const Chat = () => {
   const [hasDraftConversation, setHasDraftConversation] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [draftStartedAt, setDraftStartedAt] = useState<string | null>(null);
+  const [isReadOnly, setIsReadOnly] = useState(false); // Read-only mode for history
 
   const {
     loading: historyLoading,
@@ -287,6 +288,7 @@ const Chat = () => {
     setBotStreamingMessage("");
     setIsTyping(false);
     setSocketError("");
+    setIsReadOnly(false); // Enable editing for new chat
     setCurrentView("chat");
   };
 
@@ -372,7 +374,7 @@ const Chat = () => {
       }));
       
       setActiveChatMessages(loadedMessages);
-      // Keep in chat view so user can continue/see the conversation
+      setIsReadOnly(true); // Enable read-only mode for loaded history
       setCurrentView("chat");
     }
   };
@@ -495,12 +497,14 @@ const Chat = () => {
                                minute: "2-digit",
                              })}
                            </span>
-                           <MessageToolbar
-                             messageId={message.id}
-                             messageText={message.text}
-                             onGoToHistory={handleGoToHistoryMessage}
-                           />
-                         </div>
+                          {!isReadOnly && (
+                            <MessageToolbar
+                              messageId={message.id}
+                              messageText={message.text}
+                              onGoToHistory={handleGoToHistoryMessage}
+                            />
+                          )}
+                        </div>
                        </div>
                      ))}
 
