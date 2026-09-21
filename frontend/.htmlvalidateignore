@@ -1,0 +1,6 @@
+# html-validate config
+# JSX/TypeScript files should be ignored as they're not plain HTML
+*.tsx
+*.ts
+*.jsx
+*.js
