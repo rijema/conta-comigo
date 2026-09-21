@@ -95,8 +95,8 @@ export const BasketMinigame: React.FC<BasketMinigameProps> = ({
       <div style={{ marginBottom: '20px' }}>
         <h2>🍎 Coloque as frutas na cesta!</h2>
         {isTEAMode && (
-          <p style={{ color: '#666', fontSize: '14px' }}>
-            Modo TEA: Sem pressa! Arraste devagar. Você tem todo o tempo.
+          <p style={{ color: '#666', fontSize: '14px', fontStyle: 'italic' }}>
+            Sem pressa! Arraste devagar. Você tem todo o tempo.
           </p>
         )}
       </div>
