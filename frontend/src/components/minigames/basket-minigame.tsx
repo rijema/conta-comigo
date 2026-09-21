@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { useTitiaSpeech } from '@/hooks/use-titia-speech';
 
 /**
  * MINIGAME: Basket Collection Quest
@@ -44,12 +45,29 @@ export const BasketMinigame: React.FC<BasketMinigameProps> = ({
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
   const [completionPercent, setCompletionPercent] = useState(0);
+  const spokenRef = useRef(false);
+  const speech = useTitiaSpeech({ activityId: `basket-minigame-${skill}` });
+
+  // Speak instruction on mount
+  useEffect(() => {
+    if (speech.settings.voiceEnabled && !spokenRef.current) {
+      spokenRef.current = true;
+      speech.speakInstruction({
+        steps: ["Arraste os itens para o cesto."],
+      });
+    }
+  }, [speech.settings.voiceEnabled, speech]);
 
   // Wrap onComplete in useCallback to prevent unnecessary reruns
   const handleComplete = useCallback(() => {
     console.log('🎉 Basket minigame completed!', { droppedItems, itemsTotal: items.length });
+    if (speech.settings.voiceEnabled) {
+      speech.speakInstruction({
+        steps: ["Parabéns! Você completou a minigame!"],
+      });
+    }
     onComplete(100, true);
-  }, [onComplete, droppedItems, items.length]);
+  }, [onComplete, droppedItems, items.length, speech]);
 
   useEffect(() => {
     const percent = (droppedItems.length / items.length) * 100;
