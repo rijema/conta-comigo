@@ -34,7 +34,7 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
 
   // 1. Selection - "Qual tem mais?" - Visual + Audio
   exercises.push({
-    id: 'ef01ma03-selection-more-1',
+    id: 'a9d15a82-d1e7-4b41-96b7-d1502a7d2737',
     title: 'Qual grupo tem MAIS maçãs?',
     description:
       'Selecione o grupo com mais maçãs. Suporta crianças TEA com timing lento.',
@@ -85,7 +85,7 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
 
   // 2. Drag and Drop - "Leve para a cesta" - Kinesthetic + Visual
   exercises.push({
-    id: 'ef01ma03-dragdrop-basket-1',
+    id: '6dfe0c09-47ea-4ef5-8525-679db6cf2f2c',
     title: 'Leve as maçãs para a cesta!',
     description: 'Arraste as maçãs para a cesta. Ótimo para crianças TEA!',
     type: 'drag_drop',
@@ -124,7 +124,7 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
 
   // 3. Matching - "Ligar número e quantidade"
   exercises.push({
-    id: 'ef01ma03-matching-number-1',
+    id: '71cfe9a1-5ebd-4ae7-b285-88cbfd15ce3b',
     title: 'Ligue o número ao seu valor!',
     description: 'Ligar número com representação visual. TEA-friendly!',
     type: 'representation_matching',
@@ -178,7 +178,7 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
 
   // 4. Manipulative - "Blocos de montar"
   exercises.push({
-    id: 'ef01ma03-manipulative-blocks-1',
+    id: 'dea0c6b7-ec85-4814-a3c0-2bf3de49efa8',
     title: 'Stacking Game - Monte 5 blocos!',
     description:
       'Monte blocos coloridos para aprender comparação. Sensorial!',
@@ -220,7 +220,7 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
 
   // 5. Number Line - "Coloque na reta"
   exercises.push({
-    id: 'ef01ma03-numberline-compare-1',
+    id: '6a5c5819-e920-445f-bbfb-d9270e0d84af',
     title: 'Coloque na reta numérica!',
     description: 'Onde fica o 3? E o 7? Comparação pela posição.',
     type: 'quiz',
@@ -254,7 +254,7 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
 
   // 6. Grid/Ten-frame
   exercises.push({
-    id: 'ef01ma03-grid-frame-1',
+    id: 'efea68a4-bb03-4ce8-b3ba-9d73c258c08e',
     title: 'Complete o quadro de 10!',
     description: 'Quantos faltam para 10? Composição/decomposição.',
     type: 'missing_number',
@@ -289,7 +289,7 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
 
   // 7. Ordering/Sequencing
   exercises.push({
-    id: 'ef01ma03-ordering-sequence-1',
+    id: '281e2ef6-af80-4752-84a0-4a23aec91366',
     title: 'Ordene: 2, 4, 6, ?, 10',
     description: 'Qual número falta? Sequência crescente.',
     type: 'pattern_completion',
@@ -329,7 +329,7 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
 
   // 8. Sorting/Categorization
   exercises.push({
-    id: 'ef01ma03-sorting-categorize-1',
+    id: '59ae4947-7fd3-48a6-b331-c79efccba46a',
     title: 'Separe: MAIOR e MENOR',
     description: 'Classifique os números em dois grupos.',
     type: 'visual_puzzle',
@@ -364,7 +364,7 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
 
   // 9. Equation Builder
   exercises.push({
-    id: 'ef01ma03-equation-compare-1',
+    id: '7afd99ce-58c3-49be-8d20-a77b162c8495',
     title: 'Complete: 3 + ? = 8',
     description: 'Pense: se 3 + 5 = 8, então 3 < 8',
     type: 'missing_number',
@@ -404,7 +404,7 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
 
   // 10. Multi-selection
   exercises.push({
-    id: 'ef01ma03-multiselect-compare-1',
+    id: '99e07949-493e-496c-8789-943b72a6f018',
     title: 'Marque os números > 5',
     description: 'Selecione VÁRIOS números maiores que 5.',
     type: 'visual_puzzle',
@@ -436,7 +436,7 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
 
   // 11. Word Problem
   exercises.push({
-    id: 'ef01ma03-wordproblem-compare-1',
+    id: 'b2ff8450-efea-46f3-bf73-f85ca19a0f81',
     title: 'Problema: Quem tem mais?',
     description: 'Maria tem 5 bolinhas. João tem 7. Quem tem mais?',
     type: 'contextual_problem_solving',
@@ -473,7 +473,7 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
 
   // 12. True/False
   exercises.push({
-    id: 'ef01ma03-truefalse-compare-1',
+    id: '0eeaa2db-1d42-4e35-ad73-277e19aa2467',
     title: 'Verdadeiro ou Falso? 7 > 4',
     description: 'Responda se a afirmação é verdadeira.',
     type: 'yes_no',
@@ -509,7 +509,7 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
 
   // 13. Find the Error
   exercises.push({
-    id: 'ef01ma03-error-compare-1',
+    id: 'a3a3b847-e027-46b4-9c74-ef6a9c2ed43b',
     title: 'Titia errou! Qual é o erro?',
     description: 'Titia disse: 3 é maior que 9. Está certo?',
     type: 'error_detection',
