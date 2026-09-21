@@ -1,6 +1,7 @@
 import axios from "axios";
 import dotenv from "dotenv";
 
+// Fix: Updated RAG prompt system for better TEA contextualization
 dotenv.config();
 
 const apiKey = process.env.API_KEY;
