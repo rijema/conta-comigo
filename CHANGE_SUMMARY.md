@@ -363,3 +363,88 @@ This change **breaks the repetition cycle** by providing:
 **For:** Break repetition cycle, enable learning progression, validate dissertation hypothesis
 
 Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
+
+---
+
+# TiTiA Chat Interface Improvements (2026-09-20)
+
+## 🎯 PROBLEM STATEMENT
+
+Three UX issues in TiTiA chat:
+1. **Poor contrast** in historical messages - AI responses hard to read on light background
+2. **Unclear "new chat" button** - gray color blended into sidebar, low discoverability  
+3. **Missing toolbar** in live chat - quick actions (copy, go to history) only available in history view
+4. **Limited RAG scope** - questions not explicitly about TEA were rejected, limiting inclusivity
+
+## ✅ SOLUTIONS IMPLEMENTED
+
+### 1. Message Contrast Fix
+- Changed autbot message background: `#1a4d86` → `#1a3d66` (darker)
+- Added shadow: `0 2px 6px rgba(26, 61, 102, 0.25)`
+- Text now bolder: `font-weight: 500`
+- **Result**: WCAG AA compliant (contrast ratio >7:1)
+
+### 2. New Chat Button Visibility  
+- Button color: `#888` (gray) → `#7c3aed` (purple brand color)
+- Added hover effect with semi-transparent background
+- Visually distinct from search button
+- Better accessibility for users with cognitive differences
+
+### 3. Message Toolbar Component
+**New Component**: `MessageToolbar.tsx` + `MessageToolbar.css`
+- **Copy button**: Copies message to clipboard
+- **History button**: Saves current conversation and navigates to history view
+- Appears on hover (non-intrusive in live chat)
+- Always visible in history view
+- Full keyboard accessibility + aria labels
+
+### 4. RAG Enhancement (Backend)
+**Improved `buildPromptSystem()` prompt**:
+- Expanded from "only TEA/autism questions" to "interpret ANY question through TEA lens"
+- Added strategic examples connecting generic Q to autism context:
+  - Organization → routine/structure (critical for autism)
+  - Concentration issues → sensitivities/ADHD/autism
+  - Social communication → relating to social differences
+  - Time management → transitions/predictability
+  
+- Maintains safety: still rejects out-of-scope questions
+- Better neurodiversity-aware language
+- More inclusive interpretation guidelines
+
+**Impact**: Users asking about learning, work, social skills now get autism-contextualized responses instead of rejection
+
+## 📊 FILES CHANGED
+
+**Modified**:
+- `vendor/autbot-frontend/src/pages/chat/Chat.tsx` - MessageToolbar integration
+- `vendor/autbot-frontend/src/pages/chat/Chat.css` - Contrast improvements, button styling
+- `vendor/autbot-backend/src/services/chat/chatService.ts` - RAG prompt enhancement
+
+**Created**:
+- `vendor/autbot-frontend/src/components/chat/MessageToolbar.tsx`
+- `vendor/autbot-frontend/src/components/chat/MessageToolbar.css`
+
+## ✔️ VALIDATION
+
+- ✅ Frontend build passes (no TypeScript errors)
+- ✅ CSS contrast validated (WCAG AA)
+- ✅ Component integration tested
+- ✅ Accessibility maintained
+- ✅ Commit: 0f0da3d
+
+## 👥 USER IMPACT
+
+**Visual Clarity**:
+- Messages in history view now readable for visual sensitivities (important for TEA)
+- Clearer button hierarchy for users with cognitive differences
+
+**Usability**:
+- Faster message operations (copy/navigation)
+- Consistent UX between live and historical chat
+- More discoverable actions (hover pattern)
+
+**Inclusivity**:
+- Platform more welcoming for general questions
+- Better autism/neurodiversity contextualization in responses
+- Questions no longer rejected for not mentioning TEA explicitly
+
