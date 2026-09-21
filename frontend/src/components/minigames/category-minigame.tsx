@@ -2,25 +2,26 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { ArasaacPictogram } from '@/components/arasaac/arasaac-pictogram';
 
 /**
  * MINIGAME: Category Sorting
  *
  * TEA-FRIENDLY:
- * ✅ No text - pure visual + colors
+ * ✅ ARASAAC pictograms - visual + accessible
  * ✅ Clear rules - drag items to matching box
  * ✅ Color coding - each category has own color
- * ✅ Immediate feedback per drop
+ * ✅ Immediate feedback per item (not whole exercise)
  * ✅ Celebratory animation
  * ✅ No timer pressure
  *
  * [PROPOSTA CONTA COMIGO] Agrupamento visual por cor/categoria
- * [DECISÃO DE ENGENHARIA] Drag-drop com validação por emoji type
+ * [DECISÃO DE ENGENHARIA] Drag-drop com validação por pictogram type
  */
 
 interface CategoryItem {
   id: string;
-  emoji: string;
+  pictogramId: string;
   category: 'fruits' | 'animals' | 'vehicles';
 }
 
@@ -28,6 +29,7 @@ interface CategoryBox {
   id: 'fruits' | 'animals' | 'vehicles';
   color: string;
   bgColor: string;
+  pictogramId: string;
   items: string[]; // item IDs
 }
 
@@ -40,43 +42,43 @@ interface CategoryMinigameProps {
 
 const ITEM_SETS = {
   very_easy: [
-    { id: '1', emoji: '🍎', category: 'fruits' as const },
-    { id: '2', emoji: '🍊', category: 'fruits' as const },
-    { id: '3', emoji: '🐶', category: 'animals' as const },
-    { id: '4', emoji: '🐱', category: 'animals' as const },
+    { id: '1', pictogramId: 'arasaac.15195', category: 'fruits' as const },
+    { id: '2', pictogramId: 'library.red', category: 'fruits' as const },
+    { id: '3', pictogramId: 'arasaac.15532', category: 'animals' as const },
+    { id: '4', pictogramId: 'library.square', category: 'animals' as const },
   ],
   easy: [
-    { id: '1', emoji: '🍎', category: 'fruits' as const },
-    { id: '2', emoji: '🍊', category: 'fruits' as const },
-    { id: '3', emoji: '🍌', category: 'fruits' as const },
-    { id: '4', emoji: '🐶', category: 'animals' as const },
-    { id: '5', emoji: '🐱', category: 'animals' as const },
-    { id: '6', emoji: '🚗', category: 'vehicles' as const },
+    { id: '1', pictogramId: 'arasaac.15195', category: 'fruits' as const },
+    { id: '2', pictogramId: 'library.red', category: 'fruits' as const },
+    { id: '3', pictogramId: 'arasaac.14560', category: 'fruits' as const },
+    { id: '4', pictogramId: 'arasaac.15532', category: 'animals' as const },
+    { id: '5', pictogramId: 'library.blue', category: 'animals' as const },
+    { id: '6', pictogramId: 'library.play', category: 'vehicles' as const },
   ],
   medium: [
-    { id: '1', emoji: '🍎', category: 'fruits' as const },
-    { id: '2', emoji: '🍊', category: 'fruits' as const },
-    { id: '3', emoji: '🍌', category: 'fruits' as const },
-    { id: '4', emoji: '🍇', category: 'fruits' as const },
-    { id: '5', emoji: '🐶', category: 'animals' as const },
-    { id: '6', emoji: '🐱', category: 'animals' as const },
-    { id: '7', emoji: '🦁', category: 'animals' as const },
-    { id: '8', emoji: '🚗', category: 'vehicles' as const },
-    { id: '9', emoji: '✈️', category: 'vehicles' as const },
+    { id: '1', pictogramId: 'arasaac.15195', category: 'fruits' as const },
+    { id: '2', pictogramId: 'library.red', category: 'fruits' as const },
+    { id: '3', pictogramId: 'arasaac.14560', category: 'fruits' as const },
+    { id: '4', pictogramId: 'library.circle', category: 'fruits' as const },
+    { id: '5', pictogramId: 'arasaac.15532', category: 'animals' as const },
+    { id: '6', pictogramId: 'library.blue', category: 'animals' as const },
+    { id: '7', pictogramId: 'library.square', category: 'animals' as const },
+    { id: '8', pictogramId: 'library.play', category: 'vehicles' as const },
+    { id: '9', pictogramId: 'library.learn', category: 'vehicles' as const },
   ],
   hard: [
-    { id: '1', emoji: '🍎', category: 'fruits' as const },
-    { id: '2', emoji: '🍊', category: 'fruits' as const },
-    { id: '3', emoji: '🍌', category: 'fruits' as const },
-    { id: '4', emoji: '🍇', category: 'fruits' as const },
-    { id: '5', emoji: '🍓', category: 'fruits' as const },
-    { id: '6', emoji: '🐶', category: 'animals' as const },
-    { id: '7', emoji: '🐱', category: 'animals' as const },
-    { id: '8', emoji: '🦁', category: 'animals' as const },
-    { id: '9', emoji: '🐘', category: 'animals' as const },
-    { id: '10', emoji: '🚗', category: 'vehicles' as const },
-    { id: '11', emoji: '✈️', category: 'vehicles' as const },
-    { id: '12', emoji: '🚂', category: 'vehicles' as const },
+    { id: '1', pictogramId: 'arasaac.15195', category: 'fruits' as const },
+    { id: '2', pictogramId: 'library.red', category: 'fruits' as const },
+    { id: '3', pictogramId: 'arasaac.14560', category: 'fruits' as const },
+    { id: '4', pictogramId: 'library.circle', category: 'fruits' as const },
+    { id: '5', pictogramId: 'arasaac.15358', category: 'fruits' as const },
+    { id: '6', pictogramId: 'arasaac.15532', category: 'animals' as const },
+    { id: '7', pictogramId: 'library.blue', category: 'animals' as const },
+    { id: '8', pictogramId: 'library.square', category: 'animals' as const },
+    { id: '9', pictogramId: 'library.diamond', category: 'animals' as const },
+    { id: '10', pictogramId: 'library.play', category: 'vehicles' as const },
+    { id: '11', pictogramId: 'library.learn', category: 'vehicles' as const },
+    { id: '12', pictogramId: 'mathematics.order', category: 'vehicles' as const },
   ],
 };
 
@@ -88,9 +90,9 @@ export const CategoryMinigame: React.FC<CategoryMinigameProps> = ({
 }) => {
   const [items, setItems] = useState<CategoryItem[]>([]);
   const [boxes, setBoxes] = useState<CategoryBox[]>([
-    { id: 'fruits', color: '🍎', bgColor: 'bg-red-300', items: [] },
-    { id: 'animals', color: '🐶', bgColor: 'bg-blue-300', items: [] },
-    { id: 'vehicles', color: '🚗', bgColor: 'bg-yellow-300', items: [] },
+    { id: 'fruits', color: 'Frutas', pictogramId: 'arasaac.15195', bgColor: 'bg-red-300', items: [] },
+    { id: 'animals', color: 'Animais', pictogramId: 'arasaac.15532', bgColor: 'bg-blue-300', items: [] },
+    { id: 'vehicles', color: 'Coisas', pictogramId: 'library.play', bgColor: 'bg-yellow-300', items: [] },
   ]);
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
@@ -166,8 +168,8 @@ export const CategoryMinigame: React.FC<CategoryMinigameProps> = ({
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-purple-50 to-purple-100 p-4">
       {/* Header */}
       <div className="mb-8 text-center">
-        <h1 className="text-4xl font-bold text-purple-600 mb-2">🎯 Sort by Category!</h1>
-        <p className="text-lg text-purple-500">Drag each item to the right box</p>
+        <h1 className="text-4xl font-bold text-purple-600 mb-2">🎯 Agrupar por Categoria!</h1>
+        <p className="text-lg text-purple-500">Arraste cada item para a caixa correta</p>
       </div>
 
       {/* Progress bar */}
@@ -181,7 +183,7 @@ export const CategoryMinigame: React.FC<CategoryMinigameProps> = ({
           />
         </div>
         <p className="text-center mt-2 text-sm text-purple-600">
-          {correctCount}/{ITEM_SETS[difficulty].length} sorted correctly
+          {correctCount}/{ITEM_SETS[difficulty].length} organizados corretamente
         </p>
       </div>
 
@@ -199,13 +201,24 @@ export const CategoryMinigame: React.FC<CategoryMinigameProps> = ({
               transition-all duration-200
             `}
           >
-            <div className="text-6xl mb-4">{box.color}</div>
+            <div className="mb-4">
+              <ArasaacPictogram 
+                conceptId={box.pictogramId} 
+                showLabel={false}
+                imageClassName="w-12 h-12"
+              />
+            </div>
+            <p className="font-bold text-sm text-gray-800 mb-3">{box.color}</p>
             <div className="flex flex-wrap gap-2 justify-center">
               {box.items.map((itemId) => {
                 const item = ITEM_SETS[difficulty].find((i) => i.id === itemId);
                 return (
-                  <div key={itemId} className="text-3xl">
-                    {item?.emoji}
+                  <div key={itemId}>
+                    <ArasaacPictogram 
+                      conceptId={item?.pictogramId || 'library.play'} 
+                      showLabel={false}
+                      imageClassName="w-8 h-8"
+                    />
                   </div>
                 );
               })}
@@ -221,11 +234,15 @@ export const CategoryMinigame: React.FC<CategoryMinigameProps> = ({
             key={item.id}
             draggable
             onDragStart={() => handleDragStart(item.id)}
-            className="cursor-move text-4xl p-4 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            className="cursor-move p-4 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
             whileHover={{ scale: 1.1 }}
             whileDrag={{ scale: 1.2, opacity: 0.7 }}
           >
-            {item.emoji}
+            <ArasaacPictogram 
+              conceptId={item.pictogramId} 
+              showLabel={false}
+              imageClassName="w-10 h-10"
+            />
           </motion.div>
         ))}
       </div>
@@ -252,7 +269,7 @@ export const CategoryMinigame: React.FC<CategoryMinigameProps> = ({
         onClick={() => window.location.reload()}
         className="mt-8 px-6 py-2 bg-purple-500 text-white rounded-lg text-sm"
       >
-        Try Again
+        Tentar Novamente
       </button>
     </div>
   );
