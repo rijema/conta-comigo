@@ -152,15 +152,29 @@ body {
 
 .icon-section .send-button {
     font-size: 22px;
-    color: #888;
-    transition: color 0.2s ease;
+    color: #404040;
+    transition: color 0.2s ease, background-color 0.2s ease;
     background: transparent;
     border: none;
     cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
 }
 
 .icon-section .send-button:hover {
     color: #181d54;
+    background-color: rgba(124, 58, 237, 0.08);
+}
+
+/* Make new chat button (IoMdChatboxes) more prominent */
+.icon-section .send-button:nth-child(2) {
+    color: #7c3aed;
+    font-weight: 600;
+}
+
+.icon-section .send-button:nth-child(2):hover {
+    background-color: rgba(124, 58, 237, 0.15);
+    color: #6d28d9;
 }
 
 .conversations-list {
@@ -338,6 +352,22 @@ body[data-brand="titia"] .chat-bubble.user .message-time {
     border-bottom-right-radius: 5px;
 }
 
+/* Enhanced contrast for history view - messages need to pop against light background */
+.conversation-detail-view .chat-messages-container .chat-bubble.autbot {
+    background-color: #1a3d66;
+    box-shadow: 0 2px 6px rgba(26, 61, 102, 0.25);
+}
+
+.conversation-detail-view .chat-messages-container .chat-bubble.autbot .message-text {
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.conversation-detail-view .chat-messages-container .chat-bubble.user {
+    background-color: #8eb9d6;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
 .chat-bubble.autbot p.message-text {
   white-space: pre-wrap; 
 }
@@ -351,11 +381,19 @@ body[data-brand="titia"] .chat-bubble.user .message-time {
     line-height: 1.5;
 }
 
+.message-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    margin-top: 6px;
+    width: 100%;
+}
+
 .message-time {
     font-size: 0.75em;
     color: rgba(255, 255, 255, 0.7);
-    align-self: flex-end;
-    margin-top: 5px;
+    flex-shrink: 0;
 }
 
 .chat-bubble.user .message-time {
