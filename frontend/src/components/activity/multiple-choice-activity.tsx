@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { Activity, SensoryProfile } from "@/types";
 import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
 import { useTitiaSpeech } from "@/hooks/use-titia-speech";
@@ -15,6 +15,7 @@ const SHAPE_SYMBOLS = /[○◯⭕●⬜□△▲🔺]/g;
 
 export function MultipleChoiceActivity({ activity, onAnswer, sensoryProfile }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
+  const spokenRef = useRef(false);
   const speech = useTitiaSpeech({ activityId: activity.id });
   const options = activity.options ?? activity.content?.options ?? [];
   const items: string[] = activity.content?.items ?? [];
@@ -24,6 +25,15 @@ export function MultipleChoiceActivity({ activity, onAnswer, sensoryProfile }: P
   const targetShape = isShapeActivity ? question.match(SHAPE_SYMBOLS)?.[0] : null;
   const visibleQuestion = isShapeActivity ? question.replace(SHAPE_SYMBOLS, "").trim() : question;
 
+  useEffect(() => {
+    if (speech.settings.voiceEnabled && !spokenRef.current && visibleQuestion) {
+      spokenRef.current = true;
+      speech.speakInstruction({
+        steps: [visibleQuestion],
+      });
+    }
+  }, [speech.settings.voiceEnabled, visibleQuestion, speech]);
+
   const select = (option: any) => {
     setSelected(option.id);
     if (option.text) speech.speakPictogram(option.text, `option.${option.id}`);
@@ -32,8 +42,13 @@ export function MultipleChoiceActivity({ activity, onAnswer, sensoryProfile }: P
   const handleSubmit = () => {
     const option = options.find((candidate: any) => candidate.id === selected);
     if (!option) return;
-    onAnswer({ selectedOption: option.id, selectedText: option.text, isCorrect: Boolean(option.isCorrect) });
-    if (!option.isCorrect) setSelected(null);
+    const isCorrect = Boolean(option.isCorrect);
+    onAnswer({ selectedOption: option.id, selectedText: option.text, isCorrect });
+    if (!isCorrect) setSelected(null);
+    if (speech.settings.voiceEnabled) {
+      const feedback = isCorrect ? "Correto! Parabéns!" : "Tente novamente.";
+      speech.speakInstruction({ steps: [feedback] });
+    }
   };
 
   return (

@@ -16,6 +16,17 @@ export interface ParametricActivityContent {
   };
 }
 
+export interface ItemFeedback {
+  itemId: string;
+  isCorrect: boolean;
+  feedback?: string;
+}
+
+export interface DetailedValidationResult {
+  isCorrect: boolean;
+  itemFeedback?: ItemFeedback[];
+}
+
 function normalizeScalar(value: unknown): unknown {
   if (typeof value === 'string') return value.toLowerCase().trim();
   return value;
@@ -97,4 +108,60 @@ function legacyValidate(content: ParametricActivityContent, answer: unknown): bo
   if (typeof correct === 'number') return Number(answer) === correct;
   if (Array.isArray(correct)) return JSON.stringify(answer) === JSON.stringify(correct);
   return answer === correct;
+}
+
+export function validateActivityAnswerDetailed(
+  content: ParametricActivityContent,
+  submittedAnswer: unknown,
+  itemOrder?: string[],
+): DetailedValidationResult {
+  const isCorrect = validateActivityAnswer(content, submittedAnswer);
+  const validation = content.validation;
+  const correct = content.correctAnswer;
+  const answer = validation?.kind === 'compound'
+    ? submittedAnswer
+    : normalizeSubmittedAnswer(submittedAnswer);
+
+  const itemFeedback: ItemFeedback[] = [];
+
+  if (validation?.kind === 'sequence' && itemOrder) {
+    const expected = Array.isArray(content.correctOrder)
+      ? content.correctOrder
+      : Array.isArray(correct)
+        ? correct
+        : String(content.correctOrder ?? correct ?? '').split(',').map((item) => item.trim());
+    const submitted = Array.isArray(answer)
+      ? answer
+      : String(answer ?? '').split(',').map((item) => item.trim());
+
+    itemOrder.forEach((itemId, index) => {
+      const expectedValue = String(expected[index] ?? '').trim();
+      const submittedValue = String(submitted[index] ?? '').trim();
+      const itemCorrect = normalizeScalar(expectedValue) === normalizeScalar(submittedValue);
+      itemFeedback.push({
+        itemId,
+        isCorrect: itemCorrect,
+        feedback: itemCorrect ? 'Correto!' : `Esperado: ${expectedValue}, Recebido: ${submittedValue}`,
+      });
+    });
+  } else if (validation?.kind === 'set') {
+    if (Array.isArray(correct) && Array.isArray(answer)) {
+      const expected = correct.map(normalizeScalar);
+      const submitted = answer.map(normalizeScalar);
+      
+      itemOrder?.forEach((itemId, index) => {
+        const itemCorrect = expected.includes(normalizeScalar(submitted[index] ?? ''));
+        itemFeedback.push({
+          itemId,
+          isCorrect: itemCorrect,
+          feedback: itemCorrect ? 'Correto!' : 'Este item não pertence ao conjunto correto.',
+        });
+      });
+    }
+  }
+
+  return {
+    isCorrect,
+    itemFeedback: itemFeedback.length > 0 ? itemFeedback : undefined,
+  };
 }

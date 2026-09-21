@@ -77,7 +77,9 @@ function MultipleChoiceActivity({ activity, onAnswer, lowStimulation }: Multiple
   const [selected, setSelected] = useState<string | null>(null);
   const [revealed, setRevealed] = useState(false);
   const startRef = useRef(Date.now());
+  const spokenRef = useRef(false);
   const { t } = useTranslation();
+  const { settings } = useAccessibility();
 
   const content = activity.content as {
     question: string;
@@ -86,6 +88,13 @@ function MultipleChoiceActivity({ activity, onAnswer, lowStimulation }: Multiple
     hint?: string;
   };
 
+  useEffect(() => {
+    if (settings.voiceEnabled && !spokenRef.current) {
+      spokenRef.current = true;
+      speakText(content.question);
+    }
+  }, [settings.voiceEnabled, content.question]);
+
   function handleSelect(optionId: string) {
     if (revealed) return;
     const elapsed = Date.now() - startRef.current;
@@ -93,6 +102,10 @@ function MultipleChoiceActivity({ activity, onAnswer, lowStimulation }: Multiple
     setRevealed(true);
     const isCorrect = optionId === content.correctOptionId;
     playSound(isCorrect ? "correct" : "incorrect");
+    if (settings.voiceEnabled) {
+      const feedback = isCorrect ? "Correto! Parabéns!" : "Tente novamente.";
+      speakText(feedback);
+    }
     setTimeout(() => onAnswer(optionId, isCorrect, elapsed), 900);
   }
 
@@ -187,7 +200,9 @@ function NumberInputActivity({ activity, onAnswer }: NumberInputProps) {
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const startRef = useRef(Date.now());
   const inputRef = useRef<HTMLInputElement>(null);
+  const spokenRef = useRef(false);
   const { t } = useTranslation();
+  const { settings } = useAccessibility();
 
   const content = activity.content as {
     question: string;
@@ -202,6 +217,13 @@ function NumberInputActivity({ activity, onAnswer }: NumberInputProps) {
     inputRef.current?.focus();
   }, []);
 
+  useEffect(() => {
+    if (settings.voiceEnabled && !spokenRef.current) {
+      spokenRef.current = true;
+      speakText(content.question);
+    }
+  }, [settings.voiceEnabled, content.question]);
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (submitted || value === "") return;
@@ -212,6 +234,10 @@ function NumberInputActivity({ activity, onAnswer }: NumberInputProps) {
     setIsCorrect(correct);
     setSubmitted(true);
     playSound(correct ? "correct" : "incorrect");
+    if (settings.voiceEnabled) {
+      const feedback = correct ? "Correto! Parabéns!" : "Tente novamente.";
+      speakText(feedback);
+    }
     setTimeout(() => onAnswer(value, correct, elapsed), 1000);
   }
 
@@ -294,7 +320,16 @@ function DragDropActivity({ activity, onAnswer }: DragDropProps) {
   const [submitted, setSubmitted] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const startRef = useRef(Date.now());
+  const spokenRef = useRef(false);
   const { t } = useTranslation();
+  const { settings } = useAccessibility();
+
+  useEffect(() => {
+    if (settings.voiceEnabled && !spokenRef.current) {
+      spokenRef.current = true;
+      speakText(content.question);
+    }
+  }, [settings.voiceEnabled, content.question]);
 
   function handleDragStart(index: number) {
     setDragIndex(index);
@@ -322,6 +357,10 @@ function DragDropActivity({ activity, onAnswer }: DragDropProps) {
       JSON.stringify(userOrder) === JSON.stringify(content.correctOrder);
     setSubmitted(true);
     playSound(isCorrect ? "correct" : "incorrect");
+    if (settings.voiceEnabled) {
+      const feedback = isCorrect ? "Correto! Parabéns!" : "Tente novamente.";
+      speakText(feedback);
+    }
     setTimeout(() => onAnswer(userOrder.join(","), isCorrect, elapsed), 1000);
   }
 

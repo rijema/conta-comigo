@@ -6,7 +6,82 @@
 
 ---
 
-## 🎯 O PROBLEMA
+## 🔧 CORREÇÕES RECENTES (Session 14)
+
+### Problema 1: Loop Infinito em learn/page.tsx
+**Status:** ✅ RESOLVIDO
+
+**Causa:** useEffect com dependency array incluindo `requestHint` e `session?.progress`, criando ciclo de re-renders.
+
+**Solução:** Remover `requestHint` e `session?.progress` da dependency array, mantendo apenas `session?.currentActivity?.id`, `settings.autoHints`, `settings.helpDelaySeconds`.
+
+**Arquivo:** `frontend/src/app/[locale]/learn/page.tsx:159`
+
+---
+
+### Problema 2: Feedback por Item
+**Status:** ✅ IMPLEMENTADO
+
+**Mudanças:**
+1. **Backend:** Adicionada `validateActivityAnswerDetailed()` em `activity-answer-validator.ts`
+   - Nova interface `DetailedValidationResult` com `itemFeedback` array
+   - Suporte para validação de tipo 'sequence' e 'set' com feedback granular por item
+   - Cada item retorna: `{ itemId, isCorrect, feedback }`
+
+2. **Frontend:** Preparado para receber feedback por item
+   - Estrutura pronta para renderizar feedback individual
+   - Next step: renderizar feedback visual/áudio por item em vez de marcar exercício inteiro como errado
+
+**Arquivos:**
+- `backend/src/modules/activities/activity-answer-validator.ts`
+
+---
+
+### Problema 3: TitiA Áudio em Todos os Exercícios
+**Status:** ✅ IMPLEMENTADO
+
+**Mudanças:**
+Adicionado `useTitiaSpeech` com auto-fala da instrução ao renderizar cada tipo de atividade:
+
+1. **MultipleChoiceActivity** (`frontend/src/components/activity/multiple-choice-activity.tsx`)
+   - ✅ Fala pergunta automaticamente ao montar
+   - ✅ Fala feedback ao submeter ("Correto! Parabéns!" ou "Tente novamente.")
+
+2. **DragDropActivity** (`frontend/src/components/activity/drag-drop-activity.tsx`)
+   - ✅ Fala instrução automaticamente ao montar
+   - ✅ Fala feedback ao submeter
+
+3. **CountingActivity** (`frontend/src/components/activity/counting-activity.tsx`)
+   - ✅ Fala pergunta automaticamente ao montar
+   - ✅ Fala feedback ao submeter
+
+4. **Minigames** (category-minigame, basket-minigame, etc)
+   - ⚠️ TODO: Adicionar TitiA às minigames
+
+**Padrão de Implementação:**
+```typescript
+const spokenRef = useRef(false);
+const speech = useTitiaSpeech({ activityId: activity.id });
+
+useEffect(() => {
+  if (speech.settings.voiceEnabled && !spokenRef.current) {
+    spokenRef.current = true;
+    speech.speakInstruction({ steps: [question] });
+  }
+}, [speech.settings.voiceEnabled, question, speech]);
+
+// Em handleSubmit:
+if (speech.settings.voiceEnabled) {
+  const feedback = isCorrect ? "Correto! Parabéns!" : "Tente novamente.";
+  speech.speakInstruction({ steps: [feedback] });
+}
+```
+
+---
+
+## 🎯 O PROBLEMA (Anterior)
+
+Crianças presas em ciclo de **2 exercícios idênticos**:
 
 Crianças presas em ciclo de **2 exercícios idênticos**:
 - `greater_less_equal.0` (Qual tem mais? - 2 vs 4)
