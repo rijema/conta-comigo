@@ -181,10 +181,11 @@ export class HybridRecommendationService {
   }
 
   rank(input: HybridRankingInput): HybridRankingResult {
-    const recentBlock = (input.recentActivities ?? []).slice(0, this.configuration.blockWindow);
+    const recentBlock = (input.recentActivities ?? []).slice(Math.max(0, (input.recentActivities?.length ?? 0) - this.configuration.blockWindow));
     
     // [PROPOSTA CONTA COMIGO] Count structure occurrences in block to prevent cycles
     const structureFrequency = new Map<string, number>();
+    
     recentBlock.forEach((item) => {
       if (item.structureId) {
         structureFrequency.set(item.structureId, (structureFrequency.get(item.structureId) ?? 0) + 1);
@@ -207,6 +208,14 @@ export class HybridRecommendationService {
     // [PROPOSTA CONTA COMIGO] Hard block: filter out structures that appeared 1+ times
     // [PARÂMETRO EXPERIMENTAL] maxRepetitionsInBlock = 1 (strict no-repeat policy)
     const maxRepetitionsInBlock = 1;
+    
+    // DEBUG: Log structure frequencies
+    const debugLog = process.env.NODE_ENV !== 'production';
+    if (debugLog && recentBlock.length > 0) {
+      console.log(`[DIVERSITY DEBUG] Recent structures:`, recentBlock.map(r => r.structureId));
+      console.log(`[DIVERSITY DEBUG] Structure frequency:`, Array.from(structureFrequency.entries()));
+    }
+    
     let filteredCandidates = input.candidates.filter((candidate) => {
       const structureId = candidate.content?.semantic?.structureId ?? null;
       if (!structureId) return true;
@@ -236,8 +245,6 @@ export class HybridRecommendationService {
       });
     }
     
-    // [PROPOSTA CONTA COMIGO] If still no candidates after relaxation (or strict mode), 
-    // use all candidates and rely on recencyPenalty to steer selection away from recent structures
     if (filteredCandidates.length === 0) {
       filteredCandidates = input.candidates;
     }

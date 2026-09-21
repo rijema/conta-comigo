@@ -58,9 +58,9 @@ describe('Exercise Diversity Diagnostic', () => {
       createActivity('count_all', 'count_visual_group', 'quiz', 'counting', 'Quantas figuras você vê neste grupo?'),
 
       // Subtraction exercises (different structures & prompts)
-      createActivity('sub_visual', 'visual_separation', 'quiz', 'subtraction', 'Separe um dado do grupo. Quantos restam?'),
-      createActivity('sub_story', 'subtraction_context', 'quiz', 'subtraction', 'Você tinha frutas. Deu algumas. Quantas sobraram?'),
-      createActivity('sub_basket', 'subtraction_basket', 'drag_drop', 'subtraction', 'Retire as frutas que foram comidas.'),
+      createActivity('sub_visual', 'subtraction.visual', 'quiz', 'subtraction', 'Separe um dado do grupo. Quantos restam?'),
+      createActivity('sub_story', 'subtraction.story', 'quiz', 'subtraction', 'Você tinha frutas. Deu algumas. Quantas sobraram?'),
+      createActivity('sub_basket', 'subtraction.basket', 'drag_drop', 'subtraction', 'Retire as frutas que foram comidas.'),
 
       // Addition exercises
       createActivity('add_visual', 'combine_groups', 'quiz', 'addition', 'Junte os dois grupos. Quantos dados há no total?'),
