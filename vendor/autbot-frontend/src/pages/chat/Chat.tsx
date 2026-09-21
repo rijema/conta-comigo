@@ -354,6 +354,29 @@ const Chat = () => {
     showHistoryView();
   };
 
+  const handleSelectConversation = (conversationId: string) => {
+    setSelectedConversationId(conversationId);
+    
+    // Find the conversation in grouped conversations
+    const conversationToLoad = Object.values(groupedConversations)
+      .flat()
+      .find((conv) => conv.id === conversationId);
+    
+    if (conversationToLoad) {
+      // Load the conversation messages into the active chat
+      const loadedMessages: ActiveConversationMessage[] = conversationToLoad.messages.map((msg) => ({
+        id: Date.now().toString(),
+        author: msg.author === "autoBot" ? "autbot" : "user",
+        text: msg.text,
+        timestamp: msg.timestamp,
+      }));
+      
+      setActiveChatMessages(loadedMessages);
+      // Keep in chat view so user can continue/see the conversation
+      setCurrentView("chat");
+    }
+  };
+
   const draftPreview =
     activeChatMessages.find((message) => message.author === "user")?.text ||
     "Continuar conversa em andamento";
@@ -387,87 +410,58 @@ const Chat = () => {
             />
           </div>
 
-          {currentView === "chat" ? (
-            <div className="conversations-list">
-              {hasDraftConversation ? (
-                <button className="draft-conversation-card" onClick={resumeDraftConversation}>
-                  <span className="draft-conversation-kicker">Interação atual</span>
-                  <strong>{draftPreview}</strong>
-                  <small>
-                    {draftStartedAt
-                      ? `Em andamento desde ${new Date(draftStartedAt).toLocaleString("pt-BR")}`
-                      : "Retome de onde parou"}
-                  </small>
-                </button>
-              ) : (
-                <p className="no-conversations-message">
-                  Inicie uma nova conversa para que ela apareça aqui.
-                </p>
-              )}
-            </div>
-          ) : (
-            <div className="conversations-list">
-              {historyLoading ? (
-                <div className="history-section-loading">
-                  <div className="loading-spinner"></div>
-                  <p>Carregando histórico...</p>
-                </div>
-              ) : historyError ? (
-                <div className="history-section-error">
-                  <p>Erro: {historyError}</p>
-                </div>
-              ) : Object.keys(filteredConversationGroups).length === 0 ? (
-                <>
-                  {hasDraftConversation && (
-                    <button className="draft-conversation-card" onClick={resumeDraftConversation}>
-                      <span className="draft-conversation-kicker">Conversa em andamento</span>
-                      <strong>{draftPreview}</strong>
-                      <small>
-                        {draftStartedAt
-                          ? new Date(draftStartedAt).toLocaleString("pt-BR")
-                          : "Retome de onde parou"}
-                      </small>
-                    </button>
-                  )}
+          <div className="conversations-list">
+            {historyLoading ? (
+              <div className="history-section-loading">
+                <div className="loading-spinner"></div>
+                <p>Carregando histórico...</p>
+              </div>
+            ) : historyError ? (
+              <div className="history-section-error">
+                <p>Erro: {historyError}</p>
+              </div>
+            ) : (
+              <>
+                {hasDraftConversation && (
+                  <button className="draft-conversation-card" onClick={resumeDraftConversation}>
+                    <span className="draft-conversation-kicker">Interação atual</span>
+                    <strong>{draftPreview}</strong>
+                    <small>
+                      {draftStartedAt
+                        ? `Em andamento desde ${new Date(draftStartedAt).toLocaleString("pt-BR")}`
+                        : "Retome de onde parou"}
+                    </small>
+                  </button>
+                )}
+                
+                {Object.keys(filteredConversationGroups).length === 0 ? (
                   <p className="no-conversations-message">
                     {searchTerm
                       ? "Nenhuma conversa encontrada para essa busca."
                       : "Você ainda não teve nenhuma conversa salva.\nInteraja com o AutBot para começar!"}
                   </p>
-                </>
-              ) : (
-                <div className="history-list-groups">
-                  {hasDraftConversation && (
-                    <button className="draft-conversation-card" onClick={resumeDraftConversation}>
-                      <span className="draft-conversation-kicker">Conversa em andamento</span>
-                      <strong>{draftPreview}</strong>
-                      <small>
-                        {draftStartedAt
-                          ? new Date(draftStartedAt).toLocaleString("pt-BR")
-                          : "Retome de onde parou"}
-                      </small>
-                    </button>
-                  )}
-
-                  {Object.keys(filteredConversationGroups).map((groupName) => (
-                    <div key={groupName} className="history-group">
-                      <h3 className="history-group-title">{groupName}</h3>
-                      <div className="history-group-items">
-                        {filteredConversationGroups[groupName].map((conv) => (
-                          <HistoryListItem
-                            key={conv.id}
-                            conversation={conv}
-                            onSelect={setSelectedConversationId}
-                            isSelected={conv.id === selectedConversationId}
-                          />
-                        ))}
+                ) : (
+                  <div className="history-list-groups">
+                    {Object.keys(filteredConversationGroups).map((groupName) => (
+                      <div key={groupName} className="history-group">
+                        <h3 className="history-group-title">{groupName}</h3>
+                        <div className="history-group-items">
+                          {filteredConversationGroups[groupName].map((conv) => (
+                            <HistoryListItem
+                              key={conv.id}
+                              conversation={conv}
+                              onSelect={handleSelectConversation}
+                              isSelected={conv.id === selectedConversationId}
+                            />
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </aside>
 
         <div className="main-chat">
