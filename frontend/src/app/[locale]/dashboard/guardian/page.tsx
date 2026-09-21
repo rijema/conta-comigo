@@ -6,6 +6,7 @@ import { api } from "@/lib/api-client";
 import { authService } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
+import { ChatNowCard } from "@/components/titia/chat-now-card";
 
 const SKILL_LABELS: Record<string, string> = {
   visual: "👁️ Visual",
@@ -286,6 +287,8 @@ export default function GuardianDashboardPage() {
       </header>
 
       <div className="max-w-4xl mx-auto p-4 space-y-4">
+        <ChatNowCard />
+
         {/* Children tabs */}
         {children.length > 0 && (
           <div className="flex gap-2 overflow-x-auto pb-1 justify-center">
@@ -346,19 +349,6 @@ export default function GuardianDashboardPage() {
                       🔑 {selected.email}
                     </span>
                   </div>
-                </div>
-                <div className="flex gap-2 flex-wrap">
-                  {[
-                    { icon: "🎯", value: longitudinal?.observedData?.accuracy == null ? "—" : `${Math.round(longitudinal.observedData.accuracy * 100)}%`, label: "Precisão observada" },
-                    { icon: "🔥", value: selected.currentStreak ?? 0, label: "Sequência" },
-                    { icon: "⭐", value: selected.totalPoints ?? 0, label: "Pontos" },
-                  ].map((s) => (
-                    <div key={s.label} className="bg-purple-50 rounded-2xl px-3 py-2 text-center min-w-[56px]">
-                      <div className="text-sm">{s.icon}</div>
-                      <div className="font-bold text-purple-700 text-sm">{s.value}</div>
-                      <div className="text-xs text-slate-500">{s.label}</div>
-                    </div>
-                  ))}
                 </div>
               </div>
 
