@@ -90,6 +90,15 @@ const formats: Format[] = [
   { id: 'magnitude', niche: 'magnitudes', skills: [], type: 'quiz', prompt: 'Qual conjunto tem mais itens?', levels: [2, 5], build: (v) => choice([{ label: 'A', ...group(v) }, { label: 'B', ...group(v + 2) }], [{ text: 'A', pictogramConceptId: n(v) }, { text: 'B', pictogramConceptId: n(v + 2) }], 'B') },
   { id: 'compare_length', niche: 'magnitudes', skills: [], type: 'quiz', prompt: 'Qual fita é mais comprida?', levels: [2, 4], build: (v) => ({ ...choice([], [{ text: 'A', pictogramConceptId: 'library.domino' }, { text: 'B', pictogramConceptId: 'library.domino' }], 'B'), visualLengths: [{ label: 'A', units: v }, { label: 'B', units: v + 2 }] }) },
   { id: 'full_empty', niche: 'magnitudes', skills: [], type: 'quiz', prompt: 'Qual recipiente está cheio?', levels: [0, 2], build: (v) => ({ ...choice([], [{ text: 'A', pictogramConceptId: 'library.die' }, { text: 'B', pictogramConceptId: 'library.die' }], 'B'), visualContainers: [{ label: 'A', count: v }, { label: 'B', count: 6 }] }) },
+
+  // Drag & drop with story context for subtraction
+  { id: 'subtraction_basket', niche: 'subtraction', skills: ['EF01MA08'], type: 'drag_drop', prompt: 'Retire as frutas que foram comidas. Quantas sobraram?', levels: [3, 8], build: (v) => drag([item(`s_${v-2}`, n(v-2), String(v-2)), item(`s_${v-1}`, n(v-1), String(v-1))], [`s_${v-1}`], ['Frutas restantes'], [[n(v - 1).toString()]]) },
+
+  // Additional quiz exercises with different phrasing to reduce sameness
+  { id: 'count_all_items', niche: 'counting', skills: ['EF01MA02'], type: 'quiz', prompt: 'Quantas figuras você vê neste grupo?', levels: [2, 5], build: (v) => choice(visual(v), numbers([v - 1, v, v + 1]), String(v)) },
+  { id: 'next_in_line', niche: 'sequence', skills: ['EF01MA01'], type: 'quiz', prompt: 'Qual número vem em seguida: 1, 2, 3, ...?', levels: [3, 8], build: (v) => choice([{ pictogramConceptIds: [n(v), n(v + 1)] }], numbers([v + 1, v + 2]), String(v + 2)) },
+  { id: 'group_size_compare', niche: 'comparison', skills: ['EF01MA03'], type: 'quiz', prompt: 'Qual grupo tem mais borboletas?', levels: [2, 5], build: (v) => choice([{ label: 'A', ...group(v) }, { label: 'B', ...group(v + 2) }], [{ text: 'A', pictogramConceptId: n(v) }, { text: 'B', pictogramConceptId: n(v + 2) }], 'B') },
+  { id: 'identify_shape', niche: 'shapes', skills: ['EF01MA14'], type: 'quiz', prompt: 'Qual é o nome desta forma?', levels: [2, 4], build: (v) => choice([{ pictogramConceptIds: ['library.circle'] }], [{ text: 'círculo', pictogramConceptId: 'library.circle' }, { text: 'quadrado', pictogramConceptId: 'library.square' }], 'círculo') },
 ];
 
 export function interactiveFormatActivities(): Record<string, unknown>[] {

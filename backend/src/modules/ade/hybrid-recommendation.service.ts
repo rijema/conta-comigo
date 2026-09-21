@@ -204,9 +204,9 @@ export class HybridRecommendationService {
     const maxMatches = Math.max(1, ...input.candidates.map((candidate) =>
       semanticDecisions.get(candidate.id)?.matchedConcepts.length ?? 0));
 
-    // [PROPOSTA CONTA COMIGO] Hard block: filter out structures that appeared 2+ times
-    // [PARÂMETRO EXPERIMENTAL] maxRepetitionsInBlock = 2
-    const maxRepetitionsInBlock = 2;
+    // [PROPOSTA CONTA COMIGO] Hard block: filter out structures that appeared 1+ times
+    // [PARÂMETRO EXPERIMENTAL] maxRepetitionsInBlock = 1 (strict no-repeat policy)
+    const maxRepetitionsInBlock = 1;
     let filteredCandidates = input.candidates.filter((candidate) => {
       const structureId = candidate.content?.semantic?.structureId ?? null;
       if (!structureId) return true;
@@ -226,13 +226,20 @@ export class HybridRecommendationService {
     });
 
     // If filtering removed all candidates, relax to allow structures that appeared only once
-    if (filteredCandidates.length === 0 && input.candidates.length > 0) {
+    // BUT: if maxRepetitionsInBlock is 1 (strict diversity), don't relax - trust the penalties instead
+    if (filteredCandidates.length === 0 && input.candidates.length > 0 && maxRepetitionsInBlock > 1) {
       filteredCandidates = input.candidates.filter((candidate) => {
         const structureId = candidate.content?.semantic?.structureId ?? null;
         if (!structureId) return true;
         const frequency = structureFrequency.get(structureId) ?? 0;
         return frequency < maxRepetitionsInBlock;
       });
+    }
+    
+    // [PROPOSTA CONTA COMIGO] If still no candidates after relaxation (or strict mode), 
+    // use all candidates and rely on recencyPenalty to steer selection away from recent structures
+    if (filteredCandidates.length === 0) {
+      filteredCandidates = input.candidates;
     }
 
     // [PROPOSTA CONTA COMIGO] Automatic difficulty progression
@@ -315,7 +322,7 @@ export class HybridRecommendationService {
       const penalties = {
         rejectionRisk: w.rejection * rejectionRisk,
         repetitionRisk: w.repetition * repetitionRisk,
-        recencyPenalty: recencyPenalty,
+        recencyPenalty: recencyPenalty * 2.5, // No clamp - let diversity enforcement be strong
         frustrationRisk: w.frustration * frustrationRisk,
         dominanceNormalization: this.configuration.dominanceNormalizationWeight * dominanceNormalization,
       };
@@ -633,13 +640,14 @@ export class HybridRecommendationService {
     // [PROPOSTA CONTA COMIGO] Activity penalty: 1.5 if appeared in recent block
     if (recentActivityIds.has(activity.id)) penalty += 1.5;
     
-    // [PROPOSTA CONTA COMIGO] Structure penalty: proportional to frequency
-    // [PARÂMETRO EXPERIMENTAL] Increase penalty based on how many times structure appeared
+    // [PROPOSTA CONTA COMIGO] Structure penalty: strict enforcement
+    // [PARÂMETRO EXPERIMENTAL] Even 1 occurrence gets very high penalty to ensure diversity
     if (structure) {
       const structureCount = recentStructures.filter(s => s === structure).length;
       if (structureCount > 0) {
-        // Exponential penalty: 1x → 1.0, 2x → 2.5, 3x → 4.5, etc.
-        penalty += Math.pow(structureCount, 1.5);
+        // High linear penalty: 1x → 3.0, 2x → 6.0, 3x → 9.0
+        // This ensures repetition is heavily discouraged
+        penalty += structureCount * 3.0;
       }
     }
     
@@ -649,7 +657,8 @@ export class HybridRecommendationService {
     // [PROPOSTA CONTA COMIGO] Niche penalty: 0.8 per occurrence
     if (niche && recentNiches.has(niche)) penalty += 0.8;
     
-    return this.clamp(penalty);
+    return penalty; // [PROPOSTA CONTA COMIGO] Don't clamp here - let high penalties go through
+    // Clamping happens at the scoring level where it's applied to final score
   }
 
   private frustrationRisk(difficulty: number, recent: NonNullable<HybridRankingInput['recentActivities']>): number {
