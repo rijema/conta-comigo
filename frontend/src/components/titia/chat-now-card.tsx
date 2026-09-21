@@ -108,19 +108,13 @@ export function ChatNowCard() {
                 className="object-contain p-2 motion-safe:animate-[pulse_4s_ease-in-out_infinite]"
               />
             </div>
-            <div>
+           <div>
               <p className="text-xs font-black uppercase tracking-[0.22em] text-sky-700">
                 TitiA
               </p>
               <h2 className="text-2xl font-black text-slate-900">
-                Conversa acolhedora dentro do Conta Comigo
+                Conversa acolhedora
               </h2>
-              <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-600">
-                {subtitleByRole}
-              </p>
-              <p className="mt-2 text-xs font-semibold text-slate-600">
-                TitiA <span className="opacity-65">(made with AutBot)</span>
-              </p>
             </div>
           </div>
 
@@ -131,11 +125,8 @@ export function ChatNowCard() {
               disabled={isLoading}
               className="rounded-2xl bg-gradient-to-r from-sky-500 via-indigo-500 to-fuchsia-500 px-6 py-3 text-base font-black text-white shadow-lg transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {isLoading ? "Abrindo a TitiA..." : "Conversar com a TitiA"}
+              {isLoading ? "Abrindo..." : "Conversar"}
             </button>
-            <p className="text-xs text-slate-700">
-              A conversa abre em uma janela integrada, com retorno rápido ao seu painel.
-            </p>
             {error && <p className="text-sm font-semibold text-rose-600">{error}</p>}
           </div>
         </div>
