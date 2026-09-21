@@ -9,24 +9,24 @@ import { authService } from "@/lib/auth";
 import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
 import { ArasaacLibraryDialog } from "@/components/arasaac/arasaac-library-dialog";
 
-/* ── Island themes — thematic name + skill subtitle + ARASAAC pictogram concept ── */
+/* ── Island themes — mapped to Global Symbols ARASAAC IDs ── */
 const ISLAND_THEMES = [
-  { grad: "from-yellow-300 to-orange-300",  headerGrad: "from-orange-400 to-amber-400",  border: "border-orange-300",  pictogramId: "mathematics.numbers", label: "Ilha do Sol",     sub: "Contagem" },
-  { grad: "from-blue-300 to-cyan-300",      headerGrad: "from-blue-500 to-cyan-400",     border: "border-blue-300",    pictogramId: "mathematics.addition", label: "Ilha do Mar",     sub: "Adição" },
-  { grad: "from-green-300 to-emerald-300",  headerGrad: "from-green-500 to-emerald-400", border: "border-green-300",   pictogramId: "mathematics.subtraction", label: "Ilha da Floresta", sub: "Subtração" },
-  { grad: "from-purple-300 to-fuchsia-300", headerGrad: "from-purple-500 to-pink-400",   border: "border-purple-300",  pictogramId: "mathematics.compare", label: "Ilha das Flores",  sub: "Comparação" },
-  { grad: "from-red-300 to-rose-300",       headerGrad: "from-red-500 to-rose-400",      border: "border-red-300",     pictogramId: "library.red", label: "Ilha das Maçãs",  sub: "Formas" },
-  { grad: "from-teal-300 to-sky-300",       headerGrad: "from-teal-500 to-sky-400",      border: "border-teal-300",    pictogramId: "mathematics.size", label: "Ilha dos Animais", sub: "Medidas" },
-  { grad: "from-indigo-300 to-violet-300",  headerGrad: "from-indigo-500 to-violet-400", border: "border-indigo-300",  pictogramId: "mathematics.sequence", label: "Ilha Mágica",     sub: "Números" },
-  { grad: "from-pink-300 to-rose-200",      headerGrad: "from-pink-500 to-rose-400",     border: "border-pink-300",    pictogramId: "mathematics.order", label: "Ilha do Amor",    sub: "Ordenação" },
+  { grad: "from-yellow-300 to-orange-300",  headerGrad: "from-orange-400 to-amber-400",  border: "border-orange-300",  pictogramId: "arasaac.14494", label: "Ilha do Sol",     sub: "Contagem" },
+  { grad: "from-blue-300 to-cyan-300",      headerGrad: "from-blue-500 to-cyan-400",     border: "border-blue-300",    pictogramId: "arasaac.16590", label: "Ilha do Mar",     sub: "Adição" },
+  { grad: "from-green-300 to-emerald-300",  headerGrad: "from-green-500 to-emerald-400", border: "border-green-300",   pictogramId: "arasaac.16165", label: "Ilha da Floresta", sub: "Subtração" },
+  { grad: "from-purple-300 to-fuchsia-300", headerGrad: "from-purple-500 to-pink-400",   border: "border-purple-300",  pictogramId: "arasaac.17784", label: "Ilha das Flores",  sub: "Comparação" },
+  { grad: "from-red-300 to-rose-300",       headerGrad: "from-red-500 to-rose-400",      border: "border-red-300",     pictogramId: "arasaac.15195", label: "Ilha das Maçãs",  sub: "Formas" },
+  { grad: "from-teal-300 to-sky-300",       headerGrad: "from-teal-500 to-sky-400",      border: "border-teal-300",    pictogramId: "arasaac.20951", label: "Ilha dos Animais", sub: "Medidas" },
+  { grad: "from-indigo-300 to-violet-300",  headerGrad: "from-indigo-500 to-violet-400", border: "border-indigo-300",  pictogramId: "arasaac.17331", label: "Ilha Mágica",     sub: "Sequências" },
+  { grad: "from-pink-300 to-rose-200",      headerGrad: "from-pink-500 to-rose-400",     border: "border-pink-300",    pictogramId: "arasaac.15971", label: "Ilha do Amor",    sub: "Ordenação" },
 ];
 
-const CARD_CONFIG: Record<string, { pictogramId: string; label: string; mascot?: string }> = {
+const CARD_CONFIG: Record<string, { pictogramId: string; label: string }> = {
   counting:        { pictogramId: "mathematics.numbers", label: "Contagem com escolha" },
-  multiple_choice: { pictogramId: "activity.choose", label: "Escolher" },
-  quiz:            { pictogramId: "communication.i_dont_understand", label: "Perguntas" },
-  drag_drop:       { pictogramId: "activity.drag", label: "Arrastar" },
-  number_line:     { pictogramId: "mathematics.order", label: "Reta Numérica" },
+  multiple_choice: { pictogramId: "arasaac.14456", label: "Escolher" },
+  quiz:            { pictogramId: "arasaac.14379", label: "Perguntas" },
+  drag_drop:       { pictogramId: "arasaac.15953", label: "Arrastar" },
+  number_line:     { pictogramId: "arasaac.15851", label: "Reta Numérica" },
 };
 
 const AI_QUESTIONS = [
