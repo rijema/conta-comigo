@@ -5,7 +5,7 @@
   margin-top: 6px;
   opacity: 0;
   transition: opacity 0.2s ease;
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 .chat-bubble:hover .message-toolbar {
@@ -21,27 +21,34 @@
   height: 28px;
   border: none;
   border-radius: 6px;
-  background-color: rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.7);
+  background-color: #a855f7;
+  color: #ffffff;
   cursor: pointer;
   transition: all 0.2s ease;
   padding: 0;
   font-size: 0.85rem;
+  box-shadow: 0 2px 4px rgba(168, 85, 247, 0.3);
 }
 
 .toolbar-button:hover {
-  background-color: rgba(255, 255, 255, 0.25);
-  color: rgba(255, 255, 255, 0.9);
+  background-color: #9333ea;
+  box-shadow: 0 4px 8px rgba(168, 85, 247, 0.4);
+  transform: translateY(-1px);
+}
+
+.toolbar-button:active {
+  transform: translateY(0);
 }
 
 .chat-bubble.user .toolbar-button {
-  background-color: rgba(0, 0, 0, 0.08);
-  color: rgba(0, 0, 0, 0.5);
+  background-color: #8b5cf6;
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(139, 92, 246, 0.3);
 }
 
 .chat-bubble.user .toolbar-button:hover {
-  background-color: rgba(0, 0, 0, 0.15);
-  color: rgba(0, 0, 0, 0.7);
+  background-color: #7c3aed;
+  box-shadow: 0 4px 8px rgba(124, 58, 237, 0.4);
 }
 
 /* History view specific styles */
