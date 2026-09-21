@@ -272,7 +272,9 @@ function LearnPageInner() {
             </>
           ) : (
             <>
-              <div className="text-8xl mb-4">🌟</div>
+              <div className="mb-4">
+                <ArasaacPictogram conceptId="state.great" showLabel={false} imageClassName="w-20 h-20" />
+              </div>
               <p className="text-2xl text-blue-700 font-extrabold">Preparando sua aventura...</p>
               <p className="text-gray-500 mt-2 text-sm">A TitIA está escolhendo a melhor atividade para você!</p>
             </>
@@ -520,7 +522,9 @@ export default function LearnPage() {
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center min-h-screen" style={{ background: "linear-gradient(135deg,#fce7f3,#dbeafe,#d1fae5)" }}>
-        <div className="text-8xl animate-bounce">🌟</div>
+        <div className="animate-bounce">
+          <ArasaacPictogram conceptId="state.great" showLabel={false} imageClassName="w-20 h-20" />
+        </div>
       </div>
     }>
       <LearnPageInner />

@@ -17,7 +17,7 @@ const SKILL_LABELS: Record<Skill, string> = {
   auditive: "👂 Auditiva",
   logical: "🧠 Lógica",
   motor: "🖐️ Motora",
-  sensory: "✨ Sensorial",
+  sensory: "Sensorial",
 };
 const SUPPORT_LEVELS = [
   { value: "mild", label: "Leve", color: "bg-green-100 text-green-700 border-green-300" },

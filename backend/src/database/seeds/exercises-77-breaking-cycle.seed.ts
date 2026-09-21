@@ -101,9 +101,9 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
       timeLimit: 45,
       pictogramConceptIds: ['23189', '61042'], // maçã, cesta
       items: [
-        { id: 'apple1', label: '🍎', visual: 'apple' },
-        { id: 'apple2', label: '🍎', visual: 'apple' },
-        { id: 'apple3', label: '🍎', visual: 'apple' },
+        { id: 'apple1', label: 'maçã', visual: 'apple' },
+        { id: 'apple2', label: 'maçã', visual: 'apple' },
+        { id: 'apple3', label: 'maçã', visual: 'apple' },
       ],
       correctAnswer: ['apple1', 'apple2', 'apple3'],
       validation: { kind: 'set' },
@@ -143,19 +143,19 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
         {
           id: 'num2',
           left: '2',
-          right: '●●',
+          right: 'dois círculos',
           correctMatch: 'dots2',
         },
         {
           id: 'num4',
           left: '4',
-          right: '●●●●',
+          right: 'quatro círculos',
           correctMatch: 'dots4',
         },
         {
           id: 'num3',
           left: '3',
-          right: '●●●',
+          right: 'três círculos',
           correctMatch: 'dots3',
         },
       ],
