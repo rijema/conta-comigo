@@ -1,16 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { Activity } from "@/types";
 import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
+import { useTitiaSpeech } from "@/hooks/use-titia-speech";
 
 export function QuantityBuilderActivity({ activity, onAnswer }: {
   activity: Activity;
   onAnswer: (answer: { count: number }) => void;
 }) {
   const [count, setCount] = useState(0);
+  const spokenRef = useRef(false);
+  const speech = useTitiaSpeech({ activityId: activity.id });
   const conceptId = activity.content?.buildPictogramConceptId ?? "library.die";
   const maxCount = activity.content?.maxCount ?? 20;
+  const question = activity.content?.question ?? activity.content?.instructionsPt ?? "Monte a quantidade.";
+
+  useEffect(() => {
+    if (speech.settings.voiceEnabled && !spokenRef.current) {
+      spokenRef.current = true;
+      speech.speakInstruction({
+        steps: [question],
+      });
+    }
+  }, [speech.settings.voiceEnabled, question, speech]);
+
+  const handleSubmit = () => {
+    onAnswer({ count });
+    if (speech.settings.voiceEnabled) {
+      const feedback = `Você montou ${count} itens.`;
+      speech.speakInstruction({ steps: [feedback] });
+    }
+  };
   return (
     <div>
       <p className="mb-4 text-center text-xl font-bold">{activity.content?.question ?? activity.content?.instructionsPt}</p>
@@ -31,7 +52,7 @@ export function QuantityBuilderActivity({ activity, onAnswer }: {
           <ArasaacPictogram conceptId="mathematics.more" showLabel={false} imageClassName="h-7 w-7" /> Adicionar um
         </button>
       </div>
-      <button type="button" onClick={() => onAnswer({ count })}
+      <button type="button" onClick={handleSubmit}
         className="w-full rounded-xl bg-green-600 p-3 font-bold text-white">
         <ArasaacPictogram conceptId="activity.complete" showLabel={false} imageClassName="h-7 w-7" /> Confirmar
       </button>

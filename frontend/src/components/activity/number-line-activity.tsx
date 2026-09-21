@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { Activity, SensoryProfile } from "@/types";
 import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
+import { useTitiaSpeech } from "@/hooks/use-titia-speech";
 
 interface Props {
   activity: Activity;
@@ -13,13 +14,30 @@ interface Props {
 export function NumberLineActivity({ activity, onAnswer, sensoryProfile }: Props) {
   const { min = 0, max = 10, target, step = 1 } = activity.content || {};
   const [value, setValue] = useState(min);
+  const spokenRef = useRef(false);
+  const speech = useTitiaSpeech({ activityId: activity.id });
 
   const marks = [];
   for (let i = min; i <= max; i += step) marks.push(i);
 
+  const question = activity.content?.question || `Marque o número ${target} na reta numérica`;
+
+  useEffect(() => {
+    if (speech.settings.voiceEnabled && !spokenRef.current) {
+      spokenRef.current = true;
+      speech.speakInstruction({
+        steps: [question],
+      });
+    }
+  }, [speech.settings.voiceEnabled, question, speech]);
+
   const handleSubmit = () => {
     const isCorrect = value === target;
     onAnswer({ value, isCorrect });
+    if (speech.settings.voiceEnabled) {
+      const feedback = isCorrect ? "Correto! Parabéns!" : "Tente novamente.";
+      speech.speakInstruction({ steps: [feedback] });
+    }
   };
 
   return (
