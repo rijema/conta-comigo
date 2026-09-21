@@ -127,8 +127,6 @@ ${invalidResponse}
 - https://www.who.int/news-room/fact-sheets/detail/autism-spectrum-disorders`;
 }
 
-}
-
 function formatConversationMemory(memory?: string) {
   if (!memory?.trim()) return "";
   return `\n\nContexto observado de conversas anteriores do mesmo usuário:\n${memory.trim()}`;
