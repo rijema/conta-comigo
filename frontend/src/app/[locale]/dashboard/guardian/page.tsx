@@ -273,18 +273,18 @@ export default function GuardianDashboardPage() {
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold">👪 Painel do Responsável</h1>
-            <p className="text-purple-200 text-sm">Olá, {user?.name?.split(" ")[0]}!</p>
+            <p className="text-white text-sm">Olá, {user?.name?.split(" ")[0]}!</p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowAddChild(true)}
-              className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl text-sm font-semibold transition-colors"
+              className="px-4 py-2 bg-white/30 hover:bg-white/40 rounded-xl text-sm font-semibold transition-colors"
             >
               + Adicionar filho
             </button>
             <button
               onClick={logout}
-              className="px-3 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-sm font-semibold transition-colors text-purple-100 hover:text-white"
+              className="px-3 py-2 bg-white/30 hover:bg-white/40 rounded-xl text-sm font-semibold transition-colors text-white hover:text-white"
             >
               Sair
             </button>
