@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 
 /**
@@ -45,17 +45,26 @@ export const BasketMinigame: React.FC<BasketMinigameProps> = ({
   const [showCelebration, setShowCelebration] = useState(false);
   const [completionPercent, setCompletionPercent] = useState(0);
 
+  // Wrap onComplete in useCallback to prevent unnecessary reruns
+  const handleComplete = useCallback(() => {
+    console.log('🎉 Basket minigame completed!', { droppedItems, itemsTotal: items.length });
+    onComplete(100, true);
+  }, [onComplete, droppedItems, items.length]);
+
   useEffect(() => {
     const percent = (droppedItems.length / items.length) * 100;
     setCompletionPercent(percent);
 
     if (droppedItems.length === items.length && !showCelebration) {
-      setTimeout(() => {
-        setShowCelebration(true);
-        onComplete(100, true);
+      console.log('✅ All items dropped, showing celebration...');
+      setShowCelebration(true);
+      const timer = setTimeout(() => {
+        handleComplete();
       }, 1000);
+      
+      return () => clearTimeout(timer);
     }
-  }, [droppedItems, items.length, showCelebration, onComplete]);
+  }, [droppedItems, items.length, showCelebration, handleComplete]);
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, itemId: string) => {
     if (droppedItems.includes(itemId)) return;
