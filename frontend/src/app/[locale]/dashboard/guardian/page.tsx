@@ -363,11 +363,6 @@ export default function GuardianDashboardPage() {
                     style={{
                       animationDelay: `${index * 0.05}s`
                     }}
-                    className={`px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-300 ease-out ${
-                      activeTab === tab
-                        ? "bg-purple-600 text-white scale-110"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:scale-105"
-                    }`}
                   >
                     {({ overview: "📊 Visão Geral", charts: "📈 Gráficos", bncc: "📚 BNCC", ade: "🤖 IA" } as Record<string,string>)[tab]}
                   </button>
