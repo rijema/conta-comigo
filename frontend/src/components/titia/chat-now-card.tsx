@@ -109,7 +109,7 @@ export function ChatNowCard() {
               />
             </div>
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.22em] text-sky-500">
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-sky-700">
                 TitiA
               </p>
               <h2 className="text-2xl font-black text-slate-900">
@@ -118,7 +118,7 @@ export function ChatNowCard() {
               <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-600">
                 {subtitleByRole}
               </p>
-              <p className="mt-2 text-xs font-semibold text-slate-400">
+              <p className="mt-2 text-xs font-semibold text-slate-600">
                 TitiA <span className="opacity-65">(made with AutBot)</span>
               </p>
             </div>
@@ -133,7 +133,7 @@ export function ChatNowCard() {
             >
               {isLoading ? "Abrindo a TitiA..." : "Conversar com a TitiA"}
             </button>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-700">
               A conversa abre em uma janela integrada, com retorno rápido ao seu painel.
             </p>
             {error && <p className="text-sm font-semibold text-rose-600">{error}</p>}

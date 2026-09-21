@@ -99,7 +99,7 @@ export function ResearchDebugPanel({ learnerId, decisionIds }: Props) {
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div>
           <p className="font-mono text-sm font-bold text-amber-300">RESEARCH DEBUG</p>
-          <p className="text-xs text-slate-400">Authorized technical view; not part of child or guardian flows.</p>
+          <p className="text-xs text-slate-600">Authorized technical view; not part of child or guardian flows.</p>
         </div>
         <select
           aria-label="Recommendation decision"
@@ -111,7 +111,7 @@ export function ResearchDebugPanel({ learnerId, decisionIds }: Props) {
         </select>
       </div>
       {error && <p className="text-sm text-red-300">{error}</p>}
-      {!trace && !error && <p className="text-sm text-slate-400">Loading trace…</p>}
+      {!trace && !error && <p className="text-sm text-slate-600">Loading trace…</p>}
       {trace && (
         <dl className="grid gap-2 md:grid-cols-2">
           {LABELS.map(([key, label]) => (
