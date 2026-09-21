@@ -23,7 +23,7 @@ export function LearnerProfileCard({ learnerId }: { learnerId: string }) {
       <div className="flex items-start justify-between">
         <div>
           <h2 className="text-xl font-bold text-slate-800">{profile.name}</h2>
-          <p className="text-slate-500 text-sm">
+          <p className="text-slate-700 text-sm">
             {profile.age} anos • {profile.schoolYear}º ano
           </p>
         </div>

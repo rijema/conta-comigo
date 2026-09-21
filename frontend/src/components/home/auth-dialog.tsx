@@ -103,7 +103,7 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
 
         <div className="relative overflow-y-auto p-5 sm:p-8">
           <button ref={closeRef} type="button" onClick={onClose} aria-label="Fechar"
-            className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full text-xl text-slate-500 hover:bg-slate-100 focus:ring-4 focus:ring-violet-200">×</button>
+            className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full text-xl text-slate-700 hover:bg-slate-100 focus:ring-4 focus:ring-violet-200">×</button>
           <div className="mb-6 pr-10">
             <p className="text-sm font-bold uppercase tracking-widest text-violet-600">Bem-vindo</p>
             <h2 id="auth-title" className="text-3xl font-black text-slate-900">
@@ -160,7 +160,7 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
                     type="button"
                     onClick={() => setShowPassword((current) => !current)}
                     aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-violet-700"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-700 hover:text-violet-700"
                   >
                     {showPassword ? "Ocultar" : "Mostrar"}
                   </button>
@@ -180,7 +180,7 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
             </form>
           ) : (
             <form onSubmit={submitRegister} className="space-y-4">
-              <p className="text-sm text-slate-500">Etapa {step} de 2</p>
+              <p className="text-sm text-slate-700">Etapa {step} de 2</p>
               {step === 1 ? <>
                 <Field label="Seu nome"><input className={fieldClass} required value={form.name} onChange={(e) => update("name", e.target.value)} /></Field>
                 <Field label="E-mail"><input type="email" autoComplete="email" className={fieldClass} required value={form.email} onChange={(e) => update("email", e.target.value)} /></Field>
