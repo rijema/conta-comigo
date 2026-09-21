@@ -287,6 +287,7 @@ function LearnPageInner() {
 
   return (
     <div className="min-h-screen motion-safe:transition-all motion-safe:duration-700" onPointerDownCapture={() => recordFirstInteraction(activity.id)} onKeyDownCapture={() => recordFirstInteraction(activity.id)} style={{ background: settings.lowStimulationMode || settings.visualStimulus === 'low' ? "#ecfdf5" : bg, filter: settings.visualStimulus === 'high' ? 'saturate(1.1)' : undefined, transitionDuration: settings.animationsReduced || settings.lowStimulationMode ? '0ms' : settings.animationSpeed === 'slow' ? '1200ms' : settings.animationSpeed === 'fast' ? '350ms' : '700ms' }}>
+      <h1 className="sr-only">Atividade: {activity.title}</h1>
 
       {/* ── Correct answer burst ── */}
       {showReward && (

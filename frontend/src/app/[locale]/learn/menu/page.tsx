@@ -389,7 +389,7 @@ export default function ActivityMenuPage() {
                 <p className="font-extrabold text-white text-base">TitIA 🌟</p>
                 <p className="text-white/80 text-xs">Pergunte qualquer coisa sobre aprender!</p>
               </div>
-              <button onClick={() => setShowAI(false)} className="w-9 h-9 bg-white/20 hover:bg-white/30 rounded-xl flex items-center justify-center text-white text-lg">✕</button>
+              <button onClick={() => setShowAI(false)} className="w-9 h-9 bg-white/30 hover:bg-white/40 rounded-xl flex items-center justify-center text-white text-lg">✕</button>
             </div>
             <div className="p-5 overflow-y-auto" style={{ maxHeight: "calc(90vh - 80px)" }}>
               {aiAnswer && (

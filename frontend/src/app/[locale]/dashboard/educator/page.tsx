@@ -178,7 +178,7 @@ export default function EducatorDashboardPage() {
           </div>
           <button
             onClick={logout}
-            className="text-indigo-200 hover:text-white text-sm px-3 py-1.5 rounded-lg hover:bg-white/10"
+            className="text-indigo-200 hover:text-white text-sm px-3 py-1.5 rounded-lg hover:bg-white/20"
           >
             ← Sair
           </button>
