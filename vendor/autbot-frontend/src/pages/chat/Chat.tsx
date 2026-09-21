@@ -463,9 +463,9 @@ const Chat = () => {
         </aside>
 
         <div className="main-chat">
-          <header className="chat-header">
+          <section className="chat-header" aria-label="Seção de chat">
             {currentView === "chat" ? <div>Nova conversa</div> : <div>Histórico de Conversas</div>}
-          </header>
+          </section>
 
           <main className="chat-body">
             {currentView === "chat" ? (
@@ -551,7 +551,7 @@ const Chat = () => {
             ) : (
               <>
                 <div className="history-return-banner">
-                  <button type="button" className="history-return-button" onClick={resumeDraftConversation}>
+                  <button type="button" className="history-return-button" aria-label="Voltar para interação atual" onClick={resumeDraftConversation}>
                     Voltar para interação atual
                   </button>
                   <p>
