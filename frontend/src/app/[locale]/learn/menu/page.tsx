@@ -9,32 +9,32 @@ import { authService } from "@/lib/auth";
 import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
 import { ArasaacLibraryDialog } from "@/components/arasaac/arasaac-library-dialog";
 
-/* ── Island themes — thematic name + skill subtitle ── */
+/* ── Island themes — thematic name + skill subtitle + ARASAAC pictogram concept ── */
 const ISLAND_THEMES = [
-  { grad: "from-yellow-300 to-orange-300",  headerGrad: "from-orange-400 to-amber-400",  border: "border-orange-300",  emoji: "🌻", label: "Ilha do Sol",     sub: "Contagem" },
-  { grad: "from-blue-300 to-cyan-300",      headerGrad: "from-blue-500 to-cyan-400",     border: "border-blue-300",    emoji: "🌊", label: "Ilha do Mar",     sub: "Adição" },
-  { grad: "from-green-300 to-emerald-300",  headerGrad: "from-green-500 to-emerald-400", border: "border-green-300",   emoji: "🌿", label: "Ilha da Floresta", sub: "Subtração" },
-  { grad: "from-purple-300 to-fuchsia-300", headerGrad: "from-purple-500 to-pink-400",   border: "border-purple-300",  emoji: "🌸", label: "Ilha das Flores",  sub: "Comparação" },
-  { grad: "from-red-300 to-rose-300",       headerGrad: "from-red-500 to-rose-400",      border: "border-red-300",     emoji: "🍎", label: "Ilha das Maçãs",  sub: "Formas" },
-  { grad: "from-teal-300 to-sky-300",       headerGrad: "from-teal-500 to-sky-400",      border: "border-teal-300",    emoji: "🐢", label: "Ilha dos Animais", sub: "Medidas" },
-  { grad: "from-indigo-300 to-violet-300",  headerGrad: "from-indigo-500 to-violet-400", border: "border-indigo-300",  emoji: "🦄", label: "Ilha Mágica",     sub: "Números" },
-  { grad: "from-pink-300 to-rose-200",      headerGrad: "from-pink-500 to-rose-400",     border: "border-pink-300",    emoji: "🎀", label: "Ilha do Amor",    sub: "Ordenação" },
+  { grad: "from-yellow-300 to-orange-300",  headerGrad: "from-orange-400 to-amber-400",  border: "border-orange-300",  pictogramId: "mathematics.numbers", label: "Ilha do Sol",     sub: "Contagem" },
+  { grad: "from-blue-300 to-cyan-300",      headerGrad: "from-blue-500 to-cyan-400",     border: "border-blue-300",    pictogramId: "mathematics.addition", label: "Ilha do Mar",     sub: "Adição" },
+  { grad: "from-green-300 to-emerald-300",  headerGrad: "from-green-500 to-emerald-400", border: "border-green-300",   pictogramId: "mathematics.subtraction", label: "Ilha da Floresta", sub: "Subtração" },
+  { grad: "from-purple-300 to-fuchsia-300", headerGrad: "from-purple-500 to-pink-400",   border: "border-purple-300",  pictogramId: "mathematics.compare", label: "Ilha das Flores",  sub: "Comparação" },
+  { grad: "from-red-300 to-rose-300",       headerGrad: "from-red-500 to-rose-400",      border: "border-red-300",     pictogramId: "library.red", label: "Ilha das Maçãs",  sub: "Formas" },
+  { grad: "from-teal-300 to-sky-300",       headerGrad: "from-teal-500 to-sky-400",      border: "border-teal-300",    pictogramId: "mathematics.size", label: "Ilha dos Animais", sub: "Medidas" },
+  { grad: "from-indigo-300 to-violet-300",  headerGrad: "from-indigo-500 to-violet-400", border: "border-indigo-300",  pictogramId: "mathematics.sequence", label: "Ilha Mágica",     sub: "Números" },
+  { grad: "from-pink-300 to-rose-200",      headerGrad: "from-pink-500 to-rose-400",     border: "border-pink-300",    pictogramId: "mathematics.order", label: "Ilha do Amor",    sub: "Ordenação" },
 ];
 
-const CARD_CONFIG: Record<string, { emoji: string; label: string; mascot: string }> = {
-  counting:        { emoji: "🔢", label: "Contagem com escolha", mascot: "🐛" },
-  multiple_choice: { emoji: "🎯", label: "Escolher",      mascot: "🐸" },
-  quiz:            { emoji: "❓", label: "Perguntas",     mascot: "🦉" },
-  drag_drop:       { emoji: "🖐️", label: "Arrastar",      mascot: "🐱" },
-  number_line:     { emoji: "📏", label: "Reta Numérica", mascot: "🐰" },
+const CARD_CONFIG: Record<string, { pictogramId: string; label: string; mascot?: string }> = {
+  counting:        { pictogramId: "mathematics.numbers", label: "Contagem com escolha" },
+  multiple_choice: { pictogramId: "activity.choose", label: "Escolher" },
+  quiz:            { pictogramId: "communication.i_dont_understand", label: "Perguntas" },
+  drag_drop:       { pictogramId: "activity.drag", label: "Arrastar" },
+  number_line:     { pictogramId: "mathematics.order", label: "Reta Numérica" },
 };
 
 const AI_QUESTIONS = [
-  "Por que aprender matemática é tão bom? 🌟",
-  "Como eu posso melhorar nas atividades? 💪",
-  "O que são os números e para que servem? 🔢",
-  "Por que contar é divertido? 🎉",
-  "Como a matemática me ajuda no dia a dia? 🏠",
+  "Por que aprender matemática é tão bom?",
+  "Como eu posso melhorar nas atividades?",
+  "O que são os números e para que servem?",
+  "Por que contar é divertido?",
+  "Como a matemática me ajuda no dia a dia?",
 ];
 
 export default function ActivityMenuPage() {
@@ -131,7 +131,7 @@ export default function ActivityMenuPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm font-bold text-blue-600 whitespace-nowrap">{totalDone}/{totalAll} 🌟</span>
+            <span className="text-sm font-bold text-blue-600 whitespace-nowrap">{totalDone}/{totalAll}</span>
             <button
               onClick={openVisualLibrary}
               className="hidden sm:flex min-h-10 rounded-2xl bg-gradient-to-br from-orange-400 to-yellow-400 items-center gap-1 px-2 shadow-sm hover:scale-105 transition-transform"
@@ -266,8 +266,12 @@ export default function ActivityMenuPage() {
                       >
                         <div className={`bg-gradient-to-r ${theme.headerGrad} px-4 py-3 flex items-center justify-between gap-2`}>
                           <div className="flex items-center gap-2 min-w-0">
-                            <div className="w-10 h-10 rounded-2xl bg-white/25 flex items-center justify-center text-2xl shadow-inner flex-shrink-0">
-                              {theme.emoji}
+                            <div className="w-10 h-10 rounded-2xl bg-white/25 flex items-center justify-center shadow-inner flex-shrink-0">
+                              <ArasaacPictogram 
+                                conceptId={theme.pictogramId} 
+                                showLabel={false}
+                                imageClassName="w-8 h-8"
+                              />
                             </div>
                             <div className="min-w-0">
                               <p className="font-extrabold text-white text-sm drop-shadow truncate">{theme.label}</p>
@@ -301,7 +305,7 @@ export default function ActivityMenuPage() {
                               >
                                 {isRec && (
                                   <span className="absolute -top-2.5 left-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-extrabold px-2 py-0.5 rounded-full shadow">
-                                    ✨ TitIA recomenda!
+                                    TitIA recomenda!
                                   </span>
                                 )}
                                 {act.completed && (
@@ -310,8 +314,12 @@ export default function ActivityMenuPage() {
                                   </span>
                                 )}
                                 <div className="flex items-center gap-2">
-                                  <div className="w-11 h-11 rounded-xl bg-white shadow-sm flex items-center justify-center text-2xl flex-shrink-0 border border-gray-100">
-                                    {cfg.emoji}
+                                  <div className="w-11 h-11 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0 border border-gray-100">
+                                    <ArasaacPictogram 
+                                      conceptId={cfg.pictogramId} 
+                                      showLabel={false}
+                                      imageClassName="w-8 h-8"
+                                    />
                                   </div>
                                   <div className="flex-1 min-w-0">
                                     <p className="font-extrabold text-slate-800 text-xs leading-tight line-clamp-2">{act.title}</p>
@@ -333,7 +341,9 @@ export default function ActivityMenuPage() {
                                       <span>Começar</span>
                                     </button>
                                   ) : (
-                                    <div className="w-11 h-11 rounded-2xl bg-green-100 flex items-center justify-center text-2xl flex-shrink-0">🌟</div>
+                                    <div className="w-11 h-11 rounded-2xl bg-green-100 flex items-center justify-center flex-shrink-0">
+                                      <ArasaacPictogram conceptId="state.correct" showLabel={false} imageClassName="w-6 h-6" />
+                                    </div>
                                   )}
                                 </div>
                               </div>
@@ -407,7 +417,7 @@ export default function ActivityMenuPage() {
               )}
               {!aiAnswer && (
                 <div className="mb-4">
-                  <p className="text-xs font-extrabold text-slate-400 uppercase mb-2.5">💡 Perguntas especiais para você</p>
+                  <p className="text-xs font-extrabold text-slate-400 uppercase mb-2.5">Perguntas especiais para você</p>
                   <div className="space-y-2">
                     {AI_QUESTIONS.map((q) => (
                       <button key={q} onClick={() => handleAsk(q)}
@@ -421,18 +431,22 @@ export default function ActivityMenuPage() {
               {aiError && <div className="mb-3 bg-red-50 border border-red-200 rounded-2xl px-4 py-2 text-xs text-red-600">{aiError}</div>}
               <div className="space-y-2">
                 <textarea value={aiQuestion} onChange={(e) => setAiQuestion(e.target.value)}
-                  placeholder="Escreva sua pergunta aqui... 💬" rows={2}
+                  placeholder="Escreva sua pergunta aqui..." rows={2}
                   className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 focus:border-purple-400 outline-none text-sm resize-none transition-colors" />
                 <div className="flex gap-2">
                   {aiAnswer && (
                     <button onClick={() => { setAiAnswer(null); setAiQuestion(""); setAiError(null); }}
-                      className="flex-1 py-3 border-2 border-purple-200 text-purple-600 font-bold rounded-2xl hover:bg-purple-50 text-sm">
-                      🔄 Outra pergunta
+                      className="flex-1 py-3 border-2 border-purple-200 text-purple-600 font-bold rounded-2xl hover:bg-purple-50 text-sm flex items-center justify-center gap-2">
+                      <ArasaacPictogram conceptId="navigation.repeat" showLabel={false} imageClassName="w-4 h-4" />
+                      <span>Outra pergunta</span>
                     </button>
                   )}
                   <button onClick={() => handleAsk()} disabled={aiLoading || !aiQuestion.trim()}
                     className="flex-[2] py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-extrabold rounded-2xl hover:opacity-90 disabled:opacity-40 text-sm flex items-center justify-center gap-2 shadow-md">
-                    {aiLoading ? <><span aria-hidden="true">🦋</span> A TitiA está pensando...</> : "✨ Perguntar à TitIA"}
+                    {aiLoading ? <><span aria-hidden="true">Pensando...</span></> : <>
+                      <ArasaacPictogram conceptId="activity.listen" showLabel={false} imageClassName="w-4 h-4" />
+                      <span>Perguntar à TitIA</span>
+                    </>}
                   </button>
                 </div>
               </div>
