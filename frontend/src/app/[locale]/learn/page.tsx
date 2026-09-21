@@ -156,7 +156,7 @@ function LearnPageInner() {
       setShowAutoHint(true);
     }, Math.max(5, settings.helpDelaySeconds) * 1000);
     return () => window.clearTimeout(timer);
-  }, [session?.currentActivity?.id, session?.progress, settings.autoHints, settings.helpDelaySeconds, requestHint]);
+  }, [session?.currentActivity?.id, settings.autoHints, settings.helpDelaySeconds]);
 
   const handleAnswer = useCallback(async (answer: any) => {
     if (!session?.currentActivity) return;

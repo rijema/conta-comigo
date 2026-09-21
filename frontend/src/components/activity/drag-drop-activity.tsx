@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type MouseEvent as ReactMouseEvent } from "react";
+import { useState, useEffect, useRef, type MouseEvent as ReactMouseEvent } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -18,6 +18,7 @@ import {
 } from "@dnd-kit/core";
 import type { Activity, SensoryProfile } from "@/types";
 import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
+import { useTitiaSpeech } from "@/hooks/use-titia-speech";
 
 interface Props {
   activity: Activity;
@@ -173,6 +174,19 @@ export function DragDropActivity({ activity, onAnswer }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const spokenRef = useRef(false);
+  const speech = useTitiaSpeech({ activityId: activity.id });
+
+  const question = activity.content?.question || activity.content?.instructionsPt || "";
+
+  useEffect(() => {
+    if (speech.settings.voiceEnabled && !spokenRef.current && question) {
+      spokenRef.current = true;
+      speech.speakInstruction({
+        steps: [question],
+      });
+    }
+  }, [speech.settings.voiceEnabled, question, speech]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -264,6 +278,10 @@ export function DragDropActivity({ activity, onAnswer }: Props) {
     const isCorrect = slots.length === correctOrder.length &&
       slots.every((slot, index) => slot === correctOrder[index]);
     onAnswer({ arrangement: slots as string[], isCorrect });
+    if (speech.settings.voiceEnabled) {
+      const feedback = isCorrect ? "Correto! Parabéns!" : "Tente novamente.";
+      speech.speakInstruction({ steps: [feedback] });
+    }
     if (!isCorrect) resetForRetry();
   };
 
