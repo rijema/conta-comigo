@@ -14,7 +14,7 @@ const SKILL_LABELS: Record<string, string> = {
   auditive: "👂 Auditiva",
   logical: "🧠 Lógica",
   motor: "🖐️ Motora",
-  sensory: "✨ Sensorial",
+  sensory: "Sensorial",
 };
 
 const BNCC_AREAS: Record<string, { label: string; color: string; emoji: string }> = {
@@ -387,7 +387,7 @@ export default function GuardianDashboardPage() {
                         { icon: "🎮", label: "Atividades concluídas", value: longitudinal?.observedData?.activitiesCompleted ?? "—" },
                         { icon: "✅", label: "Respostas corretas", value: longitudinal?.observedData?.correctAnswers ?? "—" },
                         { icon: "📈", label: "Precisão observada", value: longitudinal?.observedData?.accuracy == null ? "Dados insuficientes" : `${Math.round(longitudinal.observedData.accuracy * 100)}%` },
-                        { icon: "💡", label: "Pedidos de ajuda", value: longitudinal?.observedData?.hints ?? "—" },
+                        { icon: "help", label: "Pedidos de ajuda", value: longitudinal?.observedData?.hints ?? "—" },
                       ].map((s) => (
                         <div key={s.label} className="bg-white rounded-2xl shadow-sm p-4 text-center border border-slate-100">
                           <div className="text-3xl mb-1">{s.icon}</div>
@@ -412,7 +412,7 @@ export default function GuardianDashboardPage() {
                           <p key={code} className="rounded-xl border border-slate-200 p-3 text-sm"><strong className="block text-slate-800">{BNCC_AREAS[code]?.label ?? 'Matemática'}</strong>Praticou em {count} {count === 1 ? 'atividade' : 'atividades'}.</p>
                         ))}
                       </div>
-                      <h4 className="mt-5 font-bold text-slate-700">✨ Já conseguiu em atividades recentes</h4>
+                      <h4 className="mt-5 font-bold text-slate-700">Já conseguiu em atividades recentes</h4>
                       <p className="mt-1 text-sm text-slate-600">Acertos observados, sem concluir que a habilidade foi dominada.</p>
                       <div className="mt-2 flex flex-wrap gap-2">{(detail.recentlySuccessfulSkills ?? []).length ? detail.recentlySuccessfulSkills.map(({ code, count }: { code: string; count: number }) => <span key={code} className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-900">{BNCC_AREAS[code]?.label ?? 'Matemática'} · {count} {count === 1 ? 'acerto' : 'acertos'}</span>) : <span className="text-sm text-slate-500">Ainda não há acertos registrados nesta amostra.</span>}</div>
                       <h4 className="mt-5 font-bold text-slate-700">🎮 Formatos mais usados</h4>
@@ -457,11 +457,11 @@ export default function GuardianDashboardPage() {
 
                     {/* Contextual guidance for parents */}
                     <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-2xl p-4">
-                      <h3 className="font-bold text-purple-800 mb-2 text-sm">💡 O que esses dados significam?</h3>
+                      <h3 className="font-bold text-purple-800 mb-2 text-sm">O que esses dados significam?</h3>
                       <ul className="space-y-1.5 text-xs text-slate-600">
                         <li>🎯 <strong>Precisão observada</strong>: percentual de respostas corretas nas atividades registradas; não prova melhora isoladamente.</li>
                         <li>🔥 <strong>Sequência</strong>: dias consecutivos de atividades. Importante para criar hábito.</li>
-                        <li>⭐ <strong>Pontos</strong>: recompensas acumuladas por acertos e esforço.</li>
+                        <li><strong>Pontos</strong>: recompensas acumuladas por acertos e esforço.</li>
                         <li>🔄 <strong>Adaptação</strong>: quando necessário, o sistema pode oferecer outro formato para o mesmo objetivo de aprendizagem.</li>
                       </ul>
                     </div>
@@ -609,7 +609,7 @@ export default function GuardianDashboardPage() {
                           </div>
                           {dec.guardianExplanation && (
                             <p className="text-xs text-slate-600 bg-slate-50 rounded-xl p-2">
-                              💬 {dec.guardianExplanation}
+                              {dec.guardianExplanation}
                             </p>
                           )}
                         </div>

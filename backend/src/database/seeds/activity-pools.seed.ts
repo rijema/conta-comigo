@@ -65,21 +65,21 @@ const structureTitles: Record<string, string> = {
 };
 const pools: Array<{ niche: string; skills: string[]; questions: Question[] }> = [
   { niche: 'counting', skills: ['EF01MA02'], questions: [
-    ['count_objects', 'Conte: ⭐ ⭐', ['1','2','3'], '2', 'counting', 'céu', ['⭐','⭐']],
-    ['count_grouped', 'Há 3 círculos juntos e 2 separados. Quantos ao todo?', ['4','5','6'], '5', 'counting', 'formas', ['●','●','●','○','○']],
-    ['count_scattered', 'Conte somente os triângulos: ▲ ● ▲ ■ ▲', ['2','3','4'], '3', 'counting', 'formas', ['▲','●','▲','■','▲']],
+    ['count_objects', 'Conte duas estrelas.', ['1','2','3'], '2', 'counting', 'céu'],
+    ['count_grouped', 'Há 3 círculos juntos e 2 separados. Quantos ao todo?', ['4','5','6'], '5', 'counting', 'formas'],
+    ['count_scattered', 'Conte somente os triângulos entre as formas.', ['2','3','4'], '3', 'counting', 'formas'],
     ['count_from_ten', 'Uma caixa tem 10 lápis e outra tem 4. Quantos lápis?', ['12','14','15'], '14', 'quiz', 'escola'],
     ['count_missing_group', 'Há 12 livros. Você vê 7 na mesa. Quantos estão na estante?', ['4','5','6'], '5', 'contextual_problem_solving', 'biblioteca'],
   ]},
   { niche: 'number_quantity', skills: ['EF01MA01','EF01MA02'], questions: [
-    ['match_two', 'Qual número representa ● ●?', ['1','2','3'], '2', 'representation_matching', 'formas', ['●','●']],
+    ['match_two', 'Qual número representa dois círculos?', ['1','2','3'], '2', 'representation_matching', 'formas'],
     ['match_five', 'Qual número representa cinco dedos?', ['4','5','6'], '5', 'representation_matching', 'corpo'],
     ['match_ten', 'Duas mãos abertas mostram quantos dedos?', ['8','10','12'], '10', 'representation_matching', 'corpo'],
-    ['match_tally', 'Marcas ||||| ||| representam qual número?', ['7','8','9'], '8', 'representation_matching', 'marcas'],
+    ['match_tally', 'Marcas de contagem ||||| ||| representam qual número?', ['7','8','9'], '8', 'representation_matching', 'marcas'],
     ['match_decomposition', '1 dezena e 3 unidades representam qual número?', ['13','31','10'], '13', 'representation_matching', 'material_decimal'],
   ]},
   { niche: 'comparison', skills: ['EF01MA03'], questions: [
-    ['compare_sets', 'Qual grupo tem mais? ●●● ou ▲▲', ['círculos','triângulos'], 'círculos', 'quiz', 'formas'],
+    ['compare_sets', 'Qual grupo tem mais: três círculos ou dois triângulos?', ['círculos','triângulos'], 'círculos', 'quiz', 'formas'],
     ['compare_equal', 'Há 4 bolas azuis e 4 vermelhas. Qual grupo tem mais?', ['azuis','vermelhas','iguais'], 'iguais', 'quiz', 'brinquedos'],
     ['compare_estimate', 'Qual pote parece ter menos: um com 8 tampinhas ou um com 12?', ['8','12'], '8', 'quiz', 'objetos'],
     ['compare_difference', 'Uma fila tem 9 crianças e outra tem 6. Quantas a mais na primeira?', ['2','3','4'], '3', 'contextual_problem_solving', 'escola'],
@@ -93,14 +93,14 @@ const pools: Array<{ niche: string; skills: string[]; questions: Question[] }> =
     ['number_line', 'Na reta 11, 12, __, 14, qual número falta?', ['13','15','16'], '13', 'missing_number', 'reta'],
   ]},
   { niche: 'addition', skills: ['EF01MA06'], questions: [
-    ['join_objects', 'Junte 1 bola e 2 bolas. Quantas?', ['2','3','4'], '3', 'counting', 'brinquedos', ['🔵','+','🔵','🔵']],
+    ['join_objects', 'Junte 1 bola e 2 bolas. Quantas?', ['2','3','4'], '3', 'counting', 'brinquedos'],
     ['sum_fingers', 'Mostre 3 dedos e mais 2. Quantos dedos?', ['4','5','6'], '5', 'quiz', 'corpo'],
     ['missing_addend', 'Complete: 4 + __ = 7', ['2','3','4'], '3', 'missing_number', 'equação'],
     ['make_ten', 'Que número completa 6 para formar 10?', ['3','4','5'], '4', 'composition_decomposition', 'decomposição'],
     ['add_context', 'Na mesa havia 8 copos; chegaram mais 5. Quantos há?', ['12','13','14'], '13', 'contextual_problem_solving', 'cozinha'],
   ]},
   { niche: 'subtraction', skills: ['EF01MA08'], questions: [
-    ['remove_objects', 'Há 3 lápis. Tire 1. Quantos restam?', ['1','2','3'], '2', 'counting', 'escola', ['✏️','✏️','✏️']],
+    ['remove_objects', 'Há 3 lápis. Tire 1. Quantos restam?', ['1','2','3'], '2', 'counting', 'escola'],
     ['subtract_fingers', 'Mostre 5 dedos e abaixe 2. Quantos ficam?', ['2','3','4'], '3', 'quiz', 'corpo'],
     ['missing_subtrahend', 'Complete: 9 - __ = 6', ['2','3','4'], '3', 'missing_number', 'equação'],
     ['subtract_ten', 'De 12 figurinhas, 5 foram dadas. Quantas sobraram?', ['6','7','8'], '7', 'contextual_problem_solving', 'coleção'],
@@ -122,7 +122,7 @@ const pools: Array<{ niche: string; skills: string[]; questions: Question[] }> =
   ]},
   { niche: 'patterns', skills: [], questions: [
     ['alternate', 'Continue: azul, vermelho, azul, __', ['azul','vermelho'], 'vermelho', 'pattern_completion', 'cores'],
-    ['pair_repeat', 'Continue: ● ● ▲, ● ● ▲, ● ● __', ['●','▲'], '▲', 'pattern_completion', 'formas'],
+    ['pair_repeat', 'Continue a sequência de formas: círculo, círculo, triângulo, círculo, círculo, __', ['círculo','triângulo'], 'triângulo', 'pattern_completion', 'formas'],
     ['growing', 'Continue: 1 palito, 2 palitos, 3 palitos, __', ['3','4','5'], '4', 'pattern_completion', 'objetos'],
     ['repeat_three', 'Continue: sol, lua, estrela, sol, lua, __', ['sol','lua','estrela'], 'estrela', 'pattern_completion', 'céu'],
     ['find_rule', 'Na sequência 2, 4, 6, 8, o próximo número é:', ['9','10','12'], '10', 'pattern_completion', 'números'],
