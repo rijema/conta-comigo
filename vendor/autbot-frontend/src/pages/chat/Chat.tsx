@@ -9,6 +9,7 @@ import ConversationDetailView from "../../components/historico/ConversationDetai
 import SharedTopBar from "../../components/topbar/SharedTopBar";
 import { StreamingMessage } from "../../components/chat/StreamingMessage";
 import { TypingIndicator } from "../../components/chat/TypingIndicator";
+import MessageToolbar from "../../components/chat/MessageToolbar";
 import { fetchUserData } from "../../service/User";
 import { useBrand } from "../../contexts/BrandContext";
 
@@ -346,6 +347,13 @@ const Chat = () => {
     setCurrentMessage(question);
   };
 
+  const handleGoToHistoryMessage = async (messageId: string) => {
+    // Save current conversation to history first
+    await persistConversationToHistory();
+    // Then switch to history view
+    showHistoryView();
+  };
+
   const draftPreview =
     activeChatMessages.find((message) => message.author === "user")?.text ||
     "Continuar conversa em andamento";
@@ -486,14 +494,21 @@ const Chat = () => {
                       {activeChatMessages.map((message, index) => (
                         <div key={index} className={`chat-bubble ${message.author}`}>
                           <p className="message-text">{message.text}</p>
-                          <span className="message-time">
-                            {new Date(message.timestamp).toLocaleTimeString("pt-BR", {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </span>
-                        </div>
-                      ))}
+                         <div className="message-footer">
+                           <span className="message-time">
+                             {new Date(message.timestamp).toLocaleTimeString("pt-BR", {
+                               hour: "2-digit",
+                               minute: "2-digit",
+                             })}
+                           </span>
+                           <MessageToolbar
+                             messageId={message.id}
+                             messageText={message.text}
+                             onGoToHistory={handleGoToHistoryMessage}
+                           />
+                         </div>
+                       </div>
+                     ))}
 
                       {isTyping && botStreamingMessage && (
                         <div className="chat-bubble autbot">

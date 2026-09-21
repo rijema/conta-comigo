@@ -1,0 +1,56 @@
+.message-toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 6px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.chat-bubble:hover .message-toolbar {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.toolbar-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  font-size: 0.85rem;
+}
+
+.toolbar-button:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.chat-bubble.user .toolbar-button {
+  background-color: rgba(0, 0, 0, 0.08);
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.chat-bubble.user .toolbar-button:hover {
+  background-color: rgba(0, 0, 0, 0.15);
+  color: rgba(0, 0, 0, 0.7);
+}
+
+/* History view specific styles */
+.conversation-detail-view .chat-messages-container .message-toolbar {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.conversation-detail-view .chat-messages-container .chat-bubble:hover .message-toolbar {
+  opacity: 1;
+  pointer-events: auto;
+}
