@@ -46,6 +46,9 @@ const fallbackResponses: Record<PublicoKey, string> = {
     "Estou com uma instabilidade técnica agora. Tente novamente em alguns instantes. Vou responder de forma simples e com cuidado.",
 };
 
+// [DEPLOYMENT FIX: Improved RAG context for TEA/autism]
+// This version interprets all questions through a TEA/neurodiversity lens
+// See commit: feat: improve TiTiA chat UX
 function buildPromptSystem(invalidResponse: string) {
   return `Você é um assistente especializado que responde a perguntas com foco em Transtorno do Espectro Autista (TEA), inclusão, acessibilidade e bem-estar neurodivergente.
 
