@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { Activity, SensoryProfile } from "@/types";
 import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
+import { useTitiaSpeech } from "@/hooks/use-titia-speech";
 import { motion } from "framer-motion";
 
 interface Props {
@@ -14,16 +15,27 @@ interface Props {
 export function CountingActivity({ activity, onAnswer, sensoryProfile }: Props) {
   const [count, setCount] = useState(0);
   const [showConfetti, setShowConfetti] = useState(false);
+  const spokenRef = useRef(false);
+  const speech = useTitiaSpeech({ activityId: activity.id });
 
   const rawItems = activity.content?.items || [];
   const items = rawItems.filter((i: any) => i !== '+' && i !== '=' && i !== '?');
   const targetCount = activity.content?.targetCount ?? items.length;
   const itemEmoji = activity.content?.itemEmoji || '🟡';
+  const question = activity.content?.question || activity.content?.instructionsPt || `Conte os itens: ${itemEmoji}`;
+
+  useEffect(() => {
+    if (speech.settings.voiceEnabled && !spokenRef.current) {
+      spokenRef.current = true;
+      speech.speakInstruction({
+        steps: [question],
+      });
+    }
+  }, [speech.settings.voiceEnabled, question, speech]);
 
   const handleCount = () => {
     if (count < items.length) {
       setCount((c) => c + 1);
-      // Play click sound
       if (typeof window !== 'undefined') {
         const audio = new Audio('data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YQIAAAAAAA==');
         audio.play().catch(() => {});
@@ -38,6 +50,10 @@ export function CountingActivity({ activity, onAnswer, sensoryProfile }: Props) 
       setTimeout(() => setShowConfetti(false), 1500);
     }
     onAnswer({ count, isCorrect });
+    if (speech.settings.voiceEnabled) {
+      const feedback = isCorrect ? "Correto! Parabéns!" : "Tente novamente.";
+      speech.speakInstruction({ steps: [feedback] });
+    }
     if (!isCorrect) setCount(0);
   };
 
