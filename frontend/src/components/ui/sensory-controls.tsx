@@ -31,10 +31,11 @@ export function SensoryControls() {
 
           {/* Low Stimulation Mode */}
           <div className="flex items-center justify-between mb-4">
-            <label className="text-sm text-gray-600">
+            <label htmlFor="low-stim" className="text-sm text-gray-600">
               Modo baixa estimulação
             </label>
             <button
+              id="low-stim"
               onClick={() =>
                 updateProfile({
                   lowStimulationMode: !profile.lowStimulationMode,
@@ -56,10 +57,10 @@ export function SensoryControls() {
 
           {/* Font size */}
           <div className="mb-4">
-            <label className="text-sm text-gray-600 block mb-2">
+            <label htmlFor="font-size" className="text-sm text-gray-600 block mb-2">
               Tamanho do texto
             </label>
-            <div className="flex gap-2">
+            <fieldset id="font-size" className="flex gap-2">
               {(["small", "medium", "large"] as const).map((size) => (
                 <button
                   key={size}
@@ -74,13 +75,14 @@ export function SensoryControls() {
                   {size === "small" ? "A" : size === "medium" ? "A+" : "A++"}
                 </button>
               ))}
-            </div>
+            </fieldset>
           </div>
 
           {/* High contrast */}
           <div className="flex items-center justify-between mb-4">
-            <label className="text-sm text-gray-600">Alto contraste</label>
+            <label htmlFor="high-contrast" className="text-sm text-gray-600">Alto contraste</label>
             <button
+              id="high-contrast"
               onClick={() =>
                 updateProfile({ highContrast: !profile.highContrast })
               }
@@ -100,10 +102,10 @@ export function SensoryControls() {
 
           {/* Background color */}
           <div>
-            <label className="text-sm text-gray-600 block mb-2">
+            <label htmlFor="bg-color" className="text-sm text-gray-600 block mb-2">
               Cor de fundo
             </label>
-            <div className="flex gap-2">
+            <fieldset id="bg-color" className="flex gap-2">
               {["#ffffff", "#fef9c3", "#dbeafe", "#f0fdf4"].map((color) => (
                 <button
                   key={color}
@@ -118,7 +120,7 @@ export function SensoryControls() {
                   aria-pressed={profile.backgroundColor === color}
                 />
               ))}
-            </div>
+            </fieldset>
           </div>
 
           <button
