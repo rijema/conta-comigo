@@ -78,6 +78,31 @@ const definitions: PictogramDefinition[] = [
   definition("communication.another_activity", "COMMUNICATION", "outra atividade", "🎮"),
   definition("communication.listen_again", "COMMUNICATION", "ouvir novamente", "🔊"),
   definition("communication.help_me", "COMMUNICATION", "me ajude", "🙋"),
+  // ── Global Symbols ARASAAC mappings (high confidence) ──
+  // Island themes & activity types
+  definition("arasaac.14494", "LEARNING_LIBRARY", "girassol", "🌻", 14494), // Island theme: counting
+  definition("arasaac.16590", "LEARNING_LIBRARY", "onda", "🌊", 16590),     // Island theme: sea/addition
+  definition("arasaac.16165", "LEARNING_LIBRARY", "planta", "🌿", 16165),   // Island theme: forest/subtraction
+  definition("arasaac.17784", "LEARNING_LIBRARY", "flor", "🌸", 17784),     // Island theme: flowers/comparison
+  definition("arasaac.15195", "LEARNING_LIBRARY", "maçã", "🍎", 15195),     // Island theme: apples/shapes
+  definition("arasaac.20951", "LEARNING_LIBRARY", "tartaruga", "🐢", 20951), // Island theme: animals/measures
+  definition("arasaac.17331", "LEARNING_LIBRARY", "unicórnio", "🦄", 17331), // Island theme: magic/sequences
+  definition("arasaac.15971", "LEARNING_LIBRARY", "laço", "🎀", 15971),     // Island theme: bow/ordering
+  
+  // Activity type icons
+  definition("arasaac.14456", "LEARNING_LIBRARY", "alvo", "🎯", 14456),     // Multiple choice: target
+  definition("arasaac.14379", "COMMUNICATION", "o que?", "❓", 14379),      // Quiz: what?
+  definition("arasaac.15953", "ACTIVITY_ACTION", "mão", "🖐️", 15953),       // Drag: hand
+  definition("arasaac.15851", "MATHEMATICS", "régua", "📏", 15851),         // Measures: ruler
+  
+  // Dialog & feedback
+  definition("arasaac.15358", "LEARNING_LIBRARY", "lâmpada", "💡", 15358),  // Help/tips: light bulb
+  definition("arasaac.15532", "LEARNING_LIBRARY", "borboleta", "🦋", 15532), // TitiA character: butterfly
+  
+  // Approximations (semantic, use with intent)
+  definition("arasaac.14120", "ACTIVITY_ACTION", "forte", "💪", 14120),     // Improvement prompts: strong/effort
+  definition("arasaac.44702", "LEARNING_LIBRARY", "festa", "🎉", 44702),    // Celebration: party
+  definition("arasaac.15811", "LEARNING_LIBRARY", "estrela", "🌟", 15811),  // Excellent/great (alternative to 4644)
   ...[2626, 2627, 2628, 2629, 2630, 2631, 2632, 2633, 2634, 2635, 7025,
     29260, 29262, 29264, 29266, 29268, 29270, 29272, 29274, 29276, 29550]
     .map((arasaacId, value) => definition(`number.${value}`, "NUMBER", String(value), String(value), arasaacId)),
