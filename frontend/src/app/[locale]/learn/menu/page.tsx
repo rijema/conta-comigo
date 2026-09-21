@@ -162,11 +162,11 @@ export default function ActivityMenuPage() {
           <div className="relative flex items-center gap-4 px-6 py-3 max-w-5xl mx-auto">
             <div className="w-12 h-12 rounded-2xl bg-white/25 flex items-center justify-center text-3xl flex-shrink-0 shadow-inner">🦋</div>
             <div className="flex-1 min-w-0">
-              <p className="font-extrabold text-white text-sm md:text-base">TitIA escolheu para você! ✨</p>
+             <p className="font-extrabold text-white text-sm md:text-base">TitIA escolheu para você!</p>
               <p className="text-white/85 text-xs hidden sm:block">Sua jornada foi personalizada com carinho pela inteligência artificial!</p>
             </div>
             <div className="flex-shrink-0 bg-white/25 text-white text-xs font-bold px-3 py-1.5 rounded-full whitespace-nowrap">
-              💬 Fazer uma pergunta
+             Fazer uma pergunta
             </div>
           </div>
         </div>
@@ -273,12 +273,12 @@ export default function ActivityMenuPage() {
                               <p className="font-extrabold text-white text-sm drop-shadow truncate">{theme.label}</p>
                               <p className="text-white/80 text-xs font-semibold truncate">{skillPt}</p>
                               <p className="text-white text-xs font-extrabold">{group.skill === 'Exploracao' ? 'Sem vínculo BNCC validado' : `BNCC ${group.skill}`}</p>
-                              <p className="text-white/65 text-xs">{group.completedCount}/{group.totalActivities} ✓</p>
+                              <p className="text-white/65 text-xs">{group.completedCount}/{group.totalActivities}</p>
                             </div>
                           </div>
                           <div className="flex items-center gap-1 flex-shrink-0">
-                            {allDone && <span className="text-xl">🏆</span>}
-                            <span className="text-white text-base">{isOpen ? "🔼" : "🔽"}</span>
+                            {allDone && <span className="text-xl text-yellow-300">•</span>}
+                            <span className="text-white text-base">{isOpen ? "▲" : "▼"}</span>
                           </div>
                         </div>
                         <div className="h-2 bg-white/20">
@@ -306,7 +306,7 @@ export default function ActivityMenuPage() {
                                 )}
                                 {act.completed && (
                                   <span className="absolute -top-2.5 right-2 bg-green-500 text-white text-xs font-extrabold px-2 py-0.5 rounded-full shadow">
-                                    ✅ Concluído!
+                                    Concluído
                                   </span>
                                 )}
                                 <div className="flex items-center gap-2">
@@ -390,10 +390,10 @@ export default function ActivityMenuPage() {
             <div className="bg-gradient-to-r from-purple-500 to-pink-500 px-5 py-4 flex items-center gap-3">
               <div className="w-12 h-12 rounded-2xl bg-white/25 flex items-center justify-center text-3xl flex-shrink-0">🦋</div>
               <div className="flex-1">
-                <p className="font-extrabold text-white text-base">TitIA 🌟</p>
+               <p className="font-extrabold text-white text-base">TitIA</p>
                 <p className="text-white/80 text-xs">Pergunte qualquer coisa sobre aprender!</p>
               </div>
-              <button onClick={() => setShowAI(false)} className="w-9 h-9 bg-white/30 hover:bg-white/40 rounded-xl flex items-center justify-center text-white text-lg">✕</button>
+              <button onClick={() => setShowAI(false)} className="w-9 h-9 bg-white/30 hover:bg-white/40 rounded-xl flex items-center justify-center text-white text-lg">×</button>
             </div>
             <div className="p-5 overflow-y-auto" style={{ maxHeight: "calc(90vh - 80px)" }}>
               {aiAnswer && (
