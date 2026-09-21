@@ -145,7 +145,7 @@ function LearnPageInner() {
       if (settings.predictability !== 'high' && settings.visualStimulus !== 'low') setBgIdx((i) => (i + 1) % BG_THEMES.length);
       markActivityStarted(session.currentActivity.id);
     }
-  }, [session?.currentActivity?.id, markActivityStarted, settings.predictability, settings.visualStimulus]);
+  }, [session?.currentActivity, markActivityStarted, settings.predictability, settings.visualStimulus]);
 
   useEffect(() => {
     setShowAutoHint(false);
@@ -401,7 +401,12 @@ function LearnPageInner() {
       {/* ── Child chat ── */}
       {showChat && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-4"
-          onClick={(event) => { if (event.target === event.currentTarget) setShowChat(false); }}>
+          role="button"
+          tabIndex={0}
+          onClick={(event) => { if (event.target === event.currentTarget) setShowChat(false); }}
+          onKeyDown={(event) => { if ((event.key === 'Escape' || event.key === 'Enter') && event.target === event.currentTarget) setShowChat(false); }}
+          aria-label="Fechar chat"
+        >
           <section role="dialog" aria-modal="true" aria-labelledby="titia-chat-title"
             className="w-full max-w-lg overflow-hidden rounded-[2rem] bg-white shadow-2xl">
             <header className="flex items-center gap-3 bg-gradient-to-r from-sky-500 via-blue-500 to-purple-500 p-4 text-white">

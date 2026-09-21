@@ -38,9 +38,15 @@ export function TitiaModal({
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/45 p-3 backdrop-blur-sm md:p-6"
+      role="button"
+      tabIndex={0}
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
+      onKeyDown={(event) => {
+        if ((event.key === 'Escape' || event.key === 'Enter') && event.target === event.currentTarget) onClose();
+      }}
+      aria-label="Fechar modal"
     >
       <section
         role="dialog"
