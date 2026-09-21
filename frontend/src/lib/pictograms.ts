@@ -99,6 +99,12 @@ const definitions: PictogramDefinition[] = [
   definition("arasaac.15358", "LEARNING_LIBRARY", "lâmpada", "💡", 15358),  // Help/tips: light bulb
   definition("arasaac.15532", "LEARNING_LIBRARY", "borboleta", "🦋", 15532), // TitiA character: butterfly
   
+  // Exercise support: sizes, colors, comparisons
+  definition("arasaac.15813", "LEARNING_LIBRARY", "grande", "📏", 15813),   // Big/Large
+  definition("arasaac.15814", "LEARNING_LIBRARY", "pequeno", "📍", 15814),  // Small
+  definition("arasaac.14560", "LEARNING_LIBRARY", "verde", "🟢", 14560),   // Green color
+  definition("arasaac.15358", "LEARNING_LIBRARY", "amarelo", "🟡", 15358),  // Yellow/Light bulb (dual use)
+  
   // Approximations (semantic, use with intent)
   definition("arasaac.14120", "ACTIVITY_ACTION", "forte", "💪", 14120),     // Improvement prompts: strong/effort
   definition("arasaac.44702", "LEARNING_LIBRARY", "festa", "🎉", 44702),    // Celebration: party
