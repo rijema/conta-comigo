@@ -93,7 +93,11 @@ export default function HomePage() {
       {showAbout && (
         <div
           className="fixed inset-0 z-[90] grid place-items-center bg-slate-950/55 p-4 backdrop-blur"
+          role="button"
+          tabIndex={0}
           onMouseDown={(event) => event.target === event.currentTarget && closeAbout()}
+          onKeyDown={(event) => (event.key === 'Escape' || event.key === 'Enter') && event.target === event.currentTarget && closeAbout()}
+          aria-label="Fechar modal sobre"
         >
           <section
             ref={aboutDialogRef}

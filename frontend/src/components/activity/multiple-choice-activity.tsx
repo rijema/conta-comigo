@@ -61,7 +61,12 @@ export function MultipleChoiceActivity({ activity, onAnswer, sensoryProfile }: P
           {displayItems.map((item, index) => <span key={index} className="select-none text-4xl">{item}</span>)}
         </div>
       )}
-      {activity.content?.imageUrl && <div className="mb-4 flex justify-center"><img src={activity.content.imageUrl} alt={activity.content.imageAlt || "Imagem da questão"} className="max-h-40 rounded-lg" /></div>}
+      {activity.content?.imageUrl && (
+        <div className="mb-4 flex justify-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={activity.content.imageUrl} alt={activity.content.imageAlt || "Imagem da questão"} className="max-h-40 rounded-lg" loading="lazy" />
+        </div>
+      )}
       <p className="mb-2 text-center text-sm font-semibold uppercase tracking-wide text-blue-700">
         <ArasaacPictogram conceptId="activity.touch" showLabel={false} imageClassName="h-6 w-6" />
         <span className="ml-2">Toque na resposta certa</span>

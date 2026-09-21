@@ -208,7 +208,7 @@ export default function GuardianDashboardPage() {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [user, authLoading]);
+  }, [user, authLoading, locale, router]);
 
   const selectChild = async (child: any, token?: string | null) => {
     const t = token ?? authService.getStoredToken();
@@ -772,8 +772,9 @@ export default function GuardianDashboardPage() {
             </div>
             <form onSubmit={handleAddChild} className="space-y-3">
               <div>
-                <label className="text-sm font-semibold text-slate-700">Nome da criança</label>
+                <label htmlFor="childName" className="text-sm font-semibold text-slate-700">Nome da criança</label>
                 <input
+                  id="childName"
                   type="text"
                   value={addForm.childName}
                   onChange={(e) => setAddForm((f) => ({ ...f, childName: e.target.value }))}
@@ -783,8 +784,9 @@ export default function GuardianDashboardPage() {
                 />
               </div>
               <div>
-                <label className="text-sm font-semibold text-slate-700">Idade</label>
+                <label htmlFor="age" className="text-sm font-semibold text-slate-700">Idade</label>
                 <input
+                  id="age"
                   type="number"
                   min={4} max={12}
                   value={addForm.age}
@@ -794,8 +796,9 @@ export default function GuardianDashboardPage() {
                 />
               </div>
               <div>
-                <label className="text-sm font-semibold text-slate-700">🔑 Senha da criança</label>
+                <label htmlFor="childPassword" className="text-sm font-semibold text-slate-700">🔑 Senha da criança</label>
                 <input
+                  id="childPassword"
                   type="password"
                   value={addForm.childPassword}
                   onChange={(e) => setAddForm((f) => ({ ...f, childPassword: e.target.value }))}

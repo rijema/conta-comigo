@@ -89,7 +89,12 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/55 p-3 backdrop-blur-sm"
-      onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+      role="button"
+      tabIndex={0}
+      onMouseDown={(event) => event.target === event.currentTarget && onClose()}
+      onKeyDown={(event) => (event.key === 'Escape' || event.key === 'Enter') && event.target === event.currentTarget && onClose()}
+      aria-label="Fechar autenticação"
+    >
       <section ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="auth-title"
         className="grid max-h-[94vh] w-full max-w-4xl overflow-hidden rounded-[2rem] bg-white shadow-2xl md:grid-cols-[.85fr_1.15fr]">
         <div className="relative hidden overflow-hidden bg-gradient-to-br from-violet-100 via-pink-50 to-amber-50 md:block">

@@ -62,7 +62,7 @@ export default function ActivityMenuPage() {
       })
       .catch(console.error)
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [locale, router]);
 
   const handleAsk = async (q?: string) => {
     const question = q ?? aiQuestion.trim();
@@ -380,7 +380,11 @@ export default function ActivityMenuPage() {
       {showAI && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
           style={{ background: "rgba(0,0,0,0.55)" }}
+          role="button"
+          tabIndex={0}
           onClick={(e) => { if (e.target === e.currentTarget) setShowAI(false); }}
+          onKeyDown={(e) => { if ((e.key === 'Escape' || e.key === 'Enter') && e.target === e.currentTarget) setShowAI(false); }}
+          aria-label="Fechar chat"
         >
           <div className="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden" style={{ maxHeight: "90vh" }}>
             <div className="bg-gradient-to-r from-purple-500 to-pink-500 px-5 py-4 flex items-center gap-3">
