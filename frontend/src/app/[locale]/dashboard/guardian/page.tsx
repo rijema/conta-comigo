@@ -7,6 +7,7 @@ import { authService } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
 import { ChatNowCard } from "@/components/titia/chat-now-card";
+import styles from "./wave-tabs.module.css";
 
 const SKILL_LABELS: Record<string, string> = {
   visual: "👁️ Visual",
@@ -353,11 +354,15 @@ export default function GuardianDashboardPage() {
               </div>
 
               {/* Tabs */}
-              <div className="flex gap-1 flex-wrap">
-                {(["overview", "charts", "bncc", "ade"] as const).map((tab) => (
+              <div className={styles.tabsContainer}>
+                {(["overview", "charts", "bncc", "ade"] as const).map((tab, index) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
+                    className={`${styles.tabButton} ${activeTab === tab ? styles.tabButtonActive : ""}`}
+                    style={{
+                      animationDelay: `${index * 0.05}s`
+                    }}
                     className={`px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-300 ease-out ${
                       activeTab === tab
                         ? "bg-purple-600 text-white scale-110"
