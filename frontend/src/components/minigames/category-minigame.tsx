@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { ArasaacPictogram } from '@/components/arasaac/arasaac-pictogram';
+import { useTitiaSpeech } from '@/hooks/use-titia-speech';
 
 /**
  * MINIGAME: Category Sorting
@@ -97,6 +98,8 @@ export const CategoryMinigame: React.FC<CategoryMinigameProps> = ({
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
   const [correctCount, setCorrectCount] = useState(0);
+  const spokenRef = useRef(false);
+  const speech = useTitiaSpeech({ activityId: `category-minigame-${skill}` });
 
   // Initialize items
   useEffect(() => {
@@ -105,15 +108,30 @@ export const CategoryMinigame: React.FC<CategoryMinigameProps> = ({
     setItems(shuffled);
   }, [difficulty]);
 
+  // Speak instruction on mount
+  useEffect(() => {
+    if (speech.settings.voiceEnabled && !spokenRef.current) {
+      spokenRef.current = true;
+      speech.speakInstruction({
+        steps: ["Arraste cada item para a caixa correta."],
+      });
+    }
+  }, [speech.settings.voiceEnabled, speech]);
+
   // Check if game is complete
   useEffect(() => {
     if (items.length > 0 && correctCount === items.length) {
       setShowCelebration(true);
+      if (speech.settings.voiceEnabled) {
+        speech.speakInstruction({
+          steps: ["Parabéns! Você completou a minigame!"],
+        });
+      }
       setTimeout(() => {
         onComplete(100, true);
       }, 1500);
     }
-  }, [correctCount, items.length, onComplete]);
+  }, [correctCount, items.length, onComplete, speech]);
 
   const handleDragStart = (itemId: string) => {
     setDraggedItem(itemId);
