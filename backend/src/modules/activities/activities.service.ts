@@ -623,13 +623,23 @@ export class ActivitiesService {
       storedActivities.map((activity) => this.attachSemanticContract(activity)),
     );
 
-    // Show a multi-skill activity on every linked curriculum island.
+    // Show each activity ONLY on its primary BNCC skill to prevent repetition within islands.
+    // Use skillWeights role='primary' to determine primary skill, fallback to first bnccSkill.
     const bySkill: Record<string, any[]> = {};
     allActivities.forEach((act) => {
-      const skills = act.bnccSkills?.length ? [...new Set(act.bnccSkills)] : ['Exploracao'];
-      for (const skill of skills) {
-        if (!bySkill[skill]) bySkill[skill] = [];
-        bySkill[skill].push({
+      // Determine primary skill from skillWeights or bnccSkills
+      let primarySkill: string | null = null;
+      if (act.skillWeights && act.skillWeights.length > 0) {
+        const primary = (act.skillWeights as any[]).find((sw: any) => sw.role === 'primary');
+        primarySkill = primary?.code ?? null;
+      }
+      if (!primarySkill && act.bnccSkills && act.bnccSkills.length > 0) {
+        primarySkill = act.bnccSkills[0];
+      }
+      const skill = primarySkill ?? 'Exploracao';
+
+      if (!bySkill[skill]) bySkill[skill] = [];
+      bySkill[skill].push({
         id: act.id,
         title: act.title,
         type: act.type,
@@ -646,8 +656,7 @@ export class ActivitiesService {
         affordances: act.affordances,
         communication: act.communication,
         semanticAnnotation: act.semanticAnnotation,
-        });
-      }
+      });
     });
 
     // Use ontology to determine recommended modalities
