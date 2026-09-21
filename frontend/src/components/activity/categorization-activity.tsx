@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { Activity } from "@/types";
 import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
+import { useTitiaSpeech } from "@/hooks/use-titia-speech";
 
 interface CategoryItem {
   id: string;
@@ -27,11 +28,33 @@ export function CategorizationActivity({ activity, onAnswer }: {
   const bins = (activity.content?.bins ?? []) as CategoryBin[];
   const [selected, setSelected] = useState<string | null>(null);
   const [placements, setPlacements] = useState<Record<string, string>>({});
+  const spokenRef = useRef(false);
+  const speech = useTitiaSpeech({ activityId: activity.id });
+
+  const question = activity.content?.question ?? activity.content?.instructionsPt ?? "Agrupe os itens.";
+
+  useEffect(() => {
+    if (speech.settings.voiceEnabled && !spokenRef.current) {
+      spokenRef.current = true;
+      speech.speakInstruction({
+        steps: [question],
+      });
+    }
+  }, [speech.settings.voiceEnabled, question, speech]);
 
   const assign = (binId: string) => {
     if (!selected) return;
     setPlacements((current) => ({ ...current, [selected]: binId }));
     setSelected(null);
+  };
+
+  const handleSubmit = () => {
+    const answer = items.map((item) => placements[item.id]);
+    onAnswer(answer);
+    if (speech.settings.voiceEnabled) {
+      const feedback = "Sua resposta foi registrada.";
+      speech.speakInstruction({ steps: [feedback] });
+    }
   };
 
   return (
@@ -64,7 +87,7 @@ export function CategorizationActivity({ activity, onAnswer }: {
         ))}
       </div>
       <button type="button" disabled={items.some((item) => !placements[item.id])}
-        onClick={() => onAnswer(items.map((item) => placements[item.id]))}
+        onClick={handleSubmit}
         className="w-full rounded-xl bg-blue-600 p-3 font-bold text-white disabled:bg-gray-300">
         <ArasaacPictogram conceptId="activity.complete" showLabel={false} imageClassName="h-7 w-7" /> Confirmar
       </button>

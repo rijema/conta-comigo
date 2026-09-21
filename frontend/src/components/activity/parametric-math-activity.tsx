@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { Activity, ActivityOption, SensoryProfile } from "@/types";
 import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
 import { useTitiaSpeech } from "@/hooks/use-titia-speech";
@@ -32,6 +32,7 @@ export function ParametricMathActivity({
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
   const [numericAnswer, setNumericAnswer] = useState("");
   const [visibleHints, setVisibleHints] = useState(0);
+  const spokenRef = useRef(false);
   const speech = useTitiaSpeech({ activityId: activity.id });
   const content = activity.content ?? {};
   const options = (content.options ?? []) as ParametricOption[];
@@ -49,6 +50,17 @@ export function ParametricMathActivity({
     : Boolean(selectedOption) && (!needsReason || Boolean(selectedReasonOption));
   const lowStimulation = sensoryProfile?.lowStimulationMode;
 
+  const question = content.question || content.instructionsPt || "";
+
+  useEffect(() => {
+    if (speech.settings.voiceEnabled && !spokenRef.current && question) {
+      spokenRef.current = true;
+      speech.speakInstruction({
+        steps: [question],
+      });
+    }
+  }, [speech.settings.voiceEnabled, question, speech]);
+
   const showNextHint = () => {
     if (visibleHints >= hints.length) return;
     const hint = hints[visibleHints];
@@ -61,6 +73,10 @@ export function ParametricMathActivity({
     if (usesNumericInput) {
       if (numericAnswer.trim() === "") return;
       onAnswer({ value: Number(numericAnswer) });
+      if (speech.settings.voiceEnabled) {
+        const feedback = "Sua resposta foi registrada.";
+        speech.speakInstruction({ steps: [feedback] });
+      }
       return;
     }
     if (!selectedOption || (needsReason && !selectedReasonOption)) return;
@@ -69,12 +85,20 @@ export function ParametricMathActivity({
         value: selectedOption.value ?? selectedOption.text,
         reason: selectedReasonOption?.value ?? selectedReasonOption?.text,
       });
+      if (speech.settings.voiceEnabled) {
+        const feedback = "Sua resposta foi registrada.";
+        speech.speakInstruction({ steps: [feedback] });
+      }
       return;
     }
     onAnswer({
       selectedText: selectedOption.value ?? selectedOption.text,
       isCorrect: Boolean(selectedOption.isCorrect),
     });
+    if (speech.settings.voiceEnabled) {
+      const feedback = selectedOption.isCorrect ? "Correto! Parabéns!" : "Tente novamente.";
+      speech.speakInstruction({ steps: [feedback] });
+    }
   };
 
   const renderOptions = (
