@@ -40,7 +40,7 @@ const SharedTopBar = ({ pageType, onShowChatView, onShowHistoryView, isHistoryVi
   };
 
   return (
-    <header className="shared-top-bar">
+    <header className="shared-top-bar" role="banner" aria-label="Navegação principal da TitiA">
       <div className="shared-top-bar-left">
         <div className="shared-top-bar-return">
           {showBackButton && (
