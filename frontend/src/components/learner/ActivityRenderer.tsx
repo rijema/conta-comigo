@@ -17,9 +17,25 @@ interface ActivityRendererProps {
   onSkip?: () => void;
 }
 
+// Singleton AudioContext to avoid multiple context creation errors
+let sharedAudioContext: AudioContext | null = null;
+function getAudioContext(): AudioContext | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    if (!sharedAudioContext) {
+      sharedAudioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    return sharedAudioContext;
+  } catch {
+    return null;
+  }
+}
+
 function playSound(type: "correct" | "incorrect") {
   try {
-    const ctx = new AudioContext();
+    const ctx = getAudioContext();
+    if (!ctx) return; // Silently skip if AudioContext unavailable
+    
     const oscillator = ctx.createOscillator();
     const gainNode = ctx.createGain();
     oscillator.connect(gainNode);
@@ -42,7 +58,7 @@ function playSound(type: "correct" | "incorrect") {
       oscillator.stop(ctx.currentTime + 0.4);
     }
   } catch {
-    // Silent fail in SSR / restricted environments
+    // Silent fail in SSR / restricted environments / locked AudioContext
   }
 }
 
