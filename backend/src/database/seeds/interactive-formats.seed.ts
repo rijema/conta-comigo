@@ -21,6 +21,8 @@ const formatLabels: Record<string, string> = {
   visual_strategy: 'Estratégia visual', odd_one_out: 'Item diferente', equivalent_set: 'Conjunto equivalente',
   one_to_one: 'Correspondência um a um', spatial_position: 'Posição espacial', magnitude: 'Grandezas',
   compare_length: 'Comprido ou curto', full_empty: 'Cheio ou vazio',
+  subtraction_basket: 'Subtração com cesta', count_all_items: 'Contar todos', next_in_line: 'Próximo na sequência',
+  group_size_compare: 'Comparar grupos', identify_shape: 'Identificar forma',
 };
 
 const formatTitleVariants: Record<string, [string, string]> = {
@@ -51,6 +53,11 @@ const formatTitleVariants: Record<string, [string, string]> = {
   magnitude: ['Comparar qual tem mais', 'Comparar grupos maiores'],
   compare_length: ['Descobrir o que é mais comprido', 'Comparar comprimentos'],
   full_empty: ['Descobrir o que está cheio', 'Comparar recipientes'],
+  subtraction_basket: ['Tirar frutas de uma cesta', 'Resolver quantas frutas restaram'],
+  count_all_items: ['Contar todos os objetos', 'Contar mais objetos'],
+  next_in_line: ['Qual número vem depois', 'Descobrir o próximo número da série'],
+  group_size_compare: ['Qual grupo tem mais', 'Comparar quantidades de grupos'],
+  identify_shape: ['Reconhecer a forma', 'Nomear a forma'],
 };
 
 const spatialRelationTitles: Record<string, [string, string]> = {
