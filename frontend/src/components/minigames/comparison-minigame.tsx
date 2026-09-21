@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { useTitiaSpeech } from '@/hooks/use-titia-speech';
 
 /**
  * MINIGAME: Comparison Quest
@@ -40,6 +41,18 @@ export const ComparisonMinigame: React.FC<ComparisonMinigameProps> = ({
   const [timeLeft, setTimeLeft] = useState(isTEAMode ? 60 : 30);
   const [showCelebration, setShowCelebration] = useState(false);
   const [audioPlayed, setAudioPlayed] = useState(false);
+  const spokenRef = useRef(false);
+  const speech = useTitiaSpeech({ activityId: `comparison-minigame-${skill}` });
+
+  // Speak instruction on mount
+  useEffect(() => {
+    if (speech.settings.voiceEnabled && !spokenRef.current) {
+      spokenRef.current = true;
+      speech.speakInstruction({
+        steps: ["Qual grupo tem mais itens?"],
+      });
+    }
+  }, [speech.settings.voiceEnabled, speech]);
 
   // Generate random comparison challenge
   useEffect(() => {

@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { useTitiaSpeech } from '@/hooks/use-titia-speech';
 
 /**
  * MINIGAME: Memory Card Matching
@@ -51,6 +52,18 @@ export const MemoryMinigame: React.FC<MemoryMinigameProps> = ({
   const [showCelebration, setShowCelebration] = useState(false);
   const [matchesCount, setMatchesCount] = useState(0);
   const [moves, setMoves] = useState(0);
+  const spokenRef = useRef(false);
+  const speech = useTitiaSpeech({ activityId: `memory-minigame-${skill}` });
+
+  // Speak instruction on mount
+  useEffect(() => {
+    if (speech.settings.voiceEnabled && !spokenRef.current) {
+      spokenRef.current = true;
+      speech.speakInstruction({
+        steps: ["Encontre os pares iguais."],
+      });
+    }
+  }, [speech.settings.voiceEnabled, speech]);
 
   // Initialize cards on mount
   useEffect(() => {
