@@ -43,7 +43,7 @@ export function ArasaacPictogram({
     <span className={`inline-flex flex-col items-center justify-center gap-1 ${className}`}>
       {imageUrl && !imageFailed ? (
         // ARASAAC images are remote public assets; the URL is resolved only by the registry.
-        // eslint-disable-next-line @next/next/no-img-element
+        // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/no-noninteractive-element-interactions
         <img
           src={imageUrl}
           alt={accessibleAlt}

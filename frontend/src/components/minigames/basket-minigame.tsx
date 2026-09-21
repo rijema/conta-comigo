@@ -140,8 +140,16 @@ export const BasketMinigame: React.FC<BasketMinigameProps> = ({
             {remainingItems.map((item) => (
               <div
                 key={item.id}
+                role="button"
+                tabIndex={0}
+                aria-label={`Item arrastável: ${item.emoji}`}
                 draggable
                 onDragStart={(e: React.DragEvent<HTMLDivElement>) => handleDragStart(e, item.id)}
+                onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                  }
+                }}
                 style={{
                   padding: '15px',
                   backgroundColor: '#fff',

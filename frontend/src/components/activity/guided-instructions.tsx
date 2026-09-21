@@ -38,7 +38,7 @@ export function GuidedInstructions({ activity }: { activity: Activity }) {
   const instruction = useMemo(() => getActivitySpokenInstruction(activity), [activity]);
   const [hasSpokenInstruction, setHasSpokenInstruction] = useState(false);
 
-  useEffect(() => () => speech.stopSpeech(), [activity.id, speech.stopSpeech]);
+  useEffect(() => () => speech.stopSpeech(), [speech]);
 
   if (instruction.steps.length === 0) return null;
 

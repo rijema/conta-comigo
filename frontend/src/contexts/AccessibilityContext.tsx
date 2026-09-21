@@ -5,6 +5,7 @@ import React, {
   useContext,
   useState,
   useEffect,
+  useMemo,
 } from "react";
 import { useAuthStore } from "@/store/auth.store";
 import { authService } from "@/lib/auth";
@@ -126,7 +127,7 @@ export function AccessibilityProvider({
   }, [user?.id, user?.role]);
 
   const appliedPreferences = user?.role === 'child' && professionalUserId === user.id ? professionalPreferences : null;
-  const effectiveSettings: AccessibilitySettings = {
+  const effectiveSettings: AccessibilitySettings = useMemo(() => ({
     ...settings,
     soundEnabled: settings.soundEnabled && appliedPreferences?.soundEnabled !== false,
     voiceEnabled: settings.voiceEnabled && settings.soundEnabled && appliedPreferences?.voiceEnabled !== false && appliedPreferences?.soundEnabled !== false,
@@ -147,7 +148,7 @@ export function AccessibilityProvider({
     allowChangeActivity: settings.allowChangeActivity && appliedPreferences?.allowChangeActivity !== false,
     predictability: appliedPreferences?.predictability ?? settings.predictability,
     reinforcementPreference: appliedPreferences?.reinforcementPreference ?? settings.reinforcementPreference,
-  };
+  }), [settings, appliedPreferences]);
   const childPreferencesReady = user?.role !== 'child' || professionalUserId === user.id;
 
   useEffect(() => {
@@ -182,7 +183,7 @@ export function AccessibilityProvider({
     );
 
     localStorage.setItem("a11y_settings", JSON.stringify(settings));
-  }, [settings, settingsLoaded, professionalPreferences, professionalUserId, user?.id, user?.role]);
+  }, [effectiveSettings, settingsLoaded, professionalPreferences, professionalUserId, user?.id, user?.role, settings]);
 
   const updateSettings = (partial: Partial<AccessibilitySettings>) => {
     setSettings((prev) => ({ ...prev, ...partial }));

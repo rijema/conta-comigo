@@ -85,7 +85,13 @@ export function ArasaacLibraryDialog({ open, onClose }: { open: boolean; onClose
   };
 
   if (!open) return null;
-  return <div className="fixed inset-0 z-[100] flex items-end justify-center bg-slate-950/60 sm:items-center sm:p-4" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+  return <div className="fixed inset-0 z-[100] flex items-end justify-center bg-slate-950/60 sm:items-center sm:p-4" 
+    role="button" 
+    tabIndex={0}
+    onMouseDown={(event) => event.target === event.currentTarget && onClose()}
+    onKeyDown={(event) => (event.key === 'Escape' || event.key === 'Enter') && event.target === event.currentTarget && onClose()}
+    aria-label="Fechar biblioteca"
+  >
     <section id="arasaac-library-dialog" ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="arasaac-library-title" tabIndex={-1}
       className="flex max-h-[95dvh] w-full max-w-5xl flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:max-h-[90dvh] sm:rounded-3xl">
       <header className="flex items-center gap-3 bg-gradient-to-r from-orange-500 to-amber-400 px-4 py-3 text-white sm:px-6">

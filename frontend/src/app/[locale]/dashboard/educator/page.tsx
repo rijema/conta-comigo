@@ -91,7 +91,7 @@ export default function EducatorDashboardPage() {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [user, authLoading]);
+  }, [user, authLoading, locale, router]);
 
   const handleSelectLearner = async (learner: any, token?: string | null) => {
     const t = token ?? authService.getStoredToken();
@@ -539,7 +539,7 @@ export default function EducatorDashboardPage() {
                   {activeTab === "report" && !report && (
                     <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
                       <div className="text-5xl mb-3">📄</div>
-                      <p className="text-slate-500 mb-4">Clique em "Gerar Relatório" para criar o relatório completo</p>
+                      <p className="text-slate-500 mb-4">Clique em &quot;Gerar Relatório&quot; para criar o relatório completo</p>
                       <button
                         onClick={handleLoadReport}
                         className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700"

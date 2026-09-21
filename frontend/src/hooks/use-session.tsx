@@ -259,7 +259,7 @@ export function useSession() {
       attemptsBeforeSkip: counters.attempts,
       hintsBeforeSkip: counters.hints,
     }, session.currentRecommendationId);
-  }, [getInteractionCounters, session, trackActivityLifecycle, logBlockChange]);
+  }, [getInteractionCounters, session, trackActivityLifecycle]);
 
   const abandonCurrentActivity = useCallback(() => {
     if (!session?.id || !session.currentActivity?.id || session.progress >= 100) return;

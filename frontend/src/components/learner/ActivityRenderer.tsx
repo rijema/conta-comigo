@@ -316,11 +316,18 @@ function DragDropActivity({ activity, onAnswer }: DragDropProps) {
         {items.map((item, idx) => (
           <div
             key={item.id}
-            role="listitem"
+            role="button"
+            tabIndex={0}
+            aria-label={`Arraste o item: ${item.id}`}
             draggable={!submitted}
             onDragStart={() => handleDragStart(idx)}
             onDragOver={(e) => handleDragOver(e, idx)}
             onDrop={handleDrop}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+              }
+            }}
             className={`flex items-center gap-3 p-4 rounded-2xl border-2 cursor-grab active:cursor-grabbing
               transition-all select-none
               ${submitted

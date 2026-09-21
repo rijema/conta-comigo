@@ -7,14 +7,24 @@ interface CardProps {
 }
 
 export function Card({ children, className, onClick }: CardProps) {
-  return (
-    <div
+  return onClick ? (
+    <button
       className={cn(
         "bg-white rounded-2xl shadow-sm border border-gray-100 p-4",
-        onClick && "cursor-pointer hover:shadow-md transition-shadow",
+        "cursor-pointer hover:shadow-md transition-shadow",
         className
       )}
       onClick={onClick}
+      type="button"
+    >
+      {children}
+    </button>
+  ) : (
+    <div
+      className={cn(
+        "bg-white rounded-2xl shadow-sm border border-gray-100 p-4",
+        className
+      )}
     >
       {children}
     </div>

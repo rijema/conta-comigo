@@ -82,7 +82,7 @@ export const ComparisonMinigame: React.FC<ComparisonMinigameProps> = ({
     };
 
     generateChallenge();
-  }, []);
+  }, [audioPlayed, isTEAMode]);
 
   const playAudioHint = () => {
     // Simulating audio - in real implementation would use Web Audio API

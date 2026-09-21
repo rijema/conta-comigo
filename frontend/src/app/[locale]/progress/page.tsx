@@ -57,7 +57,7 @@ export default function ProgressPage() {
         });
       })
       .finally(() => setLoading(false));
-  }, [user]);
+  }, [user, router]);
 
   if (loading || !data) {
     return (
