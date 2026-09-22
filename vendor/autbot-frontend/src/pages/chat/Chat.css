@@ -305,7 +305,7 @@ body[data-brand="titia"] .chat-card h2 {
 
 body[data-brand="titia"] .chat-bubble.autbot {
     background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 55%, #d946ef 100%);
-    color: #ffffff;
+    color: #f0f0f0;
 }
 
 body[data-brand="titia"] .chat-bubble.user {
