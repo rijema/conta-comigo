@@ -54,6 +54,7 @@ export function TitiaModal({
         aria-labelledby="titia-modal-title"
         className="flex h-[92vh] w-full max-w-7xl flex-col overflow-hidden rounded-[2rem] border border-sky-100 bg-white shadow-[0_30px_90px_rgba(15,23,42,0.25)]"
       >
+        <h2 id="titia-modal-title" className="sr-only">{title || "Conversar com TitiA"}</h2>
         <div className="relative flex-1 bg-[linear-gradient(180deg,#f8fbff_0%,#fff7fb_100%)]">
           {status === "loading" && (
             <div className="flex h-full flex-col items-center justify-center px-6 text-center">
