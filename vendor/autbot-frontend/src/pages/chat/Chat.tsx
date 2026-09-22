@@ -468,13 +468,14 @@ const Chat = () => {
 
         <div className="main-chat">
           <section className="chat-header" aria-label="Seção de chat">
+            <h1 className="sr-only">TitiA - Chat</h1>
             {currentView === "chat" ? <div>Nova conversa</div> : <div>Histórico de Conversas</div>}
           </section>
 
           <main className="chat-body">
             {currentView === "chat" ? (
               <>
-                <div className="chat-messages-live">
+                <div className="chat-messages-live" role="region" aria-label="Mensagens do chat" tabIndex={0}>
                   {activeChatMessages.length === 0 && !isTyping ? (
                     <div className="empty-chat-container">
                       <div className="chat-card">
