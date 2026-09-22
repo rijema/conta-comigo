@@ -6,6 +6,28 @@
 
 ---
 
+## 🎨 CORREÇÕES DE ACESSIBILIDADE (Session 15)
+
+### Análise Axe DevTools - WCAG 2.1 AA
+**Status:** ✅ REVISADO E PARCIALMENTE CORRIGIDO
+
+**Consolidação de 14 Problemas → 1 Acionável:**
+
+Executados 5 testes axe no dashboard de responsáveis. Resultado:
+- **13 de 14 problemas estão DENTRO DO IFRAME da TitiA** (serviço externo)
+  - Contraste insuficiente (#7c3aed, #8959f5, #9e4ff4, #6266f0)
+  - Falta de <h1> e <main> landmarks
+  - Textos sem aria-label
+
+- **1 problema no código ContaComigo: ✅ RESOLVIDO**
+  - **Problema:** Modal da TitiA sem aria-labelledby válido
+  - **Solução:** Adicionado `<h2 id="titia-modal-title">` com classe sr-only
+  - **Arquivo:** `frontend/src/components/titia/titia-modal.tsx:57`
+
+**Recomendação:** Problemas do iframe devem ser reportados ao time da TitiA para correção no serviço externo.
+
+---
+
 ## 🔧 CORREÇÕES RECENTES (Session 14)
 
 ### Problema 1: Loop Infinito em learn/page.tsx
