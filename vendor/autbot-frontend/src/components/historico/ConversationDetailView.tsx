@@ -26,7 +26,7 @@ const ConversationDetailView: React.FC<ConversationDetailViewProps> = ({ convers
                         </div>
                         <span className="conversation-detail-date">{conversationDate}</span>
                     </div>
-                    <div className="chat-messages-container">
+                    <div className="chat-messages-container" role="region" aria-label="Mensagens da conversa" tabIndex={0}>
                         {conversation.messages.map((message, index) => {
                             const messageTime = new Date(message.timestamp).toLocaleTimeString('pt-BR', {
                                 hour: '2-digit',
@@ -42,7 +42,7 @@ const ConversationDetailView: React.FC<ConversationDetailViewProps> = ({ convers
                     </div>
                     <div className="chat-input-area-readonly">
                         <input type="text" placeholder="Esta conversa está salva no histórico." disabled />
-                        <button disabled>
+                        <button disabled aria-label="Enviar mensagem">
                             <FaPaperPlane /> {}
                         </button>
                     </div>
