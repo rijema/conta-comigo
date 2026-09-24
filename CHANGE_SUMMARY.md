@@ -4,6 +4,50 @@
 **Status:** 🎯 Ready for Production  
 **Timeline:** 2h 15m de implementação  
 
+## ✅ CORREÇÃO: Modal de cadastro - scroll e ícones TitiA
+
+**Status:** ✅ Resolvido
+
+**Issues Corrigidas:**
+
+1. **Home modal scroll bloqueado** - Usuários não conseguiam rolar para baixo na tela inicial para visualizar e clicar no botão final de cadastro.
+   - **Causa:** A estrutura do modal tinha `overflow-hidden` na seção externa e o conteúdo interno não era scrollável.
+   - **Solução:** `frontend/src/components/home/auth-dialog.tsx`
+     - Reorganizada a estrutura: header/nav fixo + área de formulário com `flex-1 overflow-y-auto`
+     - O scroll agora funciona apenas no conteúdo do formulário, mantendo o header visível
+   
+2. **Ícone borboleta em vez de TitiA** - O botão flutuante de TitiA e o chat modal mostravam um emoji de borboleta (`🦋`) em vez do ícone/imagem de TitiA.
+   - **Causa:** Uso de emoji genérico em vez do ativo de marca da aplicação.
+   - **Solução:** `frontend/src/app/[locale]/learn/menu/page.tsx`
+     - Substituído `🦋` por `<Image src="/assets/mainiconfirstpage.png">` em 3 locais:
+       - Botão flutuante de TitiA (linha 383-389)
+       - Header do modal de chat de TitiA (linha 400-407)
+       - Resposta de TitiA no chat (linha 410-419)
+     - Adicionado import `Image` do Next.js
+
+**Validação:**
+- ✅ Build sem erros: `npm run build`
+- ✅ Linter passou: `npm run lint`
+- ✅ Modal scroll testado em diferentes alturas de viewport
+- ✅ Imagens de TitiA carregam corretamente com Next.js Image
+
+---
+
+## ✅ CORREÇÃO RECENTE: cadastro profissional não exige criança
+
+**Status:** ✅ Ajustado no fluxo do modal de cadastro da home.
+
+**Causa:** o formulário de cadastro estava habilitado com `role` padrão como "guardian" e a etapa 2 só validava dados da criança quando o papel era responsável. Isso fazia o cadastro de profissional cair na tela de criança mesmo sem intenção.
+
+**Solução:**
+- `frontend/src/components/home/auth-dialog.tsx` agora usa a condição `requiresChildProfile = form.role === "guardian"`;
+- o botão "Criar conta" valida os dados da criança apenas para responsáveis;
+- o registro de profissional não inclui `childProfile` nem `childPassword`;
+- o estado do modal reinicia corretamente ao abrir.
+
+**Validação:**
+- `cd frontend && node --test tests/auth-integration.test.mjs`
+
 ---
 
 ## 🎨 CORREÇÕES DE ACESSIBILIDADE (Session 15)
