@@ -172,7 +172,7 @@ describe('ReviewSelectionService', () => {
   });
 
   describe('Instance Selection', () => {
-    it('should mark instance as EQUIVALENT_INSTANCE when different from recent', async () => {
+    it('should mark instance as EXACT_REPEAT when same activity seen recently', async () => {
       const skillId = 'skill-1';
       const studentId = 'student-1';
 
@@ -204,10 +204,11 @@ describe('ReviewSelectionService', () => {
 
       const selection = await service.selectReviewActivity(skillId, skillId, ReviewType.REMEDIATION, profile);
 
-      expect(selection.instanceComparison).toBe('EQUIVALENT_INSTANCE');
+      // [RESEARCH DATA CORRECTNESS]: Same activity = EXACT_REPEAT
+      expect(selection.instanceComparison).toBe('EXACT_REPEAT');
     });
 
-    it('should generate unique instance ID', async () => {
+    it('should return real persisted activity ID', async () => {
       const skillId = 'skill-1';
       const studentId = 'student-1';
 
@@ -231,9 +232,10 @@ describe('ReviewSelectionService', () => {
 
       const selection = await service.selectReviewActivity(skillId, skillId, ReviewType.REMEDIATION, profile);
 
+      // [RESEARCH DATA CORRECTNESS]: instanceId must be real persisted Activity ID
       expect(selection.instanceId).toBeDefined();
-      expect(selection.instanceId).not.toBe(selection.templateId);
-      expect((selection.activity as any).templateId).toBe(selection.templateId);
+      expect(selection.instanceId).toBe(selection.templateId);
+      expect(selection.instanceId).toBe('activity-1');
     });
   });
 

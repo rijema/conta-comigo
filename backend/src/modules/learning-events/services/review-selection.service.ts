@@ -14,7 +14,7 @@ export interface ReviewActivitySelection {
   activity: Activity;
   reviewType: ReviewType;
   reason: string;
-  instanceComparison: 'EXACT_REPEAT' | 'EQUIVALENT_INSTANCE' | 'DIFFICULTY_PROGRESSION' | 'DIFFICULTY_SUPPORT';
+  instanceComparison: 'EXACT_REPEAT' | 'EQUIVALENT_INSTANCE' | 'DIFFICULTY_PROGRESSION' | 'DIFFICULTY_SUPPORT' | 'UNVERIFIED';
 }
 
 export interface LearnerProfile {
@@ -94,11 +94,16 @@ export class ReviewSelectionService {
 
   /**
    * Get eligible activities for a skill
+   * skillId is a UUID referring to StudentSkillState.skillId
+   * Must resolve to BNCC code before matching Activity.bnccSkills
    */
   private async getEligibleActivities(skillId: string): Promise<Activity[]> {
+    // TODO: Resolve skillId UUID to BNCC code via skill entity lookup
+    // For now, use the skillId directly if it's already a BNCC code
+    // This is a placeholder that must be fixed with proper skill resolution
     return this.activityRepository.find({
       where: {
-        bnccSkills: { $contains: [skillId] } as any,
+        bnccSkills: skillId as any, // Will be fixed to proper BNCC code resolution
         isActive: true,
       },
     });
@@ -177,13 +182,20 @@ export class ReviewSelectionService {
   }
 
   /**
-   * Select or generate activity instance
+   * Select activity instance for review
+   * 
+   * RESEARCH DATA CORRECTNESS:
+   * - Must return a REAL persisted Activity ID (not generated/fake)
+   * - EXACT_REPEAT: same activity as baseline
+   * - EQUIVALENT_INSTANCE: different persisted activity, same BNCC skill, comparable difficulty
+   * - UNVERIFIED: cannot verify equivalence
+   * - Never generates fake activity IDs
    */
   private async selectInstance(
     studentId: string,
     templateId: string,
     reviewType: ReviewType,
-  ): Promise<{ instanceId: string; activity: Activity; type: 'EXACT_REPEAT' | 'EQUIVALENT_INSTANCE' | 'DIFFICULTY_PROGRESSION' | 'DIFFICULTY_SUPPORT' }> {
+  ): Promise<{ instanceId: string; activity: Activity; type: 'EXACT_REPEAT' | 'EQUIVALENT_INSTANCE' | 'DIFFICULTY_PROGRESSION' | 'DIFFICULTY_SUPPORT' | 'UNVERIFIED' }> {
     const template = await this.activityRepository.findOne({ where: { id: templateId } });
 
     if (!template) {
@@ -200,39 +212,26 @@ export class ReviewSelectionService {
       take: 5,
     });
 
-    // For now, return the template as instance (parametric generation deferred)
-    // In future, would generate equivalent instances with different parameters
-    const instance = { ...template } as any;
-    instance.id = this.generateUUID();
-    instance.templateId = templateId;
-    instance.isTemplate = false;
-    instance.instanceMetadata = {
-      generatedFrom: templateId,
-      generationSeed: Math.random(),
-      parameters: {},
-      generatedAt: new Date(),
-    };
-
     // Determine instance comparison type
-    let comparisonType: 'EXACT_REPEAT' | 'EQUIVALENT_INSTANCE' | 'DIFFICULTY_PROGRESSION' | 'DIFFICULTY_SUPPORT' = 'EQUIVALENT_INSTANCE';
+    let comparisonType: 'EXACT_REPEAT' | 'EQUIVALENT_INSTANCE' | 'DIFFICULTY_PROGRESSION' | 'DIFFICULTY_SUPPORT' | 'UNVERIFIED' = 'UNVERIFIED';
+    let selectedActivity = template;
 
     if (recentInteractions.length > 0) {
-      // If we've seen this template recently, it's at least an equivalent instance
-      comparisonType = 'EQUIVALENT_INSTANCE';
+      // Child has seen this activity before
+      comparisonType = 'EXACT_REPEAT';
+    } else {
+      // TODO: In future, search for different persisted activities with:
+      // - same BNCC skill
+      // - comparable pedagogical difficulty
+      // If found and verified equivalent: EQUIVALENT_INSTANCE
+      // Otherwise: UNVERIFIED
+      comparisonType = 'UNVERIFIED';
     }
 
     return {
-      instanceId: instance.id,
-      activity: instance,
+      instanceId: selectedActivity.id, // REAL persisted Activity ID
+      activity: selectedActivity,
       type: comparisonType,
     };
-  }
-
-  private generateUUID(): string {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-      const r = (Math.random() * 16) | 0;
-      const v = c === 'x' ? r : (r & 0x3) | 0x8;
-      return v.toString(16);
-    });
   }
 }

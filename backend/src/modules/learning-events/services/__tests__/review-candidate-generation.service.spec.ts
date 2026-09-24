@@ -981,9 +981,10 @@ describe('ReviewCandidateGenerationService', () => {
       const candidates2 = await service.generateReviewCandidates(studentId);
       const breakdown2 = candidates2[0].scoringBreakdown;
 
-      // Recency score should be lower for older exposures (exponential decay)
-      // This is correct for RETENTION: older skills need review
-      expect(breakdown2.recencyScore || 0).toBeLessThan(breakdown1.recencyScore || 0);
+      // [RESEARCH DATA CORRECTNESS]: Recency score should be HIGHER for older exposures
+      // For RETENTION: 1d < 7d < 14d < 30d in reason to CHECK retention
+      // Elapsed time increases retention priority (bounded increasing function)
+      expect(breakdown2.recencyScore || 0).toBeGreaterThan(breakdown1.recencyScore || 0);
     });
 
     it('should NOT create strong retention candidate from low mastery + elapsed time alone', async () => {
