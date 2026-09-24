@@ -15,6 +15,7 @@ import { ReviewOutcome } from './entities/review-outcome.entity';
 import { ReviewCandidateGenerationService } from './services/review-candidate-generation.service';
 import { ReviewSelectionService } from './services/review-selection.service';
 import { ReviewTriggerService } from './services/review-trigger.service';
+import { LongitudinalComparisonService } from './services/longitudinal-comparison.service';
 import { ExercisePerformance } from './entities/exercise-performance.entity';
 import { StudentSkillState } from '../knowledge-tracing/entities/student-skill-state.entity';
 import { OntologyModule } from '../ontology/ontology.module';
@@ -44,6 +45,7 @@ import { AdeModule } from '../ade/ade.module';
     ReviewCandidateGenerationService,
     ReviewSelectionService,
     ReviewTriggerService,
+    LongitudinalComparisonService,
   ],
   exports: [
     LearningEventService,
@@ -53,6 +55,7 @@ import { AdeModule } from '../ade/ade.module';
     ReviewCandidateGenerationService,
     ReviewSelectionService,
     ReviewTriggerService,
+    LongitudinalComparisonService,
   ],
 })
 export class LearningEventsModule {}
