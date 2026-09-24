@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional, IsObject } from 'class-validator';
+import { IsEnum, IsOptional, IsObject, IsString } from 'class-validator';
 
 export enum ASDSupportLevel {
   NIVEL_1 = 'TEA_NIVEL_1',
@@ -12,36 +12,34 @@ export class UpdateChildSupportLevelDto {
   supportLevel: ASDSupportLevel;
 }
 
+export class ModalityPreferenceDto {
+  @IsOptional()
+  @IsString()
+  strength?: boolean;
+
+  @IsOptional()
+  @IsString()
+  difficulty?: 'strength' | 'difficulty' | 'neutral';
+}
+
 export class UpdateChildModalityPreferencesDto {
   @IsOptional()
   @IsObject()
-  visualPreferences?: {
-    brightness?: number;
-    contrastMode?: boolean;
-    fontSize?: number;
-  };
+  visual?: ModalityPreferenceDto;
 
   @IsOptional()
   @IsObject()
-  auditoryPreferences?: {
-    volumeLevel?: number;
-    speechRate?: number;
-    backgroundNoise?: boolean;
-  };
+  auditive?: ModalityPreferenceDto;
 
   @IsOptional()
   @IsObject()
-  motorPreferences?: {
-    gestureSize?: 'small' | 'medium' | 'large';
-    touchSensitivity?: number;
-    dragDropDuration?: number;
-  };
+  logical?: ModalityPreferenceDto;
 
   @IsOptional()
   @IsObject()
-  cognitivePreferences?: {
-    instructionComplexity?: 'simple' | 'medium' | 'complex';
-    pauseDuration?: number;
-    feedbackDetail?: 'minimal' | 'detailed';
-  };
+  motor?: ModalityPreferenceDto;
+
+  @IsOptional()
+  @IsObject()
+  sensory?: ModalityPreferenceDto;
 }
