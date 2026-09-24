@@ -198,4 +198,141 @@ Quando tudo funcionar:
 
 ---
 
-**Next Step:** Execute PASSO 1 acima
+## 🎓 LEARNING ANALYTICS & EXERCÍCIOS POR ILHA (NOVO - Set 2026)
+
+### ✅ 1. Nova Tabela: exercise_performance
+```
+FILE: backend/src/database/migrations/1726900000000-AddExercisePerformanceTracking.ts
+ENTIDADE: backend/src/modules/learning-events/entities/exercise-performance.entity.ts
+CAMPOS: 15 (userId, activityId, islandId, attemptNumber, isCorrect, score, 
+             responseTimeMs, hintsUsed, tutorialOpenedCount, etc)
+ÍNDICES: (userId, activityId), (userId, islandId), (userId, createdAt)
+STATUS: ✅ Criada e pronta
+```
+
+### ✅ 2. Serviço: ExercisePerformanceService
+```
+FILE: backend/src/modules/learning-events/services/exercise-performance.service.ts
+MÉTODOS: recordPerformance(), getMetricsByUserAndActivity(), 
+         getMetricsByUserAndIsland(), getCompletedActivitiesInSession()
+TESTES: backend/src/modules/learning-events/services/__tests__/exercise-performance.service.spec.ts
+STATUS: ✅ Implementado e testado
+```
+
+### ✅ 3. Mapeamento: Island Exercises
+```
+FILE: backend/src/database/seeds/island-exercises-mapping.seed.ts
+ENTIDADE: backend/src/modules/activities/entities/island-exercise-mapping.entity.ts
+MIGRAÇÃO: backend/src/database/migrations/1726900001000-AddIslandExercisesMapping.ts
+ILHAS: 8 (Sol, Mar, Floresta, Flores, Maçãs, Animais, Mágica, Amor)
+EXERCÍCIOS: 12 únicos por ilha (96 total)
+STATUS: ✅ Criado e pronto
+```
+
+### ✅ 4. Serviço: ExerciseProgressionService
+```
+FILE: backend/src/modules/activities/services/exercise-progression.service.ts
+ALGORITMO: Adaptativo baseado em acurácia (50%, 70%, 85% thresholds)
+FEATURES: Evita repetição no ciclo, permite variação, calcula fit score
+TESTES: backend/src/modules/activities/services/__tests__/exercise-progression.service.spec.ts
+STATUS: ✅ Implementado e testado
+```
+
+### ✅ 5. Pictogramas Corrigidos
+```
+FILE: frontend/src/app/[locale]/learn/menu/page.tsx
+MUDANÇAS: 6 pictogramas com IDs ARASAAC válidos
+  • Ilha do Mar: arasaac.16590 (onda)
+  • Ilha da Floresta: arasaac.16165 (planta)
+  • Ilha das Flores: arasaac.17784 (flor)
+  • Ilha dos Animais: arasaac.20951 (tartaruga)
+  • Ilha Mágica: arasaac.17331 (unicórnio)
+  • Ilha do Amor: arasaac.15971 (laço)
+STATUS: ✅ Corrigido
+```
+
+### ✅ 6. Instruções "Como Jogar"
+```
+FILE: backend/src/database/migrations/1726900002000-AddHowToPlayInstructions.ts
+CAMPOS: howToPlayPt, howToPlay em Activity.content
+TIPOS: 11 tipos de exercício com instruções
+STATUS: ✅ Implementado
+```
+
+### ✅ 7. Documentação
+```
+FILES:
+  • IMPLEMENTATION_LEARNING_ANALYTICS_ISLANDS.md (detalhado)
+  • docs/INTEGRATION_GUIDE_LEARNING_ANALYTICS.md (como integrar)
+  • LEARNING_ANALYTICS_SUMMARY.md (executivo)
+STATUS: ✅ Completa
+```
+
+---
+
+## 📋 CHECKLIST LEARNING ANALYTICS
+
+### Backend Setup
+- [ ] Executar migração 1726900000000 (exercise_performance)
+- [ ] Executar migração 1726900001000 (island_exercises_mapping)
+- [ ] Executar migração 1726900002000 (how_to_play)
+- [ ] Verificar tabelas criadas no DB
+- [ ] Rodar testes: `npm test -- exercise-performance.service.spec.ts`
+- [ ] Rodar testes: `npm test -- exercise-progression.service.spec.ts`
+
+### Integração no Controller
+- [ ] Adicionar ExercisePerformanceService ao ActivitiesModule
+- [ ] Adicionar ExerciseProgressionService ao ActivitiesModule
+- [ ] Integrar recordPerformance() no endpoint /activities/submit
+- [ ] Integrar suggestNextExercise() no endpoint /activities/submit
+- [ ] Retornar nextSuggestion e progress na resposta
+
+### Frontend Updates
+- [ ] Enviar responseTimeMs ao submeter resposta
+- [ ] Enviar hintsUsed ao submeter resposta
+- [ ] Enviar islandId ao submeter resposta
+- [ ] Enviar sessionId ao submeter resposta
+- [ ] Exibir "Como Jogar" antes de cada exercício
+- [ ] Usar nextSuggestion para navegar
+- [ ] Mostrar progresso da ilha
+
+### Testes E2E
+- [ ] Testar fluxo completo: exercício → performance → sugestão
+- [ ] Verificar que não repete exercício na mesma sessão
+- [ ] Verificar que acurácia afeta dificuldade sugerida
+- [ ] Verificar que métricas são calculadas corretamente
+- [ ] Testar com múltiplas ilhas
+
+### Validação de Dados
+- [ ] Query: `SELECT COUNT(*) FROM exercise_performance`
+- [ ] Query: `SELECT COUNT(DISTINCT userId) FROM exercise_performance`
+- [ ] Query: `SELECT * FROM island_exercises_mapping`
+- [ ] Verificar que howToPlayPt está preenchido em activities
+
+---
+
+## 🚀 PRÓXIMOS PASSOS
+
+### Imediato (Esta semana)
+1. ✅ Implementar serviços (FEITO)
+2. ✅ Criar migrações (FEITO)
+3. ✅ Corrigir pictogramas (FEITO)
+4. ⏳ Integrar no controller
+5. ⏳ Atualizar frontend
+6. ⏳ Testar fluxo completo
+
+### Curto Prazo (Próximas 2 semanas)
+1. Dashboard de analytics para educadores
+2. Visualizações de progresso por criança
+3. Relatórios de evolução/depreciação
+4. Integração com TEAProfileAnalyzerService
+
+### Médio Prazo (Próximo mês)
+1. Sistema de badges/recompensas
+2. Análise preditiva de dificuldades
+3. Recomendações personalizadas por perfil TEA
+4. Exportação de dados para pesquisa
+
+---
+
+**Next Step:** Integrar ExercisePerformanceService no endpoint /activities/submit
