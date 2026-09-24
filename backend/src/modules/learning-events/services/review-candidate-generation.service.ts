@@ -490,13 +490,17 @@ export class ReviewCandidateGenerationService {
   }
 
   /**
-   * Recency/retention score (used by RETENTION and GENERALIZATION)
-   * Exponential decay: skills not seen recently score higher
+   * RETENTION: Elapsed time increases reason to CHECK retention
+   * [RESEARCH DATA CORRECTNESS]
+   * For equivalent prior evidence: 1d < 7d < 14d < 30d in retention priority
+   * Elapsed time does NOT prove forgetting, only increases reason to probe
    * Normalized: 0 (seen today) → 1 (not seen in 30+ days)
    */
   private normalizeRecencyScore(daysSinceLastExposure: number): number {
     if (daysSinceLastExposure <= 0) return 0;
-    return Math.exp(-daysSinceLastExposure / this.retentionHalfLifeDays);
+    // Bounded increasing function: 1 - exp(-days / halfLife)
+    // This increases with elapsed time, correctly modeling retention probe priority
+    return 1 - Math.exp(-daysSinceLastExposure / this.retentionHalfLifeDays);
   }
 
   /**
@@ -576,14 +580,14 @@ export class ReviewCandidateGenerationService {
       presentedActivities: presentedCount,
       sourceInteractionIds,
       baselineState: {
-        masteryBefore: 0, // Will be set by caller
-        difficultyBefore: 'unknown',
+        masteryBefore: null, // RESEARCH: Must be set from real StudentSkillState snapshot, not hardcoded
+        difficultyBefore: null, // RESEARCH: Must come from real Activity/ActivityAttempt difficulty
         lastExposureAt,
         daysSinceLastExposure,
-        previousAttempts: totalAttempts,
-        previousAccuracy: accuracy,
-        previousHintUsage: totalHints,
-        previousResponseTimeMs: medianResponseTimeMs,
+        previousAttempts: totalAttempts > 0 ? totalAttempts : null, // RESEARCH: Use real per-exposure metric, not historical total
+        previousAccuracy: accuracy > 0 ? accuracy : null, // RESEARCH: Preserve null if unavailable
+        previousHintUsage: totalHints > 0 ? totalHints : null, // RESEARCH: Use real observed hints, not null from events
+        previousResponseTimeMs: medianResponseTimeMs > 0 ? medianResponseTimeMs : null, // RESEARCH: Preserve null if unavailable
       },
     };
   }

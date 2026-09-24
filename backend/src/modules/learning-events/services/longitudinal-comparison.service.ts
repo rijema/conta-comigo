@@ -73,16 +73,22 @@ export class LongitudinalComparisonService {
     // Step 6: Get mastery before
     const masteryBefore = assignment.baselineState.masteryBefore;
     const masteryAfter = input.masteryAfter;
-    const masteryDelta = masteryAfter - masteryBefore;
+    const masteryDelta = masteryBefore !== null && masteryAfter !== null ? masteryAfter - masteryBefore : null;
 
-    // Step 7: Calculate days since baseline
+    // Step 7: Calculate days since baseline using actual exposure timestamps
     const baselineEvent = await this.eventRepository.findOne({
       where: { id: assignment.sourceInteractionIds[0] },
     });
 
-    const daysSinceBaseline = baselineEvent
-      ? Math.floor((Date.now() - baselineEvent.timestamp.getTime()) / (1000 * 60 * 60 * 24))
-      : 0;
+    const reviewEvent = await this.eventRepository.findOne({
+      where: { id: input.reviewInteractionId },
+    });
+
+    // [RESEARCH DATA CORRECTNESS]: daysSinceBaseline = review timestamp - baseline timestamp
+    const daysSinceBaseline =
+      baselineEvent && reviewEvent
+        ? Math.floor((reviewEvent.timestamp.getTime() - baselineEvent.timestamp.getTime()) / (1000 * 60 * 60 * 24))
+        : null;
 
     // Step 8: Determine instance comparison
     const instanceComparison = this.determineInstanceComparison(assignment);
@@ -192,19 +198,21 @@ export class LongitudinalComparisonService {
 
   /**
    * Calculate raw deltas (review - baseline)
+   * [RESEARCH DATA CORRECTNESS]: Preserve null for unavailable metrics
    */
   private calculateDeltas(baseline: PerformanceMetrics, review: PerformanceMetrics): PerformanceDelta {
     return {
-      accuracyDelta: review.accuracy - baseline.accuracy,
-      responseTimeDelta: review.averageResponseTimeMs - baseline.averageResponseTimeMs,
-      attemptsDelta: review.averageAttempts - baseline.averageAttempts,
-      hintsDelta: review.hintsUsed - baseline.hintsUsed,
-      masteryDelta: review.masteryProbability - baseline.masteryProbability,
+      accuracyDelta: baseline.accuracy !== null && review.accuracy !== null ? review.accuracy - baseline.accuracy : null,
+      responseTimeDelta: baseline.averageResponseTimeMs !== null && review.averageResponseTimeMs !== null ? review.averageResponseTimeMs - baseline.averageResponseTimeMs : null,
+      attemptsDelta: baseline.averageAttempts !== null && review.averageAttempts !== null ? review.averageAttempts - baseline.averageAttempts : null,
+      hintsDelta: baseline.hintsUsed !== null && review.hintsUsed !== null ? review.hintsUsed - baseline.hintsUsed : null,
+      masteryDelta: baseline.masteryProbability !== null && review.masteryProbability !== null ? review.masteryProbability - baseline.masteryProbability : null,
     };
   }
 
   /**
    * Normalize deltas to [-1, +1] scale
+   * [RESEARCH DATA CORRECTNESS]: Preserve null for unavailable metrics
    */
   private normalizeDeltas(deltas: PerformanceDelta, baseline: PerformanceMetrics, review: PerformanceMetrics): NormalizedDeltas {
     // Accuracy delta: already in [-1, +1]
@@ -212,18 +220,21 @@ export class LongitudinalComparisonService {
 
     // Response time delta: normalize to [-1, +1]
     // Positive = faster (improvement), Negative = slower (potential regression)
-    const maxResponseTime = Math.max(baseline.averageResponseTimeMs, review.averageResponseTimeMs, 1);
-    const responseTimeDeltaNormalized = -deltas.responseTimeDelta / maxResponseTime;
+    const responseTimeDeltaNormalized = deltas.responseTimeDelta !== null && baseline.averageResponseTimeMs !== null && review.averageResponseTimeMs !== null
+      ? -deltas.responseTimeDelta / Math.max(baseline.averageResponseTimeMs, review.averageResponseTimeMs, 1)
+      : null;
 
     // Attempts delta: normalize to [-1, +1]
     // Positive = fewer attempts (improvement), Negative = more attempts (potential regression)
-    const maxAttempts = Math.max(baseline.averageAttempts, review.averageAttempts, 1);
-    const attemptsDeltaNormalized = -deltas.attemptsDelta / maxAttempts;
+    const attemptsDeltaNormalized = deltas.attemptsDelta !== null && baseline.averageAttempts !== null && review.averageAttempts !== null
+      ? -deltas.attemptsDelta / Math.max(baseline.averageAttempts, review.averageAttempts, 1)
+      : null;
 
     // Hints delta: normalize to [-1, +1]
     // Positive = fewer hints (improvement), Negative = more hints (potential regression)
-    const maxHints = Math.max(baseline.hintsUsed, review.hintsUsed, 1);
-    const hintsDeltaNormalized = -deltas.hintsDelta / maxHints;
+    const hintsDeltaNormalized = deltas.hintsDelta !== null && baseline.hintsUsed !== null && review.hintsUsed !== null
+      ? -deltas.hintsDelta / Math.max(baseline.hintsUsed, review.hintsUsed, 1)
+      : null;
 
     // Mastery delta: already in [-1, +1]
     const masteryDeltaNormalized = deltas.masteryDelta;
@@ -239,22 +250,46 @@ export class LongitudinalComparisonService {
 
   /**
    * Determine instance comparison type
+   * [RESEARCH DATA CORRECTNESS]:
+   * - EXACT_REPEAT: same activity instance
+   * - EQUIVALENT_INSTANCE: different persisted activity, same skill, comparable difficulty
+   * - UNVERIFIED: cannot verify equivalence
+   * - Never defaults to EQUIVALENT_INSTANCE without verification
    */
   private determineInstanceComparison(
     assignment: ReviewAssignment,
-  ): 'EXACT_REPEAT' | 'EQUIVALENT_INSTANCE' | 'DIFFICULTY_PROGRESSION' | 'DIFFICULTY_SUPPORT' {
-    // For now, default to EQUIVALENT_INSTANCE
-    // In future, would check activity metadata for parametric differences
-    return 'EQUIVALENT_INSTANCE';
+  ): 'EXACT_REPEAT' | 'EQUIVALENT_INSTANCE' | 'DIFFICULTY_PROGRESSION' | 'DIFFICULTY_SUPPORT' | 'UNVERIFIED' {
+    // Check if same activity instance was used
+    if (assignment.selectedActivityInstanceId === assignment.selectedActivityTemplateId) {
+      return 'EXACT_REPEAT';
+    }
+
+    // TODO: Check if different activity is verified equivalent
+    // For now, return UNVERIFIED if different activity
+    return 'UNVERIFIED';
   }
 
   /**
    * Determine difficulty comparison
+   * [RESEARCH DATA CORRECTNESS]:
+   * - Uses real persisted difficulty from Activity/ActivityAttempt
+   * - UNKNOWN if difficulty unavailable
+   * - UNKNOWN vs UNKNOWN is not automatically "same"
    */
-  private determineDifficultyComparison(baseline: PerformanceMetrics, review: PerformanceMetrics): 'same' | 'harder' | 'easier' {
+  private determineDifficultyComparison(baseline: PerformanceMetrics, review: PerformanceMetrics): 'same' | 'harder' | 'easier' | 'unknown' {
+    // If either difficulty is unavailable, return unknown
+    if (!baseline.difficultyLevel || !review.difficultyLevel) {
+      return 'unknown';
+    }
+
     const difficultyOrder = { very_easy: 0, easy: 1, medium: 2, hard: 3, extreme: 4 };
-    const baselineDiff = difficultyOrder[baseline.difficultyLevel as keyof typeof difficultyOrder] ?? 2;
-    const reviewDiff = difficultyOrder[review.difficultyLevel as keyof typeof difficultyOrder] ?? 2;
+    const baselineDiff = difficultyOrder[baseline.difficultyLevel as keyof typeof difficultyOrder];
+    const reviewDiff = difficultyOrder[review.difficultyLevel as keyof typeof difficultyOrder];
+
+    // If either difficulty is not recognized, return unknown
+    if (baselineDiff === undefined || reviewDiff === undefined) {
+      return 'unknown';
+    }
 
     if (reviewDiff > baselineDiff) return 'harder';
     if (reviewDiff < baselineDiff) return 'easier';
@@ -295,11 +330,17 @@ export class LongitudinalComparisonService {
 
   /**
    * Classify progression conservatively
+   * [RESEARCH DATA CORRECTNESS]:
+   * - Uses only genuine/comparable evidence
+   * - Fabricated/default values cannot influence classification
+   * - Response time alone never determines progression
+   * - EXACT_REPEAT/UNVERIFIED cannot support generalization
+   * - Contradictory/non-comparable evidence → INCONCLUSIVE
    */
   private classifyProgression(
     deltas: PerformanceDelta,
     normalizedDeltas: NormalizedDeltas,
-    masteryDelta: number,
+    masteryDelta: number | null,
     instanceComparison: string,
     difficultyComparison: string,
     sufficiency: EvidenceSufficiency,
@@ -315,12 +356,12 @@ export class LongitudinalComparisonService {
       };
     }
 
-    // Collect evidence signals
-    const accuracyImproved = deltas.accuracyDelta > 0;
-    const attemptsReduced = deltas.attemptsDelta < 0;
-    const hintsReduced = deltas.hintsDelta < 0;
-    const responseTimeFaster = deltas.responseTimeDelta < 0;
-    const masteryIncreased = masteryDelta > 0;
+    // Collect evidence signals (only from genuine observations)
+    const accuracyImproved = deltas.accuracyDelta !== null && deltas.accuracyDelta > 0;
+    const attemptsReduced = deltas.attemptsDelta !== null && deltas.attemptsDelta < 0;
+    const hintsReduced = deltas.hintsDelta !== null && deltas.hintsDelta < 0;
+    const responseTimeFaster = deltas.responseTimeDelta !== null && deltas.responseTimeDelta < 0;
+    const masteryIncreased = masteryDelta !== null && masteryDelta > 0;
 
     if (accuracyImproved) signals.push('accuracy_improved');
     if (attemptsReduced) signals.push('attempts_reduced');
@@ -332,8 +373,8 @@ export class LongitudinalComparisonService {
     if (difficultyComparison === 'same' || difficultyComparison === 'easier') {
       const positiveSignals = [accuracyImproved, attemptsReduced, hintsReduced].filter(Boolean).length;
 
-      if (positiveSignals >= 2 && !responseTimeFaster) {
-        // Multiple improvements without relying on speed
+      if (positiveSignals >= 2) {
+        // Multiple improvements without relying on speed alone
         return {
           classification: ProgressionClassification.IMPROVED,
           reason: `Multiple improvements observed: ${signals.join(', ')}`,
@@ -351,8 +392,8 @@ export class LongitudinalComparisonService {
       }
     }
 
-    // IMPROVED: comparable performance at higher difficulty
-    if (difficultyComparison === 'harder' && deltas.accuracyDelta >= 0) {
+    // IMPROVED: verified higher difficulty + maintained/improved performance
+    if (difficultyComparison === 'harder' && deltas.accuracyDelta !== null && deltas.accuracyDelta >= 0) {
       signals.push('comparable_performance_at_higher_difficulty');
       return {
         classification: ProgressionClassification.IMPROVED,
@@ -362,7 +403,7 @@ export class LongitudinalComparisonService {
     }
 
     // NEEDS_SUPPORT: accuracy decreased significantly
-    if (deltas.accuracyDelta < -0.3) {
+    if (deltas.accuracyDelta !== null && deltas.accuracyDelta < -0.3) {
       signals.push('accuracy_decreased_significantly');
       return {
         classification: ProgressionClassification.NEEDS_SUPPORT,
@@ -372,7 +413,7 @@ export class LongitudinalComparisonService {
     }
 
     // NEEDS_SUPPORT: many more attempts or hints
-    if (deltas.attemptsDelta > 2 || deltas.hintsDelta > 3) {
+    if ((deltas.attemptsDelta !== null && deltas.attemptsDelta > 2) || (deltas.hintsDelta !== null && deltas.hintsDelta > 3)) {
       signals.push('increased_help_dependency');
       return {
         classification: ProgressionClassification.NEEDS_SUPPORT,
@@ -381,8 +422,12 @@ export class LongitudinalComparisonService {
       };
     }
 
-    // STABLE: minimal changes
-    if (Math.abs(deltas.accuracyDelta) < 0.2 && Math.abs(deltas.attemptsDelta) < 1 && Math.abs(deltas.hintsDelta) < 1) {
+    // STABLE: minimal changes in comparable metrics
+    const hasMinimalAccuracy = deltas.accuracyDelta === null || Math.abs(deltas.accuracyDelta) < 0.2;
+    const hasMinimalAttempts = deltas.attemptsDelta === null || Math.abs(deltas.attemptsDelta) < 1;
+    const hasMinimalHints = deltas.hintsDelta === null || Math.abs(deltas.hintsDelta) < 1;
+
+    if (hasMinimalAccuracy && hasMinimalAttempts && hasMinimalHints) {
       signals.push('minimal_changes');
       return {
         classification: ProgressionClassification.STABLE,
@@ -393,13 +438,14 @@ export class LongitudinalComparisonService {
 
     // INCONCLUSIVE: contradictory evidence
     const contradictions: string[] = [];
-    if (accuracyImproved && responseTimeFaster && deltas.responseTimeDelta > 1000) {
-      // Faster but much slower is contradictory
-      contradictions.push('response_time_contradiction');
+
+    if (deltas.accuracyDelta !== null && deltas.accuracyDelta < 0 && responseTimeFaster) {
+      contradictions.push('accuracy_vs_speed_contradiction');
     }
 
-    if (deltas.accuracyDelta < 0 && responseTimeFaster) {
-      contradictions.push('accuracy_vs_speed_contradiction');
+    // EXACT_REPEAT and UNVERIFIED cannot support generalization
+    if ((instanceComparison === 'EXACT_REPEAT' || instanceComparison === 'UNVERIFIED') && signals.includes('generalization_evidence')) {
+      contradictions.push('false_generalization_claim');
     }
 
     if (contradictions.length > 0) {
