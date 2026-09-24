@@ -33,14 +33,14 @@ export interface ScoringBreakdown {
 }
 
 export interface BaselineState {
-  masteryBefore: number;
-  difficultyBefore: string;
+  masteryBefore: number | null; // [RESEARCH]: Real mastery snapshot, not hardcoded
+  difficultyBefore: string | null; // [RESEARCH]: Real Activity difficulty, not hardcoded
   lastExposureAt: Date | null;
-  daysSinceLastExposure: number;
-  previousAttempts: number;
-  previousAccuracy: number;
-  previousHintUsage: number;
-  previousResponseTimeMs: number;
+  daysSinceLastExposure: number | null;
+  previousAttempts: number | null; // [RESEARCH]: Per-exposure metric, not historical total
+  previousAccuracy: number | null; // [RESEARCH]: Preserve null if unavailable
+  previousHintUsage: number | null; // [RESEARCH]: Real observed hints, not null from events
+  previousResponseTimeMs: number | null; // [RESEARCH]: Preserve null if unavailable
 }
 
 @Entity('review_assignments')

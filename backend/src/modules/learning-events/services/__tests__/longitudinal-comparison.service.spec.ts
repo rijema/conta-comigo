@@ -109,6 +109,7 @@ describe('LongitudinalComparisonService', () => {
         responseTimeMs: 4000,
         hintsUsed: 1,
         difficulty: 'medium',
+        timestamp: new Date(),
       };
 
       const baselinePerformance: any = {
@@ -196,6 +197,7 @@ describe('LongitudinalComparisonService', () => {
         responseTimeMs: 5000,
         hintsUsed: 1,
         difficulty: 'medium',
+        timestamp: new Date(),
       };
 
       const baselinePerformance: any = {
@@ -285,6 +287,7 @@ describe('LongitudinalComparisonService', () => {
         responseTimeMs: 5500,
         hintsUsed: 1,
         difficulty: 'medium',
+        timestamp: new Date(),
       };
 
       const baselinePerformance: any = {
@@ -368,6 +371,7 @@ describe('LongitudinalComparisonService', () => {
         responseTimeMs: 2000,
         hintsUsed: 2,
         difficulty: 'medium',
+        timestamp: new Date(),
       };
 
       const baselinePerformance: any = {
@@ -451,6 +455,7 @@ describe('LongitudinalComparisonService', () => {
         responseTimeMs: 5000,
         hintsUsed: 0,
         difficulty: 'hard',
+        timestamp: new Date(),
       };
 
       const baselinePerformance: any = {
@@ -534,6 +539,7 @@ describe('LongitudinalComparisonService', () => {
         responseTimeMs: 6000,
         hintsUsed: 2,
         difficulty: 'medium',
+        timestamp: new Date(),
       };
 
       const baselinePerformance: any = {
@@ -617,6 +623,7 @@ describe('LongitudinalComparisonService', () => {
         responseTimeMs: 4200,
         hintsUsed: 0,
         difficulty: 'medium',
+        timestamp: new Date(),
       };
 
       const baselinePerformance: any = {
@@ -702,6 +709,7 @@ describe('LongitudinalComparisonService', () => {
         responseTimeMs: 4000,
         hintsUsed: 1,
         difficulty: 'medium',
+        timestamp: new Date(),
       };
 
       const baselinePerformance: any = {
@@ -786,6 +794,7 @@ describe('LongitudinalComparisonService', () => {
         responseTimeMs: 4000,
         hintsUsed: 1,
         difficulty: 'medium',
+        timestamp: new Date(),
       };
 
       const baselinePerformance: any = {

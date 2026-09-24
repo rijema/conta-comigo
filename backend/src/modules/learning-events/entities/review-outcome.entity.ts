@@ -15,36 +15,36 @@ export enum ProgressionClassification {
 }
 
 export interface PerformanceMetrics {
-  accuracy: number;
-  averageResponseTimeMs: number;
-  averageAttempts: number;
-  hintsUsed: number;
-  masteryProbability: number;
-  difficultyLevel: string;
+  accuracy: number | null; // [RESEARCH]: Preserve null if unavailable
+  averageResponseTimeMs: number | null; // [RESEARCH]: Preserve null if unavailable
+  averageAttempts: number | null; // [RESEARCH]: Use comparable definition, preserve null
+  hintsUsed: number | null; // [RESEARCH]: Use real observed hints, preserve null
+  masteryProbability: number | null; // [RESEARCH]: Real BKT mastery, preserve null
+  difficultyLevel: string | null; // [RESEARCH]: Real Activity difficulty, preserve null if unknown
 }
 
 export interface PerformanceDelta {
-  accuracyDelta: number;
-  responseTimeDelta: number;
-  attemptsDelta: number;
-  hintsDelta: number;
-  masteryDelta: number;
+  accuracyDelta: number | null; // [RESEARCH]: Preserve null if baseline/review unavailable
+  responseTimeDelta: number | null; // [RESEARCH]: Preserve null if unavailable
+  attemptsDelta: number | null; // [RESEARCH]: Preserve null if not comparable
+  hintsDelta: number | null; // [RESEARCH]: Preserve null if unavailable
+  masteryDelta: number | null; // [RESEARCH]: Preserve null if baseline/review unavailable
 }
 
 export interface NormalizedDeltas {
-  accuracyDeltaNormalized: number; // [-1, +1]
-  responseTimeDeltaNormalized: number; // [-1, +1], positive = faster
-  attemptsDeltaNormalized: number; // [-1, +1]
-  hintsDeltaNormalized: number; // [-1, +1], positive = fewer hints
-  masteryDeltaNormalized: number; // [-1, +1]
+  accuracyDeltaNormalized: number | null; // [-1, +1], [RESEARCH]: Preserve null if unavailable
+  responseTimeDeltaNormalized: number | null; // [-1, +1], positive = faster, [RESEARCH]: Preserve null
+  attemptsDeltaNormalized: number | null; // [-1, +1], [RESEARCH]: Preserve null if not comparable
+  hintsDeltaNormalized: number | null; // [-1, +1], positive = fewer hints, [RESEARCH]: Preserve null
+  masteryDeltaNormalized: number | null; // [-1, +1], [RESEARCH]: Preserve null if unavailable
 }
 
 export interface LongitudinalMetadata {
-  instanceComparison: 'EXACT_REPEAT' | 'EQUIVALENT_INSTANCE' | 'DIFFICULTY_PROGRESSION' | 'DIFFICULTY_SUPPORT';
-  difficultyComparison: 'same' | 'harder' | 'easier';
+  instanceComparison: 'EXACT_REPEAT' | 'EQUIVALENT_INSTANCE' | 'DIFFICULTY_PROGRESSION' | 'DIFFICULTY_SUPPORT' | 'UNVERIFIED';
+  difficultyComparison: 'same' | 'harder' | 'easier' | 'unknown';
   conceptCoverage: string[];
   conceptsNewInReview: string[];
-  daysSinceBaseline: number;
+  daysSinceBaseline: number | null;
   sameTemplate: boolean;
   sameInstance: boolean;
   reviewType: 'REMEDIATION' | 'RETENTION' | 'GENERALIZATION';
