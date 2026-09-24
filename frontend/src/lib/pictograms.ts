@@ -153,6 +153,10 @@ const definitions: PictogramDefinition[] = [
 export class PictogramRegistry {
   private readonly entries = new Map(definitions.map((entry) => [entry.conceptId, entry]));
   get(conceptId: string): PictogramDefinition | null {
+    if (/^\d+$/.test(String(conceptId).trim())) {
+      const arasaacId = Number(conceptId);
+      return definition(`arasaac.${arasaacId}` as PictogramConcept, 'LEARNING_LIBRARY', 'pictograma ARASAAC', '□', arasaacId);
+    }
     if (/^arasaac\.[1-9]\d*$/.test(conceptId)) {
       const arasaacId = Number(conceptId.slice('arasaac.'.length));
       return definition(conceptId as PictogramConcept, 'LEARNING_LIBRARY', 'pictograma ARASAAC', '□', arasaacId);
