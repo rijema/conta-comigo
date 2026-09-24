@@ -2,12 +2,23 @@ import { PublicoKey, sendPrompt, generateSummary, generateConversationInsights }
 import { updateFrequentQuestion } from "./faqService";
 import { getResponseWithSemanticCache, saveResponseToSemanticCache } from "./cacheService";
 import prisma from "../../prisma";
-import type { ClientMessage, ConversationHistoric, Message, ChatHandlerResponse, MapHistoricsCallback, MapMessagesCallback } from "./types";
+import type { Message, ConversationHistoric } from "./types";
+
+interface ClientMessage {
+  userId: string;
+  publico: PublicoKey;
+  pergunta: string;
+}
+
+interface ChatHandlerResponse {
+  resposta: string;
+  historicId: string;
+}
 
 const invalidQuestion =
   "Peço desculpas, mas não disponho de informações para responder a essa pergunta. Posso ajudar com algo relacionado à acessibilidade, inclusão ou Transtorno do Espectro Autista (TEA)?";
 
-export async function handleChatMessage(rawMsg: ClientMessage) {
+export async function handleChatMessage(rawMsg: ClientMessage): Promise<ChatHandlerResponse> {
   const { userId, publico, pergunta } = rawMsg;
 
   if (
