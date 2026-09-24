@@ -2,12 +2,7 @@ import { PublicoKey, sendPrompt, generateSummary, generateConversationInsights }
 import { updateFrequentQuestion } from "./faqService";
 import { getResponseWithSemanticCache, saveResponseToSemanticCache } from "./cacheService";
 import prisma from "../../prisma";
-
-interface ClientMessage {
-  userId: string;
-  publico: PublicoKey;
-  pergunta: string;
-}
+import type { ClientMessage, ConversationHistoric, Message, ChatHandlerResponse, MapHistoricsCallback, MapMessagesCallback } from "./types";
 
 const invalidQuestion =
   "Peço desculpas, mas não disponho de informações para responder a essa pergunta. Posso ajudar com algo relacionado à acessibilidade, inclusão ou Transtorno do Espectro Autista (TEA)?";
@@ -75,11 +70,11 @@ export async function handleChatMessage(rawMsg: ClientMessage) {
   });
 
   const conversationMemory = recentHistorics
-    .map((historic, index) => {
+    .map((historic: ConversationHistoric, index: number): string => {
       const summary = historic.summary?.summary ? `Resumo: ${historic.summary.summary}` : "Resumo: conversa em andamento";
       const snippet = historic.messages
         .slice(-4)
-        .map((message) => `${message.role === "user" ? "Usuário" : "Assistente"}: ${message.content}`)
+        .map((message: Message): string => `${message.role === "user" ? "Usuário" : "Assistente"}: ${message.content}`)
         .join("\n");
       return `Conversa ${index + 1}\n${summary}\n${snippet}`.trim();
     })
@@ -105,7 +100,7 @@ export async function handleChatMessage(rawMsg: ClientMessage) {
 
     if (chatHistoric.messages.length > 0) {
       const firstUserMessage = chatHistoric.messages.find(
-        (m) => m.role === "user"
+        (m: Message) => m.role === "user"
       );
       if (firstUserMessage) {
         firstQuestion = firstUserMessage.content;
@@ -185,9 +180,9 @@ export async function handleChatMessage(rawMsg: ClientMessage) {
 
     if (messageCount >= 4) {
       const sampleForInsights = recentHistorics
-        .flatMap((historic) => historic.messages)
+        .flatMap((historic: ConversationHistoric): Message[] => historic.messages)
         .slice(-12)
-        .map((message) => `${message.role === "user" ? "Usuário" : "Assistente"}: ${message.content}`)
+        .map((message: Message): string => `${message.role === "user" ? "Usuário" : "Assistente"}: ${message.content}`)
         .join("\n");
 
       if (sampleForInsights.trim()) {
