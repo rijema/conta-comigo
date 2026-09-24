@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
@@ -384,7 +385,15 @@ export default function ActivityMenuPage() {
         onClick={() => { setShowAI(true); setAiAnswer(null); setAiQuestion(""); }}
         className="fixed bottom-6 right-6 z-30 w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white text-3xl flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-transform"
         title="Perguntar à TitIA"
-      >🦋</button>
+      >
+        <Image 
+          src="/assets/mainiconfirstpage.png" 
+          alt="TitIA"
+          width={56}
+          height={56}
+          className="rounded-full"
+        />
+      </button>
 
       {/* ── TitIA Chat Modal ── */}
       {showAI && (
@@ -398,7 +407,15 @@ export default function ActivityMenuPage() {
         >
           <div className="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden" style={{ maxHeight: "90vh" }}>
             <div className="bg-gradient-to-r from-purple-500 to-pink-500 px-5 py-4 flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-white/25 flex items-center justify-center text-3xl flex-shrink-0">🦋</div>
+              <div className="w-12 h-12 rounded-2xl bg-white/25 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                <Image 
+                  src="/assets/mainiconfirstpage.png" 
+                  alt="TitIA"
+                  width={48}
+                  height={48}
+                  className="w-full h-full object-contain"
+                />
+              </div>
               <div className="flex-1">
                <p className="font-extrabold text-white text-base">TitIA</p>
                 <p className="text-white/80 text-xs">Pergunte qualquer coisa sobre aprender!</p>
@@ -409,7 +426,13 @@ export default function ActivityMenuPage() {
               {aiAnswer && (
                 <div className="mb-4 bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-2xl p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xl">🦋</span>
+                    <Image 
+                      src="/assets/mainiconfirstpage.png" 
+                      alt="TitIA"
+                      width={24}
+                      height={24}
+                      className="w-6 h-6"
+                    />
                     <span className="text-xs font-extrabold text-purple-600 uppercase">TitIA respondeu</span>
                   </div>
                   <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{aiAnswer}</p>

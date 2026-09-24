@@ -16,6 +16,12 @@ interface Props {
 
 const fieldClass = "w-full rounded-2xl border-2 border-slate-200 bg-white px-4 py-3 text-base text-slate-900 outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-100";
 
+const emptyForm = {
+  name: "", email: "", password: "", guardianEmail: "",
+  role: "guardian" as "guardian" | "professional",
+  childName: "", childAge: "", childPassword: "", consent: false,
+};
+
 export function AuthDialog({ open, initialView, onClose }: Props) {
   const { login } = useAuth();
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -27,15 +33,14 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [form, setForm] = useState({
-    name: "", email: "", password: "", guardianEmail: "",
-    role: "guardian" as "guardian" | "professional",
-    childName: "", childAge: "", childPassword: "", consent: false,
-  });
+  const [form, setForm] = useState(emptyForm);
+  const requiresChildProfile = form.role === "guardian";
 
   useEffect(() => {
     if (!open) return;
     setView(initialView);
+    setStep(1);
+    setForm(emptyForm);
     setError("");
     setSuccess("");
   }, [open, initialView]);
@@ -71,17 +76,21 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
     event.preventDefault();
     if (step === 1) { setStep(2); return; }
     if (!form.consent) { setError("Aceite o termo de consentimento para continuar."); return; }
+    if (form.role === "guardian" && (!form.childName || !form.childAge || !form.childPassword)) {
+      setError("Preencha os dados da criança para continuar.");
+      return;
+    }
     setLoading(true); setError("");
     try {
       await authService.register({
         name: form.name, email: form.email, password: form.password, role: form.role,
-        childProfile: form.role === "guardian" && form.childName
+        childProfile: requiresChildProfile && form.childName
           ? { name: form.childName, age: Number(form.childAge) } : undefined,
-        childPassword: form.role === "guardian" ? form.childPassword : undefined,
+        childPassword: requiresChildProfile ? form.childPassword : undefined,
         lgpdConsent: true, consentTimestamp: new Date().toISOString(),
       });
       setSuccess("Conta criada! Agora você já pode entrar.");
-      setView("login"); setStep(1);
+      setView("login"); setStep(1); setForm(emptyForm);
     } catch (reason: any) {
       setError(reason?.message || "Não foi possível criar a conta.");
     } finally { setLoading(false); }
@@ -106,7 +115,7 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
           </div>
         </div>
 
-        <div className="relative overflow-y-auto p-5 sm:p-8">
+        <div className="relative flex flex-col overflow-hidden p-5 sm:p-8">
           <button ref={closeRef} type="button" onClick={onClose} aria-label="Fechar"
             className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full text-xl text-slate-700 hover:bg-slate-100 focus:ring-4 focus:ring-violet-200">×</button>
           <div className="mb-6 pr-10">
@@ -126,8 +135,9 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
             ))}
           </div>
 
-          {success && <p role="status" className="mb-4 rounded-xl bg-emerald-50 p-3 text-sm font-semibold text-emerald-800">{success}</p>}
-          {error && <p role="alert" className="mb-4 rounded-xl bg-red-50 p-3 text-sm font-semibold text-red-700">{error}</p>}
+          <div className="flex-1 overflow-y-auto pr-2">
+            {success && <p role="status" className="mb-4 rounded-xl bg-emerald-50 p-3 text-sm font-semibold text-emerald-800">{success}</p>}
+            {error && <p role="alert" className="mb-4 rounded-xl bg-red-50 p-3 text-sm font-semibold text-red-700">{error}</p>}
 
           {view === "login" ? (
             <form onSubmit={submitLogin} className="space-y-4">
@@ -197,7 +207,7 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
                 </div></fieldset>
                 <SubmitButton loading={false}>Continuar</SubmitButton>
               </> : <>
-                {form.role === "guardian" && <>
+                {requiresChildProfile && <>
                   <Field label="Nome da criança"><input className={fieldClass} required value={form.childName} onChange={(e) => update("childName", e.target.value)} /></Field>
                   <Field label="Idade da criança"><input type="number" min={4} max={12} className={fieldClass} required value={form.childAge} onChange={(e) => update("childAge", e.target.value)} /></Field>
                   <Field label="Senha da criança"><input type="password" minLength={4} className={fieldClass} required value={form.childPassword} onChange={(e) => update("childPassword", e.target.value)} /></Field>
@@ -209,7 +219,8 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
                 <div className="flex gap-3"><button type="button" onClick={() => setStep(1)} className="rounded-2xl border-2 border-slate-200 px-5 font-bold">Voltar</button><SubmitButton loading={loading}>Criar conta</SubmitButton></div>
               </>}
             </form>
-          )}
+            )}
+              </div>
         </div>
       </section>
     </div>
