@@ -1,11 +1,5 @@
 // Types for chat service
 
-export interface ClientMessage {
-  userId: string;
-  publico: string;
-  pergunta: string;
-}
-
 export interface ConversationHistoric {
   historicId: string;
   userId: string;
@@ -31,10 +25,3 @@ export interface ConversationSummary {
   createdAt?: Date;
 }
 
-export interface ChatHandlerResponse {
-  resposta: string;
-  historicId: string;
-}
-
-export type MapHistoricsCallback = (historic: ConversationHistoric, index: number) => string;
-export type MapMessagesCallback = (message: Message) => string;
