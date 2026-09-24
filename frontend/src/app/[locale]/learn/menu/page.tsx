@@ -417,7 +417,7 @@ export default function ActivityMenuPage() {
                 />
               </div>
               <div className="flex-1">
-               <p className="font-extrabold text-white text-base">TitIA</p>
+                <p className="font-extrabold text-white text-base">TitIA</p>
                 <p className="text-white/80 text-xs">Pergunte qualquer coisa sobre aprender!</p>
               </div>
               <button onClick={() => setShowAI(false)} className="w-9 h-9 bg-white/30 hover:bg-white/40 rounded-xl flex items-center justify-center text-white text-lg">×</button>
