@@ -940,6 +940,77 @@ describe('ReviewCandidateGenerationService', () => {
       // Higher mastery should increase retention mastery score
       expect(breakdown2.masteryScore || 0).toBeGreaterThan(breakdown1.masteryScore || 0);
     });
+
+    it('should use recency score for retention (exponential decay)', async () => {
+      const skillId = 'skill-1';
+      const studentId = 'student-1';
+
+      // 1 day since exposure - RETENTION type
+      mockSkillStateRepository.find.mockResolvedValue([
+        { studentId, skillId, masteryProbability: 0.8, observations: 5 },
+      ]);
+      mockEventRepository.find.mockResolvedValue([
+        {
+          id: 'event-1',
+          eventType: LearningEventType.ANSWER_SUBMITTED,
+          correct: true,
+          responseTimeMs: 5000,
+          hintsUsed: 0,
+          timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+        },
+      ]);
+
+      const candidates1 = await service.generateReviewCandidates(studentId);
+      const breakdown1 = candidates1[0].scoringBreakdown;
+
+      // 30 days since exposure - RETENTION type, same mastery
+      mockSkillStateRepository.find.mockResolvedValue([
+        { studentId, skillId, masteryProbability: 0.8, observations: 5 },
+      ]);
+      mockEventRepository.find.mockResolvedValue([
+        {
+          id: 'event-1',
+          eventType: LearningEventType.ANSWER_SUBMITTED,
+          correct: true,
+          responseTimeMs: 5000,
+          hintsUsed: 0,
+          timestamp: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        },
+      ]);
+
+      const candidates2 = await service.generateReviewCandidates(studentId);
+      const breakdown2 = candidates2[0].scoringBreakdown;
+
+      // Recency score should be lower for older exposures (exponential decay)
+      // This is correct for RETENTION: older skills need review
+      expect(breakdown2.recencyScore || 0).toBeLessThan(breakdown1.recencyScore || 0);
+    });
+
+    it('should NOT create strong retention candidate from low mastery + elapsed time alone', async () => {
+      const skillId = 'skill-1';
+      const studentId = 'student-1';
+
+      // Low mastery + long elapsed time (should be REMEDIATION, not RETENTION)
+      mockSkillStateRepository.find.mockResolvedValue([
+        { studentId, skillId, masteryProbability: 0.3, observations: 5 },
+      ]);
+      mockEventRepository.find.mockResolvedValue([
+        {
+          id: 'event-1',
+          eventType: LearningEventType.ANSWER_SUBMITTED,
+          correct: false,
+          responseTimeMs: 5000,
+          hintsUsed: 0,
+          timestamp: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
+        },
+      ]);
+
+      const candidates = await service.generateReviewCandidates(studentId);
+      expect(candidates.length).toBeGreaterThan(0);
+
+      // Should be classified as REMEDIATION, not RETENTION
+      expect(candidates[0].reviewType).toBe(ReviewType.REMEDIATION);
+    });
   });
 
   describe('Response Time Semantics', () => {
