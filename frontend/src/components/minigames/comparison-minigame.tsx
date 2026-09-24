@@ -33,12 +33,12 @@ export const ComparisonMinigame: React.FC<ComparisonMinigameProps> = ({
   skill,
   difficulty,
   onComplete,
-  isTEAMode = true,
+  isTEAMode = false,
 }) => {
   const [items, setItems] = useState<Item[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-  const [timeLeft, setTimeLeft] = useState(isTEAMode ? 60 : 30);
+  const [timeLeft, setTimeLeft] = useState(30);
   const [showCelebration, setShowCelebration] = useState(false);
   const [audioPlayed, setAudioPlayed] = useState(false);
   const spokenRef = useRef(false);
@@ -138,7 +138,7 @@ export const ComparisonMinigame: React.FC<ComparisonMinigameProps> = ({
       <div style={{ marginBottom: '20px' }}>
         <h2>🔍 Qual tem MAIS?</h2>
         <div style={{ fontSize: '24px', marginTop: '10px' }}>
-          ⏱️ {timeLeft}s {isTEAMode && <span style={{ marginLeft: '10px', backgroundColor: '#e8f5e9', padding: '5px 10px', borderRadius: '5px' }}>🎯 TEA Mode</span>}
+         ⏱️ {timeLeft}s
         </div>
       </div>
 
@@ -212,8 +212,8 @@ export const ComparisonMinigame: React.FC<ComparisonMinigameProps> = ({
             </>
           ) : (
             <>
-              <div style={{ fontSize: '40px' }}>😊</div>
-              <p>Tenta de novo! Você consegue!</p>
+              <div style={{ fontSize: '40px' }}>🎯</div>
+              <p>Tente outra vez!</p>
             </>
           )}
         </motion.div>

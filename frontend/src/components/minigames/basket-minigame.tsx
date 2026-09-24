@@ -40,9 +40,10 @@ export const BasketMinigame: React.FC<BasketMinigameProps> = ({
     { id: 'apple2', emoji: '🍎', label: 'Maçã 2' },
     { id: 'apple3', emoji: '🍎', label: 'Maçã 3' },
   ]);
-  
+
   const [droppedItems, setDroppedItems] = useState<string[]>([]);
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
+  const [touchDraggedItem, setTouchDraggedItem] = useState<string | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
   const [completionPercent, setCompletionPercent] = useState(0);
   const spokenRef = useRef(false);
@@ -87,6 +88,7 @@ export const BasketMinigame: React.FC<BasketMinigameProps> = ({
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, itemId: string) => {
     if (droppedItems.includes(itemId)) return;
     setDraggedItem(itemId);
+    setTouchDraggedItem(itemId);
     if (e.dataTransfer) {
       e.dataTransfer.effectAllowed = 'move';
     }
@@ -101,13 +103,27 @@ export const BasketMinigame: React.FC<BasketMinigameProps> = ({
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    
-    if (draggedItem && !droppedItems.includes(draggedItem)) {
-      setDroppedItems([...droppedItems, draggedItem]);
+
+    const itemId = draggedItem ?? touchDraggedItem;
+    if (itemId && !droppedItems.includes(itemId)) {
+      setDroppedItems((current) => [...current, itemId]);
       playDropSound();
     }
-    
+
     setDraggedItem(null);
+    setTouchDraggedItem(null);
+  };
+
+  const handleItemTap = (itemId: string) => {
+    if (droppedItems.includes(itemId)) return;
+    setTouchDraggedItem(itemId);
+    setDraggedItem(itemId);
+    setTimeout(() => {
+      setDroppedItems((current) => current.includes(itemId) ? current : [...current, itemId]);
+      setDraggedItem(null);
+      setTouchDraggedItem(null);
+      playDropSound();
+    }, 120);
   };
 
   const playDropSound = () => {
@@ -171,10 +187,12 @@ export const BasketMinigame: React.FC<BasketMinigameProps> = ({
                 tabIndex={0}
                 aria-label={`Item arrastável: ${item.emoji}`}
                 draggable
+                onClick={() => handleItemTap(item.id)}
                 onDragStart={(e: React.DragEvent<HTMLDivElement>) => handleDragStart(e, item.id)}
                 onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
+                    handleItemTap(item.id);
                   }
                 }}
                 style={{
@@ -215,6 +233,11 @@ export const BasketMinigame: React.FC<BasketMinigameProps> = ({
           <motion.div
             onDragOver={handleDragOver}
             onDrop={handleDrop}
+            onClick={() => {
+              if (touchDraggedItem) {
+                handleDrop({ preventDefault: () => undefined } as React.DragEvent<HTMLDivElement>);
+              }
+            }}
             style={{
               padding: '20px',
               backgroundColor: '#fff9e6',

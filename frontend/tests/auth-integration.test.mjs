@@ -25,3 +25,10 @@ test("the frontend registration roles match the backend wire values", async () =
   assert.match(authService, /role:\s*"guardian"\s*\|\s*"professional"/);
   assert.doesNotMatch(authService, /"GUARDIAN"|"EDUCATOR"|"PROFESSIONAL"/);
 });
+
+test("professional registration does not force a child profile form", async () => {
+  const dialog = await readFile(join(frontendRoot, "src", "components", "home", "auth-dialog.tsx"), "utf8");
+  assert.match(dialog, /requiresChildProfile\s*=\s*form\.role\s*===\s*"guardian"/);
+  assert.match(dialog, /form\.role\s*===\s*"guardian"\s*&&\s*\(!form\.childName\s*\|\|\s*!form\.childAge\s*\|\|\s*!form\.childPassword\)/);
+  assert.doesNotMatch(dialog, /form\.role\s*===\s*"guardian"\s*&&\s*<>/);
+});
