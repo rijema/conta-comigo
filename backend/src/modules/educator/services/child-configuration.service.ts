@@ -6,6 +6,7 @@ import { User } from '../../users/entities/user.entity';
 import {
   UpdateChildSupportLevelDto,
   UpdateChildModalityPreferencesDto,
+  ASDSupportLevel,
 } from '../dto/update-child-support-level.dto';
 
 @Injectable()
@@ -163,7 +164,7 @@ export class ChildConfigurationService {
       sensory: false,
     };
 
-    profile.asdSupportLevel = 'mild';
+    profile.asdSupportLevel = ASDSupportLevel.SEM_DIAGNOSTICO;
     profile.updatedAt = new Date();
 
     return this.childProfileRepository.save(profile);
