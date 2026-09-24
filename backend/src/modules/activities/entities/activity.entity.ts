@@ -78,6 +78,8 @@ export class Activity {
   content: {
     instructions: string;
     instructionsPt: string;
+    howToPlay?: string;
+    howToPlayPt?: string;
     items?: any[];
     imageUrl?: string;
     audioUrl?: string;

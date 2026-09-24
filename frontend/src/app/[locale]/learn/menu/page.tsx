@@ -13,13 +13,13 @@ import { ArasaacLibraryDialog } from "@/components/arasaac/arasaac-library-dialo
 /* ── Island themes — mapped to pictogram concepts with semantic meanings ── */
 const ISLAND_THEMES = [
   { grad: "from-yellow-300 to-orange-300",  headerGrad: "from-orange-400 to-amber-400",  border: "border-orange-300",  pictogramId: "library.star", label: "Ilha do Sol",     sub: "Contagem" },
-  { grad: "from-blue-300 to-cyan-300",      headerGrad: "from-blue-500 to-cyan-400",     border: "border-blue-300",    pictogramId: "arasaac.16165", label: "Ilha do Mar",     sub: "Adição" },
-  { grad: "from-green-300 to-emerald-300",  headerGrad: "from-green-500 to-emerald-400", border: "border-green-300",   pictogramId: "library.learn", label: "Ilha da Floresta", sub: "Subtração" },
-  { grad: "from-purple-300 to-fuchsia-300", headerGrad: "from-purple-500 to-pink-400",   border: "border-purple-300",  pictogramId: "arasaac.15532", label: "Ilha das Flores",  sub: "Comparação" },
+  { grad: "from-blue-300 to-cyan-300",      headerGrad: "from-blue-500 to-cyan-400",     border: "border-blue-300",    pictogramId: "arasaac.16590", label: "Ilha do Mar",     sub: "Adição" },
+  { grad: "from-green-300 to-emerald-300",  headerGrad: "from-green-500 to-emerald-400", border: "border-green-300",   pictogramId: "arasaac.16165", label: "Ilha da Floresta", sub: "Subtração" },
+  { grad: "from-purple-300 to-fuchsia-300", headerGrad: "from-purple-500 to-pink-400",   border: "border-purple-300",  pictogramId: "arasaac.17784", label: "Ilha das Flores",  sub: "Comparação" },
   { grad: "from-red-300 to-rose-300",       headerGrad: "from-red-500 to-rose-400",      border: "border-red-300",     pictogramId: "arasaac.15195", label: "Ilha das Maçãs",  sub: "Formas" },
-  { grad: "from-teal-300 to-sky-300",       headerGrad: "from-teal-500 to-sky-400",      border: "border-teal-300",    pictogramId: "library.play", label: "Ilha dos Animais", sub: "Medidas" },
-  { grad: "from-indigo-300 to-violet-300",  headerGrad: "from-indigo-500 to-violet-400", border: "border-indigo-300",  pictogramId: "library.diamond", label: "Ilha Mágica",     sub: "Sequências" },
-  { grad: "from-pink-300 to-rose-200",      headerGrad: "from-pink-500 to-rose-400",     border: "border-pink-300",    pictogramId: "arasaac.44702", label: "Ilha do Amor",    sub: "Ordenação" },
+  { grad: "from-teal-300 to-sky-300",       headerGrad: "from-teal-500 to-sky-400",      border: "border-teal-300",    pictogramId: "arasaac.20951", label: "Ilha dos Animais", sub: "Medidas" },
+  { grad: "from-indigo-300 to-violet-300",  headerGrad: "from-indigo-500 to-violet-400", border: "border-indigo-300",  pictogramId: "arasaac.17331", label: "Ilha Mágica",     sub: "Sequências" },
+  { grad: "from-pink-300 to-rose-200",      headerGrad: "from-pink-500 to-rose-400",     border: "border-pink-300",    pictogramId: "arasaac.15971", label: "Ilha do Amor",    sub: "Ordenação" },
 ];
 
 const CARD_CONFIG: Record<string, { pictogramId: string; label: string }> = {
