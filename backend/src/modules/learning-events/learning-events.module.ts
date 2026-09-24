@@ -13,20 +13,28 @@ import { LongitudinalLearningAnalyticsService } from './longitudinal-learning-an
 import { ReviewAssignment } from './entities/review-assignment.entity';
 import { ReviewOutcome } from './entities/review-outcome.entity';
 import { ReviewCandidateGenerationService } from './services/review-candidate-generation.service';
+import { ReviewSelectionService } from './services/review-selection.service';
+import { ReviewTriggerService } from './services/review-trigger.service';
 import { ExercisePerformance } from './entities/exercise-performance.entity';
 import { StudentSkillState } from '../knowledge-tracing/entities/student-skill-state.entity';
+import { OntologyModule } from '../ontology/ontology.module';
+import { AdeModule } from '../ade/ade.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([
-    LearningEvent,
-    RecommendationOutcome,
-    AdaptationTransition,
-    InteractionEvidence,
-    ReviewAssignment,
-    ReviewOutcome,
-    ExercisePerformance,
-    StudentSkillState,
-  ])],
+  imports: [
+    TypeOrmModule.forFeature([
+      LearningEvent,
+      RecommendationOutcome,
+      AdaptationTransition,
+      InteractionEvidence,
+      ReviewAssignment,
+      ReviewOutcome,
+      ExercisePerformance,
+      StudentSkillState,
+    ]),
+    OntologyModule,
+    AdeModule,
+  ],
   controllers: [LearningAnalyticsMetricsController, LearningEventsController],
   providers: [
     LearningEventService,
@@ -34,6 +42,8 @@ import { StudentSkillState } from '../knowledge-tracing/entities/student-skill-s
     RecommendationOutcomeService,
     LongitudinalLearningAnalyticsService,
     ReviewCandidateGenerationService,
+    ReviewSelectionService,
+    ReviewTriggerService,
   ],
   exports: [
     LearningEventService,
@@ -41,6 +51,8 @@ import { StudentSkillState } from '../knowledge-tracing/entities/student-skill-s
     RecommendationOutcomeService,
     LongitudinalLearningAnalyticsService,
     ReviewCandidateGenerationService,
+    ReviewSelectionService,
+    ReviewTriggerService,
   ],
 })
 export class LearningEventsModule {}
