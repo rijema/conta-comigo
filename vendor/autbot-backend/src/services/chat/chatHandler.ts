@@ -80,11 +80,11 @@ export async function handleChatMessage(rawMsg: ClientMessage): Promise<ChatHand
   });
 
   const conversationMemory = recentHistorics
-    .map((historic, index) => {
+    .map((historic: any, index: number) => {
       const summary = historic.summary?.summary ? `Resumo: ${historic.summary.summary}` : "Resumo: conversa em andamento";
       const snippet = historic.messages
         .slice(-4)
-        .map((message) => `${message.role === "user" ? "Usuário" : "Assistente"}: ${message.content}`)
+        .map((message: any) => `${message.role === "user" ? "Usuário" : "Assistente"}: ${message.content}`)
         .join("\n");
       return `Conversa ${index + 1}\n${summary}\n${snippet}`.trim();
     })
@@ -110,7 +110,7 @@ export async function handleChatMessage(rawMsg: ClientMessage): Promise<ChatHand
 
     if (chatHistoric.messages.length > 0) {
       const firstUserMessage = chatHistoric.messages.find(
-        (m) => m.role === "user"
+        (m: any) => m.role === "user"
       );
       if (firstUserMessage) {
         firstQuestion = firstUserMessage.content;
@@ -190,9 +190,9 @@ export async function handleChatMessage(rawMsg: ClientMessage): Promise<ChatHand
 
     if (messageCount >= 4) {
       const sampleForInsights = recentHistorics
-        .flatMap((historic) => historic.messages)
+        .flatMap((historic: any) => historic.messages)
         .slice(-12)
-        .map((message) => `${message.role === "user" ? "Usuário" : "Assistente"}: ${message.content}`)
+        .map((message: any) => `${message.role === "user" ? "Usuário" : "Assistente"}: ${message.content}`)
         .join("\n");
 
       if (sampleForInsights.trim()) {
