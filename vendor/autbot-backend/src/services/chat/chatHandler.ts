@@ -2,7 +2,6 @@ import { PublicoKey, sendPrompt, generateSummary, generateConversationInsights }
 import { updateFrequentQuestion } from "./faqService";
 import { getResponseWithSemanticCache, saveResponseToSemanticCache } from "./cacheService";
 import prisma from "../../prisma";
-import type { Message, ConversationHistoric } from "./types";
 
 interface ClientMessage {
   userId: string;
@@ -81,11 +80,11 @@ export async function handleChatMessage(rawMsg: ClientMessage): Promise<ChatHand
   });
 
   const conversationMemory = recentHistorics
-    .map((historic: ConversationHistoric, index: number): string => {
+    .map((historic, index) => {
       const summary = historic.summary?.summary ? `Resumo: ${historic.summary.summary}` : "Resumo: conversa em andamento";
       const snippet = historic.messages
         .slice(-4)
-        .map((message: Message): string => `${message.role === "user" ? "Usuário" : "Assistente"}: ${message.content}`)
+        .map((message) => `${message.role === "user" ? "Usuário" : "Assistente"}: ${message.content}`)
         .join("\n");
       return `Conversa ${index + 1}\n${summary}\n${snippet}`.trim();
     })
@@ -111,7 +110,7 @@ export async function handleChatMessage(rawMsg: ClientMessage): Promise<ChatHand
 
     if (chatHistoric.messages.length > 0) {
       const firstUserMessage = chatHistoric.messages.find(
-        (m: Message) => m.role === "user"
+        (m) => m.role === "user"
       );
       if (firstUserMessage) {
         firstQuestion = firstUserMessage.content;
@@ -191,9 +190,9 @@ export async function handleChatMessage(rawMsg: ClientMessage): Promise<ChatHand
 
     if (messageCount >= 4) {
       const sampleForInsights = recentHistorics
-        .flatMap((historic: ConversationHistoric): Message[] => historic.messages)
+        .flatMap((historic) => historic.messages)
         .slice(-12)
-        .map((message: Message): string => `${message.role === "user" ? "Usuário" : "Assistente"}: ${message.content}`)
+        .map((message) => `${message.role === "user" ? "Usuário" : "Assistente"}: ${message.content}`)
         .join("\n");
 
       if (sampleForInsights.trim()) {

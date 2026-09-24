@@ -1,17 +1,7 @@
-// Types for chat service
-
-export interface ConversationHistoric {
-  historicId: string;
-  userId: string;
-  startedAt: Date;
-  endedAt: Date;
-  terminated: boolean;
-  summary?: ConversationSummary | null;
-  messages: Message[];
-}
+// Types for chat service - aligned with Prisma schema
 
 export interface Message {
-  messageId: string;
+  id: string;           // from Prisma
   role: "user" | "assistant";
   content: string;
   createdAt: Date;
@@ -19,9 +9,17 @@ export interface Message {
 }
 
 export interface ConversationSummary {
-  summaryId: string;
-  historicId: string;
+  id: string;           // from Prisma (ConversationSummary.id)
   summary: string;
-  createdAt?: Date;
+  historicId: string;
 }
 
+export interface ConversationHistoric {
+  historicId: string;
+  startedAt: Date;
+  endedAt: Date;
+  terminated: boolean;
+  userId: string;
+  messages: Message[];
+  summary?: ConversationSummary | null;
+}
