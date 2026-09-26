@@ -99,7 +99,8 @@ describe('HybridRecommendationService', () => {
       preferences: { lowStimulation: true, preferredModality: 'visual' },
     }));
     expect(result.selectedActivityId).toBe('low');
-    expect(result.candidates[0]).toEqual(expect.objectContaining({ formatFit: 1 }));
+    // [INTEGRATION 3C-FINAL]: formatFit is 0.9 when preferred modality matches (not 1.0)
+    expect(result.candidates[0]).toEqual(expect.objectContaining({ formatFit: 0.9 }));
     expect(result.candidates[0]).toEqual(expect.objectContaining({
       difficulty: 'medium', activityType: 'quiz',
     }));

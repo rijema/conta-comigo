@@ -125,7 +125,9 @@ export class ReviewTriggerService {
     const existingCheckpoint = await this.assignmentRepository.findOne({
       where: {
         studentId,
-        // TODO: Add cycleNumber to ReviewAssignment to track per-cycle checkpoints
+        triggerType: 'CHECKPOINT',
+        islandId,
+        cycleNumber: currentCycle,
       },
     });
 

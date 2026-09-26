@@ -29,6 +29,13 @@ export class ActivityAttempt {
   @Column({ nullable: true })
   reviewAssignmentId?: string;
 
+  // [INTEGRATION 3C-FINAL]: Island/cycle context for checkpoint scope validation
+  @Column({ nullable: true })
+  islandId?: string;
+
+  @Column({ type: 'int', nullable: true })
+  cycleNumber?: number;
+
   @Column({ default: false })
   isCorrect: boolean;
 
