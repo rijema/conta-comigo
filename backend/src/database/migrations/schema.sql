@@ -100,6 +100,9 @@ CREATE TABLE IF NOT EXISTS activity_attempts (
   "adeDecisionContext" JSONB, "researchTrace" JSONB, "createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
 );
 ALTER TABLE activity_attempts ADD COLUMN IF NOT EXISTS "researchTrace" JSONB;
+ALTER TABLE activity_attempts ADD COLUMN IF NOT EXISTS "reviewAssignmentId" UUID;
+ALTER TABLE activity_attempts ADD COLUMN IF NOT EXISTS "islandId" VARCHAR;
+ALTER TABLE activity_attempts ADD COLUMN IF NOT EXISTS "cycleNumber" INTEGER;
 
 CREATE TABLE IF NOT EXISTS ade_decisions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(), "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -247,3 +250,42 @@ CREATE INDEX IF NOT EXISTS idx_learning_events_session_timestamp ON learning_eve
 CREATE INDEX IF NOT EXISTS idx_learning_events_type_timestamp ON learning_events("eventType", "timestamp");
 CREATE INDEX IF NOT EXISTS idx_student_skill_states_student ON student_skill_states("studentId");
 CREATE INDEX IF NOT EXISTS idx_student_skill_states_skill ON student_skill_states("skillId");
+
+DO $$ BEGIN
+  CREATE TYPE review_trigger_type_enum AS ENUM ('CHECKPOINT', 'RETENTION', 'MANUAL');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+CREATE TABLE IF NOT EXISTS review_assignments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "studentId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  "sessionId" VARCHAR NOT NULL,
+  "selectedActivityId" UUID NOT NULL REFERENCES activities(id),
+  "triggerType" review_trigger_type_enum,
+  "islandId" VARCHAR,
+  "cycleNumber" INTEGER,
+  "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+  "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS review_outcomes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "studentId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  "reviewAssignmentId" UUID NOT NULL REFERENCES review_assignments(id),
+  "reviewAttemptId" UUID NOT NULL REFERENCES activity_attempts(id),
+  "skillId" VARCHAR NOT NULL,
+  "baselineAccuracy" DOUBLE PRECISION,
+  "reviewAccuracy" DOUBLE PRECISION,
+  "baselineMasteryProbability" DOUBLE PRECISION,
+  "reviewMasteryProbability" DOUBLE PRECISION,
+  "baselineResponseTimeMs" INTEGER,
+  "reviewResponseTimeMs" INTEGER,
+  "progressionClassification" VARCHAR,
+  "evidenceSignals" JSONB,
+  "createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_review_assignments_student ON review_assignments("studentId");
+CREATE INDEX IF NOT EXISTS idx_review_assignments_session ON review_assignments("sessionId");
+CREATE INDEX IF NOT EXISTS idx_review_outcomes_student ON review_outcomes("studentId");
+CREATE INDEX IF NOT EXISTS idx_review_outcomes_assignment ON review_outcomes("reviewAssignmentId");
