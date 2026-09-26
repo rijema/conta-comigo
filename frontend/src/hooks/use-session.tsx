@@ -274,6 +274,11 @@ export function useSession() {
 
   const changeCurrentActivity = useCallback(async () => {
     if (!session?.currentActivity?.id || !session.currentRecommendationId || isChangingActivity) return false;
+    // [INTEGRATION 3C-FINAL]: Disable "Quero outro" during active review
+    if (session.currentActivity?.reviewAssignmentId) {
+      console.warn('Cannot change activity during active review');
+      return false;
+    }
     const token = authService.getStoredToken();
     if (!token) return false;
     const counters = getInteractionCounters(session.currentActivity.id);

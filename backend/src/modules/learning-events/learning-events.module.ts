@@ -17,6 +17,9 @@ import { ReviewSelectionService } from './services/review-selection.service';
 import { ReviewTriggerService } from './services/review-trigger.service';
 import { LongitudinalComparisonService } from './services/longitudinal-comparison.service';
 import { ReviewOrchestrationService } from './services/review-orchestration.service';
+import { LongitudinalReviewAnalyticsService } from './services/longitudinal-review-analytics.service';
+import { LongitudinalReviewExportService } from './services/longitudinal-review-export.service';
+import { ResearchPseudonymizationService } from './services/research-pseudonymization.service';
 import { ExercisePerformance } from './entities/exercise-performance.entity';
 import { StudentSkillState } from '../knowledge-tracing/entities/student-skill-state.entity';
 import { OntologyModule } from '../ontology/ontology.module';
@@ -48,6 +51,9 @@ import { AdeModule } from '../ade/ade.module';
     ReviewTriggerService,
     LongitudinalComparisonService,
     ReviewOrchestrationService,
+    LongitudinalReviewAnalyticsService,
+    LongitudinalReviewExportService,
+    ResearchPseudonymizationService,
   ],
   exports: [
     LearningEventService,

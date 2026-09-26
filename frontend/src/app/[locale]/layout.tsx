@@ -6,7 +6,7 @@ import { AccessibilityProvider } from "@/contexts/AccessibilityContext";
 import Head from "next/head";
 
 export const metadata: Metadata = {
-  title: "Conta Comigo - Matemática que aprende com cada criança",
+  title: "Mestrado - Conta Comigo",
   description:
     "Plataforma adaptativa de ensino de matemática para crianças com TEA, alinhada à BNCC.",
   authors: [{ name: "Conta Comigo" }],

@@ -46,8 +46,7 @@ export function MultipleChoiceActivity({ activity, onAnswer, sensoryProfile }: P
     onAnswer({ selectedOption: option.id, selectedText: option.text, isCorrect });
     if (!isCorrect) setSelected(null);
     if (speech.settings.voiceEnabled) {
-      const feedback = isCorrect ? "Correto! Parabéns!" : "Tente novamente.";
-      speech.speakInstruction({ steps: [feedback] });
+
     }
   };
 

@@ -16,7 +16,9 @@ describe('LearningEventsController session tracking', () => {
     expect(await validate(dto)).toHaveLength(0);
     const track = jest.fn().mockResolvedValue({ id: 'event-1' });
     const reviewOrchestration = { getNextReviewActivity: jest.fn() };
-    await new LearningEventsController({ track } as any, reviewOrchestration as any).trackSession('child-1', dto);
+    const reviewAnalytics = { getReviewEvidence: jest.fn() };
+    const reviewExport = { exportReviewEvidence: jest.fn() };
+    await new LearningEventsController({ track } as any, reviewOrchestration as any, reviewAnalytics as any, reviewExport as any).trackSession('child-1', dto);
     expect(track).toHaveBeenCalledWith(expect.objectContaining({
       studentId: 'child-1', sessionId: 'session-1', eventType: LearningEventType.SESSION_COMPLETED,
     }));
@@ -74,7 +76,9 @@ describe('LearningEventsController visual communication tracking', () => {
   it('tracks only enumerated metadata and uses the authenticated student', async () => {
     const track = jest.fn().mockResolvedValue({ id: 'event-1' });
     const reviewOrchestration = { getNextReviewActivity: jest.fn() };
-    const controller = new LearningEventsController({ track } as any, reviewOrchestration as any);
+    const reviewAnalytics = { getReviewEvidence: jest.fn() };
+    const reviewExport = { exportReviewEvidence: jest.fn() };
+    const controller = new LearningEventsController({ track } as any, reviewOrchestration as any, reviewAnalytics as any, reviewExport as any);
 
     await expect(controller.trackVisualCommunication('student-1', {
       sessionId: 'learning-session-1',
@@ -96,9 +100,11 @@ describe('LearningEventsController visual communication tracking', () => {
 
   it('reports an analytics failure without throwing', async () => {
     const reviewOrchestration = { getNextReviewActivity: jest.fn() };
+    const reviewAnalytics = { getReviewEvidence: jest.fn() };
+    const reviewExport = { exportReviewEvidence: jest.fn() };
     const controller = new LearningEventsController({
       track: jest.fn().mockResolvedValue(null),
-    } as any, reviewOrchestration as any);
+    } as any, reviewOrchestration as any, reviewAnalytics as any, reviewExport as any);
     await expect(controller.trackVisualCommunication('student-1', {
       sessionId: 'learning-session-1',
       eventType: LearningEventType.VISUAL_LIBRARY_OPENED,
@@ -137,7 +143,9 @@ describe('LearningEventsController speech tracking', () => {
   it('stores only activity and bounded speech metadata', async () => {
     const track = jest.fn().mockResolvedValue({ id: 'event-1' });
     const reviewOrchestration = { getNextReviewActivity: jest.fn() };
-    const controller = new LearningEventsController({ track } as any, reviewOrchestration as any);
+    const reviewAnalytics = { getReviewEvidence: jest.fn() };
+    const reviewExport = { exportReviewEvidence: jest.fn() };
+    const controller = new LearningEventsController({ track } as any, reviewOrchestration as any, reviewAnalytics as any, reviewExport as any);
     const activityId = '85797b0f-0292-4d91-986f-995bc86b8506';
 
     await controller.trackSpeech('student-1', {

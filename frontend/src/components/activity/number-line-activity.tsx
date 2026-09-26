@@ -35,8 +35,7 @@ export function NumberLineActivity({ activity, onAnswer, sensoryProfile }: Props
     const isCorrect = value === target;
     onAnswer({ value, isCorrect });
     if (speech.settings.voiceEnabled) {
-      const feedback = isCorrect ? "Correto! Parabéns!" : "Tente novamente.";
-      speech.speakInstruction({ steps: [feedback] });
+
     }
   };
 

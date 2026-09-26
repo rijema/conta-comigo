@@ -58,6 +58,7 @@ export default function EducatorDashboardPage() {
   const [adeHistory, setAdeHistory] = useState<any[]>([]);
   const [adaptations, setAdaptations] = useState<any[]>([]);
   const [longitudinal, setLongitudinal] = useState<any>(null);
+  const [reviewEvidence, setReviewEvidence] = useState<any[]>([]);
   const [skippedEvaluations, setSkippedEvaluations] = useState<Set<string>>(new Set());
   const [report, setReport] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -104,16 +105,18 @@ export default function EducatorDashboardPage() {
     setReport(null);
     setActiveTab("overview");
     try {
-      const [prof, ade, adaptiveEvents, longitudinalReport] = await Promise.all([
+      const [prof, ade, adaptiveEvents, longitudinalReport, reviewEvidenceData] = await Promise.all([
         api.get<any>(`/educator/learners/${learner.id}/profile`, t ?? undefined),
         api.get<any[]>(`/educator/learners/${learner.id}/ade-history`, t ?? undefined),
         api.get<any[]>(`/educator/learners/${learner.id}/adaptations`, t ?? undefined),
         api.get<any>(`/educator/learners/${learner.id}/longitudinal-analytics`, t ?? undefined),
+        api.get<any[]>(`/learning-events/review/evidence/${learner.id}`, t ?? undefined).catch(() => []),
       ]);
       setProfile(prof);
       setAdeHistory(ade);
       setAdaptations(adaptiveEvents);
       setLongitudinal(longitudinalReport);
+      setReviewEvidence(reviewEvidenceData || []);
     } catch (e) { console.error(e); }
     finally { setProfileLoading(false); }
   };
@@ -374,6 +377,36 @@ export default function EducatorDashboardPage() {
                             ))}</div>
                           )}
                         </div></>
+                      )}
+
+                      {/* [INTEGRATION 3C-FINAL]: Evolução observada entre sessões */}
+                      {reviewEvidence && reviewEvidence.length > 0 && (
+                        <div className="bg-white rounded-2xl shadow-sm p-5 mt-4">
+                          <h3 className="font-bold text-slate-700 mb-3">Evolução observada entre sessões</h3>
+                          <p className="text-xs text-slate-400 mb-4">Evidência observacional de revisão de habilidades. Não constitui diagnóstico.</p>
+                          <div className="space-y-4">
+                            {reviewEvidence.map((evidence: any, idx: number) => (
+                              <div key={idx} className="border-l-4 border-indigo-300 pl-4 py-2">
+                                <div className="flex justify-between items-start mb-2">
+                                  <div>
+                                    <p className="font-semibold text-slate-700">{evidence.bnccCode} — {evidence.skillDescription}</p>
+                                    <p className="text-xs text-slate-500">Ilha: {evidence.islandId} · Ciclo: {evidence.cycleNumber}</p>
+                                  </div>
+                                  <span className="text-xs font-semibold rounded-full bg-indigo-100 text-indigo-700 px-2 py-1">
+                                    {evidence.longitudinalClassification}
+                                  </span>
+                                </div>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs mb-2">
+                                  <div><p className="text-slate-500">Precisão</p><p className="font-bold">{evidence.baselineAccuracy ? `${Math.round(evidence.baselineAccuracy * 100)}%` : "Não disponível"} → {evidence.reviewAccuracy ? `${Math.round(evidence.reviewAccuracy * 100)}%` : "Não disponível"}</p></div>
+                                  <div><p className="text-slate-500">Tentativas</p><p className="font-bold">{evidence.baselineAttempts ?? "—"} → {evidence.reviewAttempts ?? "—"}</p></div>
+                                  <div><p className="text-slate-500">Ajudas</p><p className="font-bold">{evidence.baselineHints ?? "—"} → {evidence.reviewHints ?? "—"}</p></div>
+                                  <div><p className="text-slate-500">Domínio</p><p className="font-bold">{evidence.masteryBefore ? `${Math.round(evidence.masteryBefore * 100)}%` : "—"} → {evidence.masteryAfter ? `${Math.round(evidence.masteryAfter * 100)}%` : "—"}</p></div>
+                                </div>
+                                <p className="text-xs text-slate-600">Tipo: {evidence.reviewType} · Dados: {evidence.evidenceSufficiency}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       )}
 
                       {/* Skill strengths/weaknesses visual */}
