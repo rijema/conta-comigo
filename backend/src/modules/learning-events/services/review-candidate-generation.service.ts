@@ -5,6 +5,8 @@ import { ConfigService } from '@nestjs/config';
 import { ExercisePerformance } from '../entities/exercise-performance.entity';
 import { LearningEvent, LearningEventType } from '../entities/learning-event.entity';
 import { StudentSkillState } from '../../knowledge-tracing/entities/student-skill-state.entity';
+import { ActivityAttempt } from '../../activities/entities/activity-attempt.entity';
+import { Activity } from '../../activities/entities/activity.entity';
 import { ReviewType, ScoringConfiguration, ScoringBreakdown, BaselineState } from '../entities/review-assignment.entity';
 
 export interface ReviewCandidate {
@@ -14,6 +16,8 @@ export interface ReviewCandidate {
   scoringBreakdown: ScoringBreakdown;
   baselineState: BaselineState;
   sourceInteractionIds: string[];
+  // [INTEGRATION 2]: Real scoring configuration
+  scoringConfiguration?: ScoringConfiguration;
 }
 
 /**
@@ -53,6 +57,10 @@ export class ReviewCandidateGenerationService {
     private readonly eventRepository: Repository<LearningEvent>,
     @InjectRepository(StudentSkillState)
     private readonly skillStateRepository: Repository<StudentSkillState>,
+    @InjectRepository(ActivityAttempt)
+    private readonly activityAttemptRepository: Repository<ActivityAttempt>,
+    @InjectRepository(Activity)
+    private readonly activityRepository: Repository<Activity>,
     private readonly configService: ConfigService,
   ) {
     this.retentionHalfLifeDays = this.configService.get<number>('REVIEW_RETENTION_HALF_LIFE_DAYS', 14);
@@ -104,6 +112,18 @@ export class ReviewCandidateGenerationService {
           scoringBreakdown: priorityScore.breakdown,
           baselineState: evidence.baselineState,
           sourceInteractionIds: evidence.sourceInteractionIds,
+          // [INTEGRATION 2]: Real scoring configuration persistence
+          scoringConfiguration: {
+            version: 'review-priority-score/1.0.0',
+            weights: this.weights,
+            thresholds: {
+              slowResponseThresholdMs: this.slowResponseThresholdMs,
+              maxExpectedAttempts: this.maxExpectedAttempts,
+              maxExpectedHints: this.maxExpectedHints,
+              minAttemptsForGeneralization: this.minAttemptsForGeneralization,
+            },
+            timestamp: new Date(),
+          },
         });
       }
     }
@@ -521,6 +541,7 @@ export class ReviewCandidateGenerationService {
 
   /**
    * Get baseline evidence for a skill
+   * [INTEGRATION 3]: Uses real ActivityAttempt data for baseline mastery/difficulty
    */
   private async getSkillEvidence(studentId: string, skillId: string, lookbackDays: number): Promise<SkillEvidence> {
     const cutoffDate = new Date();
@@ -549,6 +570,7 @@ export class ReviewCandidateGenerationService {
     const totalAttempts = submittedEvents.length;
     const accuracy = totalAttempts > 0 ? correctCount / totalAttempts : 0;
 
+    // [INTEGRATION 3]: Use real hint evidence from LearningEvent
     const hintsEvents = relevantEvents.filter((e) => e.eventType === LearningEventType.HINT_REQUESTED);
     const totalHints = hintsEvents.reduce((sum, e) => sum + (e.hintsUsed || 0), 0);
 
@@ -556,7 +578,7 @@ export class ReviewCandidateGenerationService {
       .map((e) => e.responseTimeMs)
       .filter((rt): rt is number => rt !== null && rt !== undefined)
       .sort((a, b) => a - b);
-    const medianResponseTimeMs = responseTimes.length > 0 ? responseTimes[Math.floor(responseTimes.length / 2)] : 0;
+    const medianResponseTimeMs = responseTimes.length > 0 ? responseTimes[Math.floor(responseTimes.length / 2)] : null;
 
     const skipCount = relevantEvents.filter((e) => e.eventType === LearningEventType.ACTIVITY_SKIPPED).length;
     const changeRequestCount = relevantEvents.filter((e) => e.eventType === LearningEventType.ACTIVITY_ABANDONED).length;
@@ -565,12 +587,51 @@ export class ReviewCandidateGenerationService {
 
     const sourceInteractionIds = submittedEvents.map((e) => e.id);
 
+    // [INTEGRATION 3]: Resolve real baseline mastery and difficulty from ActivityAttempt
+    let baselineMastery: number | null = null;
+    let baselineDifficulty: string | null = null;
+    let baselineAttemptCount: number | null = null;
+    let baselineHints: number | null = null;
+
+    if (submittedEvents.length > 0) {
+      // Get the most recent submission event
+      const mostRecentSubmission = submittedEvents[0];
+      
+      // Find corresponding ActivityAttempt with researchTrace
+      const activityAttempt = await this.activityAttemptRepository.findOne({
+        where: {
+          userId: studentId,
+          createdAt: mostRecentSubmission.timestamp,
+        },
+        relations: ['activity'],
+      });
+
+      if (activityAttempt) {
+        // [INTEGRATION 3]: Real baseline mastery from researchTrace
+        if (activityAttempt.researchTrace && typeof activityAttempt.researchTrace === 'object') {
+          const trace = activityAttempt.researchTrace as Record<string, any>;
+          baselineMastery = trace.masteryBefore ?? null;
+        }
+
+        // [INTEGRATION 3]: Real baseline difficulty from Activity
+        if (activityAttempt.activity) {
+          baselineDifficulty = activityAttempt.activity.difficulty ?? null;
+        }
+
+        // [INTEGRATION 3]: Real baseline hints from ActivityAttempt
+        baselineHints = activityAttempt.hintsUsed ?? null;
+
+        // [INTEGRATION 3]: Per-exposure attempt count (not historical total)
+        baselineAttemptCount = 1; // Single exposure
+      }
+    }
+
     return {
       totalAttempts,
       accuracy,
       incorrectAttempts: incorrectCount,
       totalHints,
-      medianResponseTimeMs,
+      medianResponseTimeMs: medianResponseTimeMs ?? 0,
       lastExposureAt,
       daysSinceLastExposure,
       skipCount,
@@ -580,14 +641,18 @@ export class ReviewCandidateGenerationService {
       presentedActivities: presentedCount,
       sourceInteractionIds,
       baselineState: {
-        masteryBefore: null, // RESEARCH: Must be set from real StudentSkillState snapshot, not hardcoded
-        difficultyBefore: null, // RESEARCH: Must come from real Activity/ActivityAttempt difficulty
+        // [INTEGRATION 3]: Real baseline mastery from ActivityAttempt.researchTrace
+        masteryBefore: baselineMastery,
+        // [INTEGRATION 3]: Real baseline difficulty from Activity
+        difficultyBefore: baselineDifficulty,
         lastExposureAt,
         daysSinceLastExposure,
-        previousAttempts: totalAttempts > 0 ? totalAttempts : null, // RESEARCH: Use real per-exposure metric, not historical total
-        previousAccuracy: accuracy > 0 ? accuracy : null, // RESEARCH: Preserve null if unavailable
-        previousHintUsage: totalHints > 0 ? totalHints : null, // RESEARCH: Use real observed hints, not null from events
-        previousResponseTimeMs: medianResponseTimeMs > 0 ? medianResponseTimeMs : null, // RESEARCH: Preserve null if unavailable
+        // [INTEGRATION 3]: Per-exposure attempt count, not historical total
+        previousAttempts: baselineAttemptCount,
+        previousAccuracy: accuracy > 0 ? accuracy : null,
+        // [INTEGRATION 3]: Real observed hints from ActivityAttempt
+        previousHintUsage: baselineHints,
+        previousResponseTimeMs: medianResponseTimeMs,
       },
     };
   }

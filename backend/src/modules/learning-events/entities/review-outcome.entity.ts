@@ -66,9 +66,9 @@ export class ReviewOutcome {
   @Column({ type: 'uuid' })
   skillId: string;
 
-  // Review interaction evidence
+  // [INTEGRATION 3B.2]: Review attempt evidence
   @Column({ type: 'uuid' })
-  reviewInteractionId: string;
+  reviewAttemptId: string;
 
   @Column({ type: 'uuid' })
   reviewRecommendationId: string;
