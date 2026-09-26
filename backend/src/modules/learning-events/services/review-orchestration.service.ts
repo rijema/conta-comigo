@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { ReviewAssignment, ReviewType } from '../entities/review-assignment.entity';
 import { ReviewOutcome } from '../entities/review-outcome.entity';
 import { LearningEvent } from '../entities/learning-event.entity';
+import { ChildProfile } from '../../users/entities/child-profile.entity';
 import { ReviewCandidateGenerationService } from './review-candidate-generation.service';
 import { ReviewSelectionService } from './review-selection.service';
 import { ReviewTriggerService } from './review-trigger.service';
@@ -45,6 +46,8 @@ export class ReviewOrchestrationService {
     private readonly outcomeRepository: Repository<ReviewOutcome>,
     @InjectRepository(LearningEvent)
     private readonly eventRepository: Repository<LearningEvent>,
+    @InjectRepository(ChildProfile)
+    private readonly childProfileRepository: Repository<ChildProfile>,
     private readonly candidateGenerationService: ReviewCandidateGenerationService,
     private readonly selectionService: ReviewSelectionService,
     private readonly triggerService: ReviewTriggerService,
@@ -53,6 +56,7 @@ export class ReviewOrchestrationService {
 
   /**
    * Orchestrate complete review session creation
+   * [INTEGRATION 3]: Uses real ChildProfile for learner context
    */
   async createReviewSession(
     studentId: string,
@@ -75,18 +79,38 @@ export class ReviewOrchestrationService {
     }
 
     // Step 2: Distribute candidates by review type
-    const byType = this.distributeByType(candidates, finalConfig);
+    const distributedCandidates = this.distributeByType(candidates, finalConfig);
 
-    // Step 3: Select activities for each candidate
+    // Step 3: Load real learner profile for review selection
+    // [INTEGRATION 3]: Use real ChildProfile instead of synthetic profile
+    const childProfile = await this.childProfileRepository.findOne({
+      where: { userId: studentId },
+    });
+
+    // Step 4: Select activities for each distributed candidate
     const assignments: ReviewAssignment[] = [];
 
-    for (const candidate of candidates.slice(0, finalConfig.targetReviewSize)) {
+    for (const candidate of distributedCandidates) {
       try {
+        // [INTEGRATION 3]: Pass real learner profile with accessibility/preferences
+        const learnerProfile = childProfile
+          ? {
+              studentId,
+              accessibilityNeeds: {
+                sensoryLoad: (childProfile.uiPreferences?.visualStimulus ?? 'medium') as 'low' | 'medium' | 'high',
+                motorDemand: 'medium' as 'low' | 'medium' | 'high',
+                languageLoad: 'medium' as 'low' | 'medium' | 'high',
+              },
+              preferredModalities: childProfile.uiPreferences?.preferredModality ? [childProfile.uiPreferences.preferredModality] : [],
+              professionalConstraints: childProfile.uiPreferences?.disabledActivityTypes ?? [],
+            }
+          : { studentId };
+
         const selection = await this.selectionService.selectReviewActivity(
           studentId,
           candidate.skillId,
           candidate.reviewType,
-          { studentId },
+          learnerProfile,
         );
 
         const assignment = this.assignmentRepository.create({
@@ -99,7 +123,8 @@ export class ReviewOrchestrationService {
           selectedActivityInstanceId: selection.instanceId,
           reason: selection.reason,
           priorityScore: candidate.priorityScore,
-          scoringConfiguration: {
+          // [INTEGRATION 2]: Use real scoring configuration from candidate
+          scoringConfiguration: candidate.scoringConfiguration || {
             version: 'review-priority-score/1.0.0',
             weights: {},
             thresholds: {},
@@ -117,7 +142,7 @@ export class ReviewOrchestrationService {
       }
     }
 
-    // Step 4: Calculate actual composition
+    // Step 5: Calculate actual composition
     const composition = {
       remediation: assignments.filter((a) => a.reviewType === ReviewType.REMEDIATION).length,
       retention: assignments.filter((a) => a.reviewType === ReviewType.RETENTION).length,
@@ -134,12 +159,11 @@ export class ReviewOrchestrationService {
 
   /**
    * Handle review activity completion
+   * [INTEGRATION 3B.2]: Uses real persisted ActivityAttempt data, not frontend-supplied masteryAfter
    */
   async completeReviewActivity(
     reviewAssignmentId: string,
-    reviewInteractionId: string,
-    reviewRecommendationId: string,
-    masteryAfter: number,
+    reviewAttemptId: string,
   ): Promise<ReviewOutcome> {
     // Verify assignment exists
     const assignment = await this.assignmentRepository.findOne({
@@ -150,16 +174,20 @@ export class ReviewOrchestrationService {
       throw new Error(`ReviewAssignment ${reviewAssignmentId} not found`);
     }
 
+    // [INTEGRATION 3B.2]: Resolve real ActivityAttempt from persisted data
+    // Do NOT accept masteryAfter from frontend
+    // The real mastery comes from the normal BKT flow that already executed
+    
     // Mark assignment as completed
     assignment.completedAt = new Date();
     await this.assignmentRepository.save(assignment);
 
-    // Create longitudinal comparison
+    // Create longitudinal comparison using real attempt data
+    // The comparisonService will resolve the actual mastery from StudentSkillState
+    // which was updated by the normal KnowledgeTracingService flow
     const outcome = await this.comparisonService.createLongitudinalComparison({
       reviewAssignmentId,
-      reviewInteractionId,
-      reviewRecommendationId,
-      masteryAfter,
+      reviewAttemptId,
     });
 
     return outcome;

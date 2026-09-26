@@ -26,6 +26,9 @@ export class ActivityAttempt {
   @Column({ nullable: true })
   sessionId: string;
 
+  @Column({ nullable: true })
+  reviewAssignmentId?: string;
+
   @Column({ default: false })
   isCorrect: boolean;
 

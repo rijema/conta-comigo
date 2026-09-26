@@ -279,10 +279,12 @@ export class ActivitiesService {
     const score = isCorrect ? 1.0 : 0.0;
 
     // Save attempt
+    // [INTEGRATION 3B.2]: Propagate reviewAssignmentId for longitudinal tracking
     const attempt = this.attemptRepo.create({
       userId,
       activityId: dto.activityId,
       sessionId: dto.sessionId,
+      ...(dto.reviewAssignmentId && { reviewAssignmentId: dto.reviewAssignmentId }),
       isCorrect,
       score,
       timeSpentSeconds: dto.timeSpentSeconds,

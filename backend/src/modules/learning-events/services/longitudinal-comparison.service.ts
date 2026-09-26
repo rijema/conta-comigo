@@ -5,13 +5,12 @@ import { ReviewAssignment, ReviewType } from '../entities/review-assignment.enti
 import { ReviewOutcome, ProgressionClassification, PerformanceMetrics, PerformanceDelta, NormalizedDeltas, LongitudinalMetadata } from '../entities/review-outcome.entity';
 import { LearningEvent, LearningEventType } from '../entities/learning-event.entity';
 import { StudentSkillState } from '../../knowledge-tracing/entities/student-skill-state.entity';
+import { ActivityAttempt } from '../../activities/entities/activity-attempt.entity';
 import { ExercisePerformance } from '../entities/exercise-performance.entity';
 
 export interface LongitudinalComparisonInput {
   reviewAssignmentId: string;
-  reviewInteractionId: string;
-  reviewRecommendationId: string;
-  masteryAfter: number;
+  reviewAttemptId: string;
 }
 
 export interface EvidenceSufficiency {
@@ -33,12 +32,15 @@ export class LongitudinalComparisonService {
     private readonly eventRepository: Repository<LearningEvent>,
     @InjectRepository(StudentSkillState)
     private readonly skillStateRepository: Repository<StudentSkillState>,
+    @InjectRepository(ActivityAttempt)
+    private readonly activityAttemptRepository: Repository<ActivityAttempt>,
     @InjectRepository(ExercisePerformance)
     private readonly performanceRepository: Repository<ExercisePerformance>,
   ) {}
 
   /**
    * Create longitudinal comparison between baseline and review evidence
+   * [INTEGRATION 3B.2]: Uses real persisted ActivityAttempt data, not frontend-supplied values
    */
   async createLongitudinalComparison(input: LongitudinalComparisonInput): Promise<ReviewOutcome> {
     // Step 1: Resolve ReviewAssignment
@@ -57,11 +59,19 @@ export class LongitudinalComparisonService {
       throw new Error(`Cannot resolve baseline metrics for assignment ${input.reviewAssignmentId}`);
     }
 
-    // Step 3: Resolve review evidence
-    const reviewMetrics = await this.resolveReviewMetrics(input.reviewInteractionId, assignment.skillId);
+    // Step 3: [INTEGRATION 3B.2] Resolve review evidence from real ActivityAttempt
+    const reviewAttempt = await this.activityAttemptRepository.findOne({
+      where: { id: input.reviewAttemptId },
+    });
+
+    if (!reviewAttempt) {
+      throw new Error(`ActivityAttempt ${input.reviewAttemptId} not found`);
+    }
+
+    const reviewMetrics = await this.resolveReviewMetrics(input.reviewAttemptId, assignment.skillId);
 
     if (!reviewMetrics) {
-      throw new Error(`Cannot resolve review metrics for interaction ${input.reviewInteractionId}`);
+      throw new Error(`Cannot resolve review metrics for attempt ${input.reviewAttemptId}`);
     }
 
     // Step 4: Calculate raw deltas
@@ -70,9 +80,17 @@ export class LongitudinalComparisonService {
     // Step 5: Calculate normalized deltas
     const normalizedDeltas = this.normalizeDeltas(deltas, baselineMetrics, reviewMetrics);
 
-    // Step 6: Get mastery before
+    // Step 6: [INTEGRATION 3B.2] Get mastery from real BKT result
+    // Do NOT use frontend-supplied masteryAfter
+    // Resolve from StudentSkillState which was updated by KnowledgeTracingService
     const masteryBefore = assignment.baselineState.masteryBefore;
-    const masteryAfter = input.masteryAfter;
+    const skillState = await this.skillStateRepository.findOne({
+      where: {
+        studentId: assignment.studentId,
+        skillId: assignment.skillId,
+      },
+    });
+    const masteryAfter = skillState?.masteryProbability ?? null;
     const masteryDelta = masteryBefore !== null && masteryAfter !== null ? masteryAfter - masteryBefore : null;
 
     // Step 7: Calculate days since baseline using actual exposure timestamps
@@ -80,14 +98,11 @@ export class LongitudinalComparisonService {
       where: { id: assignment.sourceInteractionIds[0] },
     });
 
-    const reviewEvent = await this.eventRepository.findOne({
-      where: { id: input.reviewInteractionId },
-    });
-
+    // [INTEGRATION 3B.2]: Use real review attempt timestamp
     // [RESEARCH DATA CORRECTNESS]: daysSinceBaseline = review timestamp - baseline timestamp
     const daysSinceBaseline =
-      baselineEvent && reviewEvent
-        ? Math.floor((reviewEvent.timestamp.getTime() - baselineEvent.timestamp.getTime()) / (1000 * 60 * 60 * 24))
+      baselineEvent && reviewAttempt
+        ? Math.floor((reviewAttempt.createdAt.getTime() - baselineEvent.timestamp.getTime()) / (1000 * 60 * 60 * 24))
         : null;
 
     // Step 8: Determine instance comparison
@@ -126,8 +141,7 @@ export class LongitudinalComparisonService {
       reviewAssignmentId: assignment.id,
       studentId: assignment.studentId,
       skillId: assignment.skillId,
-      reviewInteractionId: input.reviewInteractionId,
-      reviewRecommendationId: input.reviewRecommendationId,
+      reviewAttemptId: input.reviewAttemptId,
       baselineMetrics,
       reviewMetrics,
       deltas,

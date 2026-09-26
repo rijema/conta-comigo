@@ -5,6 +5,7 @@ import { ReviewAssignment, ReviewType } from '../../entities/review-assignment.e
 import { ReviewOutcome, ProgressionClassification } from '../../entities/review-outcome.entity';
 import { LearningEvent, LearningEventType } from '../../entities/learning-event.entity';
 import { StudentSkillState } from '../../../knowledge-tracing/entities/student-skill-state.entity';
+import { ActivityAttempt } from '../../../activities/entities/activity-attempt.entity';
 import { ExercisePerformance } from '../../entities/exercise-performance.entity';
 
 describe('LongitudinalComparisonService', () => {
@@ -13,6 +14,7 @@ describe('LongitudinalComparisonService', () => {
   let mockOutcomeRepository: any;
   let mockEventRepository: any;
   let mockSkillStateRepository: any;
+  let mockActivityAttemptRepository: any;
   let mockPerformanceRepository: any;
 
   beforeEach(async () => {
@@ -33,6 +35,10 @@ describe('LongitudinalComparisonService', () => {
       findOne: jest.fn(),
       save: jest.fn(),
       update: jest.fn(),
+    };
+
+    mockActivityAttemptRepository = {
+      findOne: jest.fn(),
     };
 
     mockPerformanceRepository = {
@@ -59,6 +65,10 @@ describe('LongitudinalComparisonService', () => {
           useValue: mockSkillStateRepository,
         },
         {
+          provide: getRepositoryToken(ActivityAttempt),
+          useValue: mockActivityAttemptRepository,
+        },
+        {
           provide: getRepositoryToken(ExercisePerformance),
           useValue: mockPerformanceRepository,
         },
@@ -71,7 +81,7 @@ describe('LongitudinalComparisonService', () => {
   describe('Raw Metrics Calculation', () => {
     it('should calculate accuracy delta correctly', async () => {
       const assignmentId = 'assignment-1';
-      const reviewInteractionId = 'interaction-1';
+      const reviewAttemptId = 'interaction-1';
       const skillId = 'skill-1';
 
       const assignment: any = {
@@ -103,7 +113,7 @@ describe('LongitudinalComparisonService', () => {
       };
 
       const reviewEvent: any = {
-        id: reviewInteractionId,
+        id: reviewAttemptId,
         studentId: 'student-1',
         correct: true,
         responseTimeMs: 4000,
@@ -118,7 +128,7 @@ describe('LongitudinalComparisonService', () => {
       };
 
       const reviewPerformance: any = {
-        learningEventId: reviewInteractionId,
+        learningEventId: reviewAttemptId,
         attemptNumber: 2,
       };
 
@@ -131,11 +141,21 @@ describe('LongitudinalComparisonService', () => {
       mockAssignmentRepository.findOne.mockResolvedValue(assignment);
       mockEventRepository.findOne.mockImplementation((opts: any) => {
         if (opts.where.id === 'baseline-event-1') return Promise.resolve(baselineEvent);
-        if (opts.where.id === reviewInteractionId) return Promise.resolve(reviewEvent);
+        if (opts.where.id === reviewAttemptId) return Promise.resolve(reviewEvent);
         return Promise.resolve(null);
       });
       mockPerformanceRepository.findOne.mockResolvedValue(baselinePerformance);
       mockSkillStateRepository.findOne.mockResolvedValue(skillState);
+      mockActivityAttemptRepository.findOne.mockResolvedValue({
+        id: reviewAttemptId,
+        userId: 'student-1',
+        activityId: 'activity-1',
+        isCorrect: true,
+        score: 1.0,
+        hintsUsed: 1,
+        responseTimeMs: 4000,
+        createdAt: new Date(),
+      });
       mockOutcomeRepository.create.mockReturnValue({});
       mockOutcomeRepository.save.mockResolvedValue({
         deltas: {
@@ -147,11 +167,20 @@ describe('LongitudinalComparisonService', () => {
         },
       });
 
+      mockActivityAttemptRepository.findOne.mockResolvedValue({
+        id: reviewAttemptId,
+        userId: 'student-1',
+        activityId: 'activity-1',
+        isCorrect: true,
+        score: 1.0,
+        hintsUsed: 1,
+        responseTimeMs: 4000,
+        createdAt: new Date(),
+      });
+
       const outcome = await service.createLongitudinalComparison({
         reviewAssignmentId: assignmentId,
-        reviewInteractionId,
-        reviewRecommendationId: 'rec-1',
-        masteryAfter: 0.65,
+        reviewAttemptId,
       });
 
       expect(outcome.deltas.accuracyDelta).toBe(1);
@@ -159,7 +188,7 @@ describe('LongitudinalComparisonService', () => {
 
     it('should calculate attempts delta correctly', async () => {
       const assignmentId = 'assignment-1';
-      const reviewInteractionId = 'interaction-1';
+      const reviewAttemptId = 'interaction-1';
       const skillId = 'skill-1';
 
       const assignment: any = {
@@ -191,7 +220,7 @@ describe('LongitudinalComparisonService', () => {
       };
 
       const reviewEvent: any = {
-        id: reviewInteractionId,
+        id: reviewAttemptId,
         studentId: 'student-1',
         correct: true,
         responseTimeMs: 5000,
@@ -206,7 +235,7 @@ describe('LongitudinalComparisonService', () => {
       };
 
       const reviewPerformance: any = {
-        learningEventId: reviewInteractionId,
+        learningEventId: reviewAttemptId,
         attemptNumber: 2,
       };
 
@@ -219,11 +248,21 @@ describe('LongitudinalComparisonService', () => {
       mockAssignmentRepository.findOne.mockResolvedValue(assignment);
       mockEventRepository.findOne.mockImplementation((opts: any) => {
         if (opts.where.id === 'baseline-event-1') return Promise.resolve(baselineEvent);
-        if (opts.where.id === reviewInteractionId) return Promise.resolve(reviewEvent);
+        if (opts.where.id === reviewAttemptId) return Promise.resolve(reviewEvent);
         return Promise.resolve(null);
       });
       mockPerformanceRepository.findOne.mockResolvedValue(baselinePerformance);
       mockSkillStateRepository.findOne.mockResolvedValue(skillState);
+      mockActivityAttemptRepository.findOne.mockResolvedValue({
+        id: reviewAttemptId,
+        userId: 'student-1',
+        activityId: 'activity-1',
+        isCorrect: true,
+        score: 1.0,
+        hintsUsed: 1,
+        responseTimeMs: 4000,
+        createdAt: new Date(),
+      });
       mockOutcomeRepository.create.mockReturnValue({});
       mockOutcomeRepository.save.mockResolvedValue({
         deltas: {
@@ -237,9 +276,7 @@ describe('LongitudinalComparisonService', () => {
 
       const outcome = await service.createLongitudinalComparison({
         reviewAssignmentId: assignmentId,
-        reviewInteractionId,
-        reviewRecommendationId: 'rec-1',
-        masteryAfter: 0.7,
+        reviewAttemptId,
       });
 
       expect(outcome.deltas.attemptsDelta).toBe(-3);
@@ -249,7 +286,7 @@ describe('LongitudinalComparisonService', () => {
   describe('Progression Classification', () => {
     it('should classify as IMPROVED when accuracy up + attempts down at same difficulty', async () => {
       const assignmentId = 'assignment-1';
-      const reviewInteractionId = 'interaction-1';
+      const reviewAttemptId = 'interaction-1';
       const skillId = 'skill-1';
 
       const assignment: any = {
@@ -281,7 +318,7 @@ describe('LongitudinalComparisonService', () => {
       };
 
       const reviewEvent: any = {
-        id: reviewInteractionId,
+        id: reviewAttemptId,
         studentId: 'student-1',
         correct: true,
         responseTimeMs: 5500,
@@ -296,7 +333,7 @@ describe('LongitudinalComparisonService', () => {
       };
 
       const reviewPerformance: any = {
-        learningEventId: reviewInteractionId,
+        learningEventId: reviewAttemptId,
         attemptNumber: 1,
       };
 
@@ -309,11 +346,21 @@ describe('LongitudinalComparisonService', () => {
       mockAssignmentRepository.findOne.mockResolvedValue(assignment);
       mockEventRepository.findOne.mockImplementation((opts: any) => {
         if (opts.where.id === 'baseline-event-1') return Promise.resolve(baselineEvent);
-        if (opts.where.id === reviewInteractionId) return Promise.resolve(reviewEvent);
+        if (opts.where.id === reviewAttemptId) return Promise.resolve(reviewEvent);
         return Promise.resolve(null);
       });
       mockPerformanceRepository.findOne.mockResolvedValue(baselinePerformance);
       mockSkillStateRepository.findOne.mockResolvedValue(skillState);
+      mockActivityAttemptRepository.findOne.mockResolvedValue({
+        id: reviewAttemptId,
+        userId: 'student-1',
+        activityId: 'activity-1',
+        isCorrect: true,
+        score: 1.0,
+        hintsUsed: 1,
+        responseTimeMs: 4000,
+        createdAt: new Date(),
+      });
       mockOutcomeRepository.create.mockReturnValue({});
       mockOutcomeRepository.save.mockResolvedValue({
         progressionClassification: ProgressionClassification.IMPROVED,
@@ -323,9 +370,7 @@ describe('LongitudinalComparisonService', () => {
 
       const outcome = await service.createLongitudinalComparison({
         reviewAssignmentId: assignmentId,
-        reviewInteractionId,
-        reviewRecommendationId: 'rec-1',
-        masteryAfter: 0.7,
+        reviewAttemptId,
       });
 
       expect(outcome.progressionClassification).toBe(ProgressionClassification.IMPROVED);
@@ -333,7 +378,7 @@ describe('LongitudinalComparisonService', () => {
 
     it('should NOT classify as IMPROVED when only response time is faster', async () => {
       const assignmentId = 'assignment-1';
-      const reviewInteractionId = 'interaction-1';
+      const reviewAttemptId = 'interaction-1';
       const skillId = 'skill-1';
 
       const assignment: any = {
@@ -365,7 +410,7 @@ describe('LongitudinalComparisonService', () => {
       };
 
       const reviewEvent: any = {
-        id: reviewInteractionId,
+        id: reviewAttemptId,
         studentId: 'student-1',
         correct: false,
         responseTimeMs: 2000,
@@ -380,7 +425,7 @@ describe('LongitudinalComparisonService', () => {
       };
 
       const reviewPerformance: any = {
-        learningEventId: reviewInteractionId,
+        learningEventId: reviewAttemptId,
         attemptNumber: 3,
       };
 
@@ -393,11 +438,21 @@ describe('LongitudinalComparisonService', () => {
       mockAssignmentRepository.findOne.mockResolvedValue(assignment);
       mockEventRepository.findOne.mockImplementation((opts: any) => {
         if (opts.where.id === 'baseline-event-1') return Promise.resolve(baselineEvent);
-        if (opts.where.id === reviewInteractionId) return Promise.resolve(reviewEvent);
+        if (opts.where.id === reviewAttemptId) return Promise.resolve(reviewEvent);
         return Promise.resolve(null);
       });
       mockPerformanceRepository.findOne.mockResolvedValue(baselinePerformance);
       mockSkillStateRepository.findOne.mockResolvedValue(skillState);
+      mockActivityAttemptRepository.findOne.mockResolvedValue({
+        id: reviewAttemptId,
+        userId: 'student-1',
+        activityId: 'activity-1',
+        isCorrect: true,
+        score: 1.0,
+        hintsUsed: 1,
+        responseTimeMs: 4000,
+        createdAt: new Date(),
+      });
       mockOutcomeRepository.create.mockReturnValue({});
       mockOutcomeRepository.save.mockResolvedValue({
         progressionClassification: ProgressionClassification.INCONCLUSIVE,
@@ -407,9 +462,7 @@ describe('LongitudinalComparisonService', () => {
 
       const outcome = await service.createLongitudinalComparison({
         reviewAssignmentId: assignmentId,
-        reviewInteractionId,
-        reviewRecommendationId: 'rec-1',
-        masteryAfter: 0.35,
+        reviewAttemptId,
       });
 
       expect(outcome.progressionClassification).not.toBe(ProgressionClassification.IMPROVED);
@@ -417,7 +470,7 @@ describe('LongitudinalComparisonService', () => {
 
     it('should classify as IMPROVED when performance maintained at higher difficulty', async () => {
       const assignmentId = 'assignment-1';
-      const reviewInteractionId = 'interaction-1';
+      const reviewAttemptId = 'interaction-1';
       const skillId = 'skill-1';
 
       const assignment: any = {
@@ -449,7 +502,7 @@ describe('LongitudinalComparisonService', () => {
       };
 
       const reviewEvent: any = {
-        id: reviewInteractionId,
+        id: reviewAttemptId,
         studentId: 'student-1',
         correct: true,
         responseTimeMs: 5000,
@@ -464,7 +517,7 @@ describe('LongitudinalComparisonService', () => {
       };
 
       const reviewPerformance: any = {
-        learningEventId: reviewInteractionId,
+        learningEventId: reviewAttemptId,
         attemptNumber: 2,
       };
 
@@ -477,11 +530,21 @@ describe('LongitudinalComparisonService', () => {
       mockAssignmentRepository.findOne.mockResolvedValue(assignment);
       mockEventRepository.findOne.mockImplementation((opts: any) => {
         if (opts.where.id === 'baseline-event-1') return Promise.resolve(baselineEvent);
-        if (opts.where.id === reviewInteractionId) return Promise.resolve(reviewEvent);
+        if (opts.where.id === reviewAttemptId) return Promise.resolve(reviewEvent);
         return Promise.resolve(null);
       });
       mockPerformanceRepository.findOne.mockResolvedValue(baselinePerformance);
       mockSkillStateRepository.findOne.mockResolvedValue(skillState);
+      mockActivityAttemptRepository.findOne.mockResolvedValue({
+        id: reviewAttemptId,
+        userId: 'student-1',
+        activityId: 'activity-1',
+        isCorrect: true,
+        score: 1.0,
+        hintsUsed: 1,
+        responseTimeMs: 4000,
+        createdAt: new Date(),
+      });
       mockOutcomeRepository.create.mockReturnValue({});
       mockOutcomeRepository.save.mockResolvedValue({
         progressionClassification: ProgressionClassification.IMPROVED,
@@ -491,9 +554,7 @@ describe('LongitudinalComparisonService', () => {
 
       const outcome = await service.createLongitudinalComparison({
         reviewAssignmentId: assignmentId,
-        reviewInteractionId,
-        reviewRecommendationId: 'rec-1',
-        masteryAfter: 0.8,
+        reviewAttemptId,
       });
 
       expect(outcome.progressionClassification).toBe(ProgressionClassification.IMPROVED);
@@ -501,7 +562,7 @@ describe('LongitudinalComparisonService', () => {
 
     it('should classify as NEEDS_SUPPORT when accuracy decreased significantly', async () => {
       const assignmentId = 'assignment-1';
-      const reviewInteractionId = 'interaction-1';
+      const reviewAttemptId = 'interaction-1';
       const skillId = 'skill-1';
 
       const assignment: any = {
@@ -533,7 +594,7 @@ describe('LongitudinalComparisonService', () => {
       };
 
       const reviewEvent: any = {
-        id: reviewInteractionId,
+        id: reviewAttemptId,
         studentId: 'student-1',
         correct: false,
         responseTimeMs: 6000,
@@ -548,7 +609,7 @@ describe('LongitudinalComparisonService', () => {
       };
 
       const reviewPerformance: any = {
-        learningEventId: reviewInteractionId,
+        learningEventId: reviewAttemptId,
         attemptNumber: 3,
       };
 
@@ -561,11 +622,21 @@ describe('LongitudinalComparisonService', () => {
       mockAssignmentRepository.findOne.mockResolvedValue(assignment);
       mockEventRepository.findOne.mockImplementation((opts: any) => {
         if (opts.where.id === 'baseline-event-1') return Promise.resolve(baselineEvent);
-        if (opts.where.id === reviewInteractionId) return Promise.resolve(reviewEvent);
+        if (opts.where.id === reviewAttemptId) return Promise.resolve(reviewEvent);
         return Promise.resolve(null);
       });
       mockPerformanceRepository.findOne.mockResolvedValue(baselinePerformance);
       mockSkillStateRepository.findOne.mockResolvedValue(skillState);
+      mockActivityAttemptRepository.findOne.mockResolvedValue({
+        id: reviewAttemptId,
+        userId: 'student-1',
+        activityId: 'activity-1',
+        isCorrect: true,
+        score: 1.0,
+        hintsUsed: 1,
+        responseTimeMs: 4000,
+        createdAt: new Date(),
+      });
       mockOutcomeRepository.create.mockReturnValue({});
       mockOutcomeRepository.save.mockResolvedValue({
         progressionClassification: ProgressionClassification.NEEDS_SUPPORT,
@@ -575,9 +646,7 @@ describe('LongitudinalComparisonService', () => {
 
       const outcome = await service.createLongitudinalComparison({
         reviewAssignmentId: assignmentId,
-        reviewInteractionId,
-        reviewRecommendationId: 'rec-1',
-        masteryAfter: 0.5,
+        reviewAttemptId,
       });
 
       expect(outcome.progressionClassification).toBe(ProgressionClassification.NEEDS_SUPPORT);
@@ -585,7 +654,7 @@ describe('LongitudinalComparisonService', () => {
 
     it('should classify as STABLE when minimal changes', async () => {
       const assignmentId = 'assignment-1';
-      const reviewInteractionId = 'interaction-1';
+      const reviewAttemptId = 'interaction-1';
       const skillId = 'skill-1';
 
       const assignment: any = {
@@ -617,7 +686,7 @@ describe('LongitudinalComparisonService', () => {
       };
 
       const reviewEvent: any = {
-        id: reviewInteractionId,
+        id: reviewAttemptId,
         studentId: 'student-1',
         correct: true,
         responseTimeMs: 4200,
@@ -632,7 +701,7 @@ describe('LongitudinalComparisonService', () => {
       };
 
       const reviewPerformance: any = {
-        learningEventId: reviewInteractionId,
+        learningEventId: reviewAttemptId,
         attemptNumber: 2,
       };
 
@@ -645,11 +714,21 @@ describe('LongitudinalComparisonService', () => {
       mockAssignmentRepository.findOne.mockResolvedValue(assignment);
       mockEventRepository.findOne.mockImplementation((opts: any) => {
         if (opts.where.id === 'baseline-event-1') return Promise.resolve(baselineEvent);
-        if (opts.where.id === reviewInteractionId) return Promise.resolve(reviewEvent);
+        if (opts.where.id === reviewAttemptId) return Promise.resolve(reviewEvent);
         return Promise.resolve(null);
       });
       mockPerformanceRepository.findOne.mockResolvedValue(baselinePerformance);
       mockSkillStateRepository.findOne.mockResolvedValue(skillState);
+      mockActivityAttemptRepository.findOne.mockResolvedValue({
+        id: reviewAttemptId,
+        userId: 'student-1',
+        activityId: 'activity-1',
+        isCorrect: true,
+        score: 1.0,
+        hintsUsed: 1,
+        responseTimeMs: 4000,
+        createdAt: new Date(),
+      });
       mockOutcomeRepository.create.mockReturnValue({});
       mockOutcomeRepository.save.mockResolvedValue({
         progressionClassification: ProgressionClassification.STABLE,
@@ -659,9 +738,7 @@ describe('LongitudinalComparisonService', () => {
 
       const outcome = await service.createLongitudinalComparison({
         reviewAssignmentId: assignmentId,
-        reviewInteractionId,
-        reviewRecommendationId: 'rec-1',
-        masteryAfter: 0.76,
+        reviewAttemptId,
       });
 
       expect(outcome.progressionClassification).toBe(ProgressionClassification.STABLE);
@@ -671,7 +748,7 @@ describe('LongitudinalComparisonService', () => {
   describe('Mastery Constraint', () => {
     it('should read mastery but never mutate StudentSkillState', async () => {
       const assignmentId = 'assignment-1';
-      const reviewInteractionId = 'interaction-1';
+      const reviewAttemptId = 'interaction-1';
       const skillId = 'skill-1';
 
       const assignment: any = {
@@ -703,7 +780,7 @@ describe('LongitudinalComparisonService', () => {
       };
 
       const reviewEvent: any = {
-        id: reviewInteractionId,
+        id: reviewAttemptId,
         studentId: 'student-1',
         correct: true,
         responseTimeMs: 4000,
@@ -718,7 +795,7 @@ describe('LongitudinalComparisonService', () => {
       };
 
       const reviewPerformance: any = {
-        learningEventId: reviewInteractionId,
+        learningEventId: reviewAttemptId,
         attemptNumber: 2,
       };
 
@@ -731,19 +808,27 @@ describe('LongitudinalComparisonService', () => {
       mockAssignmentRepository.findOne.mockResolvedValue(assignment);
       mockEventRepository.findOne.mockImplementation((opts: any) => {
         if (opts.where.id === 'baseline-event-1') return Promise.resolve(baselineEvent);
-        if (opts.where.id === reviewInteractionId) return Promise.resolve(reviewEvent);
+        if (opts.where.id === reviewAttemptId) return Promise.resolve(reviewEvent);
         return Promise.resolve(null);
       });
       mockPerformanceRepository.findOne.mockResolvedValue(baselinePerformance);
       mockSkillStateRepository.findOne.mockResolvedValue(skillState);
+      mockActivityAttemptRepository.findOne.mockResolvedValue({
+        id: reviewAttemptId,
+        userId: 'student-1',
+        activityId: 'activity-1',
+        isCorrect: true,
+        score: 1.0,
+        hintsUsed: 1,
+        responseTimeMs: 4000,
+        createdAt: new Date(),
+      });
       mockOutcomeRepository.create.mockReturnValue({});
       mockOutcomeRepository.save.mockResolvedValue({});
 
       await service.createLongitudinalComparison({
         reviewAssignmentId: assignmentId,
-        reviewInteractionId,
-        reviewRecommendationId: 'rec-1',
-        masteryAfter: 0.65,
+        reviewAttemptId,
       });
 
       // Verify that skillStateRepository was only called for reading, not updating
@@ -756,7 +841,7 @@ describe('LongitudinalComparisonService', () => {
   describe('Traceability', () => {
     it('should link ReviewOutcome to ReviewAssignment', async () => {
       const assignmentId = 'assignment-1';
-      const reviewInteractionId = 'interaction-1';
+      const reviewAttemptId = 'interaction-1';
       const skillId = 'skill-1';
 
       const assignment: any = {
@@ -788,7 +873,7 @@ describe('LongitudinalComparisonService', () => {
       };
 
       const reviewEvent: any = {
-        id: reviewInteractionId,
+        id: reviewAttemptId,
         studentId: 'student-1',
         correct: true,
         responseTimeMs: 4000,
@@ -803,7 +888,7 @@ describe('LongitudinalComparisonService', () => {
       };
 
       const reviewPerformance: any = {
-        learningEventId: reviewInteractionId,
+        learningEventId: reviewAttemptId,
         attemptNumber: 2,
       };
 
@@ -816,11 +901,21 @@ describe('LongitudinalComparisonService', () => {
       mockAssignmentRepository.findOne.mockResolvedValue(assignment);
       mockEventRepository.findOne.mockImplementation((opts: any) => {
         if (opts.where.id === 'baseline-event-1') return Promise.resolve(baselineEvent);
-        if (opts.where.id === reviewInteractionId) return Promise.resolve(reviewEvent);
+        if (opts.where.id === reviewAttemptId) return Promise.resolve(reviewEvent);
         return Promise.resolve(null);
       });
       mockPerformanceRepository.findOne.mockResolvedValue(baselinePerformance);
       mockSkillStateRepository.findOne.mockResolvedValue(skillState);
+      mockActivityAttemptRepository.findOne.mockResolvedValue({
+        id: reviewAttemptId,
+        userId: 'student-1',
+        activityId: 'activity-1',
+        isCorrect: true,
+        score: 1.0,
+        hintsUsed: 1,
+        responseTimeMs: 4000,
+        createdAt: new Date(),
+      });
 
       const createdOutcome = { reviewAssignmentId: assignmentId };
       mockOutcomeRepository.create.mockReturnValue(createdOutcome);
@@ -828,9 +923,7 @@ describe('LongitudinalComparisonService', () => {
 
       await service.createLongitudinalComparison({
         reviewAssignmentId: assignmentId,
-        reviewInteractionId,
-        reviewRecommendationId: 'rec-1',
-        masteryAfter: 0.65,
+        reviewAttemptId,
       });
 
       expect(mockOutcomeRepository.create).toHaveBeenCalledWith(
@@ -848,9 +941,7 @@ describe('LongitudinalComparisonService', () => {
       await expect(
         service.createLongitudinalComparison({
           reviewAssignmentId: 'nonexistent',
-          reviewInteractionId: 'interaction-1',
-          reviewRecommendationId: 'rec-1',
-          masteryAfter: 0.5,
+          reviewAttemptId: 'interaction-1',
         }),
       ).rejects.toThrow('ReviewAssignment nonexistent not found');
     });
@@ -881,9 +972,7 @@ describe('LongitudinalComparisonService', () => {
       await expect(
         service.createLongitudinalComparison({
           reviewAssignmentId: 'assignment-1',
-          reviewInteractionId: 'interaction-1',
-          reviewRecommendationId: 'rec-1',
-          masteryAfter: 0.5,
+          reviewAttemptId: 'interaction-1',
         }),
       ).rejects.toThrow('Cannot resolve baseline metrics');
     });
