@@ -4,6 +4,7 @@
 **Data**: 2026-09-20  
 **Versão**: 1.0  
 **Status**: Relatório de Inspeção Baseada em Diretrizes  
+**Classificação**: [PROPOSTA CONTA COMIGO]
 
 ---
 
@@ -643,6 +644,26 @@ Oxford University Press.
 
 [LITERATURA] Barrera-Rea, C., Gualtieri, J. M. (2021). "Teaching Students with Autism Spectrum Disorder".  
 Routledge.
+
+---
+
+## Texto potencial para a dissertação
+
+### Metodologia
+
+A auditoria de acessibilidade foi conduzida através de inspeção automatizada utilizando AXE DevTools, seguida de análise técnica estruturada. Os achados foram categorizados por severidade WCAG 2.1 e transformados em requisitos de engenharia através de mapeamento bidirecional.
+
+### Decisão de projeto
+
+A transformação de achados de acessibilidade em requisitos de código seguiu um processo sistemático: descoberta → análise técnica → risco de qualidade → requisito de código → decisão de engenharia → validação. Cada achado foi analisado sob dimensões de impacto funcional, contexto de uso e viabilidade técnica.
+
+### Limitações
+
+A auditoria automatizada captura apenas uma fração dos problemas de acessibilidade reais. Testes com usuários com TEA são necessários para validar a efetividade das adaptações implementadas. Alguns achados requerem validação manual contínua.
+
+### Evidência necessária no experimento
+
+Métricas de acessibilidade durante sessões de aprendizado com crianças com TEA, incluindo taxa de conclusão de atividades, tempo de interação, e feedback qualitativo sobre usabilidade das adaptações implementadas.
 
 ---
 

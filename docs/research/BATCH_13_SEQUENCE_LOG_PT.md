@@ -1,6 +1,8 @@
-simsim# Batch 13 — Log de sequência de exercícios
+# Batch 13 — Log de sequência de exercícios
 
 [PROPOSTA CONTA COMIGO] Este lote define um formato de registro simples para observar repetição de exercícios, alternância de estruturas e variedade de modalidade dentro de uma mesma sessão. O objetivo é permitir que a criança realize a atividade normalmente enquanto o sistema registra a sequência observada para análise posterior.
+
+[LITERATURA] Pellicano, E., Crane, L. (2021). "Understanding Autism". Oxford University Press.
 
 ## O que registrar
 
@@ -25,6 +27,10 @@ Para cada exercício, registrar:
 [DECISÃO DE ENGENHARIA]
 
 Se `repetition_flag` aparecer em sequência, o caso sugere que a seleção está repetindo atividades de maneira excessiva dentro do bloco. O log não diagnostica aprendizagem nem engajamento; ele apenas torna visível a sequência técnica das recomendações.
+
+[PARÂMETRO EXPERIMENTAL] Limiar de repetição: máximo 3 ocorrências da mesma estrutura por bloco de 10 atividades.
+
+[HIPÓTESE A VALIDAR] A variação de estruturas, nichos e modalidades dentro de uma sessão melhora o engajamento e reduz a fadiga cognitiva em crianças com TEA.
 
 ## Como usar na análise
 
