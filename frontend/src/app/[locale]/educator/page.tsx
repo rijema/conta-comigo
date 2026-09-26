@@ -8,6 +8,7 @@ import { BNCCCoverageMap } from "@/components/educator/bncc-coverage-map";
 import { LearnerProfileCard } from "@/components/educator/learner-profile-card";
 import { EngagementBarChart } from "@/components/charts/engagement-bar-chart";
 import { ChatNowCard } from "@/components/titia/chat-now-card";
+import { LongitudinalReviewEvidence } from "@/components/educator/longitudinal-review-evidence";
 
 export default function EducatorPage() {
   const { user } = useAuth();
@@ -104,6 +105,13 @@ export default function EducatorPage() {
                     </h3>
                     <BNCCCoverageMap learnerId={selectedLearner} />
                   </div>
+                </div>
+
+                <div className="bg-white rounded-xl shadow p-5">
+                  <h3 className="font-semibold text-slate-700 mb-3">
+                    Evolução observada entre sessões
+                  </h3>
+                  <LongitudinalReviewEvidence learnerId={selectedLearner} />
                 </div>
 
                 <div className="bg-white rounded-xl shadow p-5">
