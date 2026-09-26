@@ -4,7 +4,9 @@ import { Repository } from 'typeorm';
 import { Activity } from '../../activities/entities/activity.entity';
 import { OntologyService } from '../../ontology/ontology.service';
 import { HybridRecommendationService } from '../../ade/hybrid-recommendation.service';
+import { RuntimeSemanticAdapter } from '../../ontology/runtime-semantic.adapter';
 import { StudentSkillState } from '../../knowledge-tracing/entities/student-skill-state.entity';
+import { BnccSkill } from '../../ontology/entities/bncc-skill.entity';
 import { LearningEvent } from '../entities/learning-event.entity';
 import { ReviewType } from '../entities/review-assignment.entity';
 
@@ -39,7 +41,10 @@ export class ReviewSelectionService {
     private readonly eventRepository: Repository<LearningEvent>,
     @InjectRepository(StudentSkillState)
     private readonly skillStateRepository: Repository<StudentSkillState>,
+    @InjectRepository(BnccSkill)
+    private readonly bnccSkillRepository: Repository<BnccSkill>,
     private readonly ontologyService: OntologyService,
+    private readonly runtimeSemanticAdapter: RuntimeSemanticAdapter,
     private readonly hybridRecommendationService: HybridRecommendationService,
   ) {}
 
@@ -94,49 +99,85 @@ export class ReviewSelectionService {
 
   /**
    * Get eligible activities for a skill
+   * [INTEGRATION 2]: Real BNCC skill resolution
    * skillId is a UUID referring to StudentSkillState.skillId
-   * Must resolve to BNCC code before matching Activity.bnccSkills
+   * Resolves to BNCC code before matching Activity.bnccSkills
    */
   private async getEligibleActivities(skillId: string): Promise<Activity[]> {
-    // TODO: Resolve skillId UUID to BNCC code via skill entity lookup
-    // For now, use the skillId directly if it's already a BNCC code
-    // This is a placeholder that must be fixed with proper skill resolution
+    // Resolve UUID skillId to BNCC code
+    const bnccSkill = await this.bnccSkillRepository.findOne({
+      where: { id: skillId },
+    });
+
+    if (!bnccSkill) {
+      this.logger.warn(`BNCC skill not found for UUID: ${skillId}`);
+      return [];
+    }
+
+    // Query activities by BNCC code using PostgreSQL JSONB contains
     return this.activityRepository.find({
       where: {
-        bnccSkills: skillId as any, // Will be fixed to proper BNCC code resolution
+        bnccSkills: bnccSkill.code as any, // TypeORM JSONB array contains
         isActive: true,
       },
     });
   }
 
   /**
-   * Apply semantic filtering based on learner profile (hard blocks)
+   * Apply semantic filtering using real OntologyService
+   * [INTEGRATION 3B.1]: Uses actual semantic runtime, not local manual filter
    */
   private async applySemanticFiltering(candidates: Activity[], profile: LearnerProfile): Promise<Activity[]> {
-    return candidates.filter((activity) => {
-      // Hard blocks for accessibility
-      if (profile.accessibilityNeeds?.sensoryLoad === 'low') {
-        const sensoryLoad = (activity as any).accessibility?.sensoryLoad;
-        if (sensoryLoad === 'high') return false;
-      }
+    // Resolve BNCC code from skillId if available
+    let bnccCode: string | null = null;
+    if (candidates.length > 0 && candidates[0].bnccSkills && candidates[0].bnccSkills.length > 0) {
+      bnccCode = candidates[0].bnccSkills[0];
+    }
 
-      if (profile.accessibilityNeeds?.motorDemand === 'low') {
-        const motorDemand = (activity as any).content?.semantic?.motorDemand;
-        if (motorDemand === 'high') return false;
-      }
+    if (!bnccCode) {
+      this.logger.warn('Cannot determine BNCC code for semantic filtering');
+      return candidates;
+    }
 
-      if (profile.accessibilityNeeds?.languageLoad === 'low') {
-        const languageLoad = (activity as any).content?.semantic?.languageLoad;
-        if (languageLoad === 'high') return false;
-      }
+    // Build hard constraints from learner profile
+    const hardConstraints = {
+      disallowDragging: profile.accessibilityNeeds?.motorDemand === 'low',
+      requireAudio: false, // Not specified in profile
+    };
 
-      // Professional constraints
-      if (profile.professionalConstraints?.includes(activity.id)) {
-        return false;
-      }
+    // Build observed learner evidence from profile
+    const observedLearnerEvidence = {
+      sensorystrength: profile.accessibilityNeeds?.sensoryLoad === 'low',
+      motorweakness: profile.accessibilityNeeds?.motorDemand === 'low',
+      languageweakness: profile.accessibilityNeeds?.languageLoad === 'low',
+    };
 
-      return true;
+    // [INTEGRATION 3B.1]: Use real RuntimeSemanticAdapter to materialize facts
+    const facts = this.runtimeSemanticAdapter.materialize({
+      studentId: profile.studentId,
+      targetSkill: bnccCode,
+      activities: candidates,
+      masteryProbability: null, // Will be populated from StudentSkillState if needed
+      recentAccuracy: null,
+      observedLearnerEvidence,
+      hardConstraints,
     });
+
+    // [INTEGRATION 3B.1]: Use actual OntologyService semantic validation
+    const semanticResult = this.ontologyService.getValidActivityCandidates(facts);
+    const validIds = new Set(semanticResult.validCandidateIds);
+
+    // Filter to only semantically valid candidates
+    const semanticallyValid = candidates.filter((activity) => validIds.has(activity.id));
+
+    if (semanticallyValid.length === 0) {
+      this.logger.warn(
+        `No semantically valid activities for review after ontology filtering. ` +
+        `Excluded: ${semanticResult.excludedCandidateIds.join(', ')}`
+      );
+    }
+
+    return semanticallyValid;
   }
 
   /**
@@ -149,36 +190,32 @@ export class ReviewSelectionService {
   }
 
   /**
-   * Rank activities by review type using HybridRecommendationService
+   * Rank activities using HybridRecommendationService
+   * [INTEGRATION 3B.1]: Uses real ranking, not simple difficulty sort
    */
   private async rankByReviewType(studentId: string, candidates: Activity[], reviewType: ReviewType): Promise<Activity[]> {
-    // For REMEDIATION: prioritize easier/scaffolded versions
-    // For RETENTION: prioritize same difficulty
-    // For GENERALIZATION: prioritize same or slightly harder difficulty
-
-    const difficultyOrder = {
-      very_easy: 0,
-      easy: 1,
-      medium: 2,
-      hard: 3,
-      extreme: 4,
-    };
-
-    return candidates.sort((a, b) => {
-      const aDiff = difficultyOrder[a.difficulty as keyof typeof difficultyOrder] ?? 2;
-      const bDiff = difficultyOrder[b.difficulty as keyof typeof difficultyOrder] ?? 2;
-
-      if (reviewType === ReviewType.REMEDIATION) {
-        // Prefer easier activities for remediation
-        return aDiff - bDiff;
-      } else if (reviewType === ReviewType.RETENTION) {
-        // Prefer same difficulty for retention
-        return Math.abs(aDiff - 2) - Math.abs(bDiff - 2);
-      } else {
-        // GENERALIZATION: prefer same or slightly harder
-        return Math.abs(aDiff - 2) - Math.abs(bDiff - 2);
-      }
+    // [INTEGRATION 3B.1]: Use HybridRecommendationService for ranking
+    // This reuses the existing recommendation ranking logic
+    const ranking = this.hybridRecommendationService.rank({
+      candidates,
+      masteryProbability: null, // Will be populated from StudentSkillState if needed
+      semanticTrace: null as any, // Optional - can be null for review context
+      recentActivityIds: [],
+      recentlyRejectedActivityIds: [],
+      observedEvidenceTypes: [],
+      recentActivities: [],
+      preferences: undefined,
     });
+
+    // Sort candidates by HybridRecommendationService scores
+    const candidatesById = new Map(candidates.map((c) => [c.id, c]));
+    const scored = ranking.candidates.map((scored) => ({
+      activity: candidatesById.get(scored.activityId),
+      score: scored.finalScore,
+    })).filter((item): item is { activity: Activity; score: number } => item.activity !== undefined);
+
+    // Return sorted by score (highest first)
+    return scored.sort((a, b) => b.score - a.score).map((item) => item.activity);
   }
 
   /**

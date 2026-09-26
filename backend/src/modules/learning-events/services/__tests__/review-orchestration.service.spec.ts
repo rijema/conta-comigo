@@ -4,6 +4,7 @@ import { ReviewOrchestrationService } from '../review-orchestration.service';
 import { ReviewAssignment, ReviewType } from '../../entities/review-assignment.entity';
 import { ReviewOutcome } from '../../entities/review-outcome.entity';
 import { LearningEvent } from '../../entities/learning-event.entity';
+import { ChildProfile } from '../../../users/entities/child-profile.entity';
 import { ReviewCandidateGenerationService } from '../review-candidate-generation.service';
 import { ReviewSelectionService } from '../review-selection.service';
 import { ReviewTriggerService } from '../review-trigger.service';
@@ -14,6 +15,7 @@ describe('ReviewOrchestrationService', () => {
   let mockAssignmentRepository: any;
   let mockOutcomeRepository: any;
   let mockEventRepository: any;
+  let mockChildProfileRepository: any;
   let mockCandidateService: any;
   let mockSelectionService: any;
   let mockTriggerService: any;
@@ -33,6 +35,10 @@ describe('ReviewOrchestrationService', () => {
 
     mockEventRepository = {
       find: jest.fn(),
+    };
+
+    mockChildProfileRepository = {
+      findOne: jest.fn(),
     };
 
     mockCandidateService = {
@@ -66,6 +72,10 @@ describe('ReviewOrchestrationService', () => {
         {
           provide: getRepositoryToken(LearningEvent),
           useValue: mockEventRepository,
+        },
+        {
+          provide: getRepositoryToken(ChildProfile),
+          useValue: mockChildProfileRepository,
         },
         {
           provide: ReviewCandidateGenerationService,
@@ -240,7 +250,7 @@ describe('ReviewOrchestrationService', () => {
       mockAssignmentRepository.save.mockResolvedValue({ ...assignment, completedAt: new Date() });
       mockComparisonService.createLongitudinalComparison.mockResolvedValue(outcome);
 
-      const result = await service.completeReviewActivity(assignmentId, reviewInteractionId, reviewRecommendationId, 0.7);
+      const result = await service.completeReviewActivity(assignmentId, 'attempt-1');
 
       expect(result.reviewAssignmentId).toBe(assignmentId);
       expect(mockAssignmentRepository.save).toHaveBeenCalled();
@@ -251,7 +261,7 @@ describe('ReviewOrchestrationService', () => {
       mockAssignmentRepository.findOne.mockResolvedValue(null);
 
       await expect(
-        service.completeReviewActivity('nonexistent', 'interaction-1', 'rec-1', 0.7),
+        service.completeReviewActivity('nonexistent', 'attempt-1'),
       ).rejects.toThrow('ReviewAssignment nonexistent not found');
     });
   });
@@ -427,9 +437,7 @@ describe('ReviewOrchestrationService', () => {
 
       const completedOutcome = await service.completeReviewActivity(
         'assignment-1',
-        'review-interaction-1',
-        'review-rec-1',
-        0.85,
+        'review-attempt-1',
       );
 
       expect(completedOutcome.progressionClassification).toBe('STABLE');

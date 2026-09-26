@@ -4,6 +4,8 @@ import { ReviewCandidateGenerationService } from '../review-candidate-generation
 import { ExercisePerformance } from '../../entities/exercise-performance.entity';
 import { LearningEvent, LearningEventType } from '../../entities/learning-event.entity';
 import { StudentSkillState } from '../../../knowledge-tracing/entities/student-skill-state.entity';
+import { ActivityAttempt } from '../../../activities/entities/activity-attempt.entity';
+import { Activity } from '../../../activities/entities/activity.entity';
 import { ConfigService } from '@nestjs/config';
 import { ReviewType } from '../../entities/review-assignment.entity';
 
@@ -12,6 +14,8 @@ describe('ReviewCandidateGenerationService', () => {
   let mockPerformanceRepository: any;
   let mockEventRepository: any;
   let mockSkillStateRepository: any;
+  let mockActivityAttemptRepository: any;
+  let mockActivityRepository: any;
   let mockConfigService: any;
 
   beforeEach(async () => {
@@ -25,6 +29,14 @@ describe('ReviewCandidateGenerationService', () => {
 
     mockSkillStateRepository = {
       find: jest.fn(),
+    };
+
+    mockActivityAttemptRepository = {
+      findOne: jest.fn(),
+    };
+
+    mockActivityRepository = {
+      findOne: jest.fn(),
     };
 
     mockConfigService = {
@@ -45,6 +57,14 @@ describe('ReviewCandidateGenerationService', () => {
         {
           provide: getRepositoryToken(StudentSkillState),
           useValue: mockSkillStateRepository,
+        },
+        {
+          provide: getRepositoryToken(ActivityAttempt),
+          useValue: mockActivityAttemptRepository,
+        },
+        {
+          provide: getRepositoryToken(Activity),
+          useValue: mockActivityRepository,
         },
         {
           provide: ConfigService,

@@ -30,6 +30,11 @@ export class SubmitAttemptDto {
 
   @ApiPropertyOptional()
   @IsOptional()
+  @IsUUID()
+  reviewAssignmentId?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsNumber()
   timeSpentSeconds?: number;
 
