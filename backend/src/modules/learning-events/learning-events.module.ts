@@ -22,6 +22,8 @@ import { LongitudinalReviewExportService } from './services/longitudinal-review-
 import { ResearchPseudonymizationService } from './services/research-pseudonymization.service';
 import { ExercisePerformance } from './entities/exercise-performance.entity';
 import { StudentSkillState } from '../knowledge-tracing/entities/student-skill-state.entity';
+import { ActivityAttempt } from '../activities/entities/activity-attempt.entity';
+import { Activity } from '../activities/entities/activity.entity';
 import { OntologyModule } from '../ontology/ontology.module';
 import { AdeModule } from '../ade/ade.module';
 
@@ -36,6 +38,8 @@ import { AdeModule } from '../ade/ade.module';
       ReviewOutcome,
       ExercisePerformance,
       StudentSkillState,
+      ActivityAttempt,
+      Activity,
     ]),
     OntologyModule,
     AdeModule,
