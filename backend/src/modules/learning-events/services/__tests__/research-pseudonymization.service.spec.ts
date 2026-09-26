@@ -1,116 +1,112 @@
-/**
- * Research Pseudonymization Service Tests
- * [INTEGRATION 3C-FINAL]: Verify HMAC-based pseudonym generation
- */
-
-import { Test, TestingModule } from '@nestjs/testing';
+/// <reference types="jest" />
 import { ConfigService } from '@nestjs/config';
 import { ResearchPseudonymizationService } from '../research-pseudonymization.service';
 
+/**
+ * [PROPOSTA CONTA COMIGO]: Research Pseudonymization Tests
+ * Verify deterministic one-way pseudonymization for research export
+ */
 describe('ResearchPseudonymizationService', () => {
   let service: ResearchPseudonymizationService;
-  let configService: ConfigService;
+  let mockConfigService: any;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ResearchPseudonymizationService,
-        {
-          provide: ConfigService,
-          useValue: {
-            get: jest.fn((key, defaultValue) => {
-              if (key === 'RESEARCH_PSEUDONYM_SECRET') {
-                return 'test-secret-key';
-              }
-              return defaultValue;
-            }),
-          },
-        },
-      ],
-    }).compile();
+  const testSecret = 'test-secret-key-12345';
+  const learnerUuid1 = '550e8400-e29b-41d4-a716-446655440000';
+  const learnerUuid2 = '550e8400-e29b-41d4-a716-446655440001';
 
-    service = module.get<ResearchPseudonymizationService>(ResearchPseudonymizationService);
-    configService = module.get<ConfigService>(ConfigService);
+  beforeEach(() => {
+    mockConfigService = {
+      get: jest.fn((key, defaultValue) => {
+        if (key === 'RESEARCH_PSEUDONYMIZATION_SECRET') {
+          return testSecret;
+        }
+        return defaultValue;
+      }),
+    };
+
+    service = new ResearchPseudonymizationService(mockConfigService);
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
-
-  describe('Pseudonym Generation', () => {
-    it('should generate stable pseudonym for same learner', () => {
-      const learnerId = 'learner-123e4567-e89b-12d3-a456-426614174000';
-      const pseudonym1 = service.generatePseudonym(learnerId);
-      const pseudonym2 = service.generatePseudonym(learnerId);
+  describe('Deterministic Pseudonymization', () => {
+    it('should generate same pseudonym for same learner UUID', () => {
+      // [PROPOSTA CONTA COMIGO]: Same input → same output (deterministic)
+      const pseudonym1 = service.pseudonymizeLearnerId(learnerUuid1);
+      const pseudonym2 = service.pseudonymizeLearnerId(learnerUuid1);
 
       expect(pseudonym1).toBe(pseudonym2);
     });
 
-    it('should generate different pseudonym for different learner', () => {
-      const learnerId1 = 'learner-123e4567-e89b-12d3-a456-426614174000';
-      const learnerId2 = 'learner-223e4567-e89b-12d3-a456-426614174000';
-
-      const pseudonym1 = service.generatePseudonym(learnerId1);
-      const pseudonym2 = service.generatePseudonym(learnerId2);
+    it('should generate different pseudonym for different learner UUIDs', () => {
+      // [PROPOSTA CONTA COMIGO]: Different input → different output
+      const pseudonym1 = service.pseudonymizeLearnerId(learnerUuid1);
+      const pseudonym2 = service.pseudonymizeLearnerId(learnerUuid2);
 
       expect(pseudonym1).not.toBe(pseudonym2);
     });
 
-    it('should not expose UUID substring in pseudonym', () => {
-      const learnerId = '123e4567-e89b-12d3-a456-426614174000';
-      const pseudonym = service.generatePseudonym(learnerId);
+    it('should generate 64-character hex string (SHA256)', () => {
+      // [PROPOSTA CONTA COMIGO]: HMAC-SHA256 produces 64 hex chars
+      const pseudonym = service.pseudonymizeLearnerId(learnerUuid1);
 
-      // Pseudonym should not contain any part of the UUID
-      expect(pseudonym).not.toContain('123e4567');
-      expect(pseudonym).not.toContain('e89b');
-      expect(pseudonym).not.toContain('12d3');
-      expect(pseudonym).not.toContain('a456');
-      expect(pseudonym).not.toContain('426614174000');
+      expect(pseudonym).toMatch(/^[a-f0-9]{64}$/);
     });
 
-    it('should start with learner- prefix', () => {
-      const learnerId = 'learner-123e4567-e89b-12d3-a456-426614174000';
-      const pseudonym = service.generatePseudonym(learnerId);
+    it('should NOT contain substring of original UUID', () => {
+      // [PROPOSTA CONTA COMIGO]: Pseudonym must not expose original UUID
+      const pseudonym = service.pseudonymizeLearnerId(learnerUuid1);
+      const uuidWithoutHyphens = learnerUuid1.replace(/-/g, '');
 
-      expect(pseudonym).toMatch(/^learner-[a-f0-9]{16}$/);
+      expect(pseudonym).not.toContain(uuidWithoutHyphens);
+      expect(pseudonym).not.toContain(learnerUuid1);
     });
 
-    it('should be deterministic across sessions', () => {
-      const learnerId = 'learner-test-id';
-      const pseudonyms = Array.from({ length: 5 }, () =>
-        service.generatePseudonym(learnerId)
-      );
+    it('should use configured secret for HMAC', () => {
+      // [PROPOSTA CONTA COMIGO]: Different secret → different pseudonym
+      const pseudonym1 = service.pseudonymizeLearnerId(learnerUuid1);
 
-      const allSame = pseudonyms.every((p) => p === pseudonyms[0]);
-      expect(allSame).toBe(true);
+      // Create service with different secret
+      const altConfigService = {
+        get: jest.fn((key, defaultValue) => {
+          if (key === 'RESEARCH_PSEUDONYMIZATION_SECRET') {
+            return 'different-secret-key-67890';
+          }
+          return defaultValue;
+        }),
+      } as any;
+      const altService = new ResearchPseudonymizationService(altConfigService);
+      const pseudonym2 = altService.pseudonymizeLearnerId(learnerUuid1);
+
+      expect(pseudonym1).not.toBe(pseudonym2);
     });
   });
 
-  describe('Pseudonym Verification', () => {
-    it('should verify correct pseudonym', () => {
-      const learnerId = 'learner-123e4567-e89b-12d3-a456-426614174000';
-      const pseudonym = service.generatePseudonym(learnerId);
+  describe('Batch Pseudonymization', () => {
+    it('should pseudonymize multiple UUIDs consistently', () => {
+      // [PROPOSTA CONTA COMIGO]: Batch operation preserves determinism
+      const uuids = [learnerUuid1, learnerUuid2];
+      const mapping = service.pseudonymizeMultiple(uuids);
 
-      const isValid = service.verifyPseudonym(learnerId, pseudonym);
-      expect(isValid).toBe(true);
+      expect(mapping.size).toBe(2);
+      expect(mapping.get(learnerUuid1)).toBe(service.pseudonymizeLearnerId(learnerUuid1));
+      expect(mapping.get(learnerUuid2)).toBe(service.pseudonymizeLearnerId(learnerUuid2));
+    });
+  });
+
+  describe('Consistency Verification', () => {
+    it('should verify pseudonym consistency', () => {
+      // [PROPOSTA CONTA COMIGO]: Verify generated pseudonym matches expected
+      const pseudonym = service.pseudonymizeLearnerId(learnerUuid1);
+      const isConsistent = service.verifyConsistency(learnerUuid1, pseudonym);
+
+      expect(isConsistent).toBe(true);
     });
 
-    it('should reject incorrect pseudonym', () => {
-      const learnerId = 'learner-123e4567-e89b-12d3-a456-426614174000';
-      const wrongPseudonym = 'learner-0000000000000000';
+    it('should reject inconsistent pseudonym', () => {
+      // [PROPOSTA CONTA COMIGO]: Detect tampering or wrong secret
+      const wrongPseudonym = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+      const isConsistent = service.verifyConsistency(learnerUuid1, wrongPseudonym);
 
-      const isValid = service.verifyPseudonym(learnerId, wrongPseudonym);
-      expect(isValid).toBe(false);
-    });
-
-    it('should reject pseudonym for different learner', () => {
-      const learnerId1 = 'learner-123e4567-e89b-12d3-a456-426614174000';
-      const learnerId2 = 'learner-223e4567-e89b-12d3-a456-426614174000';
-
-      const pseudonym1 = service.generatePseudonym(learnerId1);
-      const isValid = service.verifyPseudonym(learnerId2, pseudonym1);
-
-      expect(isValid).toBe(false);
+      expect(isConsistent).toBe(false);
     });
   });
 });
