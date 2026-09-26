@@ -363,6 +363,10 @@ export function useSession() {
           recommendationId: session?.currentRecommendationId ?? undefined,
           adeDecisionContext: session?.currentRecommendationId ? { decisionId: session.currentRecommendationId } : undefined,
           previousDifficulty: session?.previousDifficulty ?? undefined,
+          // [INTEGRATION 3C-FINAL]: Include review context if this is a review activity
+          ...(session?.currentActivity?.reviewAssignmentId && { reviewAssignmentId: session.currentActivity.reviewAssignmentId }),
+          ...(session?.currentActivity?.islandId && { islandId: session.currentActivity.islandId }),
+          ...(session?.currentActivity?.cycleNumber !== undefined && { cycleNumber: session.currentActivity.cycleNumber }),
         },
         token ?? undefined,
       );

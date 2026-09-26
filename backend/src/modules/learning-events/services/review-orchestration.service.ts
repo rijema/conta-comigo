@@ -252,6 +252,40 @@ export class ReviewOrchestrationService {
   }
 
   /**
+   * Get next active review assignment for a student
+   * [INTEGRATION 3C-FINAL]: Returns the next review activity if one is active
+   */
+  async getNextReviewActivity(studentId: string): Promise<{
+    activity: any;
+    reviewAssignmentId: string;
+    reviewType: ReviewType;
+  } | null> {
+    // Find the first incomplete review assignment for this student
+    const assignment = await this.assignmentRepository.findOne({
+      where: {
+        studentId,
+        completedAt: undefined,
+      },
+      order: { createdAt: 'ASC' },
+    });
+
+    if (!assignment || !assignment.selectedActivityInstanceId) {
+      return null;
+    }
+
+    // Return the activity associated with this assignment
+    // The activity is already persisted and can be loaded by the frontend
+    return {
+      activity: {
+        id: assignment.selectedActivityInstanceId,
+        // Additional review context can be added here
+      },
+      reviewAssignmentId: assignment.id,
+      reviewType: assignment.reviewType,
+    };
+  }
+
+  /**
    * Check if review should be triggered for new session
    */
   async shouldTriggerReview(studentId: string, sessionId: string): Promise<boolean> {

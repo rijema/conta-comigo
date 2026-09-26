@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Get, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -7,13 +7,17 @@ import { LearningEventService } from './learning-event.service';
 import { TrackSpeechEventDto } from './dto/track-speech-event.dto';
 import { TrackVoiceEventDto } from './dto/track-voice-event.dto';
 import { TrackSessionEventDto } from './dto/track-session-event.dto';
+import { ReviewOrchestrationService } from './services/review-orchestration.service';
 
 @ApiTags('learning-events')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('learning-events')
 export class LearningEventsController {
-  constructor(private readonly learningEventService: LearningEventService) {}
+  constructor(
+    private readonly learningEventService: LearningEventService,
+    private readonly reviewOrchestrationService: ReviewOrchestrationService,
+  ) {}
 
   @Post('session')
   @ApiOperation({ summary: 'Append a session lifecycle event' })
@@ -77,5 +81,11 @@ export class LearningEventsController {
       event, dto.command, dto.processingTimeMs, dto.recognitionSucceeded,
     );
     return { tracked: event !== null };
+  }
+
+  @Get('review/next')
+  @ApiOperation({ summary: 'Get next active review activity for current child' })
+  async getNextReviewActivity(@CurrentUser('userId') studentId: string) {
+    return this.reviewOrchestrationService.getNextReviewActivity(studentId);
   }
 }
