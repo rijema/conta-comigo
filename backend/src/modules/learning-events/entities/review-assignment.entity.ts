@@ -100,4 +100,14 @@ export class ReviewAssignment {
 
   @Column({ type: 'timestamptz', nullable: true })
   completedAt: Date | null;
+
+  // [INTEGRATION 3C-FINAL]: Checkpoint/retention context
+  @Column({ type: 'varchar', nullable: true })
+  triggerType?: 'CHECKPOINT' | 'RETENTION'; // Type of trigger that created this assignment
+
+  @Column({ type: 'varchar', nullable: true })
+  islandId?: string; // Island context for checkpoint scope
+
+  @Column({ type: 'int', nullable: true })
+  cycleNumber?: number; // Cycle number for checkpoint scope (prevents duplicate triggers)
 }
