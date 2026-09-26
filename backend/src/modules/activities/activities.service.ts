@@ -21,12 +21,14 @@ import type { SkillRelationEvidence } from '../ontology/ontology.service';
 import { RuntimeSemanticAdapter } from '../ontology/runtime-semantic.adapter';
 import { SemanticFilteringTrace } from '../ontology/semantic-runtime.types';
 import { RecommendationOutcomeService } from '../learning-events/recommendation-outcome.service';
+import { ReviewOrchestrationService } from '../learning-events/services/review-orchestration.service';
 import { ChangeActivityDto } from './dto/change-activity.dto';
 import { LearningEvent } from '../learning-events/entities/learning-event.entity';
 import {
   HybridRankingResult,
   HybridRecommendationService,
 } from '../ade/hybrid-recommendation.service';
+import { IslandCycleValidatorService } from './services/island-cycle-validator.service';
 
 interface ActivitySelectionResult {
   activity: Activity;
@@ -57,12 +59,14 @@ export class ActivitiesService {
     private readonly learningEventService: LearningEventService,
     private readonly dataSource: DataSource,
     private readonly knowledgeTracingService: KnowledgeTracingService,
+    private readonly islandCycleValidator: IslandCycleValidatorService,
     private readonly recommendationExplanationService: RecommendationExplanationService =
       new RecommendationExplanationService(),
     private readonly ontologyService?: OntologyService,
     private readonly runtimeSemanticAdapter?: RuntimeSemanticAdapter,
     private readonly hybridRecommendationService?: HybridRecommendationService,
     private readonly recommendationOutcomeService?: RecommendationOutcomeService,
+    private readonly reviewOrchestrationService?: ReviewOrchestrationService,
   ) {}
 
   async create(dto: CreateActivityDto): Promise<Activity> {
@@ -278,6 +282,14 @@ export class ActivitiesService {
     const isCorrect = this.evaluateAnswer(activity, dto.answer);
     const score = isCorrect ? 1.0 : 0.0;
 
+    // [INTEGRATION 3C-FINAL]: Validate island and derive authoritative cycle before persisting
+    const validatedIslandCycle = await this.islandCycleValidator.validateAndResolveIslandCycle(
+      activity,
+      userId,
+      dto.islandId,
+      dto.cycleNumber,
+    );
+
     // Save attempt
     // [INTEGRATION 3B.2]: Propagate reviewAssignmentId for longitudinal tracking
     const attempt = this.attemptRepo.create({
@@ -307,6 +319,9 @@ export class ActivitiesService {
         firstInteractionMs: dto.firstInteractionMs ?? null,
         responseTimeMs: dto.responseTimeMs ?? null,
         totalTimeMs: dto.totalTimeMs ?? null,
+        // [INTEGRATION 3C-FINAL]: Persist validated island/cycle context for checkpoint scope
+        islandId: validatedIslandCycle.islandId,
+        cycleNumber: validatedIslandCycle.cycleNumber,
       },
     });
 
@@ -399,6 +414,31 @@ export class ActivitiesService {
       nextRecommendationId: adeDecision?.id ?? null,
     };
     await this.attemptRepo.save(attempt);
+
+    // [INTEGRATION 3C]: Automatic review completion after BKT
+    // If this attempt is part of a review assignment, complete the review
+    if (dto.reviewAssignmentId && this.reviewOrchestrationService) {
+      try {
+        // [INTEGRATION 3C]: Validate assignment/activity/student match before completion
+        // This prevents mismatched reviewAssignmentId from creating false research data
+        void this.reviewOrchestrationService.validateAndCompleteReviewActivity(
+          dto.reviewAssignmentId,
+          attempt.id,
+          userId,
+          dto.activityId,
+        ).catch((err: any) => {
+          this.logger.error(
+            `Review completion failed for assignment ${dto.reviewAssignmentId}: ${err?.message}`,
+          );
+          // Do not fail the attempt submission if review completion fails
+        });
+      } catch (err: any) {
+        this.logger.error(
+          `Review completion error for assignment ${dto.reviewAssignmentId}: ${err?.message}`,
+        );
+        // Non-blocking — attempt already persisted successfully
+      }
+    }
 
     return {
       attempt,

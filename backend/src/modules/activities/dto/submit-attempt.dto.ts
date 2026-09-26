@@ -35,6 +35,16 @@ export class SubmitAttemptDto {
 
   @ApiPropertyOptional()
   @IsOptional()
+  @IsString()
+  islandId?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  cycleNumber?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsNumber()
   timeSpentSeconds?: number;
 

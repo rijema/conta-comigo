@@ -96,6 +96,7 @@ describe('ActivitiesService formal ontology integration', () => {
       {} as any,
       adeService as any,
       { getChildProfile: jest.fn().mockResolvedValue({ ontologyInstanceData: {} }) } as any,
+      {} as any, // islandCycleValidator
       learningEvents as any,
       { query: jest.fn().mockResolvedValue([{ id: 'skill-id' }]) } as any,
       {} as any,

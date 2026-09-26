@@ -18,7 +18,7 @@ describe('ActivitiesService change activity flow', () => {
     const outcomeService = { attachReplacement: jest.fn().mockResolvedValue({}) };
     const knowledgeTracing = { observe: jest.fn() };
     const service = new ActivitiesService(
-      {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any,
+      {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any,
       knowledgeTracing as any, undefined, undefined, undefined, undefined, outcomeService as any,
     );
     jest.spyOn(service, 'findById').mockResolvedValue(previous as any);
