@@ -70,8 +70,10 @@ export class ReviewOutcome {
   @Column({ type: 'uuid' })
   reviewAttemptId: string;
 
-  @Column({ type: 'uuid' })
-  reviewRecommendationId: string;
+  // [INTEGRATION 3C]: Review recommendation provenance (nullable for backward compatibility)
+  // Recommendation context is also captured in ActivityAttempt.researchTrace.recommendationId
+  @Column({ type: 'uuid', nullable: true })
+  reviewRecommendationId?: string;
 
   // RAW LONGITUDINAL EVIDENCE (primary research data)
   @Column({ type: 'jsonb' })

@@ -29,6 +29,7 @@ describe('ActivitiesService learning event instrumentation', () => {
     learningEventService as any,
     dataSource as any,
     { observe: jest.fn().mockResolvedValue({}) } as any,
+    {} as any, // islandCycleValidator
   );
 
   beforeEach(() => {
@@ -242,6 +243,9 @@ describe('ActivitiesService learning event instrumentation', () => {
       save: jest.fn().mockResolvedValue(savedAttempt),
       find: jest.fn().mockResolvedValue([]),
     };
+    const islandCycleValidator = {
+      validateAndResolveIslandCycle: jest.fn().mockResolvedValue({ islandId: null, cycleNumber: null }),
+    };
     const serviceWithAttempt = new ActivitiesService(
       activityRepository as any,
       attemptRepository as any,
@@ -252,6 +256,7 @@ describe('ActivitiesService learning event instrumentation', () => {
       dataSource as any,
       { getMasteryBySkillCode: jest.fn().mockResolvedValue(0.3),
         observe: jest.fn().mockResolvedValue({ masteryProbability: 0.4 }) } as any,
+      islandCycleValidator as any,
     );
     const trackAnswerEvents = jest
       .spyOn(serviceWithAttempt as any, 'trackAnswerEvents')
