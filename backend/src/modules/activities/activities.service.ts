@@ -131,6 +131,7 @@ export class ActivitiesService {
   }): Promise<{
     activity: Activity;
     adeDecision: any;
+    reviewAssignmentId?: string;
   }> {
     // 1. Load learner profile (with safe fallback for new children)
     let profile: any;
@@ -194,12 +195,27 @@ export class ActivitiesService {
       `Next activity for user ${userId}: ${activity.id} (ADE decision: ${adeDecision?.id ?? 'fallback'})`,
     );
 
+    // [INTEGRATION 3C-FINAL]: Check if there's an active review assignment
+    let reviewAssignmentId: string | undefined;
+    if (this.reviewOrchestrationService) {
+      try {
+        const activeReview = await this.reviewOrchestrationService.getNextReviewActivity(userId);
+        if (activeReview) {
+          reviewAssignmentId = activeReview.reviewAssignmentId;
+        }
+      } catch (err: any) {
+        this.logger.warn(`Failed to check active review: ${err?.message}`);
+        // Continue with normal activity selection if review check fails
+      }
+    }
+
     return {
       activity: await this.attachSemanticContract(activity),
       adeDecision: this.recommendationExplanationService.toChildDecision(
         adeDecision,
         { selectedActivityId: activity.id, selectedActivityType: activity.type },
       ),
+      reviewAssignmentId,
     };
   }
 

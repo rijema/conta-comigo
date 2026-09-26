@@ -93,17 +93,17 @@ describe('ActivitiesService formal ontology integration', () => {
     const service = new ActivitiesService(
       activityRepo as any,
       attemptRepo as any,
-      {} as any,
+      {} as any, // kafkaProducer
       adeService as any,
-      { getChildProfile: jest.fn().mockResolvedValue({ ontologyInstanceData: {} }) } as any,
+      { getChildProfile: jest.fn().mockResolvedValue({ ontologyInstanceData: {} }) } as any, // usersService
+      learningEvents as any, // learningEventService
+      { query: jest.fn().mockResolvedValue([{ id: 'skill-id' }]) } as any, // dataSource
+      {} as any, // knowledgeTracingService
       {} as any, // islandCycleValidator
-      learningEvents as any,
-      { query: jest.fn().mockResolvedValue([{ id: 'skill-id' }]) } as any,
-      {} as any,
-      { toChildDecision: jest.fn().mockReturnValue({ id: decision.id }) } as any,
-      ontology as any,
-      adapter as any,
-      hybrid as any,
+      { toChildDecision: jest.fn().mockReturnValue({ id: decision.id }) } as any, // recommendationExplanationService
+      ontology as any, // ontologyService
+      adapter as any, // runtimeSemanticAdapter
+      hybrid as any, // hybridRecommendationService
     );
 
     const random = jest.spyOn(Math, 'random');

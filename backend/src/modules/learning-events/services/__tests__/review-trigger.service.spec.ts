@@ -103,8 +103,8 @@ describe('ReviewTriggerService', () => {
       const studentId = 'student-1';
       const islandId = 'island-1';
 
-      // [INTEGRATION 3C-FINAL]: 10 completed activities with island/cycle metadata
-      const activities = Array.from({ length: 10 }, (_, i) => ({
+      // [INTEGRATION 3C-FINAL]: 9 completed activities triggers checkpoint (position 10 in cycle 1)
+      const activities = Array.from({ length: 9 }, (_, i) => ({
         id: `event-${i}`,
         studentId,
         eventType: LearningEventType.ACTIVITY_COMPLETED,
@@ -116,11 +116,12 @@ describe('ReviewTriggerService', () => {
       }));
 
       mockEventRepository.find.mockResolvedValue(activities);
+      mockAssignmentRepository.findOne.mockResolvedValue(null);
 
       const milestone = await service.detectCheckpointMilestone(studentId, islandId, 'session-1');
 
       expect(milestone).toBeDefined();
-      expect(milestone?.completedActivitiesCount).toBe(10);
+      expect(milestone?.completedActivitiesCount).toBe(9);
       expect(milestone?.cycleNumber).toBe(1);
     });
 

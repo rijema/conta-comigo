@@ -92,12 +92,14 @@ describe('Weighted BNCC activity creation', () => {
 
 describe('Learning selection strategy', () => {
   const service = new ActivitiesService({} as any, {} as any, {} as any, {} as any,
-    {} as any, {} as any, {} as any, {} as any,
-    { getMasteryBySkillCode: jest.fn().mockResolvedValue(0.1) } as any,
-    undefined, { getSkillRelations: jest.fn().mockReturnValue([
+    {} as any, {} as any, {} as any, // activityRepo, attemptRepo, kafkaProducer, adeService, usersService, learningEventService, dataSource
+    { getMasteryBySkillCode: jest.fn().mockResolvedValue(0.1) } as any, // knowledgeTracingService
+    {} as any, // islandCycleValidator
+    undefined, // recommendationExplanationService
+    { getSkillRelations: jest.fn().mockReturnValue([
       { skillCode: 'EF01MA08', relation: 'relatedSkill',
         concepts: ['AdditionConcept'], source: 'SHARED_CONCEPT_DERIVED' },
-    ]) } as any);
+    ]) } as any); // ontologyService
   const decision = () => ({
     userId: 'student-1', recommendedBnccSkill: 'EF01MA06', recommendedDifficulty: 'hard',
     xaiLog: { mlPredictions: { masteryProbability: 0.85 } }, inputSnapshot: {},

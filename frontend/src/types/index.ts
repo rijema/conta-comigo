@@ -137,6 +137,12 @@ export interface Activity {
     source: 'CURRENT_ACTIVITY_CONTENT_AND_REPOSITORY_ONTOLOGY';
     conceptMappingStatus: 'MAPPED' | 'PARTIAL' | 'NEEDS_REVIEW' | 'UNMAPPED';
   };
+  // [INTEGRATION 3C-FINAL]: Review context (optional, only present for review activities)
+  reviewAssignmentId?: string;
+  recommendationId?: string;
+  islandId?: string;
+  cycleNumber?: number;
+  cyclePosition?: number;
 }
 
 export interface User {

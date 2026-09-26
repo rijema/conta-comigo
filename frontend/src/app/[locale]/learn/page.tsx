@@ -115,6 +115,10 @@ function LearnPageInner() {
   const [chatQuestion, setChatQuestion] = useState("");
   const [chatAnswer, setChatAnswer] = useState<string | null>(null);
   const [chatLoading, setChatLoading] = useState(false);
+  // [INTEGRATION 3C-FINAL]: Review mode state
+  const [showReviewTransition, setShowReviewTransition] = useState(false);
+  const [isInReviewMode, setIsInReviewMode] = useState(false);
+  const [lastNormalActivityId, setLastNormalActivityId] = useState<string | null>(null);
   const startCuePlayedRef = useRef(false);
   const returningRef = useRef(false);
   const router = useRouter();
@@ -144,8 +148,29 @@ function LearnPageInner() {
     if (session?.currentActivity) {
       if (settings.predictability !== 'high' && settings.visualStimulus !== 'low') setBgIdx((i) => (i + 1) % BG_THEMES.length);
       markActivityStarted(session.currentActivity.id);
+      
+      // [INTEGRATION 3C-FINAL]: Detect review mode transition
+      const isReview = Boolean(session.currentActivity.reviewAssignmentId);
+      const wasInReview = isInReviewMode;
+      
+      if (isReview && !wasInReview) {
+        // Entering review mode for the first time
+        setShowReviewTransition(true);
+        setIsInReviewMode(true);
+        // [INTEGRATION 3C-FINAL]: Speak review introduction using Titia
+        speech.speakFeedback("Vamos lembrar um pouquinho? Você vai fazer algumas atividades que já conhece para treinar mais.");
+        setTimeout(() => setShowReviewTransition(false), 3000);
+      } else if (!isReview && wasInReview) {
+        // Exiting review mode
+        setIsInReviewMode(false);
+      }
+      
+      // Track last normal activity for transition detection
+      if (!isReview) {
+        setLastNormalActivityId(session.currentActivity.id);
+      }
     }
-  }, [session?.currentActivity, markActivityStarted, settings.predictability, settings.visualStimulus]);
+  }, [session?.currentActivity, markActivityStarted, settings.predictability, settings.visualStimulus, isInReviewMode]);
 
   useEffect(() => {
     setShowAutoHint(false);
@@ -306,6 +331,21 @@ function LearnPageInner() {
         <div className="feedback-motion fixed inset-0 z-50 flex items-center justify-center bg-rose-500/45 pointer-events-none" style={{ animation: `feedbackFlash ${feedbackDuration}ms ease-out` }}>
           <div className="feedback-motion flex w-full items-center justify-center border-y-4 border-rose-200 bg-rose-600/90 py-4 shadow-2xl" style={{ animation: `feedbackSweep ${feedbackDuration}ms ease-in-out both` }}>
             <Image src="/assets/tryagain.png" width={440} height={330} alt="TitiA incentivando uma nova tentativa" className="h-64 w-auto object-contain sm:h-80" />
+          </div>
+        </div>
+      )}
+
+      {/* [INTEGRATION 3C-FINAL]: Review transition screen */}
+      {showReviewTransition && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 pointer-events-none" style={{ animation: `fadeInUp ${500}ms ease-out` }}>
+          <div className="flex flex-col items-center justify-center gap-4 rounded-3xl bg-white/95 backdrop-blur-sm p-8 shadow-2xl max-w-sm mx-4">
+            <Image src="/assets/titia-happy.png" width={200} height={200} alt="TitiA" className="h-40 w-auto object-contain" />
+            <p className="text-center text-2xl font-extrabold text-purple-700">
+              Vamos lembrar um pouquinho?
+            </p>
+            <p className="text-center text-sm text-slate-600">
+              Você vai fazer algumas atividades que já conhece para treinar mais.
+            </p>
           </div>
         </div>
       )}
