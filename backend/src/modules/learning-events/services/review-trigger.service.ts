@@ -108,13 +108,14 @@ export class ReviewTriggerService {
     }
 
     // [INTEGRATION 3C-FINAL]: Derive cycle and position from completion count
-    // Cycle 1: 0-9 completed → next position 1-10
-    // Cycle 2: 10-19 completed → next position 1-10
-    // Checkpoint triggers when position = 10 (end of cycle)
+    // Completed 0-9 → Cycle 1, positions 1-10 (next activity will be position 10 → checkpoint)
+    // Completed 10-19 → Cycle 2, positions 1-10 (next activity will be position 10 → checkpoint)
+    // Checkpoint triggers when completedNormalCount % CYCLE_SIZE === 9 (about to reach position 10)
     const currentCycle = Math.floor(completedNormalCount / CYCLE_SIZE) + 1;
     const positionInCycle = (completedNormalCount % CYCLE_SIZE) + 1;
 
-    // [INTEGRATION 3C-FINAL]: Only trigger checkpoint if next activity will reach cycle boundary
+    // [INTEGRATION 3C-FINAL]: Only trigger checkpoint if we just completed the last position in cycle
+    // (i.e., completedNormalCount % CYCLE_SIZE === 9, which means positionInCycle === 10)
     if (positionInCycle !== CYCLE_SIZE) {
       return null;
     }

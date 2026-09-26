@@ -11,6 +11,11 @@ interface ActivityAttemptPayload {
   timeSpentSeconds: number;
   hintsUsed: number;
   interactionSignals?: Record<string, unknown>;
+  // [INTEGRATION 3C-FINAL]: Review context (optional)
+  reviewAssignmentId?: string;
+  recommendationId?: string;
+  islandId?: string;
+  cycleNumber?: number;
 }
 
 interface ADEDecision {
