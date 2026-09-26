@@ -279,8 +279,7 @@ export function DragDropActivity({ activity, onAnswer }: Props) {
       slots.every((slot, index) => slot === correctOrder[index]);
     onAnswer({ arrangement: slots as string[], isCorrect });
     if (speech.settings.voiceEnabled) {
-      const feedback = isCorrect ? "Correto! Parabéns!" : "Tente novamente.";
-      speech.speakInstruction({ steps: [feedback] });
+
     }
     if (!isCorrect) resetForRetry();
   };

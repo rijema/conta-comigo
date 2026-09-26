@@ -50,10 +50,6 @@ export function CountingActivity({ activity, onAnswer, sensoryProfile }: Props) 
       setTimeout(() => setShowConfetti(false), 1500);
     }
     onAnswer({ count, isCorrect });
-    if (speech.settings.voiceEnabled) {
-      const feedback = isCorrect ? "Correto! Parabéns!" : "Tente novamente.";
-      speech.speakInstruction({ steps: [feedback] });
-    }
     if (!isCorrect) setCount(0);
   };
 
@@ -137,8 +133,11 @@ export function CountingActivity({ activity, onAnswer, sensoryProfile }: Props) 
           `}
           whileHover={count === 0 ? {} : { scale: 1.05 }}
           whileTap={count === 0 ? {} : { scale: 0.95 }}
+          aria-label="Confirmar"
+          title="Confirmar"
         >
           {count === 0 ? '😴' : count === targetCount ? '✅' : '→'}
+          <span className="ml-2">Confirmar</span>
         </motion.button>
       </div>
 
