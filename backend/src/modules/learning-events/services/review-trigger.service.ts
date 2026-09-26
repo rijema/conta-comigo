@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, LessThan } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { LearningEvent, LearningEventType } from '../entities/learning-event.entity';
-import { ReviewType } from '../entities/review-assignment.entity';
+import { ReviewAssignment, ReviewType } from '../entities/review-assignment.entity';
 
 export interface CheckpointMilestone {
   islandId: string;
@@ -29,6 +29,8 @@ export class ReviewTriggerService {
   constructor(
     @InjectRepository(LearningEvent)
     private readonly eventRepository: Repository<LearningEvent>,
+    @InjectRepository(ReviewAssignment)
+    private readonly assignmentRepository: Repository<ReviewAssignment>,
     private readonly configService: ConfigService,
   ) {
     this.sessionGapThresholdMinutes = this.configService.get<number>('REVIEW_SESSION_GAP_THRESHOLD_MINUTES', 60);
@@ -72,30 +74,66 @@ export class ReviewTriggerService {
 
   /**
    * Detect checkpoint milestone (end of island/cycle)
+   * [INTEGRATION 3C-FINAL]: Uses authoritative cycle derived from completed normal activities
    */
-  async detectCheckpointMilestone(studentId: string, islandId: string): Promise<CheckpointMilestone | null> {
-    // Get activities completed in this island in current session
-    const recentActivities = await this.eventRepository.find({
+  async detectCheckpointMilestone(
+    studentId: string,
+    islandId: string,
+    currentSessionId: string,
+  ): Promise<CheckpointMilestone | null> {
+    // [INTEGRATION 3C-FINAL]: Count completed normal activities in this island
+    // Only count ACTIVITY_COMPLETED events (not review, not failed, not skipped, not abandoned)
+    const completedEvents = await this.eventRepository.find({
       where: {
         studentId,
-        // Filter by island if available in metadata
+        eventType: LearningEventType.ACTIVITY_COMPLETED,
       },
-      order: { timestamp: 'DESC' },
-      take: 20,
     });
 
-    // Count completed activities
-    const completedCount = recentActivities.filter((e) => e.eventType === LearningEventType.ACTIVITY_COMPLETED).length;
+    // [INTEGRATION 3C-FINAL]: Filter by island and exclude review attempts
+    const CYCLE_SIZE = 10;
+    let completedNormalCount = 0;
 
-    // For now, trigger checkpoint after 10 activities (configurable)
-    const checkpointThreshold = this.configService.get<number>('REVIEW_CHECKPOINT_ACTIVITY_THRESHOLD', 10);
+    for (const event of completedEvents) {
+      const eventMetadata = event.metadata as Record<string, unknown> | null;
+      // Only count activities from this island
+      if (eventMetadata?.islandId !== islandId) {
+        continue;
+      }
+      // Exclude review attempts
+      if (eventMetadata?.reviewAssignmentId) {
+        continue;
+      }
+      completedNormalCount++;
+    }
 
-    if (completedCount >= checkpointThreshold) {
+    // [INTEGRATION 3C-FINAL]: Derive cycle and position from completion count
+    // Cycle 1: 0-9 completed → next position 1-10
+    // Cycle 2: 10-19 completed → next position 1-10
+    // Checkpoint triggers when position = 10 (end of cycle)
+    const currentCycle = Math.floor(completedNormalCount / CYCLE_SIZE) + 1;
+    const positionInCycle = (completedNormalCount % CYCLE_SIZE) + 1;
+
+    // [INTEGRATION 3C-FINAL]: Only trigger checkpoint if next activity will reach cycle boundary
+    if (positionInCycle !== CYCLE_SIZE) {
+      return null;
+    }
+
+    // [INTEGRATION 3C-FINAL]: Check if checkpoint already triggered for this cycle
+    // to prevent duplicate triggers on refresh/reconnect
+    const existingCheckpoint = await this.assignmentRepository.findOne({
+      where: {
+        studentId,
+        // TODO: Add cycleNumber to ReviewAssignment to track per-cycle checkpoints
+      },
+    });
+
+    if (!existingCheckpoint) {
       return {
         islandId,
-        cycleNumber: 1, // TODO: extract from session metadata
-        completedActivitiesCount: completedCount,
-        totalActivitiesInCycle: checkpointThreshold,
+        cycleNumber: currentCycle,
+        completedActivitiesCount: completedNormalCount,
+        totalActivitiesInCycle: CYCLE_SIZE,
       };
     }
 

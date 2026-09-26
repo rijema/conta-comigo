@@ -2,18 +2,23 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ReviewTriggerService } from '../review-trigger.service';
 import { LearningEvent, LearningEventType } from '../../entities/learning-event.entity';
+import { ReviewAssignment, ReviewType } from '../../entities/review-assignment.entity';
 import { ConfigService } from '@nestjs/config';
-import { ReviewType } from '../../entities/review-assignment.entity';
 
 describe('ReviewTriggerService', () => {
   let service: ReviewTriggerService;
   let mockEventRepository: any;
+  let mockAssignmentRepository: any;
   let mockConfigService: any;
 
   beforeEach(async () => {
     mockEventRepository = {
       findOne: jest.fn(),
       find: jest.fn(),
+    };
+
+    mockAssignmentRepository = {
+      findOne: jest.fn(),
     };
 
     mockConfigService = {
@@ -26,6 +31,10 @@ describe('ReviewTriggerService', () => {
         {
           provide: getRepositoryToken(LearningEvent),
           useValue: mockEventRepository,
+        },
+        {
+          provide: getRepositoryToken(ReviewAssignment),
+          useValue: mockAssignmentRepository,
         },
         {
           provide: ConfigService,
@@ -90,43 +99,75 @@ describe('ReviewTriggerService', () => {
   });
 
   describe('Checkpoint Milestone Detection', () => {
-    it('should detect checkpoint after threshold activities', async () => {
+    it('should detect checkpoint after threshold activities in same island/cycle', async () => {
       const studentId = 'student-1';
       const islandId = 'island-1';
 
-      // 10 completed activities
+      // [INTEGRATION 3C-FINAL]: 10 completed activities with island/cycle metadata
       const activities = Array.from({ length: 10 }, (_, i) => ({
         id: `event-${i}`,
         studentId,
         eventType: LearningEventType.ACTIVITY_COMPLETED,
         timestamp: new Date(),
+        metadata: {
+          islandId,
+          cycleNumber: 1,
+        },
       }));
 
       mockEventRepository.find.mockResolvedValue(activities);
 
-      const milestone = await service.detectCheckpointMilestone(studentId, islandId);
+      const milestone = await service.detectCheckpointMilestone(studentId, islandId, 'session-1');
 
       expect(milestone).toBeDefined();
       expect(milestone?.completedActivitiesCount).toBe(10);
+      expect(milestone?.cycleNumber).toBe(1);
     });
 
     it('should NOT detect checkpoint before threshold', async () => {
       const studentId = 'student-1';
       const islandId = 'island-1';
 
-      // 5 completed activities
+      // [INTEGRATION 3C-FINAL]: 5 completed activities with island/cycle metadata
       const activities = Array.from({ length: 5 }, (_, i) => ({
         id: `event-${i}`,
         studentId,
         eventType: LearningEventType.ACTIVITY_COMPLETED,
         timestamp: new Date(),
+        metadata: {
+          islandId,
+          cycleNumber: 1,
+        },
       }));
 
       mockEventRepository.find.mockResolvedValue(activities);
 
-      const milestone = await service.detectCheckpointMilestone(studentId, islandId);
+      const milestone = await service.detectCheckpointMilestone(studentId, islandId, 'session-1');
 
       expect(milestone).toBeNull();
+    });
+
+    it('should NOT count activities from different island', async () => {
+      const studentId = 'student-1';
+      const islandId = 'island-1';
+
+      // [INTEGRATION 3C-FINAL]: 10 activities but from different island
+      const activities = Array.from({ length: 10 }, (_, i) => ({
+        id: `event-${i}`,
+        studentId,
+        eventType: LearningEventType.ACTIVITY_COMPLETED,
+        timestamp: new Date(),
+        metadata: {
+          islandId: 'island-2', // Different island
+          cycleNumber: 1,
+        },
+      }));
+
+      mockEventRepository.find.mockResolvedValue(activities);
+
+      const milestone = await service.detectCheckpointMilestone(studentId, islandId, 'session-1');
+
+      expect(milestone).toBeNull(); // Should not count activities from different island
     });
   });
 

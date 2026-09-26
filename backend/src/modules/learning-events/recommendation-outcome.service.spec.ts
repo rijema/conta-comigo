@@ -19,6 +19,17 @@ describe('RecommendationOutcomeService', () => {
       if (!items.includes(value)) items.push(value);
       return value;
     }),
+    // [INTEGRATION 3C]: Add upsert to match TypeORM Repository behavior
+    upsert: jest.fn(async (value: any, conflictKeys: string[]) => {
+      if (!value.id) value.id = `${key}-${items.length + 1}`;
+      const existingIndex = items.findIndex((item: any) => conflictKeys.some((k: string) => item[k] === value[k]));
+      if (existingIndex >= 0) {
+        items[existingIndex] = { ...items[existingIndex], ...value };
+      } else {
+        items.push(value);
+      }
+      return { generatedMaps: [], raw: [], affected: 1 };
+    }),
   });
   const outcomeRepository = repository(outcomes, 'recommendationId');
   const transitionRepository = repository(transitions, 'previousRecommendationId');

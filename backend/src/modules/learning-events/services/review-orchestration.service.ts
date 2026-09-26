@@ -158,8 +158,55 @@ export class ReviewOrchestrationService {
   }
 
   /**
+   * Validate and complete review activity
+   * [INTEGRATION 3C]: Validates assignment/activity/student match before completion
+   */
+  async validateAndCompleteReviewActivity(
+    reviewAssignmentId: string,
+    reviewAttemptId: string,
+    studentId: string,
+    submittedActivityId: string,
+  ): Promise<ReviewOutcome> {
+    // Verify assignment exists
+    const assignment = await this.assignmentRepository.findOne({
+      where: { id: reviewAssignmentId },
+    });
+
+    if (!assignment) {
+      throw new Error(`ReviewAssignment ${reviewAssignmentId} not found`);
+    }
+
+    // [INTEGRATION 3C]: Validate student ownership
+    if (assignment.studentId !== studentId) {
+      throw new Error(`ReviewAssignment ${reviewAssignmentId} does not belong to student ${studentId}`);
+    }
+
+    // [INTEGRATION 3C]: Validate activity match
+    if (assignment.selectedActivityTemplateId !== submittedActivityId) {
+      throw new Error(
+        `ReviewAssignment ${reviewAssignmentId} expects activity ${assignment.selectedActivityTemplateId}, got ${submittedActivityId}`,
+      );
+    }
+
+    // [INTEGRATION 3C]: Validate assignment is not already completed
+    if (assignment.completedAt) {
+      // Idempotency: return existing outcome if already completed
+      const existingOutcome = await this.outcomeRepository.findOne({
+        where: { reviewAssignmentId },
+      });
+      if (existingOutcome) {
+        return existingOutcome;
+      }
+    }
+
+    // Delegate to completeReviewActivity for the actual completion
+    return this.completeReviewActivity(reviewAssignmentId, reviewAttemptId);
+  }
+
+  /**
    * Handle review activity completion
    * [INTEGRATION 3B.2]: Uses real persisted ActivityAttempt data, not frontend-supplied masteryAfter
+   * [INTEGRATION 3B.3]: Validates assignment/attempt ownership and idempotency
    */
   async completeReviewActivity(
     reviewAssignmentId: string,
@@ -172,6 +219,17 @@ export class ReviewOrchestrationService {
 
     if (!assignment) {
       throw new Error(`ReviewAssignment ${reviewAssignmentId} not found`);
+    }
+
+    // [INTEGRATION 3B.3]: Validate assignment is not already completed
+    if (assignment.completedAt) {
+      // Idempotency: return existing outcome if already completed
+      const existingOutcome = await this.outcomeRepository.findOne({
+        where: { reviewAssignmentId },
+      });
+      if (existingOutcome) {
+        return existingOutcome;
+      }
     }
 
     // [INTEGRATION 3B.2]: Resolve real ActivityAttempt from persisted data
