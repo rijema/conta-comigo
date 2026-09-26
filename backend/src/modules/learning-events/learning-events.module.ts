@@ -71,6 +71,7 @@ import { UsersModule } from '../users/users.module';
     ReviewTriggerService,
     LongitudinalComparisonService,
     ReviewOrchestrationService,
+    ResearchPseudonymizationService,
   ],
 })
 export class LearningEventsModule {}

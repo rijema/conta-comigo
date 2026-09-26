@@ -140,7 +140,7 @@ export class LongitudinalReviewExportService {
     const results = await this.dataSource.query(sql, [studentId]);
     
     // [INTEGRATION 3C-FINAL]: Use HMAC-based pseudonym instead of UUID substring
-    const pseudonym = this.pseudonymizationService.generatePseudonym(studentId);
+    const pseudonym = this.pseudonymizationService.pseudonymizeLearnerId(studentId);
     
     return results.map((row: any) => ({
       pseudonymousLearnerId: pseudonym,

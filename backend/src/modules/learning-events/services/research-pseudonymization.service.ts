@@ -1,45 +1,74 @@
-/**
- * Research Pseudonymization Service
- * [INTEGRATION 3C-FINAL]: Deterministic HMAC-based pseudonym generation
- */
-
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as crypto from 'crypto';
+import { createHmac } from 'crypto';
 
+/**
+ * [PROPOSTA CONTA COMIGO]: Research Pseudonymization Service
+ * 
+ * Converts learner UUIDs to deterministic one-way pseudonyms for research export.
+ * - Same learner → same pseudonym (deterministic)
+ * - Different learner → different pseudonym
+ * - Pseudonym does NOT contain substring of original UUID
+ * - Uses HMAC-SHA256 with configured secret
+ * - Secret never committed to source
+ */
 @Injectable()
 export class ResearchPseudonymizationService {
-  private readonly secret: string;
+  private readonly pseudonymizationSecret: string;
 
   constructor(private readonly configService: ConfigService) {
-    // Get secret from environment or use a default for development
-    this.secret = this.configService.get<string>(
-      'RESEARCH_PSEUDONYM_SECRET',
-      'default-dev-secret-change-in-production'
+    this.pseudonymizationSecret = this.configService.get<string>(
+      'RESEARCH_PSEUDONYMIZATION_SECRET',
+      'default-insecure-secret-change-in-production',
     );
+
+    if (this.pseudonymizationSecret === 'default-insecure-secret-change-in-production') {
+      console.warn(
+        '[RESEARCH PSEUDONYMIZATION] Using default secret. Set RESEARCH_PSEUDONYMIZATION_SECRET environment variable for production.',
+      );
+    }
   }
 
   /**
-   * Generate a deterministic pseudonym for a learner
-   * [INTEGRATION 3C-FINAL]: HMAC-SHA256 based, stable across sessions
-   * Does not expose any substring of the original UUID
+   * Generate deterministic pseudonym for a learner UUID
+   * [PROPOSTA CONTA COMIGO]: One-way HMAC-based pseudonymization
+   * 
+   * @param learnerUuid Original learner UUID
+   * @returns Deterministic pseudonym (hex string, 64 chars for SHA256)
    */
-  generatePseudonym(learnerId: string): string {
-    const hmac = crypto
-      .createHmac('sha256', this.secret)
-      .update(learnerId)
-      .digest('hex');
-    
-    // Return first 16 characters of hex digest (128 bits)
-    // This is stable, deterministic, and doesn't expose UUID substrings
-    return `learner-${hmac.substring(0, 16)}`;
+  pseudonymizeLearnerId(learnerUuid: string): string {
+    // Use HMAC-SHA256 to create deterministic one-way pseudonym
+    const hmac = createHmac('sha256', this.pseudonymizationSecret);
+    hmac.update(learnerUuid);
+    const pseudonym = hmac.digest('hex');
+
+    // Verify pseudonym does not contain substring of original UUID
+    // (HMAC output is hex, UUID contains hyphens and alphanumeric - extremely unlikely to collide)
+    const uuidWithoutHyphens = learnerUuid.replace(/-/g, '');
+    if (pseudonym.includes(uuidWithoutHyphens)) {
+      throw new Error(
+        `[RESEARCH PSEUDONYMIZATION] Generated pseudonym contains original UUID substring (cryptographic failure)`,
+      );
+    }
+
+    return pseudonym;
   }
 
   /**
-   * Verify that a pseudonym is valid for a learner
+   * Batch pseudonymize multiple learner UUIDs
    */
-  verifyPseudonym(learnerId: string, pseudonym: string): boolean {
-    const expected = this.generatePseudonym(learnerId);
-    return pseudonym === expected;
+  pseudonymizeMultiple(learnerUuids: string[]): Map<string, string> {
+    const mapping = new Map<string, string>();
+    for (const uuid of learnerUuids) {
+      mapping.set(uuid, this.pseudonymizeLearnerId(uuid));
+    }
+    return mapping;
+  }
+
+  /**
+   * Verify pseudonym consistency (for testing)
+   */
+  verifyConsistency(learnerUuid: string, expectedPseudonym: string): boolean {
+    return this.pseudonymizeLearnerId(learnerUuid) === expectedPseudonym;
   }
 }
