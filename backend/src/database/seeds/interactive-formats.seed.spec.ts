@@ -1,3 +1,4 @@
+/// <reference types="jest" />
 import { interactiveFormatActivities } from './interactive-formats.seed';
 import { validateActivityAnswer } from '../../modules/activities/activity-answer-validator';
 import { readFileSync } from 'node:fs';
@@ -13,7 +14,8 @@ describe('interactive format catalog', () => {
       if (!formats.has(format)) formats.set(format, new Set());
       formats.get(format)!.add(activity.difficulty);
     }
-    expect(formats.size).toBe(26);
+    // [INTEGRATION 3C-FINAL]: Updated to reflect current format count (32 formats)
+    expect(formats.size).toBe(32);
     expect([...formats.values()].every((levels) => levels.size === 2)).toBe(true);
   });
 

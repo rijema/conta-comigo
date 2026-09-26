@@ -26,6 +26,7 @@ import { ActivityAttempt } from '../activities/entities/activity-attempt.entity'
 import { Activity } from '../activities/entities/activity.entity';
 import { OntologyModule } from '../ontology/ontology.module';
 import { AdeModule } from '../ade/ade.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { AdeModule } from '../ade/ade.module';
     ]),
     OntologyModule,
     AdeModule,
+    UsersModule,
   ],
   controllers: [LearningAnalyticsMetricsController, LearningEventsController],
   providers: [

@@ -158,6 +158,112 @@ export class ReviewOrchestrationService {
   }
 
   /**
+   * Create review session with trigger context
+   * [INTEGRATION 3C-FINAL]: Supports checkpoint and retention triggers with proper scoping
+   */
+  async createReviewSessionWithTrigger(
+    studentId: string,
+    sessionId: string,
+    triggerType: 'CHECKPOINT' | 'RETENTION',
+    triggerContext?: { islandId?: string; cycleNumber?: number },
+    config: Partial<ReviewSessionConfig> = {},
+  ): Promise<ReviewSessionResult> {
+    const finalConfig = { ...this.defaultConfig, ...config };
+
+    // Step 1: Generate review candidates
+    const candidates = await this.candidateGenerationService.generateReviewCandidates(studentId);
+
+    if (candidates.length === 0) {
+      this.logger.warn(`No review candidates for student ${studentId}`);
+      return {
+        sessionId,
+        studentId,
+        assignments: [],
+        composition: { remediation: 0, retention: 0, generalization: 0 },
+      };
+    }
+
+    // Step 2: Distribute candidates by review type
+    const distributedCandidates = this.distributeByType(candidates, finalConfig);
+
+    // Step 3: Load real learner profile for review selection
+    const childProfile = await this.childProfileRepository.findOne({
+      where: { userId: studentId },
+    });
+
+    // Step 4: Select activities for each distributed candidate
+    const assignments: ReviewAssignment[] = [];
+
+    for (const candidate of distributedCandidates) {
+      try {
+        const learnerProfile = childProfile
+          ? {
+              studentId,
+              accessibilityNeeds: {
+                sensoryLoad: (childProfile.uiPreferences?.visualStimulus ?? 'medium') as 'low' | 'medium' | 'high',
+                motorDemand: 'medium' as 'low' | 'medium' | 'high',
+                languageLoad: 'medium' as 'low' | 'medium' | 'high',
+              },
+              preferredModalities: childProfile.uiPreferences?.preferredModality ? [childProfile.uiPreferences.preferredModality] : [],
+              professionalConstraints: childProfile.uiPreferences?.disabledActivityTypes ?? [],
+            }
+          : { studentId };
+
+        const selection = await this.selectionService.selectReviewActivity(
+          studentId,
+          candidate.skillId,
+          candidate.reviewType,
+          learnerProfile,
+        );
+
+        const assignment = this.assignmentRepository.create({
+          studentId,
+          skillId: candidate.skillId,
+          reviewType: candidate.reviewType,
+          sourceInteractionIds: candidate.sourceInteractionIds || [],
+          sourceRecommendationIds: [],
+          selectedActivityTemplateId: selection.templateId,
+          selectedActivityInstanceId: selection.instanceId,
+          reason: selection.reason,
+          priorityScore: candidate.priorityScore,
+          scoringConfiguration: candidate.scoringConfiguration || {
+            version: 'review-priority-score/1.0.0',
+            weights: {},
+            thresholds: {},
+            timestamp: new Date(),
+          },
+          scoringBreakdown: candidate.scoringBreakdown,
+          baselineState: candidate.baselineState,
+          // [INTEGRATION 3C-FINAL]: Set trigger context
+          triggerType,
+          islandId: triggerContext?.islandId,
+          cycleNumber: triggerContext?.cycleNumber,
+        });
+
+        assignments.push(await this.assignmentRepository.save(assignment));
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        this.logger.error(`Failed to select activity for skill ${candidate.skillId}: ${errorMessage}`);
+        continue;
+      }
+    }
+
+    // Step 5: Calculate actual composition
+    const composition = {
+      remediation: assignments.filter((a) => a.reviewType === ReviewType.REMEDIATION).length,
+      retention: assignments.filter((a) => a.reviewType === ReviewType.RETENTION).length,
+      generalization: assignments.filter((a) => a.reviewType === ReviewType.GENERALIZATION).length,
+    };
+
+    return {
+      sessionId,
+      studentId,
+      assignments,
+      composition,
+    };
+  }
+
+  /**
    * Validate and complete review activity
    * [INTEGRATION 3C]: Validates assignment/activity/student match before completion
    */
