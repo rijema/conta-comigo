@@ -36,9 +36,20 @@ function normalizeSubmittedAnswer(answer: unknown): unknown {
   if (!answer || typeof answer !== 'object' || Array.isArray(answer)) return answer;
   const record = answer as Record<string, unknown>;
   // Extract the actual answer value from wrapped objects
-  // Supports: { value }, { selectedText }, { selectedOption }, { count }, { arrangement }, or raw answer
+  // Supports: { value }, { selectedText }, { selectedOption }, { count }, { arrangement },
+  // { correct } (minigame completion signal), or raw answer
   const extracted = record.value ?? record.selectedText ?? record.selectedOption ?? record.count ?? record.arrangement ?? record.answer ?? answer;
   return extracted;
+}
+
+/**
+ * Returns true if the submitted answer is a minigame completion signal
+ * ({ correct: true }) — treated as authoritative self-reported correctness.
+ */
+function isMinigameCompletionSignal(answer: unknown): boolean {
+  if (!answer || typeof answer !== 'object' || Array.isArray(answer)) return false;
+  const record = answer as Record<string, unknown>;
+  return typeof record.correct === 'boolean' && Object.keys(record).every((k) => k === 'correct' || k === 'score');
 }
 
 function arraysEqual(left: unknown[], right: unknown[]): boolean {
@@ -61,6 +72,11 @@ export function validateActivityAnswer(
   content: ParametricActivityContent,
   submittedAnswer: unknown,
 ): boolean {
+  // Minigame components self-report correctness via { correct: boolean, score? }
+  if (isMinigameCompletionSignal(submittedAnswer)) {
+    return (submittedAnswer as Record<string, unknown>).correct === true;
+  }
+
   const validation = content.validation;
   const correct = content.correctAnswer;
   const answer = validation?.kind === 'compound'
