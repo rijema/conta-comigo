@@ -10,10 +10,12 @@ import { KafkaModule } from '../kafka/kafka.module';
 import { KnowledgeTracingModule } from '../knowledge-tracing/knowledge-tracing.module';
 import { RecommendationExplanationService } from './recommendation-explanation.service';
 import { HybridRecommendationService } from './hybrid-recommendation.service';
+import { IslandContextService } from './island-context.service';
+import { ActivityAttempt } from '../activities/entities/activity-attempt.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([AdeDecision]),
+    TypeOrmModule.forFeature([AdeDecision, ActivityAttempt]),
     HttpModule,
     KafkaModule,
     KnowledgeTracingModule,
@@ -25,7 +27,8 @@ import { HybridRecommendationService } from './hybrid-recommendation.service';
     MlEngineService,
     RecommendationExplanationService,
     HybridRecommendationService,
+    IslandContextService,
   ],
-  exports: [AdeService, RecommendationExplanationService, HybridRecommendationService],
+  exports: [AdeService, RecommendationExplanationService, HybridRecommendationService, IslandContextService],
 })
 export class AdeModule {}

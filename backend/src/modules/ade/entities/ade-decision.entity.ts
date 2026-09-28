@@ -60,6 +60,12 @@ export class AdeDecision {
   @Column({ type: 'text', nullable: true })
   fallbackReason?: string | null;
 
+  @Column({ type: 'varchar', nullable: true })
+  recommendedIslandId?: string | null;
+
+  @Column({ type: 'integer', nullable: true })
+  sequenceInIsland?: number | null;
+
   @CreateDateColumn()
   createdAt: Date;
 }

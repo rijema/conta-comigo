@@ -10,6 +10,7 @@ describe('AdeService hybrid decision persistence', () => {
       {} as any,
       {} as any,
       {} as any,
+      {} as any,
     );
     const decision = { id: 'recommendation-1', xaiLog: {} } as any;
     const ranking = {
@@ -45,6 +46,7 @@ describe('AdeService hybrid decision persistence', () => {
       { save: jest.fn(async (value) => value) } as any,
       {} as any, {} as any, {} as any,
       { publishAdeDecision } as any,
+      {} as any,
       {} as any,
     );
     await service.recordHybridRanking({ id: 'recommendation-2', userId: 'student-1',

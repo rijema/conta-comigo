@@ -11,6 +11,7 @@ import { ActivityAttempt } from '../activities/entities/activity-attempt.entity'
 import { KnowledgeTracingService } from '../knowledge-tracing/knowledge-tracing.service';
 import { SemanticFilteringTrace } from '../ontology/semantic-runtime.types';
 import { HybridRankingResult } from './hybrid-recommendation.service';
+import { IslandContextService } from './island-context.service';
 
 export interface AdeInput {
   userId: string;
@@ -33,6 +34,7 @@ export class AdeService {
     private readonly mlEngine: MlEngineService,
     private readonly kafkaProducer: KafkaProducerService,
     private readonly knowledgeTracingService: KnowledgeTracingService,
+    private readonly islandContextService: IslandContextService,
   ) {}
 
   /**
@@ -113,6 +115,13 @@ export class AdeService {
       ontologyResult.modalities[0] ||
       'visual';
 
+    // === STEP 3.5: Island Context Enhancement ===
+    const islandEnhancement = await this.islandContextService.enhanceAdeDecision(
+      input.userId,
+      ruleResult.recommendedDifficulty,
+      primaryModality,
+    );
+
     const xaiLog = {
       ontologyInferences: [],
       legacyProceduralSignals: ontologyResult.inferences,
@@ -123,7 +132,13 @@ export class AdeService {
         confidence: mlPredictions.confidence,
         fallback: mlPredictions.fallback || false,
       },
-      finalReason: `Legacy procedural modality(${ontologyResult.inferences.length} signals) + Rules(${ruleResult.rulesFired.length} fired) + BKT(mastery=${currentMastery.toFixed(2)})`,
+      islandContext: {
+        currentIslandId: islandEnhancement.islandId,
+        shouldStayInIsland: islandEnhancement.shouldStayInIsland,
+        shouldProgressToNextIsland: islandEnhancement.shouldProgressToNextIsland,
+        successRateByType: islandEnhancement.successRateByType,
+      },
+      finalReason: `Legacy procedural modality(${ontologyResult.inferences.length} signals) + Rules(${ruleResult.rulesFired.length} fired) + BKT(mastery=${currentMastery.toFixed(2)}) + Island(${islandEnhancement.islandId || 'none'})`,
       confidence: mlPredictions.confidence,
     };
 
@@ -136,6 +151,8 @@ export class AdeService {
       recommendedActivityType: this.mapModalityToActivityType(primaryModality),
       recommendedBnccSkill: currentSkillCode,
       xaiLog,
+      recommendedIslandId: islandEnhancement.islandId,
+      sequenceInIsland: islandEnhancement.sequenceInIsland,
       inputSnapshot: {
         strengths,
         weaknesses,
