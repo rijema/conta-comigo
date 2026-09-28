@@ -137,6 +137,7 @@ export function ActivityRenderer({
               difficulty={(activity.difficulty as any) || 'easy'}
               onComplete={(score, isCorrect) => onAnswer({ correct: isCorrect, score })}
               isTEAMode={true}
+              activity={activity}
             />
           );
         }
