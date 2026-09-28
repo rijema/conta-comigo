@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import { ActivityRenderer } from "@/components/activity/activity-renderer";
 import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
+import { PictogramPanel } from "./pictogram-panel";
 import { useTitiaSpeech } from "@/hooks/use-titia-speech";
 import type { Activity } from "@/types";
 
@@ -66,8 +67,15 @@ export function ActivitySandbox() {
   const [showTutorial, setShowTutorial] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [chatText, setChatText] = useState("");
+  const [debugTab, setDebugTab] = useState<"pictograms" | "raw">("pictograms");
+  // Local overrides for current activity content (after pictogram swaps)
+  const [activityOverrides, setActivityOverrides] = useState<Record<string, Activity>>({});
 
   const current = filtered[index];
+  // Use local override when available (e.g. after a pictogram swap)
+  const currentActivity = current
+    ? (activityOverrides[current.id] ?? current)
+    : current;
   const speech = useTitiaSpeech({ activityId: current?.id });
 
   useEffect(() => {
@@ -95,18 +103,22 @@ export function ActivitySandbox() {
     setIndex(0);
   }, [activities, typeFilter, diffFilter]);
 
+  const handleActivityUpdated = useCallback((updated: Activity) => {
+    setActivityOverrides((prev) => ({ ...prev, [updated.id]: updated }));
+  }, []);
+
   const handleAnswer = useCallback(async (answer: unknown) => {
-    if (!current) return;
+    if (!currentActivity) return;
     try {
       const res = await fetch(`${SANDBOX_BASE}/evaluate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ activityId: current.id, answer }),
+        body: JSON.stringify({ activityId: currentActivity.id, answer }),
       });
       const { isCorrect } = await res.json();
       const state: FeedbackState = isCorrect ? "correct" : "wrong";
       setFeedback(state);
-      setAnswered((prev) => ({ ...prev, [current.id]: isCorrect ? "correct" : "wrong" }));
+      setAnswered((prev) => ({ ...prev, [currentActivity.id]: isCorrect ? "correct" : "wrong" }));
       if (isCorrect) {
         speech.speakFeedback("Muito bem! Você conseguiu.");
       } else {
@@ -132,8 +144,8 @@ export function ActivitySandbox() {
   };
 
   const handleOpenTutorial = () => {
-    if (!current) return;
-    const steps = getTutorialSteps(current).map((s) => s.text);
+    if (!currentActivity) return;
+    const steps = getTutorialSteps(currentActivity).map((s) => s.text);
     speech.speakInstruction({ introduction: "Vamos ver como jogar.", steps });
     setShowTutorial(true);
   };
@@ -163,7 +175,7 @@ export function ActivitySandbox() {
     );
   }
 
-  if (!current) {
+  if (!currentActivity) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50">
         <p className="text-xl text-slate-500">Nenhum exercício encontrado para este filtro.</p>
@@ -289,15 +301,15 @@ export function ActivitySandbox() {
         <main className="flex-1 min-w-0">
           {/* Activity metadata */}
           <div className="mb-3 flex flex-wrap gap-2 items-center">
-            <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-700">{current.type}</span>
-            <span className={`rounded-full px-3 py-1 text-xs font-bold ${difficultyColors[current.difficulty ?? ""] ?? "bg-slate-100 text-slate-500"}`}>
-              {current.difficulty}
+            <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-700">{currentActivity.type}</span>
+            <span className={`rounded-full px-3 py-1 text-xs font-bold ${difficultyColors[currentActivity.difficulty ?? ""] ?? "bg-slate-100 text-slate-500"}`}>
+              {currentActivity.difficulty}
             </span>
-            {(current.bnccSkills ?? []).map((skill: string) => (
+            {(currentActivity.bnccSkills ?? []).map((skill: string) => (
               <span key={skill} className="rounded-full bg-purple-100 px-3 py-1 text-xs font-bold text-purple-700">{skill}</span>
             ))}
-            <span className="ml-auto text-xs font-mono text-slate-400 truncate max-w-[160px]" title={current.id}>
-              {current.id.slice(0, 8)}…
+            <span className="ml-auto text-xs font-mono text-slate-400 truncate max-w-[160px]" title={currentActivity.id}>
+              {currentActivity.id.slice(0, 8)}…
             </span>
           </div>
 
@@ -333,39 +345,70 @@ export function ActivitySandbox() {
           <div className="overflow-hidden rounded-3xl border-2 border-white/80 bg-white/90 shadow-xl backdrop-blur-sm">
             <div className="h-2" style={{
               background:
-                current.type === "quiz" || current.type === "multiple_choice"
+                currentActivity.type === "quiz" || currentActivity.type === "multiple_choice"
                   ? "linear-gradient(90deg,#34d399,#059669)"
-                  : current.type === "counting"
+                  : currentActivity.type === "counting"
                   ? "linear-gradient(90deg,#818cf8,#6366f1)"
-                  : current.type === "drag_drop"
+                  : currentActivity.type === "drag_drop"
                   ? "linear-gradient(90deg,#f59e0b,#d97706)"
-                  : current.type === "number_line"
+                  : currentActivity.type === "number_line"
                   ? "linear-gradient(90deg,#ec4899,#db2777)"
                   : "linear-gradient(90deg,#06b6d4,#0284c7)",
             }} />
             <div className="p-4">
               <ActivityRenderer
-                key={current.id}
-                activity={current}
+                key={currentActivity.id}
+                activity={currentActivity}
                 onAnswer={handleAnswer}
               />
             </div>
           </div>
 
           {/* Debug panel */}
-          <details className="mt-4">
-            <summary className="cursor-pointer text-xs font-mono text-slate-400 hover:text-slate-600">
-              Ver dados brutos (content)
-            </summary>
-            <pre className="mt-2 overflow-x-auto rounded-xl bg-slate-900 p-4 text-xs text-emerald-300">
-              {JSON.stringify(current.content, null, 2)}
-            </pre>
-          </details>
+          <div className="mt-4 rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm">
+            {/* Tab bar */}
+            <div className="flex border-b border-slate-100">
+              <button
+                type="button"
+                onClick={() => setDebugTab("pictograms")}
+                className={`flex-1 px-4 py-2 text-xs font-bold transition-colors ${
+                  debugTab === "pictograms"
+                    ? "border-b-2 border-blue-500 bg-blue-50 text-blue-700"
+                    : "text-slate-400 hover:text-slate-600"
+                }`}
+              >
+                🖼 Pictogramas
+              </button>
+              <button
+                type="button"
+                onClick={() => setDebugTab("raw")}
+                className={`flex-1 px-4 py-2 text-xs font-bold transition-colors ${
+                  debugTab === "raw"
+                    ? "border-b-2 border-emerald-500 bg-emerald-50 text-emerald-700"
+                    : "text-slate-400 hover:text-slate-600"
+                }`}
+              >
+                {"{ }"} JSON bruto
+              </button>
+            </div>
+            <div className="p-4">
+              {debugTab === "pictograms" ? (
+                <PictogramPanel
+                  activity={currentActivity}
+                  onActivityUpdated={handleActivityUpdated}
+                />
+              ) : (
+                <pre className="overflow-x-auto rounded-xl bg-slate-900 p-4 text-xs text-emerald-300 max-h-96">
+                  {JSON.stringify(currentActivity.content, null, 2)}
+                </pre>
+              )}
+            </div>
+          </div>
         </main>
       </div>
 
       {/* Tutorial modal */}
-      {showTutorial && current && (
+      {showTutorial && currentActivity && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
             <div className="mb-4 flex items-center justify-between">
@@ -377,7 +420,7 @@ export function ActivitySandbox() {
             </div>
             <p className="mb-4 text-center text-sm font-bold text-purple-700">Vamos aprender como usar esta atividade.</p>
             <ol className="mb-5 grid gap-3">
-              {getTutorialSteps(current).map((step, i) => (
+              {getTutorialSteps(currentActivity).map((step, i) => (
                 <li key={step.text}>
                   <button
                     type="button"
