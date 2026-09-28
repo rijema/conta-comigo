@@ -910,9 +910,26 @@ export class ActivitiesService {
       this.matchesExperienceRestrictions(activity, preferences));
     if (!eligibleActivities.length) throw new Error('No activity satisfies known prerequisites');
     const strategy = await this.planLearningStrategy(adeDecision, eligibleActivities, recentAttempts);
-    const sameSkill = eligibleActivities.filter((activity) =>
+    
+    // [PROPOSTA CONTA COMIGO] Filter by recommended island first if available
+    let islandCandidates = eligibleActivities;
+    if (adeDecision.recommendedIslandId) {
+      // Get activities mapped to the recommended island
+      const islandMappings = await this.islandActivityMappingRepo.find({
+        where: { islandId: adeDecision.recommendedIslandId, isActive: true },
+      });
+      const islandActivityIds = new Set(islandMappings.map((m) => m.activityId));
+      const islandActivities = eligibleActivities.filter((activity) =>
+        islandActivityIds.has(activity.id),
+      );
+      if (islandActivities.length > 0) {
+        islandCandidates = islandActivities;
+      }
+    }
+    
+    const sameSkill = islandCandidates.filter((activity) =>
       activity.bnccSkills?.includes(adeDecision.recommendedBnccSkill));
-    const skillCandidates = sameSkill.length ? sameSkill : eligibleActivities;
+    const skillCandidates = sameSkill.length ? sameSkill : islandCandidates;
     const legacyCandidates = skillCandidates.filter((activity) =>
       this.matchesLegacyRecommendation(activity, adeDecision),
     );
@@ -1128,13 +1145,26 @@ export class ActivitiesService {
     const recentStructures = new Set(recent.map((item) => item.content?.semantic?.structureId ?? item.title));
     const recentItems = new Set(recent.map((item) => JSON.stringify(item.content?.items ?? item.content?.pictogramConceptIds ?? [])));
     const recentTypes = new Set(recent.slice(0, 2).map((item) => item.type));
+    
+    // [PROPOSTA CONTA COMIGO] Add island diversity to cooldown
+    // Prefer activities from different islands to increase variety
+    const recentIslandIds = new Set(recent.map((item) => item.islandId).filter(Boolean));
+    
     const stages = [
+      // Stage 1: Maximum diversity - different island, structure, items, AND type
       (item: Activity) => !recentIds.slice(0, 8).includes(item.id) &&
         !recentStructures.has(item.content?.semantic?.structureId ?? item.title) &&
         !recentItems.has(JSON.stringify(item.content?.items ?? item.content?.pictogramConceptIds ?? [])) &&
-        !recentTypes.has(item.type),
+        !recentTypes.has(item.type) &&
+        !recentIslandIds.has(item.islandId),
+      // Stage 2: Different island and structure
       (item: Activity) => !recentIds.slice(0, 5).includes(item.id) &&
-        !recentStructures.has(item.content?.semantic?.structureId ?? item.title),
+        !recentStructures.has(item.content?.semantic?.structureId ?? item.title) &&
+        !recentIslandIds.has(item.islandId),
+      // Stage 3: Different island
+      (item: Activity) => !recentIds.slice(0, 2).includes(item.id) &&
+        !recentIslandIds.has(item.islandId),
+      // Stage 4: Just avoid recent (fallback)
       (item: Activity) => !recentIds.slice(0, 2).includes(item.id),
     ];
     for (const stage of stages) {

@@ -116,6 +116,10 @@ export class Activity {
   @Column({ nullable: true })
   prerequisiteSkillCode: string;
 
+  // [PROPOSTA CONTA COMIGO] Island context for activity selection
+  @Column({ nullable: true, comment: 'Island this activity belongs to (denormalized for performance)' })
+  islandId: string;
+
   @OneToMany(() => ActivityAttempt, (a) => a.activity)
   attempts: ActivityAttempt[];
 
