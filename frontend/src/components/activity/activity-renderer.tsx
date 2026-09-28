@@ -44,8 +44,8 @@ export function ActivityRenderer({
 
   const renderActivity = () => {
     if (activity.content?.interaction === "categorize") {
-      // Use CategoryMinigame for categorization
-      if (sensoryProfile?.preferredModality !== 'text') {
+      // Use CategoryMinigame only when a sensory profile is explicitly set to a non-text modality
+      if (sensoryProfile && sensoryProfile.preferredModality !== 'text') {
         return (
           <CategoryMinigame
             key={activity.id}
@@ -79,8 +79,8 @@ export function ActivityRenderer({
     switch (activity.type) {
       case "quiz":
       case "multiple_choice":
-        // Use ComparisonMinigame if it's a comparison-type quiz
-        if (isComparisonActivity && sensoryProfile?.preferredModality !== 'text') {
+        // Use ComparisonMinigame only when a sensory profile is explicitly set to a non-text modality
+        if (isComparisonActivity && sensoryProfile && sensoryProfile.preferredModality !== 'text') {
           return (
             <ComparisonMinigame
               key={activity.id}
@@ -101,10 +101,11 @@ export function ActivityRenderer({
         );
 
       case "drag_drop":
-        // Use BasketMinigame for visual/sensory drag-drop activities
-        if (activity.targetModalities?.includes('sensory') ||
-            activity.targetModalities?.includes('visual') ||
-            activity.content?.interaction === 'drag_drop') {
+        // Use BasketMinigame only when a sensory profile is explicitly set to a non-text modality
+        if (sensoryProfile && sensoryProfile.preferredModality !== 'text' &&
+            (activity.targetModalities?.includes('sensory') ||
+             activity.targetModalities?.includes('visual') ||
+             activity.content?.interaction === 'drag_drop')) {
           return (
             <BasketMinigame
               key={activity.id}
@@ -158,8 +159,8 @@ export function ActivityRenderer({
       case "missing_number":
       case "pattern_completion":
       case "representation_matching":
-        // Use MemoryMinigame for pattern activities
-        if (isMemoryActivity && sensoryProfile?.preferredModality !== 'text') {
+        // Use MemoryMinigame only when a sensory profile is explicitly set to a non-text modality
+        if (isMemoryActivity && sensoryProfile && sensoryProfile.preferredModality !== 'text') {
           return (
             <MemoryMinigame
               key={activity.id}
