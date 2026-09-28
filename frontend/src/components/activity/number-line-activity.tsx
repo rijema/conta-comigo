@@ -34,9 +34,6 @@ export function NumberLineActivity({ activity, onAnswer, sensoryProfile }: Props
   const handleSubmit = () => {
     const isCorrect = value === target;
     onAnswer({ value, isCorrect });
-    if (speech.settings.voiceEnabled) {
-
-    }
   };
 
   return (
