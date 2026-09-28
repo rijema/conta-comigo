@@ -7,6 +7,7 @@ import { Island } from './entities/island.entity';
 import { IslandActivityMapping } from './entities/island-activity-mapping.entity';
 import { ActivitiesService } from './activities.service';
 import { ActivitiesController } from './activities.controller';
+import { SandboxController } from './sandbox.controller';
 import { IslandCycleValidatorService } from './services/island-cycle-validator.service';
 import { CycleProgressionService } from './services/cycle-progression.service';
 import { KafkaModule } from '../kafka/kafka.module';
@@ -27,7 +28,7 @@ import { LearningEvent } from '../learning-events/entities/learning-event.entity
     KnowledgeTracingModule,
     OntologyModule,
   ],
-  controllers: [ActivitiesController],
+  controllers: [ActivitiesController, SandboxController],
   providers: [
     ActivitiesService,
     IslandCycleValidatorService,
