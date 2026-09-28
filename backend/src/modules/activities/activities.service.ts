@@ -29,6 +29,8 @@ import {
   HybridRecommendationService,
 } from '../ade/hybrid-recommendation.service';
 import { IslandCycleValidatorService } from './services/island-cycle-validator.service';
+import { Island } from './entities/island.entity';
+import { IslandActivityMapping } from './entities/island-activity-mapping.entity';
 
 interface ActivitySelectionResult {
   activity: Activity;
@@ -53,6 +55,10 @@ export class ActivitiesService {
     private readonly activityRepo: Repository<Activity>,
     @InjectRepository(ActivityAttempt)
     private readonly attemptRepo: Repository<ActivityAttempt>,
+    @InjectRepository(Island)
+    private readonly islandRepo: Repository<Island>,
+    @InjectRepository(IslandActivityMapping)
+    private readonly islandActivityMappingRepo: Repository<IslandActivityMapping>,
     private readonly kafkaProducer: KafkaProducerService,
     private readonly adeService: AdeService,
     private readonly usersService: UsersService,
@@ -748,6 +754,85 @@ export class ActivitiesService {
       legacyProceduralSignals: ontologyResult.inferences,
       completedTotal: completedActivityIds.size,
       totalActivities: allActivities.length,
+    };
+  }
+
+  /**
+   * Get islands with their activities for the learning map
+   * [PROPOSTA CONTA COMIGO] Islands provide structured learning paths
+   */
+  async getIslandsWithActivities(userId: string): Promise<any> {
+    const recentAttempts = await this.getRecentAttempts(userId, 50);
+    const completedActivityIds = new Set(
+      recentAttempts.filter((a) => a.isCorrect).map((a) => a.activityId)
+    );
+
+    // Fetch all active islands ordered by sequence
+    const islands = await this.islandRepo.find({
+      where: { isActive: true },
+      order: { sequenceOrder: 'ASC' },
+    });
+
+    // For each island, fetch its activities
+    const islandsWithActivities = await Promise.all(
+      islands.map(async (island) => {
+        const mappings = await this.islandActivityMappingRepo.find({
+          where: { islandId: island.islandId, isActive: true },
+          order: { sequenceInIsland: 'ASC' },
+        });
+
+        const activities = await Promise.all(
+          mappings.map(async (mapping) => {
+            const activity = await this.activityRepo.findOne({
+              where: { id: mapping.activityId },
+            });
+            if (!activity) return null;
+
+            return {
+              id: activity.id,
+              title: mapping.customTitle || activity.title,
+              type: activity.type,
+              difficulty: mapping.difficulty || activity.difficulty,
+              modality: mapping.modality,
+              completed: completedActivityIds.has(activity.id),
+              bnccSkills: activity.bnccSkills,
+              scaffolding: mapping.scaffolding,
+              sequenceInIsland: mapping.sequenceInIsland,
+            };
+          })
+        );
+
+        const validActivities = activities.filter((a) => a !== null);
+        const completedCount = validActivities.filter((a) => a.completed).length;
+
+        return {
+          islandId: island.islandId,
+          name: island.name,
+          description: island.description,
+          theme: island.theme,
+          arasaacPictogramIds: island.arasaacPictogramIds,
+          bnccSkills: island.bnccSkills,
+          sequenceOrder: island.sequenceOrder,
+          totalActivities: validActivities.length,
+          completedCount,
+          activities: validActivities,
+        };
+      })
+    );
+
+    const totalCompleted = islandsWithActivities.reduce(
+      (sum, island) => sum + island.completedCount,
+      0
+    );
+    const totalActivities = islandsWithActivities.reduce(
+      (sum, island) => sum + island.totalActivities,
+      0
+    );
+
+    return {
+      islands: islandsWithActivities,
+      completedTotal: totalCompleted,
+      totalActivities,
     };
   }
 

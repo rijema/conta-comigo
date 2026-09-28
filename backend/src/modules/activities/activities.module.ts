@@ -3,6 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Activity } from './entities/activity.entity';
 import { ActivityAttempt } from './entities/activity-attempt.entity';
 import { IslandExerciseMapping } from './entities/island-exercise-mapping.entity';
+import { Island } from './entities/island.entity';
+import { IslandActivityMapping } from './entities/island-activity-mapping.entity';
 import { ActivitiesService } from './activities.service';
 import { ActivitiesController } from './activities.controller';
 import { IslandCycleValidatorService } from './services/island-cycle-validator.service';
@@ -17,7 +19,7 @@ import { LearningEvent } from '../learning-events/entities/learning-event.entity
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Activity, ActivityAttempt, IslandExerciseMapping, LearningEvent]),
+    TypeOrmModule.forFeature([Activity, ActivityAttempt, IslandExerciseMapping, Island, IslandActivityMapping, LearningEvent]),
     KafkaModule,
     AdeModule,
     UsersModule,
