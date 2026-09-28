@@ -837,6 +837,11 @@ export class ActivitiesService {
               bnccSkills: activity.bnccSkills,
               scaffolding: mapping.scaffolding,
               sequenceInIsland: mapping.sequenceInIsland,
+              // [PROPOSTA CONTA COMIGO] Include full activity content for frontend rendering
+              content: activity.content,
+              accessibility: activity.accessibility,
+              targetModalities: activity.targetModalities,
+              pointsReward: activity.pointsReward,
             };
           })
         );
