@@ -93,6 +93,8 @@ describe('ActivitiesService formal ontology integration', () => {
     const service = new ActivitiesService(
       activityRepo as any,
       attemptRepo as any,
+      {} as any, // islandRepo
+      {} as any, // islandActivityMappingRepo
       {} as any, // kafkaProducer
       adeService as any,
       { getChildProfile: jest.fn().mockResolvedValue({ ontologyInstanceData: {} }) } as any, // usersService
