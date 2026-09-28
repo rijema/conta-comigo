@@ -16,6 +16,7 @@ import { LearningEventsModule } from './modules/learning-events/learning-events.
 import { KnowledgeTracingModule } from './modules/knowledge-tracing/knowledge-tracing.module';
 import { HealthController } from './health.controller';
 import { VoiceModule } from './modules/voice/voice.module';
+import { appDataSourceOptions } from './database/data-source';
 
 function validateEnvironment(config: Record<string, unknown>) {
   if (config.NODE_ENV === 'production') {
@@ -48,10 +49,8 @@ function validateEnvironment(config: Record<string, unknown>) {
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        url: configService.get<string>('DATABASE_URL'),
+        ...appDataSourceOptions,
         autoLoadEntities: true,
-        synchronize: false,
         logging: configService.get<string>('LOG_LEVEL') === 'debug' ? ['query', 'error'] : ['error'],
       }),
       inject: [ConfigService],
