@@ -2,7 +2,9 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { ArasaacPictogram } from '@/components/arasaac/arasaac-pictogram';
 import { useTitiaSpeech } from '@/hooks/use-titia-speech';
+import type { Activity } from '@/types';
 
 /**
  * MINIGAME: Basket Collection Quest
@@ -10,23 +12,54 @@ import { useTitiaSpeech } from '@/hooks/use-titia-speech';
  * TEA-FRIENDLY:
  * ✅ Simple drag-drop mechanics (not overwhelming)
  * ✅ Large touch targets (40px minimum)
- * ✅ Clear success feedback
- * ✅ Consistent animation (not distracting)
- * ✅ Audio confirmation for each drop
+ * ✅ Uses real activity data (items and pictograms from content)
+ * ✅ Falls back to generic items when no activity data available
+ * ✅ Delegates celebration to learn/page (TitiA green flash)
  * ✅ Progress bar showing completion
+ *
+ * [DECISÃO DE ENGENHARIA] onComplete is called immediately after all items
+ * are collected — the parent (learn/page) is responsible for showing the
+ * TitiA celebration overlay, not this component.
  */
 
 interface DraggableItem {
   id: string;
-  emoji: string;
+  pictogramConceptId?: string;
   label: string;
 }
 
+// Fallback items when activity has no items in content
+const FALLBACK_ITEMS: Record<string, DraggableItem[]> = {
+  very_easy: [
+    { id: 'a1', pictogramConceptId: 'arasaac.15195', label: 'Maçã' },
+    { id: 'a2', pictogramConceptId: 'arasaac.14560', label: 'Banana' },
+  ],
+  easy: [
+    { id: 'a1', pictogramConceptId: 'arasaac.15195', label: 'Maçã' },
+    { id: 'a2', pictogramConceptId: 'arasaac.14560', label: 'Banana' },
+    { id: 'a3', pictogramConceptId: 'arasaac.15358', label: 'Uva' },
+  ],
+  medium: [
+    { id: 'a1', pictogramConceptId: 'arasaac.15195', label: 'Maçã' },
+    { id: 'a2', pictogramConceptId: 'arasaac.14560', label: 'Banana' },
+    { id: 'a3', pictogramConceptId: 'arasaac.15358', label: 'Uva' },
+    { id: 'a4', pictogramConceptId: 'arasaac.15532', label: 'Pêssego' },
+  ],
+  hard: [
+    { id: 'a1', pictogramConceptId: 'arasaac.15195', label: 'Maçã' },
+    { id: 'a2', pictogramConceptId: 'arasaac.14560', label: 'Banana' },
+    { id: 'a3', pictogramConceptId: 'arasaac.15358', label: 'Uva' },
+    { id: 'a4', pictogramConceptId: 'arasaac.15532', label: 'Pêssego' },
+    { id: 'a5', pictogramConceptId: 'library.circle', label: 'Laranja' },
+  ],
+};
+
 interface BasketMinigameProps {
   skill: string;
-  difficulty: 'very_easy' | 'easy' | 'medium';
+  difficulty: 'very_easy' | 'easy' | 'medium' | 'hard';
   onComplete: (score: number, isCorrect: boolean) => void;
   isTEAMode?: boolean;
+  activity?: Activity;
 }
 
 export const BasketMinigame: React.FC<BasketMinigameProps> = ({
@@ -34,242 +67,148 @@ export const BasketMinigame: React.FC<BasketMinigameProps> = ({
   difficulty,
   onComplete,
   isTEAMode = true,
+  activity,
 }) => {
-  const [items, setItems] = useState<DraggableItem[]>([
-    { id: 'apple1', emoji: '🍎', label: 'Maçã 1' },
-    { id: 'apple2', emoji: '🍎', label: 'Maçã 2' },
-    { id: 'apple3', emoji: '🍎', label: 'Maçã 3' },
-  ]);
+  // Build items from activity content if available, otherwise use fallback
+  const initialItems: DraggableItem[] = (() => {
+    const contentItems = activity?.content?.items as Array<{ id: string; label: string; pictogramConceptId?: string }> | undefined;
+    if (contentItems && contentItems.length > 0) {
+      return contentItems.map((item) => ({
+        id: item.id,
+        pictogramConceptId: item.pictogramConceptId,
+        label: item.label,
+      }));
+    }
+    return FALLBACK_ITEMS[difficulty] ?? FALLBACK_ITEMS.easy;
+  })();
 
+  const question = activity?.content?.question ?? activity?.content?.instructionsPt ?? 'Coloque os itens na cesta!';
+
+  const [items] = useState<DraggableItem[]>(initialItems);
   const [droppedItems, setDroppedItems] = useState<string[]>([]);
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
-  const [touchDraggedItem, setTouchDraggedItem] = useState<string | null>(null);
-  const [showCelebration, setShowCelebration] = useState(false);
   const [completionPercent, setCompletionPercent] = useState(0);
+  const completedRef = useRef(false);
   const spokenRef = useRef(false);
-  const speech = useTitiaSpeech({ activityId: `basket-minigame-${skill}` });
+  const speech = useTitiaSpeech({ activityId: activity?.id ?? `basket-minigame-${skill}` });
 
   // Speak instruction on mount
   useEffect(() => {
     if (speech.settings.voiceEnabled && !spokenRef.current) {
       spokenRef.current = true;
-      speech.speakInstruction({
-        steps: ["Arraste os itens para o cesto."],
-      });
+      speech.speakInstruction({ steps: [question] });
     }
-  }, [speech.settings.voiceEnabled, speech]);
+  }, [speech.settings.voiceEnabled, speech, question]);
 
-  // Wrap onComplete in useCallback to prevent unnecessary reruns
   const handleComplete = useCallback(() => {
-    console.log('🎉 Basket minigame completed!', { droppedItems, itemsTotal: items.length });
-    if (speech.settings.voiceEnabled) {
-      speech.speakInstruction({
-        steps: ["Parabéns! Você completou a minigame!"],
-      });
-    }
+    if (completedRef.current) return;
+    completedRef.current = true;
+    // Delegate feedback to learn/page (TitiA green flash)
     onComplete(100, true);
-  }, [onComplete, droppedItems, items.length, speech]);
+  }, [onComplete]);
 
   useEffect(() => {
-    const percent = (droppedItems.length / items.length) * 100;
+    const percent = items.length > 0 ? (droppedItems.length / items.length) * 100 : 0;
     setCompletionPercent(percent);
-
-    if (droppedItems.length === items.length && !showCelebration) {
-      console.log('✅ All items dropped, showing celebration...');
-      setShowCelebration(true);
-      const timer = setTimeout(() => {
-        handleComplete();
-      }, 1000);
-      
+    if (droppedItems.length > 0 && droppedItems.length === items.length) {
+      // Small delay so the last item animates into the basket before advancing
+      const timer = setTimeout(handleComplete, 600);
       return () => clearTimeout(timer);
     }
-  }, [droppedItems, items.length, showCelebration, handleComplete]);
+  }, [droppedItems, items.length, handleComplete]);
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, itemId: string) => {
     if (droppedItems.includes(itemId)) return;
     setDraggedItem(itemId);
-    setTouchDraggedItem(itemId);
-    if (e.dataTransfer) {
-      e.dataTransfer.effectAllowed = 'move';
-    }
+    if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move';
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    if (e.dataTransfer) {
-      e.dataTransfer.dropEffect = 'move';
-    }
+    if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-
-    const itemId = draggedItem ?? touchDraggedItem;
-    if (itemId && !droppedItems.includes(itemId)) {
-      setDroppedItems((current) => [...current, itemId]);
-      playDropSound();
+    if (draggedItem && !droppedItems.includes(draggedItem)) {
+      setDroppedItems((current) => [...current, draggedItem]);
     }
-
     setDraggedItem(null);
-    setTouchDraggedItem(null);
   };
 
+  // Tap to collect (touch-friendly)
   const handleItemTap = (itemId: string) => {
     if (droppedItems.includes(itemId)) return;
-    setTouchDraggedItem(itemId);
-    setDraggedItem(itemId);
-    setTimeout(() => {
-      setDroppedItems((current) => current.includes(itemId) ? current : [...current, itemId]);
-      setDraggedItem(null);
-      setTouchDraggedItem(null);
-      playDropSound();
-    }, 120);
-  };
-
-  const playDropSound = () => {
-    // Simulating sound - would use Web Audio API in real implementation
-    console.log('🔊 Drop sound played');
+    setDroppedItems((current) => [...current, itemId]);
   };
 
   const remainingItems = items.filter((item) => !droppedItems.includes(item.id));
 
   return (
-    <div style={{ padding: '20px', textAlign: 'center' }}>
-      <div style={{ marginBottom: '20px' }}>
-        <h2>🍎 Coloque as frutas na cesta!</h2>
-        {isTEAMode && (
-          <p style={{ color: '#666', fontSize: '14px', fontStyle: 'italic' }}>
-            Sem pressa! Arraste devagar. Você tem todo o tempo.
-          </p>
-        )}
-      </div>
+    <div className="flex flex-col gap-4 p-2">
+      {/* Instruction */}
+      <p className="text-center text-lg font-bold text-slate-700">{question}</p>
+      {isTEAMode && (
+        <p className="text-center text-sm text-slate-500 italic">Sem pressa! Arraste devagar. Você tem todo o tempo.</p>
+      )}
 
-      {/* Progress Bar */}
-      <div
-        style={{
-          width: '100%',
-          height: '20px',
-          backgroundColor: '#eee',
-          borderRadius: '10px',
-          marginBottom: '20px',
-          overflow: 'hidden',
-        }}
-      >
+      {/* Progress bar */}
+      <div className="h-4 w-full overflow-hidden rounded-full bg-slate-200">
         <motion.div
-          style={{
-            width: `${completionPercent}%`,
-            height: '100%',
-            backgroundColor: '#4CAF50',
-          }}
+          className="h-full rounded-full bg-emerald-500"
           animate={{ width: `${completionPercent}%` }}
+          transition={{ duration: 0.3 }}
         />
       </div>
+      <p className="text-center text-xs font-semibold text-emerald-700">
+        {droppedItems.length}/{items.length} na cesta
+      </p>
 
-      <div style={{ display: 'flex', gap: '30px', justifyContent: 'center', marginBottom: '30px' }}>
-        {/* Draggable Items */}
-        <div style={{ flex: 1, minWidth: '200px' }}>
-          <h3>Frutas</h3>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '10px',
-              padding: '15px',
-              backgroundColor: '#f5f5f5',
-              borderRadius: '10px',
-              minHeight: '200px',
-            }}
-          >
+      <div className="flex gap-4">
+        {/* Remaining items to drag */}
+        <div className="flex-1 rounded-2xl border-2 border-slate-200 bg-slate-50 p-3">
+          <p className="mb-2 text-center text-sm font-bold text-slate-500">Itens</p>
+          <div className="flex flex-wrap justify-center gap-3 min-h-24">
             {remainingItems.map((item) => (
-              <div
+              <motion.div
                 key={item.id}
+                draggable
+                onDragStart={(e) => handleDragStart(e as React.DragEvent<HTMLDivElement>, item.id)}
+                onClick={() => handleItemTap(item.id)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleItemTap(item.id); }}
                 role="button"
                 tabIndex={0}
-                aria-label={`Item arrastável: ${item.emoji}`}
-                draggable
-                onClick={() => handleItemTap(item.id)}
-                onDragStart={(e: React.DragEvent<HTMLDivElement>) => handleDragStart(e, item.id)}
-                onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleItemTap(item.id);
-                  }
-                }}
-                style={{
-                  padding: '15px',
-                  backgroundColor: '#fff',
-                  borderRadius: '8px',
-                  cursor: 'grab',
-                  fontSize: '30px',
-                  textAlign: 'center',
-                  border: '2px solid #ddd',
-                  minHeight: '50px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'transform 0.2s ease-in-out',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'scale(1.05)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'scale(1)';
-                }}
+                aria-label={`Adicionar ${item.label} à cesta`}
+                className="flex cursor-grab flex-col items-center gap-1 rounded-xl border-2 border-yellow-300 bg-white p-2 select-none active:scale-95"
+                whileHover={{ scale: 1.08 }}
+                whileDrag={{ scale: 1.15, opacity: 0.7 }}
               >
-                {item.emoji} {item.label}
-              </div>
+                {item.pictogramConceptId
+                  ? <ArasaacPictogram conceptId={item.pictogramConceptId} showLabel={false} imageClassName="h-12 w-12" />
+                  : <span className="text-3xl">🍎</span>
+                }
+                <span className="text-xs font-bold text-slate-600">{item.label}</span>
+              </motion.div>
             ))}
             {remainingItems.length === 0 && (
-              <div style={{ textAlign: 'center', color: '#999', fontSize: '14px' }}>
-                ✅ Todas coletadas!
-              </div>
+              <p className="text-sm font-bold text-emerald-600">✅ Todos coletados!</p>
             )}
           </div>
         </div>
 
-        {/* Drop Target (Basket) */}
-        <div style={{ flex: 1, minWidth: '200px' }}>
-          <h3>Cesta 🧺</h3>
-          <motion.div
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-            onClick={() => {
-              if (touchDraggedItem) {
-                handleDrop({ preventDefault: () => undefined } as React.DragEvent<HTMLDivElement>);
-              }
-            }}
-            style={{
-              padding: '20px',
-              backgroundColor: '#fff9e6',
-              borderRadius: '10px',
-              border: draggedItem ? '3px dashed #4CAF50' : '3px dashed #ddd',
-              minHeight: '200px',
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '10px',
-              alignContent: 'flex-start',
-              transition: 'border-color 0.3s',
-            }}
-            animate={{
-              backgroundColor:
-                draggedItem && !droppedItems.includes(draggedItem)
-                  ? '#f1f8e9'
-                  : '#fff9e6',
-            }}
-          >
-            {droppedItems.length === 0 && (
-              <div
-                style={{
-                  width: '100%',
-                  textAlign: 'center',
-                  color: '#999',
-                  fontSize: '40px',
-                  marginTop: '40px',
-                }}
-              >
-                🧺
-              </div>
-            )}
+        {/* Basket drop target */}
+        <motion.div
+          className={`flex-1 rounded-2xl border-4 border-dashed p-3 min-h-32 flex flex-col items-center justify-start gap-2 transition-colors ${
+            draggedItem ? 'border-emerald-400 bg-emerald-50' : 'border-slate-300 bg-yellow-50'
+          }`}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+          onClick={() => {
+            if (draggedItem) handleItemTap(draggedItem);
+          }}
+        >
+          <p className="text-sm font-bold text-slate-600">🧺 Cesta</p>
+          <div className="flex flex-wrap justify-center gap-2">
             {droppedItems.map((itemId) => {
               const item = items.find((i) => i.id === itemId);
               return (
@@ -277,40 +216,18 @@ export const BasketMinigame: React.FC<BasketMinigameProps> = ({
                   key={itemId}
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  style={{
-                    fontSize: '30px',
-                    padding: '10px',
-                  }}
+                  className="flex flex-col items-center"
                 >
-                  {item?.emoji}
+                  {item?.pictogramConceptId
+                    ? <ArasaacPictogram conceptId={item.pictogramConceptId} showLabel={false} imageClassName="h-10 w-10" />
+                    : <span className="text-2xl">🍎</span>
+                  }
                 </motion.div>
               );
             })}
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Celebration */}
-      {showCelebration && (
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          style={{
-            padding: '20px',
-            backgroundColor: '#c8e6c9',
-            borderRadius: '10px',
-            marginTop: '20px',
-            fontSize: '18px',
-            color: '#2e7d32',
-          }}
-        >
-          <div style={{ fontSize: '40px', marginBottom: '10px' }}>🎉</div>
-          <p>Parabéns! Você colheu todas as frutas!</p>
-          <p style={{ fontSize: '14px', marginTop: '10px' }}>
-            +{items.length * 15} pontos! 🌟
-          </p>
+          </div>
         </motion.div>
-      )}
+      </div>
     </div>
   );
 };
