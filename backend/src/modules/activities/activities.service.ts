@@ -804,6 +804,25 @@ export class ActivitiesService {
             }
           }
         }
+      } else {
+        // [PROPOSTA CONTA COMIGO] If no attempts yet, recommend first activity of first island
+        // This ensures new users always see at least one "TitIA recomenda" badge
+        const firstIsland = await this.islandRepo.findOne({
+          where: { isActive: true },
+          order: { sequenceOrder: 'ASC' },
+        });
+        if (firstIsland) {
+          const firstMapping = await this.islandActivityMappingRepo.findOne({
+            where: {
+              islandId: firstIsland.islandId,
+              sequenceInIsland: 1,
+              isActive: true,
+            },
+          });
+          if (firstMapping) {
+            recommendedActivityId = firstMapping.activityId;
+          }
+        }
       }
     } catch (err: any) {
       this.logger.warn(`Failed to get next recommended activity: ${err?.message ?? 'unknown error'}`);
