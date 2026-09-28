@@ -767,6 +767,43 @@ export class ActivitiesService {
       recentAttempts.filter((a) => a.isCorrect).map((a) => a.activityId)
     );
 
+    // [PROPOSTA CONTA COMIGO] Get the next recommended activity
+    // Only ONE activity should be marked as recommended, not all
+    let recommendedActivityId: string | null = null;
+    try {
+      const lastAttempt = recentAttempts[0];
+      if (lastAttempt) {
+        if (!lastAttempt.isCorrect) {
+          // If last attempt was incorrect, recommend trying again
+          recommendedActivityId = lastAttempt.activityId;
+        } else if (lastAttempt.islandId) {
+          // If last attempt was correct, get the next activity in the island
+          // Find the current sequence position from the mapping
+          const currentMapping = await this.islandActivityMappingRepo.findOne({
+            where: {
+              activityId: lastAttempt.activityId,
+              islandId: lastAttempt.islandId,
+              isActive: true,
+            },
+          });
+          if (currentMapping) {
+            const nextMapping = await this.islandActivityMappingRepo.findOne({
+              where: {
+                islandId: lastAttempt.islandId,
+                sequenceInIsland: currentMapping.sequenceInIsland + 1,
+                isActive: true,
+              },
+            });
+            if (nextMapping) {
+              recommendedActivityId = nextMapping.activityId;
+            }
+          }
+        }
+      }
+    } catch (err: any) {
+      this.logger.warn(`Failed to get next recommended activity: ${err?.message ?? 'unknown error'}`);
+    }
+
     // Fetch all active islands ordered by sequence
     const islands = await this.islandRepo.find({
       where: { isActive: true },
@@ -795,6 +832,8 @@ export class ActivitiesService {
               difficulty: mapping.difficulty || activity.difficulty,
               modality: mapping.modality,
               completed: completedActivityIds.has(activity.id),
+              // [PROPOSTA CONTA COMIGO] Only mark ONE activity as recommended
+              recommended: activity.id === recommendedActivityId,
               bnccSkills: activity.bnccSkills,
               scaffolding: mapping.scaffolding,
               sequenceInIsland: mapping.sequenceInIsland,
