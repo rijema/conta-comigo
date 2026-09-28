@@ -222,6 +222,7 @@ export class ActivitiesService {
         { selectedActivityId: activity.id, selectedActivityType: activity.type },
       ),
       reviewAssignmentId,
+      preferredModality: (profile?.uiPreferences?.preferredModality as string | undefined) ?? null,
     };
   }
 

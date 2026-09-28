@@ -15,6 +15,7 @@ export interface SessionState {
   previousDifficulty?: string | null;
   selectionSource: "recommended" | "recalculated";
   roundStats?: { correctAnswers: number; starsEarned: number; practiceLabel: string };
+  preferredModality?: string | null;
 }
 
 const SESSION_STORAGE_KEY = "contacomigo.learning-session";
@@ -193,7 +194,7 @@ export function useSession() {
       }
       const sessionId = `session-${Date.now()}`;
       setCurrentLearningSessionId(sessionId);
-      const { activity, adeDecision } = await api.get<{ activity: any; adeDecision: any }>(
+      const { activity, adeDecision, preferredModality } = await api.get<{ activity: any; adeDecision: any; preferredModality?: string | null }>(
         "/activities/next",
         token,
       );
@@ -208,6 +209,7 @@ export function useSession() {
         previousDifficulty: null,
         selectionSource: "recommended",
         roundStats: { correctAnswers: 0, starsEarned: 0, practiceLabel: "matemática" },
+        preferredModality: preferredModality ?? null,
       });
       trackActivityLifecycle(sessionId, activity.id, "ACTIVITY_PRESENTED", undefined, adeDecision?.id);
       getInteractionCounters(activity.id);

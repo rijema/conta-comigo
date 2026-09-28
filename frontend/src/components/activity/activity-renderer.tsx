@@ -42,10 +42,36 @@ export function ActivityRenderer({
     containerRef.current?.focus();
   }, [activity.id]);
 
+  // [DECISÃO DE ENGENHARIA] Lógica probabilística de seleção de formato:
+  // Nenhuma modalidade é totalmente fechada — o sistema sempre explora as duas,
+  // com pesos diferentes conforme a preferência do perfil da criança.
+  // Isso permite ao ADE aprender qual formato funciona melhor para cada criança
+  // mesmo quando já há uma preferência definida.
+  //
+  // [PARÂMETRO EXPERIMENTAL] Probabilidades de minigame por modalidade:
+  //   'visual' | 'sensory' → 70% minigame, 30% componente real
+  //   'text'               → 30% minigame, 70% componente real
+  //   sem preferência      → 50% minigame, 50% componente real (exploração pura)
+  const modality = sensoryProfile?.preferredModality;
+  const minigameProbability = modality === 'visual' || modality === 'sensory'
+    ? 0.7
+    : modality === 'text'
+    ? 0.3
+    : 0.5;
+  // Seed determinístico por activity.id para que a mesma atividade sempre
+  // renderize o mesmo formato (evita flip ao re-renderizar)
+  const deterministicRoll = (() => {
+    let hash = 0;
+    for (let i = 0; i < activity.id.length; i++) {
+      hash = (hash * 31 + activity.id.charCodeAt(i)) >>> 0;
+    }
+    return (hash % 100) / 100;
+  })();
+  const prefersMinigame = deterministicRoll < minigameProbability;
+
   const renderActivity = () => {
     if (activity.content?.interaction === "categorize") {
-      // Use CategoryMinigame only when a sensory profile is explicitly set to a non-text modality
-      if (sensoryProfile && sensoryProfile.preferredModality !== 'text') {
+      if (prefersMinigame) {
         return (
           <CategoryMinigame
             key={activity.id}
@@ -79,8 +105,7 @@ export function ActivityRenderer({
     switch (activity.type) {
       case "quiz":
       case "multiple_choice":
-        // Use ComparisonMinigame only when a sensory profile is explicitly set to a non-text modality
-        if (isComparisonActivity && sensoryProfile && sensoryProfile.preferredModality !== 'text') {
+        if (isComparisonActivity && prefersMinigame) {
           return (
             <ComparisonMinigame
               key={activity.id}
@@ -101,8 +126,7 @@ export function ActivityRenderer({
         );
 
       case "drag_drop":
-        // Use BasketMinigame only when a sensory profile is explicitly set to a non-text modality
-        if (sensoryProfile && sensoryProfile.preferredModality !== 'text' &&
+        if (prefersMinigame &&
             (activity.targetModalities?.includes('sensory') ||
              activity.targetModalities?.includes('visual') ||
              activity.content?.interaction === 'drag_drop')) {
@@ -159,8 +183,7 @@ export function ActivityRenderer({
       case "missing_number":
       case "pattern_completion":
       case "representation_matching":
-        // Use MemoryMinigame only when a sensory profile is explicitly set to a non-text modality
-        if (isMemoryActivity && sensoryProfile && sensoryProfile.preferredModality !== 'text') {
+        if (isMemoryActivity && prefersMinigame) {
           return (
             <MemoryMinigame
               key={activity.id}
