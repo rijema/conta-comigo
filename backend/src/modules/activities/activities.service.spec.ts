@@ -51,6 +51,28 @@ describe('ActivitiesService answer evaluation', () => {
   ])('validates answers for %s', (type, content, answer) => {
     expect(evaluateAnswer({ type, content }, answer)).toBe(true);
   });
+
+  it('handles quiz answers with option IDs (Titia bug fix)', () => {
+    const quizActivity = {
+      type: 'quiz',
+      content: {
+        validation: { kind: 'exact' },
+        correctAnswer: 'option-b',
+        options: [
+          { id: 'option-a', text: 'Errado' },
+          { id: 'option-b', text: 'Correto' },
+        ],
+      },
+    };
+
+    // Direct option ID (most common case)
+    expect(evaluateAnswer(quizActivity, 'option-b')).toBe(true);
+    expect(evaluateAnswer(quizActivity, 'option-a')).toBe(false);
+
+    // Option ID wrapped in object (from some components)
+    expect(evaluateAnswer(quizActivity, { selectedOption: 'option-b' })).toBe(true);
+    expect(evaluateAnswer(quizActivity, { value: 'option-b' })).toBe(true);
+  });
 });
 
 describe('Activity cooldown', () => {
