@@ -22,6 +22,16 @@ const ISLAND_THEMES = [
   { grad: "from-pink-300 to-rose-200",      headerGrad: "from-pink-500 to-rose-400",     border: "border-pink-300",    pictogramId: "arasaac.15971", label: "Ilha do Amor",    sub: "Ordenação" },
 ];
 
+// Map island themes by islandId
+const getIslandTheme = (islandId: string, index: number) => {
+  const themeMap: Record<string, typeof ISLAND_THEMES[0]> = {
+    'island-numbers': { grad: "from-yellow-300 to-orange-300",  headerGrad: "from-orange-400 to-amber-400",  border: "border-orange-300",  pictogramId: "mathematics.numbers" },
+    'island-colors': { grad: "from-purple-300 to-fuchsia-300", headerGrad: "from-purple-500 to-pink-400",   border: "border-purple-300",  pictogramId: "arasaac.61042" },
+    'island-beach': { grad: "from-blue-300 to-cyan-300",      headerGrad: "from-blue-500 to-cyan-400",     border: "border-blue-300",    pictogramId: "arasaac.23189" },
+  };
+  return themeMap[islandId] || ISLAND_THEMES[index % ISLAND_THEMES.length];
+};
+
 const CARD_CONFIG: Record<string, { pictogramId: string; label: string }> = {
   counting:        { pictogramId: "mathematics.numbers", label: "Contagem com escolha" },
   multiple_choice: { pictogramId: "activity.choose", label: "Escolher" },
@@ -56,12 +66,36 @@ export default function ActivityMenuPage() {
   useEffect(() => {
     const token = authService.getStoredToken();
     if (!token) { router.replace(`/${locale}/auth/login`); return; }
-    api.get<any>("/activities/tree", token)
+    // Try to fetch islands first, fall back to tree if not available
+    api.get<any>("/activities/islands/map", token)
       .then((data) => {
-        setTreeData(data);
-        if (data.tree?.[0]) setExpandedSkill(data.tree[0].skill);
+        // Transform islands data to tree format for compatibility
+        const tree = data.islands?.map((island: any) => ({
+          skill: island.islandId,
+          skillName: island.name,
+          totalActivities: island.totalActivities,
+          completedCount: island.completedCount,
+          activities: island.activities,
+          island: island,
+        })) || [];
+        setTreeData({
+          ...data,
+          tree,
+          ontologyModalities: [],
+          ontologyInferences: [],
+          legacyProceduralSignals: [],
+        });
+        if (tree?.[0]) setExpandedSkill(tree[0].skill);
       })
-      .catch(console.error)
+      .catch(() => {
+        // Fallback to old tree endpoint
+        api.get<any>("/activities/tree", token)
+          .then((data) => {
+            setTreeData(data);
+            if (data.tree?.[0]) setExpandedSkill(data.tree[0].skill);
+          })
+          .catch(console.error);
+      })
       .finally(() => setIsLoading(false));
   }, [locale, router]);
 
@@ -249,14 +283,14 @@ export default function ActivityMenuPage() {
               >
                 {row.map((group: any, ci: number) => {
                   const gi = rowIdx * 2 + ci;
-                  const theme  = ISLAND_THEMES[gi % ISLAND_THEMES.length];
+                  const theme  = getIslandTheme(group.skill, gi);
                   const isOpen = expandedSkill === group.skill;
                   const isDimmed = expandedSkill !== null && !isOpen;
                   const pct    = group.totalActivities > 0 ? Math.round((group.completedCount / group.totalActivities) * 100) : 0;
                   const allDone = group.completedCount >= group.totalActivities && group.totalActivities > 0;
 
-                  /* Subtitle: use theme sub or fallback to skill name */
-                  const skillPt = theme.sub;
+                  /* Subtitle: use island description or fallback to skill name */
+                  const skillPt = group.island?.description || theme.sub || group.skillName;
 
                   return (
                     <div key={group.skill} className={`rounded-[2rem] border-4 ${theme.border} overflow-hidden bg-gradient-to-br ${theme.grad} transition-all duration-300 ${isOpen ? "scale-[1.02] shadow-2xl" : isDimmed ? "scale-[.98] opacity-45 shadow-sm" : "shadow-xl"}`}>
@@ -269,15 +303,15 @@ export default function ActivityMenuPage() {
                           <div className="flex items-center gap-2 min-w-0">
                             <div className="w-10 h-10 rounded-2xl bg-white/25 flex items-center justify-center shadow-inner flex-shrink-0">
                               <ArasaacPictogram 
-                                conceptId={theme.pictogramId} 
+                                conceptId={group.island?.arasaacPictogramIds?.[0] || theme.pictogramId} 
                                 showLabel={false}
                                 imageClassName="w-8 h-8"
                               />
                             </div>
                             <div className="min-w-0">
-                              <p className="font-extrabold text-white text-sm drop-shadow truncate">{theme.label}</p>
+                              <p className="font-extrabold text-white text-sm drop-shadow truncate">{group.island?.name || theme.label}</p>
                               <p className="text-white/80 text-xs font-semibold truncate">{skillPt}</p>
-                              <p className="text-white text-xs font-extrabold">{group.skill === 'Exploracao' ? 'Sem vínculo BNCC validado' : `BNCC ${group.skill}`}</p>
+                              <p className="text-white text-xs font-extrabold">{group.island?.bnccSkills?.length ? `BNCC ${group.island.bnccSkills.join(', ')}` : 'Sem vínculo BNCC validado'}</p>
                               <p className="text-white/65 text-xs">{group.completedCount}/{group.totalActivities}</p>
                             </div>
                           </div>
