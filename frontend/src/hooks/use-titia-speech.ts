@@ -50,10 +50,26 @@ export function useTitiaSpeech({ activityId }: { activityId?: string } = {}) {
   }) => {
     const token = authService.getStoredToken();
     if (!token || typeof window === "undefined") return;
-    void api.post("/learning-events/speech", {
-      sessionId: getOrCreateLearningSessionId(), eventType,
-      ...(activityId ? { activityId } : {}), ...metadata,
-    }, token).catch((error) => console.error("Failed to track TitiA speech event", error));
+    
+    // Retry with exponential backoff on network errors
+    const trackWithRetry = async (attempt = 0) => {
+      try {
+        await api.post("/learning-events/speech", {
+          sessionId: getOrCreateLearningSessionId(), eventType,
+          ...(activityId ? { activityId } : {}), ...metadata,
+        }, token);
+      } catch (error: any) {
+        // Only retry on network errors, not validation errors
+        if (attempt < 2 && error?.status !== 400 && error?.status !== 422) {
+          const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
+          setTimeout(() => trackWithRetry(attempt + 1), delay);
+        } else {
+          console.error("Failed to track TitiA speech event", error);
+        }
+      }
+    };
+    
+    void trackWithRetry();
   }, [activityId]);
 
   const speakInstruction = useCallback((instruction: SpokenInstruction, onPlaybackStart?: () => void) => {
