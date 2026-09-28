@@ -173,7 +173,7 @@ export const BasketMinigame: React.FC<BasketMinigameProps> = ({
               <motion.div
                 key={item.id}
                 draggable
-                onDragStart={(e) => handleDragStart(e as React.DragEvent<HTMLDivElement>, item.id)}
+                onDragStart={(e) => handleDragStart(e as unknown as React.DragEvent<HTMLDivElement>, item.id)}
                 onClick={() => handleItemTap(item.id)}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleItemTap(item.id); }}
                 role="button"
