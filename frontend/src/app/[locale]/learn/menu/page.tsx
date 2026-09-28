@@ -25,9 +25,9 @@ const ISLAND_THEMES = [
 // Map island themes by islandId
 const getIslandTheme = (islandId: string, index: number) => {
   const themeMap: Record<string, typeof ISLAND_THEMES[0]> = {
-    'island-numbers': { grad: "from-yellow-300 to-orange-300",  headerGrad: "from-orange-400 to-amber-400",  border: "border-orange-300",  pictogramId: "mathematics.numbers" },
-    'island-colors': { grad: "from-purple-300 to-fuchsia-300", headerGrad: "from-purple-500 to-pink-400",   border: "border-purple-300",  pictogramId: "arasaac.61042" },
-    'island-beach': { grad: "from-blue-300 to-cyan-300",      headerGrad: "from-blue-500 to-cyan-400",     border: "border-blue-300",    pictogramId: "arasaac.23189" },
+    'island-numbers': { grad: "from-yellow-300 to-orange-300",  headerGrad: "from-orange-400 to-amber-400",  border: "border-orange-300",  pictogramId: "mathematics.numbers", label: "Ilha dos Números", sub: "Números" },
+    'island-colors': { grad: "from-purple-300 to-fuchsia-300", headerGrad: "from-purple-500 to-pink-400",   border: "border-purple-300",  pictogramId: "arasaac.61042", label: "Ilha das Cores", sub: "Cores" },
+    'island-beach': { grad: "from-blue-300 to-cyan-300",      headerGrad: "from-blue-500 to-cyan-400",     border: "border-blue-300",    pictogramId: "arasaac.23189", label: "Ilha da Praia", sub: "Praia" },
   };
   return themeMap[islandId] || ISLAND_THEMES[index % ISLAND_THEMES.length];
 };
