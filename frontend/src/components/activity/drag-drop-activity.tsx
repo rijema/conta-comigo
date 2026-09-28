@@ -22,7 +22,7 @@ import { useTitiaSpeech } from "@/hooks/use-titia-speech";
 
 interface Props {
   activity: Activity;
-  onAnswer: (answer: { arrangement: string[]; isCorrect: boolean }) => void;
+  onAnswer: (answer: { arrangement: string[] }) => void;
   sensoryProfile?: SensoryProfile;
 }
 
@@ -274,14 +274,10 @@ export function DragDropActivity({ activity, onAnswer }: Props) {
   const handleSubmit = () => {
     if (submitted || slots.some((slot) => slot === null)) return;
     setSubmitted(true);
-    const correctOrder = (activity.content?.correctOrder || []) as string[];
-    const isCorrect = slots.length === correctOrder.length &&
-      slots.every((slot, index) => slot === correctOrder[index]);
-    onAnswer({ arrangement: slots as string[], isCorrect });
-    if (speech.settings.voiceEnabled) {
-
-    }
-    if (!isCorrect) resetForRetry();
+    // Send only the arrangement array — backend validates against correctOrder via
+    // the 'sequence' validation kind. The parent (learn/page or sandbox) receives
+    // the backend result and re-renders this component with a new key on retry.
+    onAnswer({ arrangement: slots as string[] });
   };
 
   const allFilled = slots.every((slot) => slot !== null);

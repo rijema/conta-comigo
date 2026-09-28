@@ -1,19 +1,22 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+/**
+ * MINIGAME: Comparação de Quantidades
+ *
+ * TEA-FRIENDLY:
+ * - Carga sensorial baixa — cores simples, sem piscadas
+ * - Feedback visual claro — celebração apenas quando correto
+ * - Tempo estendido — 60 segundos para responder
+ * - Padrão consistente — mesma estrutura sempre
+ * - Reforço multimodal — áudio + visual
+ *
+ * [DECISÃO DE ENGENHARIA] Celebração delegada ao learn/page via onComplete
+ * para garantir TitiA feedback consistente.
+ */
+
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useTitiaSpeech } from '@/hooks/use-titia-speech';
-
-/**
- * MINIGAME: Comparison Quest
- *
- * TEA-FRIENDLY FEATURES:
- * ✅ Low sensory load - Simple colors, no flashing
- * ✅ Clear visual feedback - Celebração só quando certo
- * ✅ Extra time - 60 segundos para responder (default 30)
- * ✅ Consistent patterns - Mesma estrutura sempre
- * ✅ Audio + Visual - Reforço multimodal
- */
 
 interface Item {
   id: string;
@@ -29,220 +32,140 @@ interface ComparisonMinigameProps {
   isTEAMode?: boolean;
 }
 
+const COUNTS_BY_DIFFICULTY: Record<ComparisonMinigameProps['difficulty'], number[]> = {
+  very_easy: [2, 3, 4],
+  easy: [2, 3, 4, 5],
+  medium: [3, 4, 5, 6, 7],
+  hard: [4, 5, 6, 7, 8, 9],
+};
+
+const EMOJIS = ['🍎', '🍊', '🌟', '🍰', '🎈', '🐠', '🐶', '🦋'];
+const TIME_LIMIT = 60;
+
 export const ComparisonMinigame: React.FC<ComparisonMinigameProps> = ({
   skill,
   difficulty,
   onComplete,
-  isTEAMode = false,
 }) => {
   const [items, setItems] = useState<Item[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-  const [timeLeft, setTimeLeft] = useState(30);
-  const [showCelebration, setShowCelebration] = useState(false);
-  const [audioPlayed, setAudioPlayed] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(TIME_LIMIT);
+  const completedRef = useRef(false);
   const spokenRef = useRef(false);
   const speech = useTitiaSpeech({ activityId: `comparison-minigame-${skill}` });
 
-  // Speak instruction on mount
   useEffect(() => {
     if (speech.settings.voiceEnabled && !spokenRef.current) {
       spokenRef.current = true;
-      speech.speakInstruction({
-        steps: ["Qual grupo tem mais itens?"],
-      });
+      speech.speakInstruction({ steps: ['Qual grupo tem mais itens?'] });
     }
   }, [speech.settings.voiceEnabled, speech]);
 
   // Generate random comparison challenge
   useEffect(() => {
-    const generateChallenge = () => {
-      const counts = [2, 3, 4, 5, 6];
-      const emojis = ['🍎', '🍊', '🌟', '🍰', '🎈'];
+    const counts = COUNTS_BY_DIFFICULTY[difficulty] ?? COUNTS_BY_DIFFICULTY.easy;
+    const shuffled = [...counts].sort(() => Math.random() - 0.5);
+    let [correctCount, wrongCount] = shuffled;
+    while (wrongCount === correctCount) wrongCount = counts[Math.floor(Math.random() * counts.length)];
 
-      let correctCount = counts[Math.floor(Math.random() * counts.length)];
-      let wrongCount = counts.filter((c) => c !== correctCount)[
-        Math.floor(Math.random() * (counts.length - 1))
-      ];
+    const emoji1 = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+    const emoji2 = EMOJIS.filter((e) => e !== emoji1)[Math.floor(Math.random() * (EMOJIS.length - 1))];
+    const isCorrectFirst = Math.random() > 0.5;
 
-      // Ensure they're actually different
-      while (wrongCount === correctCount) {
-        wrongCount = counts[Math.floor(Math.random() * counts.length)];
-      }
+    setItems([
+      { id: 'first',  count: isCorrectFirst ? correctCount : wrongCount, emoji: emoji1, label: 'Grupo 1' },
+      { id: 'second', count: isCorrectFirst ? wrongCount : correctCount, emoji: emoji2, label: 'Grupo 2' },
+    ]);
+  }, [difficulty]);
 
-      const isCorrectFirst = Math.random() > 0.5;
-      const first: Item = {
-        id: 'first',
-        count: isCorrectFirst ? correctCount : wrongCount,
-        emoji: emojis[0],
-        label: 'Grupo 1',
-      };
+  const handleFinish = useCallback((correct: boolean) => {
+    if (completedRef.current) return;
+    completedRef.current = true;
+    // Delegate TitiA feedback to parent — no internal celebration
+    setTimeout(() => onComplete(correct ? 100 : 0, correct), 800);
+  }, [onComplete]);
 
-      const second: Item = {
-        id: 'second',
-        count: isCorrectFirst ? wrongCount : correctCount,
-        emoji: emojis[1],
-        label: 'Grupo 2',
-      };
-
-      setItems([first, second]);
-
-      // Play audio hint in TEA mode
-      if (isTEAMode && !audioPlayed) {
-        playAudioHint();
-        setAudioPlayed(true);
-      }
-    };
-
-    generateChallenge();
-  }, [audioPlayed, isTEAMode]);
-
-  const playAudioHint = () => {
-    // Simulating audio - in real implementation would use Web Audio API
-    console.log('🔊 Audio hint played');
-  };
-
-  // Timer
+  // Timer — when it runs out, count as incorrect
   useEffect(() => {
-    if (timeLeft <= 0 || showCelebration) return;
-
-    const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+    if (selected !== null || isCorrect !== null) return;
+    if (timeLeft <= 0) {
+      setIsCorrect(false);
+      handleFinish(false);
+      return;
+    }
+    const timer = setTimeout(() => setTimeLeft((t) => t - 1), 1000);
     return () => clearTimeout(timer);
-  }, [timeLeft, showCelebration]);
+  }, [timeLeft, selected, isCorrect, handleFinish]);
 
   const handleSelect = (itemId: string) => {
-    if (selected || isCorrect !== null) return;
-
+    if (selected !== null || isCorrect !== null || items.length < 2) return;
     const correct =
       itemId === 'first'
         ? items[0].count > items[1].count
-        : items[0].count < items[1].count;
-
+        : items[1].count > items[0].count;
     setSelected(itemId);
     setIsCorrect(correct);
-
-    if (correct) {
-      setShowCelebration(true);
-      setTimeout(() => {
-        onComplete(100, true);
-      }, 2000);
-    } else {
-      setTimeout(() => {
-        onComplete(0, false);
-      }, 1500);
-    }
+    handleFinish(correct);
   };
 
+  const urgentTime = timeLeft <= 10;
+
   return (
-    <div style={{ padding: '20px', textAlign: 'center' }}>
-      <div style={{ marginBottom: '20px' }}>
-        <h2>🔍 Qual tem MAIS?</h2>
-        <div style={{ fontSize: '24px', marginTop: '10px' }}>
-         ⏱️ {timeLeft}s
-        </div>
+    <div className="flex flex-col items-center gap-5 p-4">
+      {/* Header + timer */}
+      <div className="text-center">
+        <h2 className="text-2xl font-extrabold text-blue-700">🔍 Qual tem MAIS?</h2>
+        <p
+          className={`mt-1 text-lg font-bold ${urgentTime ? 'text-red-600 animate-pulse' : 'text-gray-500'}`}
+        >
+          ⏱️ {timeLeft}s
+        </p>
       </div>
 
-      <div
-        style={{
-          display: 'flex',
-          gap: '30px',
-          justifyContent: 'center',
-          marginBottom: '30px',
-        }}
-      >
-        {items.map((item) => (
-          <motion.button
-            key={item.id}
-            onClick={() => handleSelect(item.id)}
-            disabled={selected !== null}
-            whileHover={selected === null ? { scale: 1.05 } : {}}
-            whileTap={selected === null ? { scale: 0.95 } : {}}
-            style={{
-              padding: '20px',
-              borderRadius: '10px',
-              border: selected === item.id ? '4px solid #4CAF50' : '2px solid #ddd',
-              backgroundColor:
-                selected === item.id && isCorrect ? '#c8e6c9' : '#fff',
-              cursor: selected !== null ? 'not-allowed' : 'pointer',
-              minWidth: '120px',
-              opacity: selected && selected !== item.id ? 0.5 : 1,
-            }}
-          >
-            <div style={{ fontSize: '14px', marginBottom: '10px' }}>
-              {item.label}
-            </div>
-            <div
-              style={{
-                fontSize: '40px',
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: '5px',
-                justifyContent: 'center',
-                marginBottom: '10px',
-              }}
+      {/* Groups */}
+      <div className="flex gap-6 justify-center flex-wrap">
+        {items.map((item) => {
+          const isSelected = selected === item.id;
+          return (
+            <motion.button
+              key={item.id}
+              type="button"
+              onClick={() => handleSelect(item.id)}
+              disabled={selected !== null}
+              aria-label={`${item.label}: ${item.count} itens`}
+              whileHover={selected === null ? { scale: 1.05 } : {}}
+              whileTap={selected === null ? { scale: 0.95 } : {}}
+              className={`flex flex-col items-center rounded-2xl border-4 p-4 transition-all min-w-28
+                ${isSelected && isCorrect ? 'border-green-500 bg-green-100'
+                  : isSelected && !isCorrect ? 'border-red-400 bg-red-50'
+                  : selected !== null ? 'opacity-50 border-gray-200 bg-white'
+                  : 'border-blue-200 bg-white hover:border-blue-400 cursor-pointer'
+                }`}
             >
-              {Array.from({ length: item.count }).map((_, i) => (
-                <span key={i}>{item.emoji}</span>
-              ))}
-            </div>
-            <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
-              {item.count}
-            </div>
-          </motion.button>
-        ))}
+              <span className="mb-2 text-sm font-bold text-gray-500">{item.label}</span>
+              <div className="flex flex-wrap justify-center gap-1 mb-2" style={{ maxWidth: 120 }}>
+                {Array.from({ length: item.count }).map((_, i) => (
+                  <span key={i} className="text-3xl">{item.emoji}</span>
+                ))}
+              </div>
+              <span className="text-3xl font-extrabold text-blue-700">{item.count}</span>
+            </motion.button>
+          );
+        })}
       </div>
 
+      {/* Inline feedback (TitiA green/red flash handled by parent) */}
       {isCorrect !== null && (
         <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          style={{
-            padding: '20px',
-            borderRadius: '10px',
-            backgroundColor: isCorrect ? '#c8e6c9' : '#ffebee',
-            color: isCorrect ? '#2e7d32' : '#c62828',
-            fontSize: '18px',
-            marginTop: '20px',
-          }}
+          initial={{ scale: 0.7, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className={`rounded-2xl px-6 py-3 text-center font-bold ${
+            isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-50 text-red-700'
+          }`}
         >
-          {isCorrect ? (
-            <>
-              <div style={{ fontSize: '40px' }}>🎉</div>
-              <p>Parabéns! Você acertou!</p>
-            </>
-          ) : (
-            <>
-              <div style={{ fontSize: '40px' }}>🎯</div>
-              <p>Tente outra vez!</p>
-            </>
-          )}
+          {isCorrect ? '✅ Correto!' : '❌ Tente outra vez!'}
         </motion.div>
-      )}
-
-      {showCelebration && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
-          {Array.from({ length: 12 }).map((_, i) => (
-            <motion.span
-              key={i}
-              style={{
-                position: 'absolute',
-                left: `${Math.random() * 100}%`,
-                top: '50%',
-                fontSize: '30px',
-              }}
-              animate={{
-                y: [0, -100],
-                opacity: [1, 0],
-              }}
-              transition={{
-                duration: 2,
-                delay: i * 0.1,
-              }}
-            >
-              ⭐
-            </motion.span>
-          ))}
-        </div>
       )}
     </div>
   );
