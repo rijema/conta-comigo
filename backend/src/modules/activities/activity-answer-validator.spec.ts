@@ -46,3 +46,38 @@ describe('parametric activity answer validation', () => {
     expect(validateActivityAnswer(content, ['7', '=', '4', '+', '3'])).toBe(false);
   });
 });
+
+describe('minigame completion signal', () => {
+  // Minigames self-report correctness via { correct: boolean, score?: number }.
+  // The validator must short-circuit and trust this signal instead of trying
+  // to validate the answer against correctAnswer (which minigames don't use).
+
+  it('accepts { correct: true } as a correct answer', () => {
+    expect(validateActivityAnswer({}, { correct: true })).toBe(true);
+  });
+
+  it('accepts { correct: false } as an incorrect answer', () => {
+    expect(validateActivityAnswer({}, { correct: false })).toBe(false);
+  });
+
+  it('accepts { correct: true, score: 100 } (with score field)', () => {
+    expect(validateActivityAnswer({}, { correct: true, score: 100 })).toBe(true);
+  });
+
+  it('accepts { correct: false, score: 0 } (with score field)', () => {
+    expect(validateActivityAnswer({}, { correct: false, score: 0 })).toBe(false);
+  });
+
+  it('does NOT treat an arbitrary object with a correct property as a minigame signal', () => {
+    // Must only match objects whose keys are exclusively 'correct' and optionally 'score'
+    const notAMinigameSignal = { correct: true, answer: 'circle', extra: 'field' };
+    // Falls through to normal validation — content has no correctAnswer, so false
+    expect(validateActivityAnswer({}, notAMinigameSignal)).toBe(false);
+  });
+
+  it('does NOT treat a primitive boolean as a minigame signal', () => {
+    // { correct: boolean } shape is required — a bare boolean is not a signal
+    expect(validateActivityAnswer({ correctAnswer: true, validation: { kind: 'boolean' as const } }, true)).toBe(true);
+    expect(validateActivityAnswer({ correctAnswer: false, validation: { kind: 'boolean' as const } }, false)).toBe(true);
+  });
+});
