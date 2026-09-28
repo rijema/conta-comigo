@@ -14,27 +14,40 @@ export function QuantityBuilderActivity({ activity, onAnswer }: {
   const speech = useTitiaSpeech({ activityId: activity.id });
   const conceptId = activity.content?.buildPictogramConceptId ?? "library.die";
   const maxCount = activity.content?.maxCount ?? 20;
+  const targetNumber: number | undefined = activity.content?.correctAnswer;
   const question = activity.content?.question ?? activity.content?.instructionsPt ?? "Monte a quantidade.";
 
   useEffect(() => {
     if (speech.settings.voiceEnabled && !spokenRef.current) {
       spokenRef.current = true;
-      speech.speakInstruction({
-        steps: [question],
-      });
+      const spokenQuestion = targetNumber !== undefined
+        ? `Monte a quantidade ${targetNumber}.`
+        : question;
+      speech.speakInstruction({ steps: [spokenQuestion] });
     }
-  }, [speech.settings.voiceEnabled, question, speech]);
+  }, [speech.settings.voiceEnabled, question, targetNumber, speech]);
 
   const handleSubmit = () => {
     onAnswer({ count });
     if (speech.settings.voiceEnabled) {
-      const feedback = `Você montou ${count} itens.`;
+      const feedback = targetNumber !== undefined
+        ? (count === targetNumber ? `Muito bem! Você montou ${count}.` : `Você colocou ${count}. O número era ${targetNumber}.`)
+        : `Você montou ${count} itens.`;
       speech.speakInstruction({ steps: [feedback] });
     }
   };
   return (
     <div>
       <p className="mb-4 text-center text-xl font-bold">{activity.content?.question ?? activity.content?.instructionsPt}</p>
+      {targetNumber !== undefined && (
+        <div className="mb-4 flex flex-col items-center gap-1">
+          <span className="text-sm font-semibold uppercase tracking-wide text-gray-500">Monte este número:</span>
+          <div className="flex h-24 w-24 items-center justify-center rounded-2xl border-4 border-blue-400 bg-white shadow-md">
+            <span className="text-6xl font-extrabold text-blue-700">{targetNumber}</span>
+          </div>
+          <ArasaacPictogram conceptId={`number.${targetNumber}`} showLabel={false} imageClassName="h-10 w-10 mt-1" />
+        </div>
+      )}
       <div className="mb-5 flex min-h-28 flex-wrap items-center justify-center gap-2 rounded-2xl bg-blue-50 p-3" aria-label={`${count} itens montados`}>
         {Array.from({ length: count }, (_, index) => (
           <ArasaacPictogram key={index} conceptId={conceptId} showLabel={false} imageClassName="h-12 w-12" />
