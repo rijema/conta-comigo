@@ -416,12 +416,17 @@ export class ActivitiesService {
       nextActivity = selection.activity;
       await this.persistSelection(adeDecision, selection);
     } catch (err: any) {
-      this.logger.error(`Next activity fetch failed: ${err?.message}. Using cooldown fallback.`);
+      this.logger.error(`Next activity fetch failed: ${err?.message}. Using cooldown fallback.`, err?.stack);
       try {
         const fallbacks = await this.selectFallbackActivity(userId, dto.activityId);
-        if (fallbacks) nextActivity = fallbacks;
-      } catch {
-        // no-op — nextActivity stays undefined
+        if (fallbacks) {
+          nextActivity = fallbacks;
+          this.logger.log(`Fallback activity selected: ${fallbacks.id}`);
+        } else {
+          this.logger.warn(`No fallback activity available for user ${userId}`);
+        }
+      } catch (fallbackErr: any) {
+        this.logger.error(`Fallback activity selection also failed: ${fallbackErr?.message}`);
       }
     }
 
