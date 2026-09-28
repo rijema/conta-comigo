@@ -549,6 +549,8 @@ function LearnPageInner() {
                 speechRate: settings.speechRate,
                 automaticInstructionSpeech: settings.automaticInstructionSpeech,
                 speechLanguage: settings.speechLanguage,
+                preferredModality: session.preferredModality ?? undefined,
+                activitiesCompleted: Math.floor(session.progress / 10),
               }}
             />
           </div>
