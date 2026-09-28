@@ -1,5 +1,53 @@
 # ContaComigo - Change Summary
 
+## 🔄 Phase: Migration History Alignment
+
+### 📅 Date: 2026-09-28
+### 🏷️ Version: v1.3.0
+
+## 🎯 Objective
+Replace the ad-hoc schema bootstrap with a real TypeORM migration runner with persisted history, and align production with schema changes that existed only in TypeScript migrations.
+
+## ✅ Solutions Implemented
+
+### 1. Real migration runner with history
+- **Files**:
+  - `src/database/data-source.ts`
+  - `src/database/run-migrations.ts`
+  - `package.json`
+  - `src/app.module.ts`
+- **Change**:
+  - Centralized TypeORM `DataSource` configuration
+  - `db:migrate` now runs `runMigrations()`
+  - Migration history is stored in `typeorm_migrations`
+  - Application, seeds, and migrations now share the same connection configuration
+
+### 2. Production baseline registration
+- **File**: `src/database/migrations/1728000000000-BaselineProductionSchema.ts`
+- **Change**:
+  - Registers already-materialized legacy migrations in `typeorm_migrations`
+  - Avoids replaying old migrations against a production schema that no longer matches their original assumptions
+
+### 3. Schema alignment for orphaned migrations
+- **File**: `src/database/migrations/1728000001000-AlignProductionSchemaWithMigrations.ts`
+- **Change**:
+  - Creates `exercise_performance`
+  - Creates `island_exercises_mapping`
+  - Creates `islands`
+  - Creates `island_activity_mappings`
+  - Adds `activities.islandId`
+  - Adds missing island context fields to `ade_decisions`
+  - Adds missing review-related columns to `review_assignments`
+  - Adds missing review-related columns to `review_outcomes`
+  - Seeds foundational island mapping records
+  - Backfills "how to play" instructions when absent
+
+## ⚠️ Migration Risks
+
+1. Existing environments with partial manual changes may still differ from the expected pre-alignment baseline.
+2. Some legacy TypeScript migrations describe schemas that diverged from the current `schema.sql`; this change preserves the current production-oriented shape and adds the missing operational fields rather than rebuilding the old model verbatim.
+3. The old `src/database/migrate.ts` path is now obsolete and should no longer be treated as the operational migration entrypoint.
+
 ## 🔄 Phase: Learning Analytics & Progression Engine
 
 ### 📅 Date: 2024
@@ -176,4 +224,3 @@ If issues arise:
 1. Set `maxRepetitionsInBlock = 1` (only block identical consecutive structures)
 2. Or disable progression filter: remove lines 242-267 in hybrid-recommendation.service.ts
 3. Roll back commits while keeping progression-analyzer.ts for future use
-
