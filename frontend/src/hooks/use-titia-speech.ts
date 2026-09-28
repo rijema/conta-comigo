@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useSyncExternalStore } from "react";
 import { useAccessibility } from "@/contexts/AccessibilityContext";
 import { api } from "@/lib/api-client";
 import { authService } from "@/lib/auth";
@@ -31,14 +31,19 @@ export function useTitiaSpeech({ activityId }: { activityId?: string } = {}) {
 
   useEffect(initializeRuntimeEngine, []);
 
+  const audioVolume = useMemo(() => 
+    Math.min(settings.volume, settings.audioStimulus === 'low' ? 0.35 : settings.audioStimulus === 'medium' ? 0.7 : 1),
+    [settings.volume, settings.audioStimulus]
+  );
+
   const configure = useCallback(() => {
     titiaSpeechService.configure({
       enabled: settings.voiceEnabled,
       rate: settings.speechRate,
       language: settings.speechLanguage,
-      volume: Math.min(settings.volume, settings.audioStimulus === 'low' ? 0.35 : settings.audioStimulus === 'medium' ? 0.7 : 1),
+      volume: audioVolume,
     });
-  }, [settings.voiceEnabled, settings.speechRate, settings.speechLanguage, settings.volume, settings.audioStimulus]);
+  }, [settings.voiceEnabled, settings.speechRate, settings.speechLanguage, audioVolume]);
 
   useEffect(() => {
     if (settingsLoaded) configure();
@@ -119,6 +124,11 @@ export function useTitiaSpeech({ activityId }: { activityId?: string } = {}) {
     if (!enabled) track("speech_disabled");
   }, [track, updateSettings]);
 
-  return { settings, settingsLoaded, isSpeaking, speakInstruction, repeatLastInstruction,
-    speakHint, speakFeedback, speakPictogram, speakExplanation, stopSpeech, setVoiceEnabled };
+  return useMemo(() => ({ 
+    settings, settingsLoaded, isSpeaking, speakInstruction, repeatLastInstruction,
+    speakHint, speakFeedback, speakPictogram, speakExplanation, stopSpeech, setVoiceEnabled 
+  }), [
+    settings, settingsLoaded, isSpeaking, speakInstruction, repeatLastInstruction,
+    speakHint, speakFeedback, speakPictogram, speakExplanation, stopSpeech, setVoiceEnabled
+  ]);
 }

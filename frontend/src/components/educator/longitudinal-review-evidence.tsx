@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { api } from "@/lib/api-client";
 
 /**
@@ -65,24 +65,26 @@ export function LongitudinalReviewEvidence({ learnerId }: { learnerId: string })
     fetchOutcomes();
   }, [learnerId]);
 
+  const classificationLabels = useMemo(() => ({
+    IMPROVED: "Progrediu",
+    STABLE: "Manteve-se",
+    NEEDS_SUPPORT: "Precisa de apoio",
+    INCONCLUSIVE: "Dados insuficientes",
+  }), []);
+
+  const classificationColors = useMemo(() => ({
+    IMPROVED: "bg-green-50 border-green-200",
+    STABLE: "bg-blue-50 border-blue-200",
+    NEEDS_SUPPORT: "bg-orange-50 border-orange-200",
+    INCONCLUSIVE: "bg-gray-50 border-gray-200",
+  }), []);
+
   const getClassificationLabel = (classification: string): string => {
-    const labels: Record<string, string> = {
-      IMPROVED: "Progrediu",
-      STABLE: "Manteve-se",
-      NEEDS_SUPPORT: "Precisa de apoio",
-      INCONCLUSIVE: "Dados insuficientes",
-    };
-    return labels[classification] || classification;
+    return classificationLabels[classification as keyof typeof classificationLabels] || classification;
   };
 
   const getClassificationColor = (classification: string): string => {
-    const colors: Record<string, string> = {
-      IMPROVED: "bg-green-50 border-green-200",
-      STABLE: "bg-blue-50 border-blue-200",
-      NEEDS_SUPPORT: "bg-orange-50 border-orange-200",
-      INCONCLUSIVE: "bg-gray-50 border-gray-200",
-    };
-    return colors[classification] || "bg-gray-50 border-gray-200";
+    return classificationColors[classification as keyof typeof classificationColors] || "bg-gray-50 border-gray-200";
   };
 
   const formatMetric = (value: number | null): string => {
@@ -128,9 +130,8 @@ export function LongitudinalReviewEvidence({ learnerId }: { learnerId: string })
     );
   }
 
-  return (
-    <div className="space-y-4">
-      {outcomes.map((outcome) => (
+  const outcomeElements = useMemo(() => 
+    outcomes.map((outcome) => (
         <div
           key={outcome.id}
           className={`border rounded-lg p-4 ${getClassificationColor(
@@ -254,7 +255,13 @@ export function LongitudinalReviewEvidence({ learnerId }: { learnerId: string })
             </p>
           </div>
         </div>
-      ))}
+      )),
+    [outcomes, getClassificationColor, getClassificationLabel, formatMetric, formatDelta]
+  );
+
+  return (
+    <div className="space-y-4">
+      {outcomeElements}
     </div>
   );
 }
