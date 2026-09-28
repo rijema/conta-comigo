@@ -138,6 +138,7 @@ export class ActivitiesService {
     activity: Activity;
     adeDecision: any;
     reviewAssignmentId?: string;
+    preferredModality: string | null;
   }> {
     // 1. Load learner profile (with safe fallback for new children)
     let profile: any;
@@ -176,6 +177,7 @@ export class ActivitiesService {
       return {
         activity: await this.attachSemanticContract(fallback),
         adeDecision: null,
+        preferredModality: null,
       };
     }
 
