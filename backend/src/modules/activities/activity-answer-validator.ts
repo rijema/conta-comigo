@@ -35,7 +35,10 @@ function normalizeScalar(value: unknown): unknown {
 function normalizeSubmittedAnswer(answer: unknown): unknown {
   if (!answer || typeof answer !== 'object' || Array.isArray(answer)) return answer;
   const record = answer as Record<string, unknown>;
-  return record.value ?? record.selectedText ?? record.selectedOption ?? record.count ?? record.arrangement ?? answer;
+  // Extract the actual answer value from wrapped objects
+  // Supports: { value }, { selectedText }, { selectedOption }, { count }, { arrangement }, or raw answer
+  const extracted = record.value ?? record.selectedText ?? record.selectedOption ?? record.count ?? record.arrangement ?? record.answer ?? answer;
+  return extracted;
 }
 
 function arraysEqual(left: unknown[], right: unknown[]): boolean {

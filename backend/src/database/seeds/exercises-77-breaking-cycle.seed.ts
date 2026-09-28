@@ -2,7 +2,7 @@
  * Generate 77 DIVERSE EXERCISES - BREAKING REPETITION CYCLE
  *
  * ✅ PRIORIDADE: EF01MA03 (Comparação) - 13 exercícios com 6+ tipos diferentes
- * ✅ SUPORTE TEA: Acessibilidade, menos estímulos, mais tempo
+ * ✅ Acessibilidade: Interface clara, menos estímulos visuais, tempo extra para responder
  * ✅ MULTIMODALIDADE: Visual + Audio + Kinesthetic
  * ✅ ARASAAC: Pictogramas mapeados
  * ✅ PROGRESSÃO: Dificuldade escala com acertos
@@ -37,7 +37,7 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
     id: 'a9d15a82-d1e7-4b41-96b7-d1502a7d2737',
     title: 'Qual grupo tem MAIS maçãs?',
     description:
-      'Selecione o grupo com mais maçãs. Suporta crianças TEA com timing lento.',
+      'Selecione o grupo com mais maçãs. Tempo extra para pensar e responder.',
     type: 'quiz',
     difficulty: 'very_easy',
     bnccSkills: ['EF01MA03'],
@@ -87,7 +87,7 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
   exercises.push({
     id: '6dfe0c09-47ea-4ef5-8525-679db6cf2f2c',
     title: 'Leve as maçãs para a cesta!',
-    description: 'Arraste as maçãs para a cesta. Ótimo para crianças TEA!',
+    description: 'Arraste as maçãs para a cesta com movimento lento e controlado.',
     type: 'drag_drop',
     difficulty: 'very_easy',
     bnccSkills: ['EF01MA03'],
@@ -126,7 +126,7 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
   exercises.push({
     id: '71cfe9a1-5ebd-4ae7-b285-88cbfd15ce3b',
     title: 'Ligue o número ao seu valor!',
-    description: 'Ligar número com representação visual. TEA-friendly!',
+    description: 'Ligue números com suas representações visuais correspondentes.',
     type: 'representation_matching',
     difficulty: 'very_easy',
     bnccSkills: ['EF01MA03'],
