@@ -23,6 +23,8 @@ describe('ActivitiesService learning event instrumentation', () => {
   const service = new ActivitiesService(
     activityRepo as any,
     attemptRepo as any,
+    {} as any, // islandRepo
+    {} as any, // islandActivityMappingRepo
     {} as any,
     {} as any,
     {} as any,
@@ -249,6 +251,8 @@ describe('ActivitiesService learning event instrumentation', () => {
     const serviceWithAttempt = new ActivitiesService(
       activityRepository as any,
       attemptRepository as any,
+      {} as any, // islandRepo
+      {} as any, // islandActivityMappingRepo
       { publishActivityEvent: jest.fn().mockResolvedValue(undefined) } as any,
       { decide: jest.fn().mockRejectedValue(new Error('ADE unavailable')) } as any,
       { getChildProfile: jest.fn().mockResolvedValue({}) } as any,
@@ -257,6 +261,7 @@ describe('ActivitiesService learning event instrumentation', () => {
       { getMasteryBySkillCode: jest.fn().mockResolvedValue(0.3),
         observe: jest.fn().mockResolvedValue({ masteryProbability: 0.4 }) } as any,
       islandCycleValidator as any,
+      undefined, // recommendationExplanationService
     );
     const trackAnswerEvents = jest
       .spyOn(serviceWithAttempt as any, 'trackAnswerEvents')

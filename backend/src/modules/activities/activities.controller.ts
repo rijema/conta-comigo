@@ -64,6 +64,12 @@ export class ActivitiesController {
     return this.activitiesService.getActivityTree(userId);
   }
 
+  @Get('islands/map')
+  @ApiOperation({ summary: 'Get islands with their activities for the learning map' })
+  getIslandsWithActivities(@CurrentUser('userId') userId: string) {
+    return this.activitiesService.getIslandsWithActivities(userId);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.activitiesService.findById(id);
