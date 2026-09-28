@@ -125,8 +125,13 @@ export function ActivityRenderer({
           />
         );
 
-      case "drag_drop":
-        if (prefersMinigame &&
+      case "drag_drop": {
+        // BasketMinigame only makes sense for "collect items into one basket" exercises.
+        // Exercises with correctOrder (sequencing/ordering) must use DragDropActivity
+        // because BasketMinigame has no concept of order or bins.
+        const hasOrdering = Array.isArray(activity.content?.correctOrder) ||
+          activity.content?.interaction === 'categorize';
+        if (prefersMinigame && !hasOrdering &&
             (activity.targetModalities?.includes('sensory') ||
              activity.targetModalities?.includes('visual') ||
              activity.content?.interaction === 'drag_drop')) {
@@ -149,6 +154,7 @@ export function ActivityRenderer({
             sensoryProfile={sensoryProfile}
           />
         );
+      }
 
       case "counting":
         if (hasOptions) {
