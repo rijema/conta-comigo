@@ -11,6 +11,11 @@ import { NeuralTitiaSpeechEngine } from "@/lib/neural-titia-speech-engine";
 type SpeechEventType = "instruction_spoken" | "instruction_replayed" |
   "hint_spoken" | "pictogram_spoken" | "speech_disabled";
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+function isValidUUID(value: unknown): value is string {
+  return typeof value === "string" && UUID_REGEX.test(value);
+}
+
 let runtimeEngineInitialized = false;
 
 function initializeRuntimeEngine() {
@@ -55,13 +60,19 @@ export function useTitiaSpeech({ activityId }: { activityId?: string } = {}) {
   }) => {
     const token = authService.getStoredToken();
     if (!token || typeof window === "undefined") return;
-    
+
+    // Only include activityId if it is a valid UUID — prevents 400 errors from the backend
+    const resolvedActivityId = isValidUUID(activityId) ? activityId : undefined;
+    if (activityId && !resolvedActivityId) {
+      console.warn("[useTitiaSpeech] activityId is not a valid UUID, omitting from speech event:", activityId);
+    }
+
     // Retry with exponential backoff on network errors
     const trackWithRetry = async (attempt = 0) => {
       try {
         await api.post("/learning-events/speech", {
           sessionId: getOrCreateLearningSessionId(), eventType,
-          ...(activityId ? { activityId } : {}), ...metadata,
+          ...(resolvedActivityId ? { activityId: resolvedActivityId } : {}), ...metadata,
         }, token);
       } catch (error: any) {
         // Only retry on network errors, not validation errors
