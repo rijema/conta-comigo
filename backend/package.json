@@ -15,7 +15,8 @@
     "db:migrate": "node dist/database/run-migrations.js",
     "db:seed": "node dist/database/seeds/seed.js",
     "db:seed:islands": "node dist/database/seed-islands.js",
-    "db:seed:islands:auto": "node dist/database/seed-islands-auto.js"
+    "db:seed:islands:auto": "node dist/database/seed-islands-auto.js",
+    "db:seed:remaining-islands": "node dist/database/seed-remaining-islands.js"
   },
   "dependencies": {
     "@nestjs/axios": "^3.0.1",
