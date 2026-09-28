@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { api } from "@/lib/api-client";
 
 /**
@@ -79,15 +79,15 @@ export function LongitudinalReviewEvidence({ learnerId }: { learnerId: string })
     INCONCLUSIVE: "bg-gray-50 border-gray-200",
   }), []);
 
-  const getClassificationLabel = (classification: string): string => {
+  const getClassificationLabel = useCallback((classification: string): string => {
     return classificationLabels[classification as keyof typeof classificationLabels] || classification;
-  };
+  }, [classificationLabels]);
 
-  const getClassificationColor = (classification: string): string => {
+  const getClassificationColor = useCallback((classification: string): string => {
     return classificationColors[classification as keyof typeof classificationColors] || "bg-gray-50 border-gray-200";
-  };
+  }, [classificationColors]);
 
-  const formatMetric = (value: number | null): string => {
+  const formatMetric = useCallback((value: number | null): string => {
     if (value === null) return "Não disponível";
     if (typeof value === "number") {
       if (value < 1) return `${(value * 100).toFixed(0)}%`;
@@ -95,40 +95,14 @@ export function LongitudinalReviewEvidence({ learnerId }: { learnerId: string })
       return value.toFixed(2);
     }
     return "Não disponível";
-  };
+  }, []);
 
-  const formatDelta = (delta: number | null): string => {
+  const formatDelta = useCallback((delta: number | null): string => {
     if (delta === null) return "Não disponível";
     const sign = delta > 0 ? "+" : "";
     if (delta < 1) return `${sign}${(delta * 100).toFixed(0)}%`;
     return `${sign}${delta.toFixed(2)}`;
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <div className="text-slate-500">Carregando dados...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <p className="text-red-700 text-sm">{error}</p>
-      </div>
-    );
-  }
-
-  if (outcomes.length === 0) {
-    return (
-      <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
-        <p className="text-slate-600 text-sm">
-          Nenhuma atividade de revisão completada ainda.
-        </p>
-      </div>
-    );
-  }
+  }, []);
 
   const outcomeElements = useMemo(() => 
     outcomes.map((outcome) => (
@@ -258,6 +232,32 @@ export function LongitudinalReviewEvidence({ learnerId }: { learnerId: string })
       )),
     [outcomes, getClassificationColor, getClassificationLabel, formatMetric, formatDelta]
   );
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="text-slate-500">Carregando dados...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <p className="text-red-700 text-sm">{error}</p>
+      </div>
+    );
+  }
+
+  if (outcomes.length === 0) {
+    return (
+      <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
+        <p className="text-slate-600 text-sm">
+          Nenhuma atividade de revisão completada ainda.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
