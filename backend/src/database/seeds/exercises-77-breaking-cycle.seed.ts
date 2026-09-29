@@ -50,8 +50,10 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
         'Clique no grupo que tem MAIS frutas. Você tem tempo!',
       instructionsPt:
         'Clique no grupo que tem MAIS frutas. Você tem tempo!',
+      howToPlayPt: 'Veja o primeiro grupo com 2 maçãs. Veja o segundo grupo com 4 maçãs. Qual tem mais? Escolha o grupo com 4 maçãs.',
+      howToPlay: 'Look at the first group with 2 apples. Look at the second group with 4 apples. Which has more? Choose the group with 4 apples.',
       timeLimit: 30,
-      pictogramConceptIds: ['23189', '23190'], // ARASAAC: maçã, números
+      pictogramConceptIds: ['arasaac.23189', 'arasaac.23190'], // ARASAAC: maçã, números
       items: [
         {
           id: 'opt1',
@@ -68,6 +70,9 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
       ],
       correctAnswer: 'opt2',
       validation: { kind: 'exact' },
+      supportsDragDrop: true,
+      dragDropInstructions: 'Você também pode arrastar o grupo com MAIS frutas para a área de resposta.',
+      dragDropInstructionsPt: 'Você também pode arrastar o grupo com MAIS frutas para a área de resposta.',
       semantic: {
         structureId: 'greater_less_equal.visual',
         type: 'selection',
@@ -98,8 +103,10 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
     content: {
       instructions: 'Arraste as 3 maçãs para a cesta. Bem devagar!',
       instructionsPt: 'Arraste as 3 maçãs para a cesta. Bem devagar!',
+      howToPlayPt: 'Veja as 3 maçãs. Arraste cada maçã para a cesta. Faça devagar e com cuidado. Se clicar numa maçã dentro da cesta, ela volta para a listagem.',
+      howToPlay: 'Look at the 3 apples. Drag each apple to the basket. Do it slowly and carefully. If you click on an apple inside the basket, it returns to the list.',
       timeLimit: 45,
-      pictogramConceptIds: ['23189', '61042'], // maçã, cesta
+      pictogramConceptIds: ['arasaac.23189', 'arasaac.61042'], // maçã, cesta
       items: [
         { id: 'apple1', label: 'maçã', visual: 'apple' },
         { id: 'apple2', label: 'maçã', visual: 'apple' },
@@ -107,6 +114,7 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
       ],
       correctAnswer: ['apple1', 'apple2', 'apple3'],
       validation: { kind: 'set' },
+      allowRemovalFromBasket: true,
       semantic: {
         structureId: 'greater_less_equal.dragdrop',
         type: 'drag_drop',
@@ -137,8 +145,10 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
     content: {
       instructions: 'Ligue o número com a quantidade certa de pontos.',
       instructionsPt: 'Ligue o número com a quantidade certa de pontos.',
+      howToPlayPt: 'Veja o número. Conte os pontos. Ligue o número com a quantidade certa de pontos.',
+      howToPlay: 'Look at the number. Count the dots. Connect the number with the correct number of dots.',
       timeLimit: 40,
-      pictogramConceptIds: ['23190'], // números
+      pictogramConceptIds: ['arasaac.23190'], // números
       items: [
         {
           id: 'num2',
@@ -192,8 +202,10 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
     content: {
       instructions: 'Monte uma pilha com 5 blocos diferentes.',
       instructionsPt: 'Monte uma pilha com 5 blocos diferentes.',
+      howToPlayPt: 'Veja os 5 blocos de cores diferentes. Coloque-os em uma pilha. Escolha a ordem correta.',
+      howToPlay: 'Look at the 5 blocks of different colors. Stack them. Choose the correct order.',
       timeLimit: 60,
-      pictogramConceptIds: ['23191'], // blocos
+      pictogramConceptIds: ['arasaac.23191'], // blocos
       items: [
         { id: 'block1', color: 'red', size: 'large' },
         { id: 'block2', color: 'blue', size: 'medium' },
@@ -235,8 +247,10 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
         'Clique onde deve ir o número 6 na reta. Entre 5 e 7!',
       instructionsPt:
         'Clique onde deve ir o número 6 na reta. Entre 5 e 7!',
+      howToPlayPt: 'Veja a reta com números. O número 6 fica entre 5 e 7. Clique no lugar certo.',
+      howToPlay: 'Look at the number line. The number 6 goes between 5 and 7. Click in the right place.',
       timeLimit: 35,
-      pictogramConceptIds: ['23190'], // números
+      pictogramConceptIds: ['arasaac.23190'], // números
       semantic: {
         structureId: 'greater_less_equal.numberline',
         type: 'number_line',
@@ -267,8 +281,10 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
     content: {
       instructions: 'Temos 7. Quantos faltam para 10?',
       instructionsPt: 'Temos 7. Quantos faltam para 10?',
+      howToPlayPt: 'Você tem 7. Precisa chegar a 10. Quantos faltam? Conte: 8, 9, 10. Faltam 3.',
+      howToPlay: 'You have 7. You need to reach 10. How many are missing? Count: 8, 9, 10. 3 are missing.',
       timeLimit: 40,
-      pictogramConceptIds: ['23190'], // números
+      pictogramConceptIds: ['arasaac.23190'], // números
       items: Array.from({ length: 7 }).map((_, i) => ({ id: `item${i}`, filled: true })),
       correctAnswer: 3,
       validation: { kind: 'numeric' },
@@ -345,8 +361,10 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
     content: {
       instructions: 'Coloque: 2, 5, 3, 8 em MAIOR (>5) ou MENOR (<5)',
       instructionsPt: 'Coloque: 2, 5, 3, 8 em MAIOR (>5) ou MENOR (<5)',
+      howToPlayPt: 'Veja cada número. Se é maior que 5, coloque em MAIOR. Se é menor que 5, coloque em MENOR.',
+      howToPlay: 'Look at each number. If it is greater than 5, put it in GREATER. If it is less than 5, put it in LESS.',
       timeLimit: 50,
-      pictogramConceptIds: ['23190'], // números
+      pictogramConceptIds: ['arasaac.23190'], // números
       semantic: {
         structureId: 'greater_less_equal.sorting',
         type: 'sorting',
