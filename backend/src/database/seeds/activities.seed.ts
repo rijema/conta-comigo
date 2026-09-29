@@ -26,6 +26,9 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       content: {
         instructionsPt: 'Quantas estrelas você vê?',
         instructions: 'How many stars do you see?',
+        howToPlayPt: 'Veja as estrelas. Conte uma, duas, três. Escolha o número correto.',
+        howToPlay: 'Look at the stars. Count one, two, three. Choose the correct number.',
+        pictogramConceptIds: ['arasaac.17331'],
         options: [
           { id: 'a', text: '2', isCorrect: false },
           { id: 'b', text: '3', isCorrect: true },
@@ -48,7 +51,9 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       content: {
         instructionsPt: 'Quantas maçãs há na cesta?',
         instructions: 'How many apples are in the basket?',
-        
+        howToPlayPt: 'Veja as maçãs na cesta. Conte cada uma. Escolha o número certo.',
+        howToPlay: 'Look at the apples in the basket. Count each one. Choose the correct number.',
+        pictogramConceptIds: ['arasaac.23189'],
         options: [
           { id: 'a', text: '3', isCorrect: false },
           { id: 'b', text: '4', isCorrect: false },
@@ -93,6 +98,8 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       content: {
         instructionsPt: 'Qual é o MENOR número: 15, 9 ou 12?',
         instructions: 'Which is the SMALLEST: 15, 9 or 12?',
+        howToPlayPt: 'Veja os três números: 15, 9 e 12. O número 9 é o mais pequeno. Escolha o menor.',
+        howToPlay: 'Look at the three numbers: 15, 9 and 12. The number 9 is the smallest. Choose the smallest.',
         options: [
           { id: 'a', text: '15', isCorrect: false },
           { id: 'b', text: '12', isCorrect: false },
@@ -113,9 +120,12 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       isActive: true,
       accessibility: { hasVisual: true, sensoryLoad: 'low' },
       content: {
-        instructionsPt: '🍬 + 🍬🍬 = ?',
-        instructions: '1 candy + 2 candies = ?',
-        items: ['🍬', '+', '🍬', '🍬', '=', '?'],
+        instructionsPt: 'Uma maçã mais duas maçãs = ?',
+        instructions: '1 apple + 2 apples = ?',
+        howToPlayPt: 'Você tem 1 maçã. Ganha mais 2 maçãs. Junte os dois grupos. Quantas maçãs você tem?',
+        howToPlay: 'You have 1 apple. You get 2 more apples. Add both groups. How many apples do you have?',
+        pictogramConceptIds: ['arasaac.23189'],
+        items: ['arasaac.23189', '+', 'arasaac.23189', 'arasaac.23189', '=', '?'],
         options: [
           { id: 'a', text: '2', isCorrect: false },
           { id: 'b', text: '3', isCorrect: true },
@@ -138,6 +148,9 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       content: {
         instructionsPt: 'Quanto é 2 + 3?',
         instructions: 'What is 2 + 3?',
+        howToPlayPt: 'Você tem 2 maçãs. Ganha mais 3 maçãs. Junte os dois grupos. Quantas maçãs você tem agora?',
+        howToPlay: 'You have 2 apples. You get 3 more apples. Add both groups. How many apples do you have now?',
+        pictogramConceptIds: ['arasaac.23189'],
         options: [
           { id: 'a', text: '4', isCorrect: false },
           { id: 'b', text: '5', isCorrect: true },
@@ -160,7 +173,9 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       content: {
         instructionsPt: 'Some as bolas: bolas azuis + bolas vermelhas = ?',
         instructions: 'Add blue balls + red balls = ?',
-        
+        howToPlayPt: 'Veja as bolas azuis. Conte-as. Depois veja as bolas vermelhas. Conte-as. Junte os dois grupos e escolha o total.',
+        howToPlay: 'Look at the blue balls. Count them. Then look at the red balls. Count them. Add both groups and choose the total.',
+        pictogramConceptIds: ['arasaac.16590', 'arasaac.16591'],
         options: [
           { id: 'a', text: '4', isCorrect: false },
           { id: 'b', text: '5', isCorrect: true },
@@ -181,9 +196,12 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       isActive: true,
       accessibility: { hasVisual: true, sensoryLoad: 'low' },
       content: {
-        instructionsPt: 'Tinha 5 🍪, comeu 2. Quantos sobraram?',
-        instructions: 'Had 5 🍪, ate 2. How many are left?',
-        items: ['🍪','🍪','🍪','🍪','🍪'],
+        instructionsPt: 'Tinha 5 biscoitos, comeu 2. Quantos sobraram?',
+        instructions: 'Had 5 cookies, ate 2. How many are left?',
+        howToPlayPt: 'Você tem 5 biscoitos. Come 2. Conte quantos biscoitos sobraram.',
+        howToPlay: 'You have 5 cookies. You eat 2. Count how many cookies are left.',
+        pictogramConceptIds: ['arasaac.17333'],
+        items: ['arasaac.17333','arasaac.17333','arasaac.17333','arasaac.17333','arasaac.17333'],
         options: [
           { id: 'a', text: '2', isCorrect: false },
           { id: 'b', text: '3', isCorrect: true },
@@ -251,6 +269,9 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       content: {
         instructionsPt: 'Qual é o dobro de 4?',
         instructions: 'What is double of 4?',
+        howToPlayPt: 'O dobro significa duas vezes a mesma quantidade. Se você tem 4 maçãs e ganha mais 4, terá 8 maçãs no total. Escolha o dobro de 4.',
+        howToPlay: 'Double means two times the same amount. If you have 4 apples and get 4 more, you will have 8 apples total. Choose the double of 4.',
+        pictogramConceptIds: ['arasaac.23189'],
         options: [
           { id: 'a', text: '6', isCorrect: false },
           { id: 'b', text: '8', isCorrect: true },
@@ -317,7 +338,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       isActive: true,
       accessibility: { hasVisual: true, sensoryLoad: 'low' },
       content: {
-        instructionsPt: 'Arraste os números do MENOR para o MAIOR 👇',
+        instructionsPt: 'Arraste os números do MENOR para o MAIOR',
         instructions: 'Drag the numbers from SMALLEST to BIGGEST',
         question: 'Coloque os números em ordem crescente: do menor para o maior!',
         items: [
@@ -342,7 +363,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       isActive: true,
       accessibility: { hasVisual: true, sensoryLoad: 'low' },
       content: {
-        instructionsPt: 'Arraste os números do MAIOR para o MENOR 👇',
+        instructionsPt: 'Arraste os números do MAIOR para o MENOR',
         instructions: 'Drag the numbers from BIGGEST to SMALLEST',
         question: 'Coloque os números em ordem decrescente: do maior para o menor!',
         items: [
@@ -443,8 +464,11 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       isActive: true,
       accessibility: { hasVisual: true, sensoryLoad: 'low' },
       content: {
-        instructionsPt: 'Como se chama essa forma? ⬜',
-        instructions: 'What is this shape? ⬜',
+        instructionsPt: 'Como se chama essa forma?',
+        instructions: 'What is this shape?',
+        howToPlayPt: 'Veja a forma. Tem 4 lados iguais. É um quadrado. Escolha o nome certo.',
+        howToPlay: 'Look at the shape. It has 4 equal sides. It is a square. Choose the correct name.',
+        pictogramConceptIds: ['arasaac.17331'],
         options: [
           { id: 'a', text: 'Círculo', isCorrect: false },
           { id: 'b', text: 'Quadrado', isCorrect: true },
@@ -465,8 +489,11 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       isActive: true,
       accessibility: { hasVisual: true, sensoryLoad: 'low' },
       content: {
-        instructionsPt: 'Uma pizza tem o formato de qual forma? 🍕',
-        instructions: 'Which shape does a pizza have? 🍕',
+        instructionsPt: 'Uma pizza tem o formato de qual forma?',
+        instructions: 'Which shape does a pizza have?',
+        howToPlayPt: 'Uma pizza é redonda. Não tem pontas. É um círculo. Escolha a forma certa.',
+        howToPlay: 'A pizza is round. It has no corners. It is a circle. Choose the correct shape.',
+        pictogramConceptIds: ['arasaac.17330'],
         options: [
           { id: 'a', text: 'Quadrado', isCorrect: false },
           { id: 'b', text: 'Círculo', isCorrect: true },
