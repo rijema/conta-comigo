@@ -62,31 +62,42 @@ export const ComparisonMinigame: React.FC<ComparisonMinigameProps> = ({
     }
   }, [speech.settings.voiceEnabled, speech]);
 
-  // Generate random comparison challenge
+  // Generate initial challenge on mount
   useEffect(() => {
+    generateChallenge();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const generateChallenge = useCallback(() => {
     const counts = COUNTS_BY_DIFFICULTY[difficulty] ?? COUNTS_BY_DIFFICULTY.easy;
     const shuffled = [...counts].sort(() => Math.random() - 0.5);
     let [correctCount, wrongCount] = shuffled;
     while (wrongCount === correctCount) wrongCount = counts[Math.floor(Math.random() * counts.length)];
-
     const emoji1 = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
     const emoji2 = EMOJIS.filter((e) => e !== emoji1)[Math.floor(Math.random() * (EMOJIS.length - 1))];
     const isCorrectFirst = Math.random() > 0.5;
-
     setItems([
       { id: 'first',  count: isCorrectFirst ? correctCount : wrongCount, emoji: emoji1, label: 'Grupo 1' },
       { id: 'second', count: isCorrectFirst ? wrongCount : correctCount, emoji: emoji2, label: 'Grupo 2' },
     ]);
+    setSelected(null);
+    setIsCorrect(null);
+    setTimeLeft(TIME_LIMIT);
   }, [difficulty]);
 
   const handleFinish = useCallback((correct: boolean) => {
-    if (completedRef.current) return;
-    completedRef.current = true;
-    // Delegate TitiA feedback to parent — no internal celebration
-    setTimeout(() => onComplete(correct ? 100 : 0, correct), 800);
-  }, [onComplete]);
+    if (correct) {
+      if (completedRef.current) return;
+      completedRef.current = true;
+      // Delegate TitiA green flash to parent
+      setTimeout(() => onComplete(100, true), 800);
+    } else {
+      // Wrong answer — wait briefly, then generate a new challenge
+      setTimeout(() => generateChallenge(), 1200);
+    }
+  }, [onComplete, generateChallenge]);
 
-  // Timer — when it runs out, count as incorrect
+  // Timer — when it runs out, count as incorrect and reset
   useEffect(() => {
     if (selected !== null || isCorrect !== null) return;
     if (timeLeft <= 0) {
