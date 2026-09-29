@@ -1,24 +1,24 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+/**
+ * MINIGAME: Agrupamento por Categoria
+ *
+ * TEA-FRIENDLY:
+ * - Pictogramas ARASAAC — visual e acessível
+ * - Regras claras — arraste o item para a caixa correta
+ * - Código de cores — cada categoria tem sua cor
+ * - Feedback imediato por item (não por exercício inteiro)
+ * - Sem pressão de tempo
+ *
+ * [PROPOSTA CONTA COMIGO] Agrupamento visual por categoria
+ * [DECISÃO DE ENGENHARIA] Celebração delegada ao learn/page via onComplete
+ * para garantir TitiA feedback consistente.
+ */
+
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { ArasaacPictogram } from '@/components/arasaac/arasaac-pictogram';
 import { useTitiaSpeech } from '@/hooks/use-titia-speech';
-
-/**
- * MINIGAME: Category Sorting
- *
- * TEA-FRIENDLY:
- * ✅ ARASAAC pictograms - visual + accessible
- * ✅ Clear rules - drag items to matching box
- * ✅ Color coding - each category has own color
- * ✅ Immediate feedback per item (not whole exercise)
- * ✅ Celebratory animation
- * ✅ No timer pressure
- *
- * [PROPOSTA CONTA COMIGO] Agrupamento visual por cor/categoria
- * [DECISÃO DE ENGENHARIA] Drag-drop com validação por pictogram type
- */
 
 interface CategoryItem {
   id: string;
@@ -28,10 +28,10 @@ interface CategoryItem {
 
 interface CategoryBox {
   id: 'fruits' | 'animals' | 'vehicles';
-  color: string;
-  bgColor: string;
+  label: string;
   pictogramId: string;
-  items: string[]; // item IDs
+  bgColor: string;
+  placedIds: string[];
 }
 
 interface CategoryMinigameProps {
@@ -41,254 +41,222 @@ interface CategoryMinigameProps {
   isTEAMode?: boolean;
 }
 
-const ITEM_SETS = {
+const ITEM_SETS: Record<CategoryMinigameProps['difficulty'], CategoryItem[]> = {
   very_easy: [
-    { id: '1', pictogramId: 'arasaac.15195', category: 'fruits' as const },
-    { id: '2', pictogramId: 'library.red', category: 'fruits' as const },
-    { id: '3', pictogramId: 'arasaac.15532', category: 'animals' as const },
-    { id: '4', pictogramId: 'library.square', category: 'animals' as const },
+    { id: '1', pictogramId: 'arasaac.15195', category: 'fruits' },
+    { id: '2', pictogramId: 'arasaac.14560', category: 'fruits' },
+    { id: '3', pictogramId: 'arasaac.15532', category: 'animals' },
+    { id: '4', pictogramId: 'arasaac.2507',  category: 'animals' },
   ],
   easy: [
-    { id: '1', pictogramId: 'arasaac.15195', category: 'fruits' as const },
-    { id: '2', pictogramId: 'library.red', category: 'fruits' as const },
-    { id: '3', pictogramId: 'arasaac.14560', category: 'fruits' as const },
-    { id: '4', pictogramId: 'arasaac.15532', category: 'animals' as const },
-    { id: '5', pictogramId: 'library.blue', category: 'animals' as const },
-    { id: '6', pictogramId: 'library.play', category: 'vehicles' as const },
+    { id: '1', pictogramId: 'arasaac.15195', category: 'fruits' },
+    { id: '2', pictogramId: 'arasaac.14560', category: 'fruits' },
+    { id: '3', pictogramId: 'arasaac.15358', category: 'fruits' },
+    { id: '4', pictogramId: 'arasaac.15532', category: 'animals' },
+    { id: '5', pictogramId: 'arasaac.2507',  category: 'animals' },
+    { id: '6', pictogramId: 'arasaac.9810',  category: 'vehicles' },
   ],
   medium: [
-    { id: '1', pictogramId: 'arasaac.15195', category: 'fruits' as const },
-    { id: '2', pictogramId: 'library.red', category: 'fruits' as const },
-    { id: '3', pictogramId: 'arasaac.14560', category: 'fruits' as const },
-    { id: '4', pictogramId: 'library.circle', category: 'fruits' as const },
-    { id: '5', pictogramId: 'arasaac.15532', category: 'animals' as const },
-    { id: '6', pictogramId: 'library.blue', category: 'animals' as const },
-    { id: '7', pictogramId: 'library.square', category: 'animals' as const },
-    { id: '8', pictogramId: 'library.play', category: 'vehicles' as const },
-    { id: '9', pictogramId: 'library.learn', category: 'vehicles' as const },
+    { id: '1',  pictogramId: 'arasaac.15195', category: 'fruits' },
+    { id: '2',  pictogramId: 'arasaac.14560', category: 'fruits' },
+    { id: '3',  pictogramId: 'arasaac.15358', category: 'fruits' },
+    { id: '4',  pictogramId: 'arasaac.15143', category: 'fruits' },
+    { id: '5',  pictogramId: 'arasaac.15532', category: 'animals' },
+    { id: '6',  pictogramId: 'arasaac.2507',  category: 'animals' },
+    { id: '7',  pictogramId: 'arasaac.5221',  category: 'animals' },
+    { id: '8',  pictogramId: 'arasaac.9810',  category: 'vehicles' },
+    { id: '9',  pictogramId: 'arasaac.36405', category: 'vehicles' },
   ],
   hard: [
-    { id: '1', pictogramId: 'arasaac.15195', category: 'fruits' as const },
-    { id: '2', pictogramId: 'library.red', category: 'fruits' as const },
-    { id: '3', pictogramId: 'arasaac.14560', category: 'fruits' as const },
-    { id: '4', pictogramId: 'library.circle', category: 'fruits' as const },
-    { id: '5', pictogramId: 'arasaac.15358', category: 'fruits' as const },
-    { id: '6', pictogramId: 'arasaac.15532', category: 'animals' as const },
-    { id: '7', pictogramId: 'library.blue', category: 'animals' as const },
-    { id: '8', pictogramId: 'library.square', category: 'animals' as const },
-    { id: '9', pictogramId: 'library.diamond', category: 'animals' as const },
-    { id: '10', pictogramId: 'library.play', category: 'vehicles' as const },
-    { id: '11', pictogramId: 'library.learn', category: 'vehicles' as const },
-    { id: '12', pictogramId: 'mathematics.order', category: 'vehicles' as const },
+    { id: '1',  pictogramId: 'arasaac.15195', category: 'fruits' },
+    { id: '2',  pictogramId: 'arasaac.14560', category: 'fruits' },
+    { id: '3',  pictogramId: 'arasaac.15358', category: 'fruits' },
+    { id: '4',  pictogramId: 'arasaac.15143', category: 'fruits' },
+    { id: '5',  pictogramId: 'arasaac.15132', category: 'fruits' },
+    { id: '6',  pictogramId: 'arasaac.15532', category: 'animals' },
+    { id: '7',  pictogramId: 'arasaac.2507',  category: 'animals' },
+    { id: '8',  pictogramId: 'arasaac.5221',  category: 'animals' },
+    { id: '9',  pictogramId: 'arasaac.4917',  category: 'animals' },
+    { id: '10', pictogramId: 'arasaac.9810',  category: 'vehicles' },
+    { id: '11', pictogramId: 'arasaac.36405', category: 'vehicles' },
+    { id: '12', pictogramId: 'arasaac.29151', category: 'vehicles' },
   ],
 };
+
+const INITIAL_BOXES: CategoryBox[] = [
+  { id: 'fruits',   label: 'Frutas',  pictogramId: 'arasaac.15195', bgColor: 'bg-red-100   border-red-300',    placedIds: [] },
+  { id: 'animals',  label: 'Animais', pictogramId: 'arasaac.15532', bgColor: 'bg-blue-100  border-blue-300',   placedIds: [] },
+  { id: 'vehicles', label: 'Coisas',  pictogramId: 'arasaac.9810',  bgColor: 'bg-yellow-100 border-yellow-300', placedIds: [] },
+];
 
 export const CategoryMinigame: React.FC<CategoryMinigameProps> = ({
   skill,
   difficulty,
   onComplete,
-  isTEAMode = true,
 }) => {
-  const [items, setItems] = useState<CategoryItem[]>([]);
-  const [boxes, setBoxes] = useState<CategoryBox[]>([
-    { id: 'fruits', color: 'Frutas', pictogramId: 'arasaac.15195', bgColor: 'bg-red-300', items: [] },
-    { id: 'animals', color: 'Animais', pictogramId: 'arasaac.15532', bgColor: 'bg-blue-300', items: [] },
-    { id: 'vehicles', color: 'Coisas', pictogramId: 'library.play', bgColor: 'bg-yellow-300', items: [] },
-  ]);
-  const [draggedItem, setDraggedItem] = useState<string | null>(null);
-  const [showCelebration, setShowCelebration] = useState(false);
-  const [correctCount, setCorrectCount] = useState(0);
+  const totalItems = ITEM_SETS[difficulty].length;
+  const [pending, setPending] = useState<CategoryItem[]>([]);
+  const [boxes, setBoxes] = useState<CategoryBox[]>(INITIAL_BOXES.map((b) => ({ ...b, placedIds: [] })));
+  const [wrongIds, setWrongIds] = useState<Set<string>>(new Set());
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null); // tap mode
+  const completedRef = useRef(false);
   const spokenRef = useRef(false);
   const speech = useTitiaSpeech({ activityId: `category-minigame-${skill}` });
 
-  // Initialize items
   useEffect(() => {
-    const itemSet = ITEM_SETS[difficulty] || ITEM_SETS.easy;
-    const shuffled = [...itemSet].sort(() => Math.random() - 0.5);
-    setItems(shuffled);
+    const shuffled = [...ITEM_SETS[difficulty]].sort(() => Math.random() - 0.5);
+    setPending(shuffled);
+    setBoxes(INITIAL_BOXES.map((b) => ({ ...b, placedIds: [] })));
+    completedRef.current = false;
   }, [difficulty]);
 
-  // Speak instruction on mount
   useEffect(() => {
     if (speech.settings.voiceEnabled && !spokenRef.current) {
       spokenRef.current = true;
-      speech.speakInstruction({
-        steps: ["Arraste cada item para a caixa correta."],
-      });
+      speech.speakInstruction({ steps: ['Arraste ou toque em cada item e coloque na caixa correta.'] });
     }
   }, [speech.settings.voiceEnabled, speech]);
 
-  // Check if game is complete
+  const placedCount = boxes.reduce((sum, b) => sum + b.placedIds.length, 0);
+
+  const handleComplete = useCallback(() => {
+    if (completedRef.current) return;
+    completedRef.current = true;
+    // Delegate TitiA green flash to parent
+    setTimeout(() => onComplete(100, true), 600);
+  }, [onComplete]);
+
   useEffect(() => {
-    if (items.length > 0 && correctCount === items.length) {
-      setShowCelebration(true);
-      if (speech.settings.voiceEnabled) {
-        speech.speakInstruction({
-          steps: ["Parabéns! Você completou a minigame!"],
-        });
-      }
-      setTimeout(() => {
-        onComplete(100, true);
-      }, 1500);
+    if (totalItems > 0 && placedCount === totalItems) {
+      handleComplete();
     }
-  }, [correctCount, items.length, onComplete, speech]);
+  }, [placedCount, totalItems, handleComplete]);
 
-  const handleDragStart = (itemId: string) => {
-    setDraggedItem(itemId);
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    if (e.dataTransfer) {
-      e.dataTransfer.dropEffect = 'move';
-    }
-  };
-
-  const handleDropOnBox = (boxId: 'fruits' | 'animals' | 'vehicles') => {
-    if (!draggedItem) return;
-
-    const item = items.find((i) => i.id === draggedItem);
+  const tryPlace = (itemId: string, boxId: CategoryBox['id']) => {
+    const allItems = ITEM_SETS[difficulty];
+    const item = allItems.find((i) => i.id === itemId);
     if (!item) return;
 
-    // Check if correct category
     if (item.category === boxId) {
-      // Correct! Move item to box
-      setItems(items.filter((i) => i.id !== draggedItem));
-      setBoxes(
-        boxes.map((box) =>
-          box.id === boxId ? { ...box, items: [...box.items, draggedItem] } : box
-        )
+      // Correct — move to box
+      setPending((prev) => prev.filter((i) => i.id !== itemId));
+      setBoxes((prev) =>
+        prev.map((b) => b.id === boxId ? { ...b, placedIds: [...b.placedIds, itemId] } : b),
       );
-      setCorrectCount(correctCount + 1);
-
-      // Play success sound
-      if (typeof window !== 'undefined') {
-        const audio = new Audio('data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YQIAAAAAAA==');
-        audio.play().catch(() => {});
-      }
+      setSelectedId(null);
+      setWrongIds((prev) => { const next = new Set(prev); next.delete(itemId); return next; });
     } else {
-      // Wrong category - shake animation
-      const boxElement = document.getElementById(`box-${boxId}`);
-      if (boxElement) {
-        boxElement.classList.add('animate-bounce');
-        setTimeout(() => boxElement.classList.remove('animate-bounce'), 600);
-      }
+      // Wrong — flash red briefly
+      setWrongIds((prev) => new Set(prev).add(itemId));
+      setTimeout(() => setWrongIds((prev) => { const next = new Set(prev); next.delete(itemId); return next; }), 700);
+      setSelectedId(null);
     }
-
-    setDraggedItem(null);
   };
 
-  const completionPercent = items.length > 0 
-    ? Math.max(0, ((ITEM_SETS[difficulty].length - items.length) / ITEM_SETS[difficulty].length) * 100)
-    : 0;
+  // Drag handlers
+  const handleDragStart = (itemId: string) => setDraggedId(itemId);
+  const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; };
+  const handleDrop = (boxId: CategoryBox['id']) => {
+    if (draggedId) tryPlace(draggedId, boxId);
+    setDraggedId(null);
+  };
+
+  // Tap handlers (touch / click without drag)
+  const handleItemTap = (itemId: string) => {
+    setSelectedId((prev) => prev === itemId ? null : itemId);
+  };
+  const handleBoxTap = (boxId: CategoryBox['id']) => {
+    if (selectedId) tryPlace(selectedId, boxId);
+  };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-purple-50 to-purple-100 p-4">
+    <div className="flex flex-col items-center gap-5 p-4">
       {/* Header */}
-      <div className="mb-8 text-center">
-        <h1 className="text-4xl font-bold text-purple-600 mb-2">🎯 Agrupar por Categoria!</h1>
-        <p className="text-lg text-purple-500">Arraste cada item para a caixa correta</p>
+      <div className="text-center">
+        <h2 className="text-2xl font-extrabold text-purple-700">🎯 Agrupar por Categoria!</h2>
+        <p className="text-sm text-purple-500">Arraste cada item para a caixa correta</p>
       </div>
 
       {/* Progress bar */}
-      <div className="w-full max-w-md mb-8">
-        <div className="h-3 bg-purple-200 rounded-full overflow-hidden">
+      <div className="w-full max-w-md">
+        <div className="h-3 overflow-hidden rounded-full bg-purple-200">
           <motion.div
             className="h-full bg-green-500"
             initial={{ width: 0 }}
-            animate={{ width: `${completionPercent}%` }}
+            animate={{ width: `${(placedCount / totalItems) * 100}%` }}
             transition={{ duration: 0.3 }}
           />
         </div>
-        <p className="text-center mt-2 text-sm text-purple-600">
-          {correctCount}/{ITEM_SETS[difficulty].length} organizados corretamente
+        <p className="mt-1 text-center text-xs text-purple-600">
+          {placedCount}/{totalItems} organizados corretamente
         </p>
       </div>
 
       {/* Category boxes */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 w-full max-w-2xl">
+      <div className="grid grid-cols-3 gap-3 w-full max-w-xl">
         {boxes.map((box) => (
-          <motion.div
+          <div
             key={box.id}
             id={`box-${box.id}`}
             onDragOver={handleDragOver}
-            onDrop={() => handleDropOnBox(box.id)}
-            className={`
-              ${box.bgColor} rounded-xl p-6 min-h-40 flex flex-col items-center justify-center
-              border-4 border-dashed border-gray-400
-              transition-all duration-200
-            `}
+            onDrop={() => handleDrop(box.id)}
+            onClick={() => handleBoxTap(box.id)}
+            role="button"
+            tabIndex={0}
+            aria-label={`Caixa ${box.label}`}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleBoxTap(box.id); }}
+            className={`flex flex-col items-center gap-2 rounded-2xl border-4 border-dashed p-3 min-h-36 cursor-pointer transition-all
+              ${box.bgColor}
+              ${selectedId ? 'ring-4 ring-purple-400 scale-[1.03]' : ''}`}
           >
-            <div className="mb-4">
-              <ArasaacPictogram 
-                conceptId={box.pictogramId} 
-                showLabel={false}
-                imageClassName="w-12 h-12"
-              />
-            </div>
-            <p className="font-bold text-sm text-gray-800 mb-3">{box.color}</p>
-            <div className="flex flex-wrap gap-2 justify-center">
-              {box.items.map((itemId) => {
+            <ArasaacPictogram conceptId={box.pictogramId} showLabel={false} imageClassName="h-10 w-10" />
+            <span className="text-xs font-bold text-gray-700">{box.label}</span>
+            <div className="flex flex-wrap justify-center gap-1">
+              {box.placedIds.map((itemId) => {
                 const item = ITEM_SETS[difficulty].find((i) => i.id === itemId);
-                return (
-                  <div key={itemId}>
-                    <ArasaacPictogram 
-                      conceptId={item?.pictogramId || 'library.play'} 
-                      showLabel={false}
-                      imageClassName="w-8 h-8"
-                    />
-                  </div>
-                );
+                return item ? (
+                  <ArasaacPictogram key={itemId} conceptId={item.pictogramId} showLabel={false} imageClassName="h-8 w-8" />
+                ) : null;
               })}
             </div>
-          </motion.div>
+          </div>
         ))}
       </div>
 
-      {/* Draggable items */}
-      <div className="flex flex-wrap justify-center gap-4 p-6 bg-white rounded-xl shadow-lg w-full max-w-2xl">
-        {items.map((item) => (
-          <motion.div
+      {/* Pending items */}
+      <div className="flex flex-wrap justify-center gap-3 rounded-2xl border-2 border-gray-200 bg-white p-4 w-full max-w-xl min-h-20">
+        {pending.length === 0 ? (
+          <span className="text-sm text-gray-400 self-center">Todos os itens foram organizados!</span>
+        ) : pending.map((item) => (
+          <motion.button
             key={item.id}
+            type="button"
             draggable
             onDragStart={() => handleDragStart(item.id)}
-            className="cursor-move p-4 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            onClick={() => handleItemTap(item.id)}
+            aria-pressed={selectedId === item.id}
+            aria-label={`Item para categorizar`}
             whileHover={{ scale: 1.1 }}
             whileDrag={{ scale: 1.2, opacity: 0.7 }}
+            className={`rounded-xl border-4 p-3 transition-all cursor-grab active:cursor-grabbing
+              ${wrongIds.has(item.id) ? 'border-red-500 bg-red-100 animate-bounce' :
+                selectedId === item.id ? 'border-blue-500 bg-blue-100 ring-4 ring-blue-300' :
+                'border-gray-300 bg-gray-100 hover:border-purple-400 hover:bg-purple-50'}`}
           >
-            <ArasaacPictogram 
-              conceptId={item.pictogramId} 
-              showLabel={false}
-              imageClassName="w-10 h-10"
-            />
-          </motion.div>
+            <ArasaacPictogram conceptId={item.pictogramId} showLabel={false} imageClassName="h-12 w-12" />
+          </motion.button>
         ))}
       </div>
 
-      {/* Celebration */}
-      {showCelebration && (
-        <motion.div
-          className="fixed inset-0 flex items-center justify-center pointer-events-none"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-        >
-          <motion.div
-            className="text-8xl"
-            animate={{ scale: [1, 1.5, 1], rotate: [0, 10, -10, 0] }}
-            transition={{ duration: 0.6, repeat: 3 }}
-          >
-            🎉
-          </motion.div>
-        </motion.div>
+      {/* Tap mode hint */}
+      {selectedId && (
+        <p className="text-sm font-bold text-blue-700 animate-pulse">
+          Agora toque na caixa correta!
+        </p>
       )}
-
-      {/* Reset button */}
-      <button
-        onClick={() => window.location.reload()}
-        className="mt-8 px-6 py-2 bg-purple-500 text-white rounded-lg text-sm"
-      >
-        Tentar Novamente
-      </button>
     </div>
   );
 };
+
+export default CategoryMinigame;
