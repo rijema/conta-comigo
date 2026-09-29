@@ -16,6 +16,10 @@ interface ContentItem {
   id?: string;
   label?: string;
   pictogramConceptId?: string;
+  /** Legacy format from exercises-77 seed: raw ARASAAC numeric ID as string */
+  arasaacId?: string | number;
+  /** Legacy format from exercises-77 seed: visual description (e.g. 'apples:2') */
+  visual?: string;
 }
 
 export function CountingActivity({ activity, onAnswer }: Props) {
@@ -61,7 +65,9 @@ export function CountingActivity({ activity, onAnswer }: Props) {
         </span>
       );
     }
-    const conceptId = item.pictogramConceptId;
+    // Normalize legacy arasaacId field (string/number) to a pictogramConceptId
+    const conceptId = item.pictogramConceptId
+      ?? (item.arasaacId ? `arasaac.${item.arasaacId}` : undefined);
     return (
       <motion.div
         key={item.id ?? index}

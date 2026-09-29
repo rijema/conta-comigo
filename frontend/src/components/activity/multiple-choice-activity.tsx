@@ -85,12 +85,15 @@ export function MultipleChoiceActivity({ activity, onAnswer, sensoryProfile }: P
       <div className={`mb-4 grid gap-3 ${options.length === 3 ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-2"}`}>
         {options.map((option: any) => {
           const active = selected === option.id;
-          return <button key={option.id} type="button" onClick={() => select(option)} aria-pressed={active} aria-label={`Opção: ${option.text}`}
+          // Normalize legacy arasaacId field (from exercises-77 seed) to pictogramConceptId
+          const resolvedConceptId: string | undefined = option.pictogramConceptId
+            ?? (option.arasaacId ? `arasaac.${option.arasaacId}` : undefined);
+          return <button key={option.id} type="button" onClick={() => select(option)} aria-pressed={active} aria-label={`Opção: ${option.text ?? option.label}`}
             className={`flex min-h-20 flex-col items-center justify-center gap-1 rounded-2xl border-4 px-3 py-3 text-xl font-bold shadow-sm transition-all duration-150 focus:ring-4 focus:ring-blue-300 hover:scale-[1.025] active:scale-[.97] motion-reduce:transform-none ${active ? "scale-[1.02] border-blue-500 bg-blue-100 text-blue-800 shadow-md" : sensoryProfile?.lowStimulationMode ? "border-gray-200 bg-white text-gray-800" : "border-gray-200 bg-white text-gray-800 hover:border-blue-400 hover:bg-blue-50"}`}>
-            {option.pictogramConceptId && <ArasaacPictogram conceptId={option.pictogramConceptId} showLabel={false} imageClassName="h-14 w-14" />}
+            {resolvedConceptId && <ArasaacPictogram conceptId={resolvedConceptId} showLabel={false} imageClassName="h-14 w-14" />}
             {Array.isArray(option.pictogramConceptIds) && <span className="flex flex-wrap justify-center gap-1">{option.pictogramConceptIds.map((conceptId: string, index: number) => <ArasaacPictogram key={`${conceptId}-${index}`} conceptId={conceptId} showLabel={false} imageClassName="h-10 w-10" />)}</span>}
-            {!isShapeActivity && !option.pictogramConceptId && !option.pictogramConceptIds && option.emoji && <span className="text-4xl">{option.emoji}</span>}
-            <span>{option.text}</span>
+            {!isShapeActivity && !resolvedConceptId && !option.pictogramConceptIds && option.emoji && <span className="text-4xl">{option.emoji}</span>}
+            <span>{option.text ?? option.label}</span>
           </button>;
         })}
       </div>
