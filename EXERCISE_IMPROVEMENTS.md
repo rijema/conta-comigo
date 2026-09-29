@@ -47,6 +47,106 @@
 - Pequeno: arasaac.15814
 - Grande: arasaac.15813
 
+## ✅ Mudanças Implementadas - Interatividade
+
+### 6. Suporte a Múltiplas Interações
+- [x] Exercício "Qual grupo tem MAIS maçãs?" - adicionar suporte a drag and drop
+- [x] Exercício "Leve as maçãs para a cesta!" - adicionar funcionalidade de remover itens ao clicar
+- [x] Exercício "Ordene do menor para o maior!" - adicionar suporte a "tocar e preencher"
+- [x] Exercício "Do maior para o menor!" - adicionar suporte a "tocar e preencher"
+- [x] Exercício "Complete a sequência!" - adicionar suporte a "tocar e preencher"
+- [x] Exercício "Conta e ordena as frutas!" - adicionar suporte a "tocar e preencher"
+- [x] Exercício "Ordene os passos da adição!" - adicionar suporte a "tocar e preencher"
+
+## ✅ Mudanças Implementadas - Cobertura BNCC (12 Exercícios)
+
+### 7. Exercícios para BNCC Skills Não Contemplados
+
+#### 1º ANO:
+- [x] **EF01MA07** - "Jogo da Composição: Monte o Número" (composition_decomposition, medium)
+  - Técnica: Minigame interativo com grupos de maçãs
+  - Audio: spokenIntroduction, spokenSuccessFeedback
+  - ARASAAC: arasaac.23189 (maçã)
+
+- [x] **EF01MA13** - "Qual Objeto tem Forma de Cubo?" (quiz, easy)
+  - Técnica: Reconhecimento de objetos 3D
+  - Contexto: Objetos do mundo real (bola, caixa, cone)
+  - ARASAAC: arasaac.23191 (blocos)
+
+#### 2º ANO:
+- [x] **EF02MA07** - "A História das Rodas: 3 Carros × 4 Rodas" (contextual_problem_solving, medium)
+  - Técnica: História visual com grupos
+  - Audio: spokenIntroduction, spokenSuccessFeedback
+  - ARASAAC: arasaac.16590 (onda/movimento)
+
+- [x] **EF02MA14** - "Qual é o Nome desse Sólido?" (representation_matching, medium)
+  - Técnica: Nomeação de sólidos
+  - Contexto: Cone, cilindro, esfera
+  - ARASAAC: arasaac.23191 (blocos)
+
+#### 3º ANO:
+- [x] **EF03MA01** - "Qual Número é Maior: 1234 ou 1243?" (quiz, hard)
+  - Técnica: Comparação de números até milhar
+  - Foco: Análise de posição de dígitos
+  - ARASAAC: arasaac.23190 (números)
+
+- [x] **EF03MA08** - "Divida os Biscoitos: 12 ÷ 3" (drag_drop, medium)
+  - Técnica: Distribuição em grupos (divisão)
+  - Interação: Drag and drop
+  - ARASAAC: arasaac.17333 (biscoito/alimento)
+
+- [x] **EF03MA15** - "Qual Forma tem 4 Lados?" (quiz, easy)
+  - Técnica: Contagem de lados
+  - Contexto: Círculo, quadrado, triângulo
+  - ARASAAC: arasaac.17331 (forma)
+
+#### 4º ANO:
+- [x] **EF04MA01** - "Leia o Número: 25.847" (quiz, hard)
+  - Técnica: Leitura e escrita de números até dezenas de milhar
+  - Foco: Decomposição posicional
+  - ARASAAC: arasaac.23190 (números)
+
+- [x] **EF04MA06** - "Quantos Quadrados na Malha?" (visual_puzzle, medium)
+  - Técnica: Arranjo retangular (multiplicação)
+  - Contexto: Malha 5 × 6
+  - ARASAAC: arasaac.23190 (números)
+
+- [x] **EF04MA09** - "Qual é a Fração: 1/4 da Pizza" (quiz, medium)
+  - Técnica: Reconhecimento visual de frações
+  - Contexto: Pizza dividida em partes
+  - ARASAAC: arasaac.23189 (maçã/alimento)
+
+#### 5º ANO:
+- [x] **EF05MA01** - "Qual Número é Maior: 123.456 ou 132.456?" (quiz, extreme)
+  - Técnica: Comparação de números até centenas de milhar
+  - Foco: Análise de dezenas de milhar
+  - ARASAAC: arasaac.23190 (números)
+
+- [x] **EF05MA06** - "Quanto é 50% de 100 Moedas?" (visual_puzzle, hard)
+  - Técnica: Visualização de percentuais
+  - Contexto: 50% = metade
+  - ARASAAC: arasaac.16590 (movimento/quantidade)
+
+### Características Implementadas:
+- ✅ Diferentes técnicas de exercícios (quiz, drag_drop, composition_decomposition, contextual_problem_solving, representation_matching, visual_puzzle)
+- ✅ Todos os níveis de dificuldade (easy, medium, hard, extreme)
+- ✅ ARASAAC pictogramas em todos os exercícios
+- ✅ "Como Jogar" coeso em português e inglês
+- ✅ Audio com spokenIntroduction e spokenSuccessFeedback
+- ✅ Histórias e contextos visuais
+- ✅ Pontos de recompensa variados (20-40 pontos)
+- ✅ Acessibilidade configurada por exercício
+
+### 8. Indicador Visual para Exercícios Novos
+- ✅ Campo `isNew` adicionado na entidade Activity
+- ✅ Todos os 12 exercícios marcados com `isNew: true`
+- ✅ Badge visual "✨ NOVO" com brilho dourado
+- ✅ Animação de pulso no badge
+- ✅ Borda dourada e fundo amarelado para destaque
+- ✅ Componente Angular com estilos SCSS completos
+- ✅ Responsivo para desktop, tablet e mobile
+- ✅ Documentação completa em `FRONTEND_NEW_EXERCISE_BADGE.md`
+
 ## ⏳ Mudanças Pendentes
 
 ### Renderização de Pictogramas
@@ -75,6 +175,8 @@
 ## Arquivos Modificados
 - ✅ `/Users/richardjeremias/git/conta-comigo/backend/src/database/seeds/activities.seed.ts`
 - ✅ `/Users/richardjeremias/git/conta-comigo/backend/src/database/seeds/interactive-formats.seed.ts`
+- ✅ `/Users/richardjeremias/git/conta-comigo/backend/src/database/seeds/exercises-77-breaking-cycle.seed.ts`
+  - Corrigido: pictogramConceptIds com prefixo arasaac (5 exercícios)
+  - Adicionado: instruções "Como Jogar" (5 exercícios)
 - ⏳ `/Users/richardjeremias/git/conta-comigo/backend/src/database/seeds/activity-pools.seed.ts`
-- ⏳ `/Users/richardjeremias/git/conta-comigo/backend/src/database/seeds/exercises-77-breaking-cycle.seed.ts`
 

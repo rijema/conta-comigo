@@ -9,7 +9,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
   // 🚀 ADD 77 EXERCISES TO BREAK REPETITION CYCLE (EF01MA03 priority)
   const newExercises = generate77ExercisesBreakingCycle();
 
-  const activities = [
+  const activities: any[] = [
     // ── NEW: 77 DIVERSE EXERCISES (Breaking the cycle!)
     ...newExercises,
     // ── EF01MA01: Counting 1–10 ─────────────────────────────────────────
@@ -340,6 +340,8 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       content: {
         instructionsPt: 'Arraste os números do MENOR para o MAIOR',
         instructions: 'Drag the numbers from SMALLEST to BIGGEST',
+        howToPlayPt: 'Veja os números: 3, 1, 4, 2. Coloque-os em ordem crescente: 1, 2, 3, 4. Você pode arrastar ou tocar nos números para preenchê-los.',
+        howToPlay: 'Look at the numbers: 3, 1, 4, 2. Put them in ascending order: 1, 2, 3, 4. You can drag or tap the numbers to fill them.',
         question: 'Coloque os números em ordem crescente: do menor para o maior!',
         items: [
           { id: 'n3', label: '3' },
@@ -350,6 +352,8 @@ export async function ActivitiesSeed(dataSource: DataSource) {
         slotCount: 4,
         correctOrder: ['n1', 'n2', 'n3', 'n4'],
         correctAnswer: 'n1,n2,n3,n4',
+        supportsTapToFill: true,
+        tapToFillInstructions: 'Você também pode tocar nos números para preenchê-los na ordem correta.',
       },
     },
     {
@@ -365,6 +369,8 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       content: {
         instructionsPt: 'Arraste os números do MAIOR para o MENOR',
         instructions: 'Drag the numbers from BIGGEST to SMALLEST',
+        howToPlayPt: 'Veja os números: 7, 5, 9, 6. Coloque-os em ordem decrescente: 9, 7, 6, 5. Você pode arrastar ou tocar nos números para preenchê-los.',
+        howToPlay: 'Look at the numbers: 7, 5, 9, 6. Put them in descending order: 9, 7, 6, 5. You can drag or tap the numbers to fill them.',
         question: 'Coloque os números em ordem decrescente: do maior para o menor!',
         items: [
           { id: 'n7', label: '7' },
@@ -375,6 +381,8 @@ export async function ActivitiesSeed(dataSource: DataSource) {
         slotCount: 4,
         correctOrder: ['n9', 'n7', 'n6', 'n5'],
         correctAnswer: 'n9,n7,n6,n5',
+        supportsTapToFill: true,
+        tapToFillInstructions: 'Você também pode tocar nos números para preenchê-los na ordem correta.',
       },
     },
     {
@@ -390,6 +398,8 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       content: {
         instructionsPt: 'Complete a sequência: 10, ?, ?, 13',
         instructions: 'Complete the sequence: 10, ?, ?, 13',
+        howToPlayPt: 'Veja a sequência: 10, ?, ?, 13. Os números que faltam são 11 e 12. Coloque-os na ordem correta. Você pode arrastar ou tocar nos números.',
+        howToPlay: 'Look at the sequence: 10, ?, ?, 13. The missing numbers are 11 and 12. Put them in the correct order. You can drag or tap the numbers.',
         question: 'A sequência é 10, __, __, 13. Arraste os números que faltam na ordem certa!',
         items: [
           { id: 'n12', label: '12' },
@@ -398,6 +408,8 @@ export async function ActivitiesSeed(dataSource: DataSource) {
         slotCount: 2,
         correctOrder: ['n11', 'n12'],
         correctAnswer: 'n11,n12',
+        supportsTapToFill: true,
+        tapToFillInstructions: 'Você também pode tocar nos números para preenchê-los na ordem correta.',
       },
     },
     {
@@ -413,6 +425,8 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       content: {
         instructionsPt: 'Ordene os grupos do que tem MENOS para o que tem MAIS!',
         instructions: 'Order groups from FEWEST to MOST!',
+        howToPlayPt: 'Veja os grupos: 3 maçãs, 1 maçã, 2 maçãs. Coloque-os em ordem crescente: 1, 2, 3. Você pode arrastar ou tocar nos grupos.',
+        howToPlay: 'Look at the groups: 3 apples, 1 apple, 2 apples. Put them in ascending order: 1, 2, 3. You can drag or tap the groups.',
         question: 'Arraste os grupos do que tem MENOS para o que tem MAIS frutas!',
         items: [
           { id: 'g3', label: '3 maçãs' },
@@ -422,6 +436,8 @@ export async function ActivitiesSeed(dataSource: DataSource) {
         slotCount: 3,
         correctOrder: ['g1', 'g2', 'g3'],
         correctAnswer: 'g1,g2,g3',
+        supportsTapToFill: true,
+        tapToFillInstructions: 'Você também pode tocar nos grupos para preenchê-los na ordem correta.',
       },
     },
     {
@@ -437,6 +453,8 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       content: {
         instructionsPt: 'Monte a conta: 4 + 3 = 7. Arraste na ordem!',
         instructions: 'Build the equation: 4 + 3 = 7. Drag in order!',
+        howToPlayPt: 'Veja as peças: 4, +, 3, =, 7. Coloque-as na ordem correta para montar a conta. Você pode arrastar ou tocar nas peças.',
+        howToPlay: 'Look at the pieces: 4, +, 3, =, 7. Put them in the correct order to build the equation. You can drag or tap the pieces.',
         question: 'Arraste as peças para montar a conta correta!',
         items: [
           { id: 'eq7', label: '7' },
@@ -450,6 +468,8 @@ export async function ActivitiesSeed(dataSource: DataSource) {
         // Addition is commutative; both authored operand orders are valid.
         acceptedOrders: [['eq3', 'eqp', 'eq4', 'eqe', 'eq7']],
         correctAnswer: 'eq4,eqp,eq3,eqe,eq7',
+        supportsTapToFill: true,
+        tapToFillInstructions: 'Você também pode tocar nas peças para preenchê-las na ordem correta.',
       },
     },
     // ── EF01MA15: Shapes ─────────────────────────────────────────────────
@@ -777,6 +797,387 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       },
     },
   ];
+
+  // ── BNCC COVERAGE: 12 New Exercises for Missing Skills ──────────────────
+  
+  // EF01MA07: Composição e decomposição - Minigame interativo
+  activities.push({
+    title: 'Jogo da Composição: Monte o Número',
+    description: 'Componha números usando dois grupos de objetos',
+    type: 'composition_decomposition',
+    difficulty: 'medium',
+    bnccSkills: ['EF01MA07'],
+    targetModalities: ['visual', 'sensory', 'logical'],
+    pointsReward: 25,
+    isActive: true,
+    isNew: true,
+    accessibility: { hasVisual: true, hasAudio: true, sensoryLoad: 'medium' },
+    content: {
+      instructionsPt: 'Junte dois grupos de maçãs para formar o número 8',
+      instructions: 'Combine two groups of apples to form the number 8',
+      howToPlayPt: 'Você vê 5 maçãs vermelhas e 3 maçãs verdes. Junte-as! 5 + 3 = 8. Escolha a resposta certa.',
+      howToPlay: 'You see 5 red apples and 3 green apples. Combine them! 5 + 3 = 8. Choose the correct answer.',
+      pictogramConceptIds: ['arasaac.23189', 'arasaac.23189'],
+      items: [
+        { id: 'group1', label: '5 maçãs', count: 5, visual: 'apples:5' },
+        { id: 'group2', label: '3 maçãs', count: 3, visual: 'apples:3' },
+      ],
+      options: [
+        { id: 'a', text: '7', isCorrect: false },
+        { id: 'b', text: '8', isCorrect: true },
+        { id: 'c', text: '9', isCorrect: false },
+      ],
+      correctAnswer: '8',
+      validation: { kind: 'exact' },
+      spokenIntroduction: 'Vamos compor números! Junte os grupos de maçãs.',
+      spokenSuccessFeedback: 'Parabéns! Você compôs o número 8 corretamente!',
+    },
+  });
+
+  // EF01MA13: Figuras geométricas espaciais - Reconhecimento de objetos 3D
+  activities.push({
+    title: 'Qual Objeto tem Forma de Cubo?',
+    description: 'Identifique objetos com forma de cubo no mundo real',
+    type: 'quiz',
+    difficulty: 'easy',
+    bnccSkills: ['EF01MA13'],
+    targetModalities: ['visual', 'logical'],
+    pointsReward: 20,
+    isActive: true,
+    isNew: true,
+    accessibility: { hasVisual: true, sensoryLoad: 'low' },
+    content: {
+      instructionsPt: 'Qual desses objetos tem a forma de um cubo?',
+      instructions: 'Which of these objects has the shape of a cube?',
+      howToPlayPt: 'Um cubo tem 6 faces quadradas. Um dado é um cubo. Uma caixa de presente pode ser um cubo. Escolha qual objeto é um cubo.',
+      howToPlay: 'A cube has 6 square faces. A die is a cube. A gift box can be a cube. Choose which object is a cube.',
+      pictogramConceptIds: ['arasaac.23191'],
+      options: [
+        { id: 'a', text: 'Bola', isCorrect: false },
+        { id: 'b', text: 'Caixa de presente', isCorrect: true },
+        { id: 'c', text: 'Cone de sorvete', isCorrect: false },
+      ],
+      correctAnswer: 'Caixa de presente',
+      validation: { kind: 'exact' },
+      spokenIntroduction: 'Vamos aprender sobre formas 3D! Qual objeto é um cubo?',
+      spokenSuccessFeedback: 'Muito bem! Uma caixa de presente é um cubo!',
+    },
+  });
+
+  // EF02MA07: Multiplicação por 2,3,4,5 - História com grupos
+  activities.push({
+    title: 'A História das Rodas: 3 Carros × 4 Rodas',
+    description: 'Resolva problemas de multiplicação com uma história visual',
+    type: 'contextual_problem_solving',
+    difficulty: 'medium',
+    bnccSkills: ['EF02MA07'],
+    targetModalities: ['visual', 'logical', 'verbal'],
+    pointsReward: 30,
+    isActive: true,
+    isNew: true,
+    accessibility: { hasVisual: true, hasAudio: true, sensoryLoad: 'medium' },
+    content: {
+      instructionsPt: 'Quantas rodas têm 3 carros? Cada carro tem 4 rodas.',
+      instructions: 'How many wheels do 3 cars have? Each car has 4 wheels.',
+      howToPlayPt: 'Veja a história: 3 carros, cada um com 4 rodas. 3 × 4 = 12 rodas. Conte os grupos de 4.',
+      howToPlay: 'Look at the story: 3 cars, each with 4 wheels. 3 × 4 = 12 wheels. Count the groups of 4.',
+      pictogramConceptIds: ['arasaac.16590'],
+      items: [
+        { id: 'car1', label: 'Carro 1: 4 rodas', count: 4 },
+        { id: 'car2', label: 'Carro 2: 4 rodas', count: 4 },
+        { id: 'car3', label: 'Carro 3: 4 rodas', count: 4 },
+      ],
+      options: [
+        { id: 'a', text: '8', isCorrect: false },
+        { id: 'b', text: '12', isCorrect: true },
+        { id: 'c', text: '15', isCorrect: false },
+      ],
+      correctAnswer: '12',
+      validation: { kind: 'exact' },
+      spokenIntroduction: 'Vamos contar rodas! Quantas rodas têm 3 carros?',
+      spokenSuccessFeedback: 'Excelente! 3 carros × 4 rodas = 12 rodas!',
+    },
+  });
+
+  // EF02MA14: Reconhecer figuras espaciais - Nomeação de sólidos
+  activities.push({
+    title: 'Qual é o Nome desse Sólido?',
+    description: 'Identifique e nomeie figuras geométricas espaciais',
+    type: 'representation_matching',
+    difficulty: 'medium',
+    bnccSkills: ['EF02MA14'],
+    targetModalities: ['visual', 'logical'],
+    pointsReward: 25,
+    isActive: true,
+    isNew: true,
+    accessibility: { hasVisual: true, sensoryLoad: 'low' },
+    content: {
+      instructionsPt: 'Qual é o nome dessa forma 3D?',
+      instructions: 'What is the name of this 3D shape?',
+      howToPlayPt: 'Veja a forma: tem uma ponta no topo e uma base redonda. É um cone! Escolha o nome certo.',
+      howToPlay: 'Look at the shape: it has a point at the top and a round base. It is a cone! Choose the correct name.',
+      pictogramConceptIds: ['arasaac.23191'],
+      options: [
+        { id: 'a', text: 'Cilindro', isCorrect: false },
+        { id: 'b', text: 'Cone', isCorrect: true },
+        { id: 'c', text: 'Esfera', isCorrect: false },
+      ],
+      correctAnswer: 'Cone',
+      validation: { kind: 'exact' },
+      spokenIntroduction: 'Vamos aprender nomes de formas 3D!',
+      spokenSuccessFeedback: 'Correto! Essa forma é um cone!',
+    },
+  });
+
+  // EF03MA01: Números naturais até milhar - Comparação de números grandes
+  activities.push({
+    title: 'Qual Número é Maior: 1234 ou 1243?',
+    description: 'Compare números naturais até a ordem de unidade de milhar',
+    type: 'quiz',
+    difficulty: 'hard',
+    bnccSkills: ['EF03MA01'],
+    targetModalities: ['logical'],
+    pointsReward: 35,
+    isActive: true,
+    isNew: true,
+    accessibility: { sensoryLoad: 'low' },
+    content: {
+      instructionsPt: 'Qual número é maior: 1234 ou 1243?',
+      instructions: 'Which number is greater: 1234 or 1243?',
+      howToPlayPt: 'Compare os números: 1234 tem 3 dezenas. 1243 tem 4 dezenas. 1243 é maior! Escolha o número maior.',
+      howToPlay: 'Compare the numbers: 1234 has 3 tens. 1243 has 4 tens. 1243 is greater! Choose the larger number.',
+      pictogramConceptIds: ['arasaac.23190'],
+      options: [
+        { id: 'a', text: '1234', isCorrect: false },
+        { id: 'b', text: '1243', isCorrect: true },
+      ],
+      correctAnswer: '1243',
+      validation: { kind: 'exact' },
+      spokenIntroduction: 'Vamos comparar números grandes até 1000!',
+      spokenSuccessFeedback: 'Parabéns! 1243 é maior que 1234!',
+    },
+  });
+
+  // EF03MA08: Divisão com resto - Distribuição em grupos
+  activities.push({
+    title: 'Divida os Biscoitos: 12 ÷ 3',
+    description: 'Resolva problemas de divisão com resto zero',
+    type: 'drag_drop',
+    difficulty: 'medium',
+    bnccSkills: ['EF03MA08'],
+    targetModalities: ['visual', 'sensory', 'logical'],
+    pointsReward: 30,
+    isActive: true,
+    isNew: true,
+    accessibility: { hasVisual: true, sensoryLoad: 'medium' },
+    content: {
+      instructionsPt: 'Distribua 12 biscoitos em 3 pratos. Quantos biscoitos em cada prato?',
+      instructions: 'Distribute 12 cookies into 3 plates. How many cookies on each plate?',
+      howToPlayPt: 'Veja 12 biscoitos. Coloque-os em 3 pratos iguais. 12 ÷ 3 = 4 biscoitos em cada prato.',
+      howToPlay: 'Look at 12 cookies. Put them on 3 equal plates. 12 ÷ 3 = 4 cookies on each plate.',
+      pictogramConceptIds: ['arasaac.17333'],
+      items: [
+        { id: 'cookie1', label: 'Biscoito 1' },
+        { id: 'cookie2', label: 'Biscoito 2' },
+        { id: 'cookie3', label: 'Biscoito 3' },
+        { id: 'cookie4', label: 'Biscoito 4' },
+      ],
+      options: [
+        { id: 'a', text: '3', isCorrect: false },
+        { id: 'b', text: '4', isCorrect: true },
+        { id: 'c', text: '5', isCorrect: false },
+      ],
+      correctAnswer: '4',
+      validation: { kind: 'exact' },
+      spokenIntroduction: 'Vamos dividir biscoitos em pratos!',
+      spokenSuccessFeedback: 'Excelente! 12 ÷ 3 = 4 biscoitos em cada prato!',
+    },
+  });
+
+  // EF03MA15: Classificar figuras planas - Contagem de lados
+  activities.push({
+    title: 'Qual Forma tem 4 Lados?',
+    description: 'Classifique figuras planas pela quantidade de lados',
+    type: 'quiz',
+    difficulty: 'easy',
+    bnccSkills: ['EF03MA15'],
+    targetModalities: ['visual', 'logical'],
+    pointsReward: 20,
+    isActive: true,
+    isNew: true,
+    accessibility: { hasVisual: true, sensoryLoad: 'low' },
+    content: {
+      instructionsPt: 'Qual forma tem exatamente 4 lados?',
+      instructions: 'Which shape has exactly 4 sides?',
+      howToPlayPt: 'Conte os lados: o círculo não tem lados. O triângulo tem 3 lados. O quadrado tem 4 lados! Escolha a forma com 4 lados.',
+      howToPlay: 'Count the sides: the circle has no sides. The triangle has 3 sides. The square has 4 sides! Choose the shape with 4 sides.',
+      pictogramConceptIds: ['arasaac.17331'],
+      options: [
+        { id: 'a', text: 'Círculo', isCorrect: false },
+        { id: 'b', text: 'Quadrado', isCorrect: true },
+        { id: 'c', text: 'Triângulo', isCorrect: false },
+      ],
+      correctAnswer: 'Quadrado',
+      validation: { kind: 'exact' },
+      spokenIntroduction: 'Vamos contar os lados das formas!',
+      spokenSuccessFeedback: 'Certo! O quadrado tem 4 lados!',
+    },
+  });
+
+  // EF04MA01: Números até dezenas de milhar - Leitura e escrita
+  activities.push({
+    title: 'Leia o Número: 25.847',
+    description: 'Leia e compreenda números até dezenas de milhar',
+    type: 'quiz',
+    difficulty: 'hard',
+    bnccSkills: ['EF04MA01'],
+    targetModalities: ['logical'],
+    pointsReward: 35,
+    isActive: true,
+    isNew: true,
+    accessibility: { sensoryLoad: 'low' },
+    content: {
+      instructionsPt: 'Como se lê o número 25.847?',
+      instructions: 'How do you read the number 25,847?',
+      howToPlayPt: 'Veja o número: 25.847. Tem 2 dezenas de milhar, 5 unidades de milhar, 8 centenas, 4 dezenas e 7 unidades. Escolha a leitura correta.',
+      howToPlay: 'Look at the number: 25,847. It has 2 tens of thousands, 5 thousands, 8 hundreds, 4 tens and 7 units. Choose the correct reading.',
+      pictogramConceptIds: ['arasaac.23190'],
+      options: [
+        { id: 'a', text: 'Vinte e cinco mil, oitocentos e quarenta e sete', isCorrect: true },
+        { id: 'b', text: 'Dois mil, quinhentos e oitenta e quatro', isCorrect: false },
+        { id: 'c', text: 'Duzentos e cinquenta e oito mil, quarenta e sete', isCorrect: false },
+      ],
+      correctAnswer: 'Vinte e cinco mil, oitocentos e quarenta e sete',
+      validation: { kind: 'exact' },
+      spokenIntroduction: 'Vamos ler números grandes!',
+      spokenSuccessFeedback: 'Parabéns! Você leu corretamente: vinte e cinco mil, oitocentos e quarenta e sete!',
+    },
+  });
+
+  // EF04MA06: Multiplicação significados - Arranjo retangular
+  activities.push({
+    title: 'Quantos Quadrados na Malha?',
+    description: 'Compreenda multiplicação através de arranjos retangulares',
+    type: 'visual_puzzle',
+    difficulty: 'medium',
+    bnccSkills: ['EF04MA06'],
+    targetModalities: ['visual', 'logical'],
+    pointsReward: 30,
+    isActive: true,
+    isNew: true,
+    accessibility: { hasVisual: true, sensoryLoad: 'medium' },
+    content: {
+      instructionsPt: 'Quantos quadrados há em uma malha de 5 × 6?',
+      instructions: 'How many squares are in a 5 × 6 grid?',
+      howToPlayPt: 'Veja a malha: 5 linhas e 6 colunas. Conte: 5 × 6 = 30 quadrados. Escolha a resposta certa.',
+      howToPlay: 'Look at the grid: 5 rows and 6 columns. Count: 5 × 6 = 30 squares. Choose the correct answer.',
+      pictogramConceptIds: ['arasaac.23190'],
+      items: [
+        { id: 'grid', label: 'Malha 5 × 6', visual: 'grid:5x6' },
+      ],
+      options: [
+        { id: 'a', text: '25', isCorrect: false },
+        { id: 'b', text: '30', isCorrect: true },
+        { id: 'c', text: '35', isCorrect: false },
+      ],
+      correctAnswer: '30',
+      validation: { kind: 'exact' },
+      spokenIntroduction: 'Vamos contar quadrados em uma malha!',
+      spokenSuccessFeedback: 'Excelente! 5 × 6 = 30 quadrados!',
+    },
+  });
+
+  // EF04MA09: Frações unitárias - Reconhecimento visual
+  activities.push({
+    title: 'Qual é a Fração: 1/4 da Pizza',
+    description: 'Reconheça frações unitárias mais usuais',
+    type: 'quiz',
+    difficulty: 'medium',
+    bnccSkills: ['EF04MA09'],
+    targetModalities: ['visual', 'logical'],
+    pointsReward: 25,
+    isActive: true,
+    isNew: true,
+    accessibility: { hasVisual: true, sensoryLoad: 'low' },
+    content: {
+      instructionsPt: 'Qual fração representa 1 pedaço de uma pizza dividida em 4 partes?',
+      instructions: 'Which fraction represents 1 piece of a pizza divided into 4 parts?',
+      howToPlayPt: 'Veja a pizza: está dividida em 4 partes iguais. 1 pedaço é 1/4 da pizza. Escolha a fração correta.',
+      howToPlay: 'Look at the pizza: it is divided into 4 equal parts. 1 piece is 1/4 of the pizza. Choose the correct fraction.',
+      pictogramConceptIds: ['arasaac.23189'],
+      options: [
+        { id: 'a', text: '1/2', isCorrect: false },
+        { id: 'b', text: '1/4', isCorrect: true },
+        { id: 'c', text: '1/3', isCorrect: false },
+      ],
+      correctAnswer: '1/4',
+      validation: { kind: 'exact' },
+      spokenIntroduction: 'Vamos aprender sobre frações!',
+      spokenSuccessFeedback: 'Correto! 1 pedaço de uma pizza dividida em 4 partes é 1/4!',
+    },
+  });
+
+  // EF05MA01: Números até centenas de milhar - Comparação
+  activities.push({
+    title: 'Qual Número é Maior: 123.456 ou 132.456?',
+    description: 'Compare números naturais até centenas de milhar',
+    type: 'quiz',
+    difficulty: 'extreme',
+    bnccSkills: ['EF05MA01'],
+    targetModalities: ['logical'],
+    pointsReward: 40,
+    isActive: true,
+    isNew: true,
+    accessibility: { sensoryLoad: 'low' },
+    content: {
+      instructionsPt: 'Qual número é maior: 123.456 ou 132.456?',
+      instructions: 'Which number is greater: 123,456 or 132,456?',
+      howToPlayPt: 'Compare os números: ambos têm 1 centena de milhar. Mas 123.456 tem 2 dezenas de milhar, e 132.456 tem 3 dezenas de milhar. 132.456 é maior!',
+      howToPlay: 'Compare the numbers: both have 1 hundred thousand. But 123,456 has 2 ten thousands, and 132,456 has 3 ten thousands. 132,456 is greater!',
+      pictogramConceptIds: ['arasaac.23190'],
+      options: [
+        { id: 'a', text: '123.456', isCorrect: false },
+        { id: 'b', text: '132.456', isCorrect: true },
+      ],
+      correctAnswer: '132.456',
+      validation: { kind: 'exact' },
+      spokenIntroduction: 'Vamos comparar números muito grandes!',
+      spokenSuccessFeedback: 'Parabéns! 132.456 é maior que 123.456!',
+    },
+  });
+
+  // EF05MA06: Porcentagens - Visualização de percentuais
+  activities.push({
+    title: 'Quanto é 50% de 100 Moedas?',
+    description: 'Associe representações de porcentagens',
+    type: 'visual_puzzle',
+    difficulty: 'hard',
+    bnccSkills: ['EF05MA06'],
+    targetModalities: ['visual', 'logical'],
+    pointsReward: 35,
+    isActive: true,
+    isNew: true,
+    accessibility: { hasVisual: true, sensoryLoad: 'medium' },
+    content: {
+      instructionsPt: 'Quanto é 50% de 100 moedas?',
+      instructions: 'What is 50% of 100 coins?',
+      howToPlayPt: 'Veja 100 moedas. 50% significa metade. Metade de 100 é 50. Escolha a resposta certa.',
+      howToPlay: 'Look at 100 coins. 50% means half. Half of 100 is 50. Choose the correct answer.',
+      pictogramConceptIds: ['arasaac.16590'],
+      items: [
+        { id: 'coins', label: '100 moedas', count: 100 },
+      ],
+      options: [
+        { id: 'a', text: '25', isCorrect: false },
+        { id: 'b', text: '50', isCorrect: true },
+        { id: 'c', text: '75', isCorrect: false },
+      ],
+      correctAnswer: '50',
+      validation: { kind: 'exact' },
+      spokenIntroduction: 'Vamos aprender sobre porcentagens!',
+      spokenSuccessFeedback: 'Excelente! 50% de 100 moedas são 50 moedas!',
+    },
+  });
 
   activities.push(...expandedActivityPools() as any[], ...interactiveFormatActivities() as any[]);
   const existingRecords = await repo.find({ select: ['id', 'title', 'content', 'bnccSkills'] });
