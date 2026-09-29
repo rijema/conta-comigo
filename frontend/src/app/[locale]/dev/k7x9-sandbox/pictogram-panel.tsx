@@ -50,8 +50,13 @@ function walkContent(
   for (const [key, value] of Object.entries(node as Record<string, unknown>)) {
     const childPath = path ? `${path}.${key}` : key;
     if (typeof value === "string" && PICTOGRAM_PATTERN.test(value)) {
-      if (!out.has(value)) {
-        const entry = pictogramRegistry.get(value);
+      // Always record the path. If the conceptId was already seen, append the
+      // new path to the existing entry instead of skipping it.
+      const entry = pictogramRegistry.get(value);
+      if (out.has(value)) {
+        const existing = out.get(value)!;
+        existing.sourcePath = `${existing.sourcePath}, ${childPath}`;
+      } else {
         out.set(value, {
           conceptId: value,
           label: entry?.labelPt ?? "desconhecido",
