@@ -96,12 +96,13 @@ export function ActivityRenderer({
     }
     const hasOptions = (activity.content?.options?.length ?? 0) > 0;
 
-    // Check if this is a comparison activity (greater/less/equal)
-    const isComparisonActivity = 
-      activity.content?.semantic?.structureId?.includes('less') ||
-      activity.content?.semantic?.structureId?.includes('greater') ||
-      activity.content?.semantic?.structureId?.includes('compare') ||
-      activity.content?.semantic?.structureId?.includes('equal');
+    // Check if this is a quantity comparison activity (more/less/equal).
+    // Must match BOTH the niche AND have visual groups — avoids activating
+    // ComparisonMinigame for unrelated quiz types like spatial or shape activities.
+    const isComparisonActivity =
+      activity.content?.semantic?.niche === 'comparison' &&
+      Array.isArray(activity.content?.visualGroups) &&
+      activity.content.visualGroups.length >= 2;
 
     // Check if this should use memory game (pattern/matching activities)
     const isMemoryActivity =

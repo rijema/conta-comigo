@@ -62,12 +62,6 @@ export const ComparisonMinigame: React.FC<ComparisonMinigameProps> = ({
     }
   }, [speech.settings.voiceEnabled, speech]);
 
-  // Generate initial challenge on mount
-  useEffect(() => {
-    generateChallenge();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const generateChallenge = useCallback(() => {
     const counts = COUNTS_BY_DIFFICULTY[difficulty] ?? COUNTS_BY_DIFFICULTY.easy;
     const shuffled = [...counts].sort(() => Math.random() - 0.5);
@@ -84,6 +78,11 @@ export const ComparisonMinigame: React.FC<ComparisonMinigameProps> = ({
     setIsCorrect(null);
     setTimeLeft(TIME_LIMIT);
   }, [difficulty]);
+
+  // Generate initial challenge after all callbacks are defined
+  useEffect(() => {
+    generateChallenge();
+  }, [generateChallenge]);
 
   const handleFinish = useCallback((correct: boolean) => {
     if (correct) {
