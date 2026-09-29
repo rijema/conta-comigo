@@ -33,8 +33,8 @@ CREATE TABLE IF NOT EXISTS activities (
   "bnccSkills" JSONB NOT NULL DEFAULT '[]', "targetModalities" JSONB NOT NULL DEFAULT '[]',
   "skillWeights" JSONB,
   content JSONB NOT NULL, accessibility JSONB, "isActive" BOOLEAN NOT NULL DEFAULT TRUE,
-  "pointsReward" INTEGER NOT NULL DEFAULT 0, "prerequisiteSkillCode" VARCHAR,
-  "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(), "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
+  "isNew" BOOLEAN NOT NULL DEFAULT FALSE,
+  "pointsReward" INTEGER NOT NULL DEFAULT 0, "prerequisiteSkillCode" VARCHAR,  "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(), "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 DO $$
