@@ -87,8 +87,15 @@ export function AccessibilityProvider({
   useEffect(() => {
     if (user?.role !== 'child') { setProfessionalPreferences(null); setProfessionalUserId(null); return; }
     let active = true;
+    let refreshInterval: number | null = null;
     setProfessionalPreferences(null);
     setProfessionalUserId(null);
+
+    const stopPolling = () => {
+      if (refreshInterval !== null) { window.clearInterval(refreshInterval); refreshInterval = null; }
+      window.removeEventListener('focus', load);
+    };
+
     const load = () => {
       const token = authService.getStoredToken();
       if (!token) return;
@@ -118,12 +125,24 @@ export function AccessibilityProvider({
             ...(typeof preferences.speechRate === 'number' ? { speechRate: preferences.speechRate } : {}),
           });
           setProfessionalUserId(user.id);
-        }).catch((error) => { console.error('Failed to load child accessibility preferences', error); });
+        }).catch((error: any) => {
+          if (!active) return;
+          // Auth errors (401/403): token expired or insufficient permissions.
+          // Stop polling silently — no point retrying every 30s.
+          const status = error?.status ?? error?.statusCode;
+          const msg: string = error?.message ?? '';
+          if (status === 401 || status === 403 || msg.includes('Unauthorized') || msg.includes('Forbidden')) {
+            stopPolling();
+          } else {
+            console.error('Failed to load child accessibility preferences', error);
+          }
+        });
     };
+
     load();
     window.addEventListener('focus', load);
-    const refresh = window.setInterval(load, 30000);
-    return () => { active = false; window.removeEventListener('focus', load); window.clearInterval(refresh); };
+    refreshInterval = window.setInterval(load, 30000);
+    return () => { active = false; stopPolling(); };
   }, [user?.id, user?.role]);
 
   const appliedPreferences = user?.role === 'child' && professionalUserId === user.id ? professionalPreferences : null;
