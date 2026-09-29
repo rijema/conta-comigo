@@ -71,7 +71,14 @@ export function ActivityRenderer({
 
   const renderActivity = () => {
     if (activity.content?.interaction === "categorize") {
-      if (prefersMinigame) {
+      // Only use the generic CategoryMinigame when the activity has no real
+      // bins/correctOrder data — i.e. it is truly a free-form minigame slot.
+      // If the activity carries its own bins and correctOrder, always use
+      // CategorizationActivity so the child works with the actual content.
+      const hasRealData = Array.isArray(activity.content?.bins) &&
+        activity.content.bins.length > 0 &&
+        Array.isArray(activity.content?.correctOrder);
+      if (prefersMinigame && !hasRealData) {
         return (
           <CategoryMinigame
             key={activity.id}
