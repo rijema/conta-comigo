@@ -27,6 +27,7 @@ export class ExerciseProgressionService {
     userId: string,
     islandId: string,
     sessionId: string,
+    schoolYear?: number,
   ): Promise<ProgressionSuggestion | null> {
     const completedInSession = await this.performanceService.getCompletedActivitiesInSession(
       userId,
@@ -43,7 +44,7 @@ export class ExerciseProgressionService {
       islandId,
     );
 
-    const availableActivities = await this.getActivitiesByIsland(islandId);
+    const availableActivities = await this.getActivitiesByIsland(islandId, schoolYear);
 
     const untriedActivities = availableActivities.filter(
       (a) => !completedInIsland.includes(a.id),
@@ -55,10 +56,11 @@ export class ExerciseProgressionService {
         islandId,
         availableActivities,
         metrics,
+        schoolYear,
       );
     }
 
-    const nextDifficulty = this.calculateNextDifficulty(metrics);
+    const nextDifficulty = this.calculateNextDifficulty(metrics, schoolYear);
 
     const candidates = untriedActivities.filter(
       (a) => a.difficulty === nextDifficulty,
@@ -82,26 +84,36 @@ export class ExerciseProgressionService {
       title: selected.title,
       difficulty: selected.difficulty,
       reason: this.getProgressionReason(metrics, nextDifficulty),
-      score: this.calculateFitScore(metrics, selected),
+      score: this.calculateFitScore(metrics, selected, schoolYear),
     };
   }
 
-  private calculateNextDifficulty(metrics: any): string {
+  private calculateNextDifficulty(metrics: any, schoolYear?: number): string {
     const { accuracy, totalAttempts } = metrics;
+    
+    // Se schoolYear não foi preenchido (0 ou undefined), usa apenas accuracy
+    // Se schoolYear foi preenchido, ajusta os thresholds baseado no ano escolar
+    const yearFactor = schoolYear && schoolYear > 0 ? (schoolYear - 1) * 0.05 : 0;
 
     if (totalAttempts < 3) {
       return 'very_easy';
     }
 
-    if (accuracy >= 0.85) {
+    // Thresholds ajustados por ano escolar
+    // Anos mais avançados têm thresholds mais altos (mais desafiadores)
+    const hardThreshold = 0.85 + yearFactor;
+    const mediumThreshold = 0.7 + yearFactor;
+    const easyThreshold = 0.5 + yearFactor;
+
+    if (accuracy >= hardThreshold) {
       return 'hard';
     }
 
-    if (accuracy >= 0.7) {
+    if (accuracy >= mediumThreshold) {
       return 'medium';
     }
 
-    if (accuracy >= 0.5) {
+    if (accuracy >= easyThreshold) {
       return 'easy';
     }
 
@@ -130,7 +142,7 @@ export class ExerciseProgressionService {
     return 'Vamos reforçar o aprendizado com exercícios mais fáceis';
   }
 
-  private calculateFitScore(metrics: any, activity: Activity): number {
+  private calculateFitScore(metrics: any, activity: Activity, schoolYear?: number): number {
     const { accuracy, averageHintsPerAttempt } = metrics;
 
     let score = 0.5;
@@ -147,6 +159,18 @@ export class ExerciseProgressionService {
       score += 0.15;
     }
 
+    // Bonus para exercícios alinhados ao ano escolar
+    // Se schoolYear foi preenchido, aumenta score para atividades do mesmo ano
+    if (schoolYear && schoolYear > 0 && activity.bnccSkills && activity.bnccSkills.length > 0) {
+      const firstSkill = activity.bnccSkills[0];
+      // Extrai o ano do BNCC skill (ex: EF01MA01 -> 01 -> 1)
+      const skillYear = parseInt(firstSkill.substring(2, 4), 10);
+      
+      if (skillYear === schoolYear) {
+        score += 0.1; // Bonus de 10% para exercícios do ano correto
+      }
+    }
+
     return Math.min(score, 1);
   }
 
@@ -155,23 +179,29 @@ export class ExerciseProgressionService {
     islandId: string,
     availableActivities: Activity[],
     metrics: any,
+    schoolYear?: number,
   ): Promise<ProgressionSuggestion | null> {
     if (availableActivities.length === 0) {
       return null;
     }
 
     const { accuracy } = metrics;
+    
+    // Ajusta thresholds baseado no ano escolar
+    const yearFactor = schoolYear && schoolYear > 0 ? (schoolYear - 1) * 0.05 : 0;
+    const hardThreshold = 0.8 + yearFactor;
+    const mediumThreshold = 0.6 + yearFactor;
 
     let selectedActivity: Activity;
 
-    if (accuracy >= 0.8) {
+    if (accuracy >= hardThreshold) {
       const hardActivities = availableActivities.filter(
         (a) => a.difficulty === 'hard' || a.difficulty === 'extreme',
       );
       selectedActivity =
         hardActivities[Math.floor(Math.random() * hardActivities.length)] ||
         availableActivities[0];
-    } else if (accuracy >= 0.6) {
+    } else if (accuracy >= mediumThreshold) {
       const mediumActivities = availableActivities.filter(
         (a) => a.difficulty === 'medium',
       );
@@ -196,7 +226,7 @@ export class ExerciseProgressionService {
     };
   }
 
-  private async getActivitiesByIsland(islandId: string): Promise<Activity[]> {
+  private async getActivitiesByIsland(islandId: string, schoolYear?: number): Promise<Activity[]> {
     const islandTopicMap: Record<string, string[]> = {
       'island-sun': ['EF01MA01', 'EF01MA02'],
       'island-sea': ['EF01MA06', 'EF01MA07'],
@@ -208,7 +238,18 @@ export class ExerciseProgressionService {
       'island-love': ['EF01MA05', 'EF01MA12'],
     };
 
-    const skills = islandTopicMap[islandId] || [];
+    let skills = islandTopicMap[islandId] || [];
+
+    // Se schoolYear foi preenchido, filtra skills do ano escolar
+    if (schoolYear && schoolYear > 0) {
+      const yearPrefix = `EF0${schoolYear}MA`;
+      skills = skills.filter((skill) => skill.startsWith(yearPrefix));
+      
+      // Se não encontrar skills do ano específico, volta aos skills da ilha
+      if (skills.length === 0) {
+        skills = islandTopicMap[islandId] || [];
+      }
+    }
 
     if (skills.length === 0) {
       return [];
@@ -230,6 +271,7 @@ export class ExerciseProgressionService {
   async getIslandProgress(
     userId: string,
     islandId: string,
+    schoolYear?: number,
   ): Promise<{
     completedCount: number;
     totalCount: number;
@@ -247,12 +289,13 @@ export class ExerciseProgressionService {
       islandId,
     );
 
-    const availableActivities = await this.getActivitiesByIsland(islandId);
+    const availableActivities = await this.getActivitiesByIsland(islandId, schoolYear);
 
     const nextSuggestion = await this.suggestNextExercise(
       userId,
       islandId,
       `session-${Date.now()}`,
+      schoolYear,
     );
 
     return {

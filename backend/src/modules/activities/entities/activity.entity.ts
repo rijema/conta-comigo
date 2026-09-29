@@ -110,6 +110,9 @@ export class Activity {
   @Column({ default: true })
   isActive: boolean;
 
+  @Column({ default: false, comment: 'Marca exercícios novos para destaque visual' })
+  isNew: boolean;
+
   @Column({ default: 0 })
   pointsReward: number;
 
