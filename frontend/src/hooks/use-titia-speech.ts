@@ -75,13 +75,23 @@ export function useTitiaSpeech({ activityId }: { activityId?: string } = {}) {
           ...(resolvedActivityId ? { activityId: resolvedActivityId } : {}), ...metadata,
         }, token);
       } catch (error: any) {
-        // Do not retry on auth errors (401/403) or validation errors (400/422)
+        // Do not retry on auth errors (401/403) or validation errors (400/422).
+        // api-client throws plain Error objects without a status property,
+        // so check both numeric status fields AND the error message text.
         const status = error?.status ?? error?.statusCode;
-        if (attempt < 2 && status !== 400 && status !== 401 && status !== 403 && status !== 422) {
+        const message: string = error?.message ?? "";
+        const isAuthError = status === 401 || status === 403 ||
+          message.includes("Unauthorized") || message.includes("Forbidden");
+        const isValidationError = status === 400 || status === 422 ||
+          message.includes("Bad Request") || message.includes("Unprocessable");
+
+        if (isAuthError) {
+          // Silently ignore — user may not be logged in (e.g. sandbox)
+        } else if (isValidationError) {
+          // Do not retry validation errors
+        } else if (attempt < 2) {
           const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
           setTimeout(() => trackWithRetry(attempt + 1), delay);
-        } else if (status === 401 || status === 403) {
-          // Silently ignore auth errors — user may not be logged in (e.g. sandbox)
         } else {
           console.error("Failed to track TitiA speech event", error);
         }

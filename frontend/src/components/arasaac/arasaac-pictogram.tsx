@@ -13,12 +13,18 @@ interface ArasaacPictogramProps {
 }
 
 export function ArasaacPictogram({
-  conceptId,
+  conceptId: rawConceptId,
   alt,
   showLabel = true,
   className = "",
   imageClassName = "w-16 h-16",
 }: ArasaacPictogramProps) {
+  // Guard: content.items may pass objects instead of strings if the seed data
+  // is malformed. Converting to string prevents React error #31 and allows
+  // the registry lookup to fail gracefully instead of crashing the render.
+  const conceptId = typeof rawConceptId === "string"
+    ? rawConceptId
+    : String(rawConceptId ?? "");
   const entry = pictogramRegistry.get(conceptId);
   const [searchedConceptId, setSearchedConceptId] = useState<string | null>(null);
   const imageUrl = pictogramRegistry.getImageUrl(searchedConceptId ?? conceptId);
