@@ -127,7 +127,7 @@ export function interactiveFormatActivities(): Record<string, unknown>[] {
     ['outside', 'fora'], ['left', 'à esquerda'], ['right', 'à direita'],
   ];
   const spatialExamples = spatialRelations.flatMap(([relation, label]) => [0, 1].map((stage) => {
-    const howToPlayMap = {
+    const howToPlayMap: Record<string, { pt: string; en: string }> = {
       above: { pt: 'Veja o dado. Está em cima do quadrado. Escolha a resposta certa.', en: 'Look at the die. It is above the square. Choose the correct answer.' },
       below: { pt: 'Veja a bola. Está embaixo da cadeira. Escolha a resposta certa.', en: 'Look at the ball. It is below the chair. Choose the correct answer.' },
       inside: { pt: 'Veja o objeto. Está dentro da caixa. Escolha a resposta certa.', en: 'Look at the object. It is inside the box. Choose the correct answer.' },
