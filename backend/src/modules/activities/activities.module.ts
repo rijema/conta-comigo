@@ -10,6 +10,7 @@ import { StudentCycleTracking } from './entities/student-cycle-tracking.entity';
 import { CycleExerciseAssignment } from './entities/cycle-exercise-assignment.entity';
 import { ActivitiesService } from './activities.service';
 import { ActivitiesController } from './activities.controller';
+import { CyclesController } from './cycles.controller';
 import { SandboxController } from './sandbox.controller';
 import { IslandCycleValidatorService } from './services/island-cycle-validator.service';
 import { CycleProgressionService } from './services/cycle-progression.service';
@@ -42,7 +43,7 @@ import { LearningEvent } from '../learning-events/entities/learning-event.entity
     KnowledgeTracingModule,
     OntologyModule,
   ],
-  controllers: [ActivitiesController, SandboxController],
+  controllers: [ActivitiesController, CyclesController, SandboxController],
   providers: [
     ActivitiesService,
     IslandCycleValidatorService,
