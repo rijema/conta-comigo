@@ -187,16 +187,53 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
   });
 
 
-  // 4. Manipulative - "Blocos de montar" - DISABLED: Requires custom block stacking component
-  // TODO: Implement BlockStackingActivity component for future release
-  // exercises.push({
-  //   id: 'dea0c6b7-ec85-4814-a3c0-2bf3de49efa8',
-  //   title: 'Stacking Game - Monte 5 blocos!',
-  //   description:
-  //     'Monte blocos coloridos para aprender comparação. Sensorial!',
-  //   type: 'composition_decomposition',
-  //   ...
-  // });
+  // 4. Manipulative - "Blocos de montar" - IMPLEMENTED: BlockStackingMinigame
+  // BNCC Skills: EF01MA03 (Comparação), EF01MA06 (Composição/Decomposição)
+  exercises.push({
+    id: 'dea0c6b7-ec85-4814-a3c0-2bf3de49efa8',
+    title: 'Stacking Game - Monte 5 blocos!',
+    description:
+      'Monte blocos coloridos para aprender comparação. Sensorial!',
+    type: 'composition_decomposition',
+    difficulty: 'easy',
+    bnccSkills: ['EF01MA03', 'EF01MA06'],
+    targetModalities: ['visual', 'sensory'],
+    pointsReward: 18,
+    skillWeights: [
+      { code: 'EF01MA03', role: 'primary', weight: 0.5 },
+      { code: 'EF01MA06', role: 'primary', weight: 0.5 },
+    ],
+    isActive: true,
+    content: {
+      instructions: 'Monte uma pilha com 5 blocos diferentes.',
+      instructionsPt: 'Monte uma pilha com 5 blocos diferentes.',
+      howToPlayPt: 'Veja os 5 blocos de cores diferentes. Arraste cada bloco para a pilha. Coloque todos os blocos empilhados.',
+      howToPlay: 'Look at the 5 blocks of different colors. Drag each block to the stack. Stack all the blocks.',
+      timeLimit: 60,
+      pictogramConceptIds: ['arasaac.17331'], // unicórnio (magic/building)
+      items: [
+        { id: 'block1', color: '#FF6B6B', size: 'large', label: 'Bloco Vermelho' },
+        { id: 'block2', color: '#4ECDC4', size: 'medium', label: 'Bloco Azul' },
+        { id: 'block3', color: '#45B7D1', size: 'large', label: 'Bloco Ciano' },
+        { id: 'block4', color: '#FFA07A', size: 'small', label: 'Bloco Laranja' },
+        { id: 'block5', color: '#98D8C8', size: 'medium', label: 'Bloco Menta' },
+      ],
+      correctAnswer: ['block1', 'block3', 'block2', 'block5', 'block4'],
+      validation: { kind: 'sequence' },
+      semantic: {
+        structureId: 'composition_decomposition.stacking',
+        type: 'manipulative',
+        concept: 'composition_through_arrangement',
+        difficulty: 'easy',
+      },
+    },
+    accessibility: {
+      hasAudio: true,
+      hasVisual: true,
+      hasAnimation: true,
+      sensoryLoad: 'medium',
+    },
+  });
 
 
   // 5. Number Line - "Coloque na reta"
