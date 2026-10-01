@@ -52,10 +52,13 @@ export function getPendingMigrationClasses() {
   const { AlignProductionSchemaWithMigrations1728000001000 } = require('./migrations/1728000001000-AlignProductionSchemaWithMigrations');
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { AddIsNewColumnToActivities1728000005000 } = require('./migrations/1728000005000-AddIsNewColumnToActivities');
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { AddActivityAgeAndTeaSupportColumns1728000102000 } = require('./migrations/1728000102000-AddActivityAgeAndTeaSupportColumns');
 
   return [
     BaselineProductionSchema1728000000000,
     AlignProductionSchemaWithMigrations1728000001000,
     AddIsNewColumnToActivities1728000005000,
+    AddActivityAgeAndTeaSupportColumns1728000102000,
   ];
 }
