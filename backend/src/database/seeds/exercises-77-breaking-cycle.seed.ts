@@ -186,49 +186,18 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
     },
   });
 
-  // 4. Manipulative - "Blocos de montar"
-  exercises.push({
-    id: 'dea0c6b7-ec85-4814-a3c0-2bf3de49efa8',
-    title: 'Stacking Game - Monte 5 blocos!',
-    description:
-      'Monte blocos coloridos para aprender comparação. Sensorial!',
-    type: 'composition_decomposition',
-    difficulty: 'easy',
-    bnccSkills: ['EF01MA03'],
-    targetModalities: ['visual', 'sensory'],
-    pointsReward: 18,
-    skillWeights: [{ code: 'EF01MA03', role: 'primary', weight: 1.0 }],
-    isActive: true,
-    content: {
-      instructions: 'Monte uma pilha com 5 blocos diferentes.',
-      instructionsPt: 'Monte uma pilha com 5 blocos diferentes.',
-      howToPlayPt: 'Veja os 5 blocos de cores diferentes. Coloque-os em uma pilha. Escolha a ordem correta.',
-      howToPlay: 'Look at the 5 blocks of different colors. Stack them. Choose the correct order.',
-      timeLimit: 60,
-      pictogramConceptIds: ['arasaac.23191'], // blocos
-      items: [
-        { id: 'block1', color: 'red', size: 'large' },
-        { id: 'block2', color: 'blue', size: 'medium' },
-        { id: 'block3', color: 'yellow', size: 'large' },
-        { id: 'block4', color: 'green', size: 'small' },
-        { id: 'block5', color: 'purple', size: 'medium' },
-      ],
-      correctAnswer: ['block1', 'block3', 'block2', 'block5', 'block4'],
-      validation: { kind: 'sequence' },
-      semantic: {
-        structureId: 'greater_less_equal.manipulative',
-        type: 'manipulative',
-        concept: 'comparison_through_arrangement',
-        difficulty: 'easy',
-      },
-    },
-    accessibility: {
-      hasAudio: true,
-      hasVisual: true,
-      hasAnimation: true,
-      sensoryLoad: 'medium',
-    },
-  });
+
+  // 4. Manipulative - "Blocos de montar" - DISABLED: Requires custom block stacking component
+  // TODO: Implement BlockStackingActivity component for future release
+  // exercises.push({
+  //   id: 'dea0c6b7-ec85-4814-a3c0-2bf3de49efa8',
+  //   title: 'Stacking Game - Monte 5 blocos!',
+  //   description:
+  //     'Monte blocos coloridos para aprender comparação. Sensorial!',
+  //   type: 'composition_decomposition',
+  //   ...
+  // });
+
 
   // 5. Number Line - "Coloque na reta"
   exercises.push({
