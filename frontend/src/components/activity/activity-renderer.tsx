@@ -14,6 +14,8 @@ import { BasketMinigame } from "../minigames/basket-minigame";
 import { ComparisonMinigame } from "../minigames/comparison-minigame";
 import { MemoryMinigame } from "../minigames/memory-minigame";
 import { CategoryMinigame } from "../minigames/category-minigame";
+import { BlockStackingMinigame } from "../minigames/block-stacking-minigame";
+import { NumberLineMinigame } from "../minigames/number-line-minigame";
 
 interface ActivityRendererProps {
   activity: Activity;
@@ -110,9 +112,27 @@ export function ActivityRenderer({
       activity.type === 'pattern_completion' ||
       activity.content?.interaction === 'memory';
 
+    // Check if this is a number line activity (ordering/comparison on a line)
+    const isNumberLineActivity =
+      activity.content?.semantic?.type === 'number_line' ||
+      activity.content?.semantic?.structureId?.includes('numberline');
+
     switch (activity.type) {
       case "quiz":
       case "multiple_choice":
+        if (isNumberLineActivity) {
+          // MINIGAME: Number Line Quest (BNCC: EF01MA03, EF01MA08)
+          return (
+            <NumberLineMinigame
+              key={activity.id}
+              skill={activity.bnccSkills?.[0] ?? 'EF01MA03'}
+              difficulty={(activity.difficulty as any) || 'easy'}
+              activity={activity}
+              onComplete={(score, isCorrect) => onAnswer({ correct: isCorrect, score })}
+              isTEAMode={true}
+            />
+          );
+        }
         if (isComparisonActivity && prefersMinigame) {
           return (
             <ComparisonMinigame
@@ -195,6 +215,18 @@ export function ActivityRenderer({
         );
 
       case "composition_decomposition":
+        // MINIGAME: Block Stacking Quest (BNCC: EF01MA03, EF01MA06)
+        return (
+          <BlockStackingMinigame
+            key={activity.id}
+            skill={activity.bnccSkills?.[0] ?? 'EF01MA03'}
+            difficulty={(activity.difficulty as any) || 'easy'}
+            activity={activity}
+            onComplete={(score, isCorrect) => onAnswer({ correct: isCorrect, score })}
+            isTEAMode={true}
+          />
+        );
+
       case "missing_number":
       case "pattern_completion":
       case "representation_matching":
