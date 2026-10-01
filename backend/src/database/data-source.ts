@@ -50,9 +50,12 @@ export function getPendingMigrationClasses() {
   const { BaselineProductionSchema1728000000000 } = require('./migrations/1728000000000-BaselineProductionSchema');
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { AlignProductionSchemaWithMigrations1728000001000 } = require('./migrations/1728000001000-AlignProductionSchemaWithMigrations');
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { AddIsNewFlagToActivities1728000004000 } = require('./migrations/1728000004000-AddIsNewFlagToActivities');
 
   return [
     BaselineProductionSchema1728000000000,
     AlignProductionSchemaWithMigrations1728000001000,
+    AddIsNewFlagToActivities1728000004000,
   ];
 }
