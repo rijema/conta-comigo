@@ -567,9 +567,93 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
     },
   });
 
+  // ============================================================
+  // EF01MA04 - CONTAGEM ATÉ 100 (NEW)
+  // ============================================================
+
+  // 14. Counting Collections - "Conte até 100!"
+  exercises.push({
+    id: 'c4f9d2a1-8e3c-4d1f-9b7e-5a2c1d3e4f5a',
+    title: 'Conte até 100!',
+    description: 'Conte objetos em coleções grandes (até 100).',
+    type: 'counting',
+    difficulty: 'medium',
+    bnccSkills: ['EF01MA04'],
+    targetModalities: ['visual', 'kinesthetic'],
+    pointsReward: 25,
+    skillWeights: [{ code: 'EF01MA04', role: 'primary', weight: 1.0 }],
+    isActive: true,
+    content: {
+      instructions: 'Conte os objetos. Clique para agrupar em 10s.',
+      instructionsPt: 'Conte os objetos. Clique para agrupar em 10s.',
+      howToPlayPt: 'Veja muitos objetos. Conte em grupos de 10. Total: quantos?',
+      howToPlay: 'See many objects. Count by groups of 10. Total: how many?',
+      timeLimit: 60,
+      pictogramConceptIds: ['arasaac.23190'], // números
+      totalCount: 47, // Variable amount between 20-100
+      semantic: {
+        structureId: 'counting.large_collections',
+        type: 'counting',
+        concept: 'quantification_to_100',
+        difficulty: 'medium',
+      },
+    },
+    accessibility: {
+      hasAudio: true,
+      hasVisual: true,
+      hasAnimation: true,
+      sensoryLoad: 'medium',
+    },
+  });
+
+  // ============================================================
+  // EF01MA05 - ORDENAÇÃO DE NÚMEROS ATÉ 100 (NEW)
+  // ============================================================
+
+  // 15. Ordering Two-Digit Numbers - "Ordene os números: 34, 12, 56, 23"
+  exercises.push({
+    id: 'd5g0e3b2-9f4d-5e2g-0c8f-6b3d2e4f5g6b',
+    title: 'Ordene os números!',
+    description: 'Ordene números de 2 algarismos em ordem crescente.',
+    type: 'drag_drop',
+    difficulty: 'medium',
+    bnccSkills: ['EF01MA05'],
+    targetModalities: ['visual', 'logical', 'kinesthetic'],
+    pointsReward: 24,
+    skillWeights: [{ code: 'EF01MA05', role: 'primary', weight: 1.0 }],
+    isActive: true,
+    content: {
+      instructions: 'Ordene os números do menor para o maior.',
+      instructionsPt: 'Ordene os números do menor para o maior.',
+      howToPlayPt: 'Veja os números: 34, 12, 56, 23. Organize: 12, 23, 34, 56.',
+      howToPlay: 'See the numbers: 34, 12, 56, 23. Organize them: 12, 23, 34, 56.',
+      timeLimit: 50,
+      pictogramConceptIds: ['arasaac.23190'], // números
+      items: [
+        { id: 'num34', label: '34', value: 34 },
+        { id: 'num12', label: '12', value: 12 },
+        { id: 'num56', label: '56', value: 56 },
+        { id: 'num23', label: '23', value: 23 },
+      ],
+      correctOrder: ['num12', 'num23', 'num34', 'num56'],
+      validation: { kind: 'sequence' },
+      semantic: {
+        structureId: 'ordering.two_digit_numbers',
+        type: 'ordering',
+        concept: 'sequence_two_digit',
+        difficulty: 'medium',
+      },
+    },
+    accessibility: {
+      hasAudio: true,
+      hasVisual: true,
+      hasAnimation: true,
+      sensoryLoad: 'low',
+    },
+  });
+
   // FILL WITH REMAINING 64 EXERCISES for EF01MA01, EF01MA02, EF01MA06, EF01MA08, EF01MA14
-  // For MVP, returning just these 13 to test the integration
+  // For MVP, returning just these 15 to test the integration
   // Production: uncomment full list
 
   return exercises;
-}
