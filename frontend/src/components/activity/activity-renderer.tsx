@@ -16,6 +16,15 @@ import { MemoryMinigame } from "../minigames/memory-minigame";
 import { CategoryMinigame } from "../minigames/category-minigame";
 import { BlockStackingMinigame } from "../minigames/block-stacking-minigame";
 import { NumberLineMinigame } from "../minigames/number-line-minigame";
+import { CategorizationMinigame } from "../minigames/categorization-minigame";
+import { TenFrameMinigame } from "../minigames/ten-frame-minigame";
+import { MultiSelectMinigame } from "../minigames/multi-select-minigame";
+import { PatternCompletionMinigame } from "../minigames/pattern-completion-minigame";
+import { ContextualProblemMinigame } from "../minigames/contextual-problem-minigame";
+import { TrueFalseMinigame } from "../minigames/true-false-minigame";
+import { ErrorDetectionMinigame } from "../minigames/error-detection-minigame";
+import { EquationBuilderMinigame } from "../minigames/equation-builder-minigame";
+import { MatchingMinigame } from "../minigames/matching-minigame";
 
 interface ActivityRendererProps {
   activity: Activity;
@@ -228,19 +237,101 @@ export function ActivityRenderer({
         );
 
       case "missing_number":
-      case "pattern_completion":
-      case "representation_matching":
-        if (isMemoryActivity && prefersMinigame) {
+        // Check semantic type to decide which minigame
+        if (activity.content?.semantic?.concept === 'decomposition') {
+          // "Complete o quadro de 10!" - TenFrame
           return (
-            <MemoryMinigame
+            <TenFrameMinigame
               key={activity.id}
-              skill={activity.bnccSkills?.[0] ?? 'EF01MA02'}
+              skill={activity.bnccSkills?.[0] ?? 'EF01MA03'}
               difficulty={(activity.difficulty as any) || 'easy'}
+              activity={activity}
               onComplete={(score, isCorrect) => onAnswer({ correct: isCorrect, score })}
               isTEAMode={true}
             />
           );
         }
+        if (activity.content?.semantic?.concept === 'addition_as_comparison') {
+          // "Complete: 3 + ? = 8" - EquationBuilder
+          return (
+            <EquationBuilderMinigame
+              key={activity.id}
+              skill={activity.bnccSkills?.[0] ?? 'EF01MA03'}
+              difficulty={(activity.difficulty as any) || 'easy'}
+              activity={activity}
+              onComplete={(score, isCorrect) => onAnswer({ correct: isCorrect, score })}
+              isTEAMode={true}
+            />
+          );
+        }
+        // Fallback to ParametricMathActivity
+        return (
+          <ParametricMathActivity
+            key={activity.id}
+            activity={activity}
+            onAnswer={onAnswer}
+            onRequestHint={onRequestHint}
+            sensoryProfile={sensoryProfile}
+          />
+        );
+
+      case "pattern_completion":
+        // MINIGAME: Pattern Completion Quest (BNCC: EF01MA03, EF01MA02)
+        return (
+          <PatternCompletionMinigame
+            key={activity.id}
+            skill={activity.bnccSkills?.[0] ?? 'EF01MA03'}
+            difficulty={(activity.difficulty as any) || 'easy'}
+            activity={activity}
+            onComplete={(score, isCorrect) => onAnswer({ correct: isCorrect, score })}
+            isTEAMode={true}
+          />
+        );
+
+      case "representation_matching":
+        // MINIGAME: Matching Quest (BNCC: EF01MA03)
+        return (
+          <MatchingMinigame
+            key={activity.id}
+            skill={activity.bnccSkills?.[0] ?? 'EF01MA03'}
+            difficulty={(activity.difficulty as any) || 'easy'}
+            activity={activity}
+            onComplete={(score, isCorrect) => onAnswer({ correct: isCorrect, score })}
+            isTEAMode={true}
+          />
+        );
+
+      case "visual_puzzle":
+        // Check semantic type to decide which minigame
+        if (activity.content?.semantic?.type === 'sorting' || 
+            activity.content?.semantic?.concept === 'categorization_by_comparison') {
+          // "Separe: MAIOR e MENOR" - Categorization
+          return (
+            <CategorizationMinigame
+              key={activity.id}
+              skill={activity.bnccSkills?.[0] ?? 'EF01MA03'}
+              difficulty={(activity.difficulty as any) || 'easy'}
+              activity={activity}
+              onComplete={(score, isCorrect) => onAnswer({ correct: isCorrect, score })}
+              isTEAMode={true}
+            />
+          );
+        }
+        if (activity.content?.semantic?.type === 'multi_selection' ||
+            activity.content?.semantic?.concept === 'comparison_multiple') {
+          // "Marque os números > 5" - MultiSelect
+          return (
+            <MultiSelectMinigame
+              key={activity.id}
+              skill={activity.bnccSkills?.[0] ?? 'EF01MA03'}
+              difficulty={(activity.difficulty as any) || 'easy'}
+              activity={activity}
+              onComplete={(score, isCorrect) => onAnswer({ correct: isCorrect, score })}
+              isTEAMode={true}
+            />
+          );
+        }
+        // Fallback to ParametricMathActivity
         return (
           <ParametricMathActivity
             key={activity.id}
@@ -252,15 +343,41 @@ export function ActivityRenderer({
         );
 
       case "error_detection":
-      case "contextual_problem_solving":
-      case "visual_puzzle":
+        // MINIGAME: Error Detection Quest (BNCC: EF01MA03)
         return (
-          <ParametricMathActivity
+          <ErrorDetectionMinigame
             key={activity.id}
+            skill={activity.bnccSkills?.[0] ?? 'EF01MA03'}
+            difficulty={(activity.difficulty as any) || 'easy'}
             activity={activity}
-            onAnswer={onAnswer}
-            onRequestHint={onRequestHint}
-            sensoryProfile={sensoryProfile}
+            onComplete={(score, isCorrect) => onAnswer({ correct: isCorrect, score })}
+            isTEAMode={true}
+          />
+        );
+
+      case "contextual_problem_solving":
+        // MINIGAME: Contextual Problem Quest (BNCC: EF01MA03)
+        return (
+          <ContextualProblemMinigame
+            key={activity.id}
+            skill={activity.bnccSkills?.[0] ?? 'EF01MA03'}
+            difficulty={(activity.difficulty as any) || 'easy'}
+            activity={activity}
+            onComplete={(score, isCorrect) => onAnswer({ correct: isCorrect, score })}
+            isTEAMode={true}
+          />
+        );
+
+      case "yes_no":
+        // MINIGAME: True/False Quest (BNCC: EF01MA03)
+        return (
+          <TrueFalseMinigame
+            key={activity.id}
+            skill={activity.bnccSkills?.[0] ?? 'EF01MA03'}
+            difficulty={(activity.difficulty as any) || 'easy'}
+            activity={activity}
+            onComplete={(score, isCorrect) => onAnswer({ correct: isCorrect, score })}
+            isTEAMode={true}
           />
         );
       default:
