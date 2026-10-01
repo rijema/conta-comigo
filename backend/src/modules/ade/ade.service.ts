@@ -20,6 +20,12 @@ export interface AdeInput {
   sessionId?: string;
   targetSkillCode?: string;
   recentSkips?: number;
+  cycleContext?: {
+    cycleNumber: number;
+    islandId: string;
+    skillFocus: string;
+    current_position: number;
+  };
 }
 
 @Injectable()

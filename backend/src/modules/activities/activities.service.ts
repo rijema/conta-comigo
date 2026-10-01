@@ -31,6 +31,9 @@ import {
 import { IslandCycleValidatorService } from './services/island-cycle-validator.service';
 import { Island } from './entities/island.entity';
 import { IslandActivityMapping } from './entities/island-activity-mapping.entity';
+import { CycleManagementService } from './services/cycle-management.service';
+import { StudentCycleTracking } from './entities/student-cycle-tracking.entity';
+import { CycleContextDto } from './dto/cycle-context.dto';
 
 interface ActivitySelectionResult {
   activity: Activity;
@@ -59,6 +62,8 @@ export class ActivitiesService {
     private readonly islandRepo: Repository<Island>,
     @InjectRepository(IslandActivityMapping)
     private readonly islandActivityMappingRepo: Repository<IslandActivityMapping>,
+    @InjectRepository(StudentCycleTracking)
+    private readonly cycleTrackingRepo: Repository<StudentCycleTracking>,
     private readonly kafkaProducer: KafkaProducerService,
     private readonly adeService: AdeService,
     private readonly usersService: UsersService,
@@ -66,6 +71,7 @@ export class ActivitiesService {
     private readonly dataSource: DataSource,
     private readonly knowledgeTracingService: KnowledgeTracingService,
     private readonly islandCycleValidator: IslandCycleValidatorService,
+    private readonly cycleManagementService: CycleManagementService,
     private readonly recommendationExplanationService: RecommendationExplanationService =
       new RecommendationExplanationService(),
     private readonly ontologyService?: OntologyService,
@@ -134,10 +140,13 @@ export class ActivitiesService {
     sessionId?: string;
     targetSkillCode?: string;
     excludedActivityId?: string;
+    cycleNumber?: number;
+    islandId?: string;
   }): Promise<{
     activity: Activity;
     adeDecision: any;
     reviewAssignmentId?: string;
+    cycleContext?: CycleContextDto;
     preferredModality: string | null;
   }> {
     // 1. Load learner profile (with safe fallback for new children)
@@ -158,7 +167,97 @@ export class ActivitiesService {
       };
     }
 
-    // 2. Call ADE to decide
+    // [NEW] 1.5 Auto-detect cycle context if not explicitly provided
+    let cycleContext: CycleContextDto | null = null;
+    if (context?.cycleNumber && context?.islandId) {
+      // Explicit cycle context provided
+      try {
+        const cycle = await this.cycleTrackingRepo.findOne({
+          where: {
+            student_id: userId,
+            island_id: context.islandId,
+            cycle_number: context.cycleNumber,
+          },
+        });
+        if (cycle) {
+          cycleContext = {
+            cycleNumber: cycle.cycle_number,
+            islandId: cycle.island_id,
+            skillFocus: cycle.skill_focus,
+            currentPosition: cycle.current_position,
+            isActive: cycle.status === 'active',
+          };
+        }
+      } catch (err: any) {
+        this.logger.warn(`Failed to load explicit cycle context: ${err?.message}`);
+      }
+    } else {
+      // Auto-detect active cycle for this student/island
+      try {
+        const activeCycle = await this.cycleTrackingRepo.findOne({
+          where: {
+            student_id: userId,
+            status: 'active',
+          },
+          order: { updated_at: 'DESC' },
+        });
+        if (activeCycle) {
+          cycleContext = {
+            cycleNumber: activeCycle.cycle_number,
+            islandId: activeCycle.island_id,
+            skillFocus: activeCycle.skill_focus,
+            currentPosition: activeCycle.current_position,
+            isActive: true,
+          };
+        }
+      } catch (err: any) {
+        this.logger.debug(`Failed to auto-detect cycle context: ${err?.message}`);
+      }
+    }
+
+    // [NEW] 2. Check for active review assignment (has priority over cycle)
+    // Review can interrupt cycle, but we preserve cycle context for resuming later
+    let reviewAssignmentId: string | undefined;
+    let reviewActivity: Activity | null = null;
+    if (this.reviewOrchestrationService) {
+      try {
+        const activeReview = await this.reviewOrchestrationService.getNextReviewActivity(userId);
+        if (activeReview) {
+          reviewAssignmentId = activeReview.reviewAssignmentId;
+          reviewActivity = activeReview.activity;
+          this.logger.log(
+            `Review assigned for user ${userId}: ${reviewActivity?.id} (type: ${activeReview.reviewType})`,
+          );
+        }
+      } catch (err: any) {
+        this.logger.warn(`Failed to check active review: ${err?.message}`);
+        // Continue with normal activity selection if review check fails
+      }
+    }
+
+    // [DECISION] If review exists, return it immediately (review has priority)
+    // Cycle context is preserved but not used for selection
+    if (reviewActivity && reviewAssignmentId) {
+      return {
+        activity: await this.attachSemanticContract(reviewActivity),
+        adeDecision: this.recommendationExplanationService.toChildDecision(
+          { id: 'review' } as any,
+          { selectedActivityId: reviewActivity.id, selectedActivityType: reviewActivity.type },
+        ),
+        reviewAssignmentId,
+        cycleContext: cycleContext || undefined,
+        preferredModality: (profile?.uiPreferences?.preferredModality as string | undefined) ?? null,
+      };
+    }
+
+    // 3. Determine target skill based on cycle context
+    // If in active cycle, skill_focus is FORCED (not overridable)
+    // If not in cycle, use provided skill or pick preferred skill
+    const targetSkill = cycleContext?.isActive
+      ? cycleContext.skillFocus
+      : (context?.targetSkillCode ?? this.pickPreferredSkill(profile?.uiPreferences, await this.getRecentAttempts(userId, 20)));
+
+    // 4. Call ADE to decide (with cycle context)
     let adeDecision: any;
     try {
       const recentAttempts = await this.getRecentAttempts(userId, 20);
@@ -167,7 +266,13 @@ export class ActivitiesService {
         profile,
         recentAttempts,
         sessionId: context?.sessionId,
-        targetSkillCode: context?.targetSkillCode ?? this.pickPreferredSkill(profile?.uiPreferences, recentAttempts),
+        targetSkillCode: targetSkill,
+        cycleContext: cycleContext ? {
+          cycleNumber: cycleContext.cycleNumber,
+          islandId: cycleContext.islandId,
+          skillFocus: cycleContext.skillFocus,
+          current_position: cycleContext.currentPosition,
+        } : undefined,
         recentSkips: await this.recentSkipCount(userId),
       });
     } catch (adeErr: any) {
@@ -177,17 +282,19 @@ export class ActivitiesService {
       return {
         activity: await this.attachSemanticContract(fallback),
         adeDecision: null,
+        cycleContext: cycleContext || undefined,
         preferredModality: null,
       };
     }
 
-    // 3. Find matching activity
+    // 5. Find matching activity
     let activity: Activity;
     try {
       const selection = await this.findMatchingActivity(
         adeDecision,
         profile,
         context?.excludedActivityId,
+        cycleContext || undefined,
       );
       activity = selection.activity;
       await this.persistSelection(adeDecision, selection);
@@ -200,22 +307,8 @@ export class ActivitiesService {
     }
 
     this.logger.log(
-      `Next activity for user ${userId}: ${activity.id} (ADE decision: ${adeDecision?.id ?? 'fallback'})`,
+      `Next activity for user ${userId}: ${activity.id} (skill: ${targetSkill}, cycle: ${cycleContext?.isActive ? `${cycleContext.cycleNumber}/${cycleContext.currentPosition}` : 'none'})`,
     );
-
-    // [INTEGRATION 3C-FINAL]: Check if there's an active review assignment
-    let reviewAssignmentId: string | undefined;
-    if (this.reviewOrchestrationService) {
-      try {
-        const activeReview = await this.reviewOrchestrationService.getNextReviewActivity(userId);
-        if (activeReview) {
-          reviewAssignmentId = activeReview.reviewAssignmentId;
-        }
-      } catch (err: any) {
-        this.logger.warn(`Failed to check active review: ${err?.message}`);
-        // Continue with normal activity selection if review check fails
-      }
-    }
 
     return {
       activity: await this.attachSemanticContract(activity),
@@ -224,6 +317,7 @@ export class ActivitiesService {
         { selectedActivityId: activity.id, selectedActivityType: activity.type },
       ),
       reviewAssignmentId,
+      cycleContext: cycleContext || undefined,
       preferredModality: (profile?.uiPreferences?.preferredModality as string | undefined) ?? null,
     };
   }
@@ -466,6 +560,26 @@ export class ActivitiesService {
         this.logger.error(
           `Review completion error for assignment ${dto.reviewAssignmentId}: ${err?.message}`,
         );
+        // Non-blocking — attempt already persisted successfully
+      }
+    }
+
+    // [NEW] Record cycle progression if this activity is part of an active cycle
+    if (dto.cycleNumber && dto.islandId && this.cycleManagementService) {
+      try {
+        void this.cycleManagementService.completeExercise(
+          userId,
+          dto.islandId,
+          dto.cycleNumber,
+          isCorrect ? 1.0 : 0.0, // Score: 1.0 for correct, 0.0 for incorrect
+        ).catch((err: any) => {
+          this.logger.error(
+            `Cycle progression failed for cycle ${dto.cycleNumber}/${dto.islandId}: ${err?.message}`,
+          );
+          // Do not fail the attempt submission if cycle progression fails
+        });
+      } catch (err: any) {
+        this.logger.error(`Cycle progression error: ${err?.message}`);
         // Non-blocking — attempt already persisted successfully
       }
     }
@@ -958,6 +1072,7 @@ export class ActivitiesService {
     adeDecision: any,
     profile: any,
     excludedActivityId?: string,
+    cycleContext?: CycleContextDto,
   ): Promise<ActivitySelectionResult> {
     const storedActivities = (await this.activityRepo.find({ where: { isActive: true } }))
       .filter((activity) => activity.id !== excludedActivityId);
@@ -1071,6 +1186,8 @@ export class ActivitiesService {
     const rankedCandidates = this.cooldown(
       matchingLevel.length ? matchingLevel : curriculumCandidates, activities, recentIds);
     const activitiesById = new Map(activities.map((activity) => [activity.id, activity]));
+    
+    // [CYCLE INTEGRATION] Pass cycle context to ranking service
     const ranking = this.hybridRecommendationService.rank({
       candidates: rankedCandidates,
       masteryProbability: facts.mastery.probability,
@@ -1088,6 +1205,8 @@ export class ActivitiesService {
         timeSpentSeconds: attempt.timeSpentSeconds,
       })),
       preferences: profile?.uiPreferences,
+      // Pass cycle context for skill-focus filtering
+      skillFocus: cycleContext?.isActive ? cycleContext.skillFocus : undefined,
     });
     ranking.selectionStrategy = strategy;
     const selected = rankedCandidates.find((activity) => activity.id === ranking.selectedActivityId);
