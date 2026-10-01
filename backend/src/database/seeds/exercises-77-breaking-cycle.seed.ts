@@ -364,7 +364,7 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
       howToPlayPt: 'Veja cada número. Se é maior que 5, coloque em MAIOR. Se é menor que 5, coloque em MENOR.',
       howToPlay: 'Look at each number. If it is greater than 5, put it in GREATER. If it is less than 5, put it in LESS.',
       timeLimit: 50,
-      pictogramConceptIds: ['arasaac.23190'], // números
+      pictogramConceptIds: ['arasaac.3220', 'arasaac.3200', 'arasaac.23190'], // MAIOR, MENOR, números
       semantic: {
         structureId: 'greater_less_equal.sorting',
         type: 'sorting',
