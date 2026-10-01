@@ -25,6 +25,8 @@ import { TrueFalseMinigame } from "../minigames/true-false-minigame";
 import { ErrorDetectionMinigame } from "../minigames/error-detection-minigame";
 import { EquationBuilderMinigame } from "../minigames/equation-builder-minigame";
 import { MatchingMinigame } from "../minigames/matching-minigame";
+import { CountingCollectionMinigame } from "../minigames/counting-collection-minigame";
+import { OrderingTwoDigitMinigame } from "../minigames/ordering-two-digit-minigame";
 
 interface ActivityRendererProps {
   activity: Activity;
@@ -163,6 +165,20 @@ export function ActivityRenderer({
         );
 
       case "drag_drop": {
+        // Check for two-digit number ordering (EF01MA05)
+        if (activity.content?.semantic?.concept === 'sequence_two_digit' ||
+            activity.content?.semantic?.structureId?.includes('ordering.two_digit')) {
+          return (
+            <OrderingTwoDigitMinigame
+              key={activity.id}
+              skill={activity.bnccSkills?.[0] ?? 'EF01MA05'}
+              difficulty={(activity.difficulty as any) || 'easy'}
+              activity={activity}
+              onComplete={(score, isCorrect) => onAnswer({ correct: isCorrect, score })}
+              isTEAMode={true}
+            />
+          );
+        }
         // BasketMinigame only makes sense for "collect items into one basket" exercises.
         // Exercises with correctOrder (sequencing/ordering) must use DragDropActivity
         // because BasketMinigame has no concept of order or bins.
@@ -194,6 +210,20 @@ export function ActivityRenderer({
       }
 
       case "counting":
+        // Check if this is the large collection counting (EF01MA04)
+        if (activity.content?.semantic?.concept === 'quantification_to_100' || 
+            activity.content?.totalCount) {
+          return (
+            <CountingCollectionMinigame
+              key={activity.id}
+              skill={activity.bnccSkills?.[0] ?? 'EF01MA04'}
+              difficulty={(activity.difficulty as any) || 'easy'}
+              activity={activity}
+              onComplete={(score, isCorrect) => onAnswer({ correct: isCorrect, score })}
+              isTEAMode={true}
+            />
+          );
+        }
         if (hasOptions) {
           return (
             <MultipleChoiceActivity
