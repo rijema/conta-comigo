@@ -15,6 +15,7 @@ import { SandboxController } from './sandbox.controller';
 import { IslandCycleValidatorService } from './services/island-cycle-validator.service';
 import { CycleProgressionService } from './services/cycle-progression.service';
 import { CycleManagementService } from './services/cycle-management.service';
+import { CycleInitializationService } from './services/cycle-initialization.service';
 import { KafkaModule } from '../kafka/kafka.module';
 import { AdeModule } from '../ade/ade.module';
 import { UsersModule } from '../users/users.module';
@@ -49,11 +50,12 @@ import { LearningEvent } from '../learning-events/entities/learning-event.entity
     IslandCycleValidatorService,
     CycleProgressionService,
     CycleManagementService,
+    CycleInitializationService,
     {
       provide: 'CycleProgressionService',
       useClass: CycleProgressionService,
     },
   ],
-  exports: [ActivitiesService, IslandCycleValidatorService, CycleProgressionService, CycleManagementService],
+  exports: [ActivitiesService, IslandCycleValidatorService, CycleProgressionService, CycleManagementService, CycleInitializationService],
 })
 export class ActivitiesModule {}

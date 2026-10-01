@@ -34,6 +34,7 @@ import { IslandActivityMapping } from './entities/island-activity-mapping.entity
 import { CycleManagementService } from './services/cycle-management.service';
 import { StudentCycleTracking } from './entities/student-cycle-tracking.entity';
 import { CycleContextDto } from './dto/cycle-context.dto';
+import { CycleInitializationService } from './services/cycle-initialization.service';
 
 interface ActivitySelectionResult {
   activity: Activity;
@@ -72,6 +73,7 @@ export class ActivitiesService {
     private readonly knowledgeTracingService: KnowledgeTracingService,
     private readonly islandCycleValidator: IslandCycleValidatorService,
     private readonly cycleManagementService: CycleManagementService,
+    private readonly cycleInitializationService: CycleInitializationService,
     private readonly recommendationExplanationService: RecommendationExplanationService =
       new RecommendationExplanationService(),
     private readonly ontologyService?: OntologyService,
@@ -209,6 +211,40 @@ export class ActivitiesService {
             currentPosition: activeCycle.current_position,
             isActive: true,
           };
+        } else if (context?.islandId) {
+          // No active cycle found; auto-initialize if in an island
+          this.logger.log(
+            `Auto-initializing cycles for student ${userId} on island ${context.islandId}`,
+          );
+          try {
+            await this.cycleInitializationService.initializeStudentCyclesForIsland(
+              userId,
+              context.islandId,
+            );
+            // Re-fetch first active cycle
+            const firstCycle = await this.cycleTrackingRepo.findOne({
+              where: {
+                student_id: userId,
+                island_id: context.islandId,
+                status: 'active',
+              },
+              order: { cycle_number: 'ASC' },
+            });
+            if (firstCycle) {
+              cycleContext = {
+                cycleNumber: firstCycle.cycle_number,
+                islandId: firstCycle.island_id,
+                skillFocus: firstCycle.skill_focus,
+                currentPosition: firstCycle.current_position,
+                isActive: true,
+              };
+              this.logger.log(
+                `Auto-initialized ${firstCycle.cycle_number} cycles; starting cycle ${firstCycle.cycle_number}`,
+              );
+            }
+          } catch (initErr: any) {
+            this.logger.warn(`Failed to auto-initialize cycles: ${initErr?.message}`);
+          }
         }
       } catch (err: any) {
         this.logger.debug(`Failed to auto-detect cycle context: ${err?.message}`);
