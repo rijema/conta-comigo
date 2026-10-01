@@ -657,3 +657,4 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
   // Production: uncomment full list
 
   return exercises;
+}
