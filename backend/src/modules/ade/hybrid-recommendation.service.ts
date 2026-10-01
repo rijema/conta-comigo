@@ -223,6 +223,9 @@ export class HybridRecommendationService {
     if (debugLog && recentBlock.length > 0) {
       console.log(`[DIVERSITY DEBUG] Recent structures:`, recentBlock.map(r => r.structureId));
       console.log(`[DIVERSITY DEBUG] Structure frequency:`, Array.from(structureFrequency.entries()));
+      if (input.skillFocus) {
+        console.log(`[CYCLE DEBUG] Filtering by skillFocus: ${input.skillFocus}, position: ${input.cyclePosition ?? 'N/A'}`);
+      }
     }
     
     let filteredCandidates = input.candidates.filter((candidate) => {
@@ -242,6 +245,26 @@ export class HybridRecommendationService {
       
       return true;
     });
+
+    // [MUDANÇA 1: FILTRO SKILL-FOCUS PARA CICLOS]
+    // Quando estamos em ciclo (skillFocus definido), filtrar APENAS exercícios do skill do ciclo
+    // Embasamento científico: Foco cognitivo (1 skill/vez) reduz carga = TEA-friendly
+    if (input.skillFocus) {
+      const skillFilteredCandidates = filteredCandidates.filter((candidate) => {
+        const hasPrimarySkill = candidate.bnccSkills?.[0] === input.skillFocus;
+        const hasSecondarySkill = candidate.bnccSkills?.includes(input.skillFocus ?? '');
+        return hasPrimarySkill || hasSecondarySkill;
+      });
+      
+      if (skillFilteredCandidates.length > 0) {
+        filteredCandidates = skillFilteredCandidates;
+        if (debugLog) {
+          console.log(`[CYCLE DEBUG] Skill filter reduced candidates from ${input.candidates.length} to ${filteredCandidates.length}`);
+        }
+      } else if (debugLog) {
+        console.log(`[CYCLE DEBUG] WARNING: No candidates found for skillFocus ${input.skillFocus}, keeping all candidates`);
+      }
+    }
 
     // If filtering removed all candidates, relax to allow structures that appeared only once
     // BUT: if maxRepetitionsInBlock is 1 (strict diversity), don't relax - trust the penalties instead
@@ -303,7 +326,7 @@ export class HybridRecommendationService {
       const sensoryFit = this.sensoryFit(candidate, input.preferences, input.observedEvidenceTypes);
       const formatFit = this.formatFit(candidate, input.preferences, input.observedEvidenceTypes);
       const repetitionRisk = this.repetitionRisk(candidate, input.recentActivities ?? []);
-      const recencyPenalty = this.recencyPenalty(candidate, recentBlock);
+      const recencyPenalty = this.recencyPenalty(candidate, recentBlock, input.skillFocus);
       const frustrationRisk = this.frustrationRisk(difficulty, (input.recentActivities ?? []).filter((item) =>
         !input.semanticTrace.targetSkill || item.bnccSkills?.includes(input.semanticTrace.targetSkill)));
       const progressDerivative = this.progressDerivative(input.recentActivities ?? []);
@@ -650,7 +673,7 @@ export class HybridRecommendationService {
     return Math.max(sameFormat, sameRepresentation);
   }
 
-  private recencyPenalty(activity: Activity, recent: NonNullable<HybridRankingInput['recentActivities']>): number {
+  private recencyPenalty(activity: Activity, recent: NonNullable<HybridRankingInput['recentActivities']>, skillFocus?: string): number {
     const structure = activity.content?.semantic?.structureId ?? null;
     const niche = activity.bnccSkills?.[0] ?? null;
     const recentActivityIds = new Set(recent.map((item) => item.activityId));
@@ -679,6 +702,17 @@ export class HybridRecommendationService {
     
     // [PROPOSTA CONTA COMIGO] Niche penalty: 0.8 per occurrence
     if (niche && recentNiches.has(niche)) penalty += 0.8;
+    
+    // [MUDANÇA 2: PENALIDADE DE SKILL-MISMATCH PARA CICLOS]
+    // Se estamos em um ciclo (skillFocus definido) e o exercício tem um skill diferente,
+    // aplicar penalidade SEVERA para evitar quebra de contexto
+    // Embasamento científico: Task-switching quebra concentração em TEA (Dijkstra & Kramer 2005)
+    if (skillFocus && niche && niche !== skillFocus) {
+      penalty += 10.0; // Punição SEVERA: tão forte quanto evitar estruturas repetidas 3x
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`[CYCLE DEBUG] Skill mismatch: activity has ${niche} but cycle is ${skillFocus}, adding 10.0 penalty`);
+      }
+    }
     
     return penalty; // [PROPOSTA CONTA COMIGO] Don't clamp here - let high penalties go through
     // Clamping happens at the scoring level where it's applied to final score
