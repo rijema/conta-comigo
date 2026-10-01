@@ -123,6 +123,20 @@ export class Activity {
   @Column({ nullable: true, comment: 'Island this activity belongs to (denormalized for performance)' })
   islandId: string;
 
+  // [CICLOS] Year level targeting
+  @Column({ type: 'int', nullable: true, comment: 'Minimum school year (1, 2, 3, etc)' })
+  target_year_min: number;
+
+  @Column({ type: 'int', nullable: true, comment: 'Maximum school year' })
+  target_year_max: number;
+
+  // [CICLOS] TEA support level targeting (1-5)
+  @Column({ type: 'int', nullable: true, comment: 'Minimum TEA support level (1=minimal, 5=maximum)' })
+  tea_support_min: number;
+
+  @Column({ type: 'int', nullable: true, comment: 'Maximum TEA support level' })
+  tea_support_max: number;
+
   @OneToMany(() => ActivityAttempt, (a) => a.activity)
   attempts: ActivityAttempt[];
 
