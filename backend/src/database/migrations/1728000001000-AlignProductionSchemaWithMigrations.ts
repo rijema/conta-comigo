@@ -116,6 +116,9 @@ export class AlignProductionSchemaWithMigrations1728000001000 implements Migrati
       ALTER TABLE "activities" ADD COLUMN IF NOT EXISTS "islandId" varchar
     `);
     await queryRunner.query(`
+      ALTER TABLE "activities" ADD COLUMN IF NOT EXISTS "isNew" boolean DEFAULT false
+    `);
+    await queryRunner.query(`
       CREATE INDEX IF NOT EXISTS "idx_activities_island_id" ON "activities"("islandId")
     `);
     await queryRunner.query(`
