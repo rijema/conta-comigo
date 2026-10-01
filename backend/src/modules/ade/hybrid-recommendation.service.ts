@@ -108,7 +108,12 @@ export interface HybridRankingInput {
   recentActivityIds: string[];
   recentlyRejectedActivityIds: string[];
   observedEvidenceTypes: string[];
-  preferences?: { lowStimulation?: boolean; preferredModality?: string } | null;
+  preferences?: { 
+    lowStimulation?: boolean; 
+    preferredModality?: string;
+    yearLevel?: number;
+    teaSupportLevel?: number;
+  } | null;
   recentActivities?: Array<{
     activityId: string;
     type?: string;
@@ -119,6 +124,10 @@ export interface HybridRankingInput {
     timeSpentSeconds?: number | null;
     masteryAfter?: number | null;
   }>;
+  // Cycle context (NEW)
+  cycleId?: string;
+  cyclePosition?: number; // 1-10 position within cycle
+  skillFocus?: string; // Primary skill for this cycle
 }
 
 @Injectable()
@@ -299,6 +308,10 @@ export class HybridRecommendationService {
         !input.semanticTrace.targetSkill || item.bnccSkills?.includes(input.semanticTrace.targetSkill)));
       const progressDerivative = this.progressDerivative(input.recentActivities ?? []);
       const performanceIntegral = this.performanceIntegral(input.recentActivities ?? []);
+      
+      // NEW: Year-level and TEA support matching bonus
+      const yearLevelFit = this.calculateYearLevelFit(candidate, input.preferences?.yearLevel);
+      const teaSupportFit = this.calculateTeaSupportFit(candidate, input.preferences?.teaSupportLevel);
       const dominanceNormalization = this.dominanceNormalization([
         learningNeed,
         challengeFit,
@@ -325,6 +338,9 @@ export class HybridRecommendationService {
         formatFit: w.format * formatFit,
         progressDerivative: this.configuration.progressDerivativeWeight * progressDerivative,
         performanceIntegral: this.configuration.performanceIntegralWeight * performanceIntegral,
+        // NEW: Year-level and TEA support bonuses
+        yearLevelFit: yearLevelFit * 0.8, // 0.8 weight for year matching
+        teaSupportFit: teaSupportFit * 0.8, // 0.8 weight for TEA support matching
       };
       const penalties = {
         rejectionRisk: w.rejection * rejectionRisk,
@@ -702,6 +718,81 @@ export class HybridRecommendationService {
     if (normalized === 'MEDIUM') return 0.5;
     if (normalized === 'HIGH') return 0.8;
     return null;
+  }
+
+  /**
+   * Calculate year-level fit: how well activity matches student's year
+   * Bonus if activity is within recommended year range
+   */
+  private calculateYearLevelFit(activity: Activity, studentYear: number | undefined): number {
+    if (!studentYear) return 0.5; // Neutral if no year specified
+
+    // Try to get from content metadata (if stored)
+    const activityTargetYear = (activity.content as any)?.targetYear ?? null;
+    const activityYearMin = (activity.content as any)?.targetYearMin ?? null;
+    const activityYearMax = (activity.content as any)?.targetYearMax ?? null;
+
+    // If no metadata, return neutral
+    if (!activityTargetYear && !activityYearMin) return 0.5;
+
+    // If activity has specific year target
+    if (activityTargetYear) {
+      if (activityTargetYear === studentYear) return 1.0; // Perfect match
+      const yearDiff = Math.abs(studentYear - activityTargetYear);
+      return this.clamp(1.0 - yearDiff * 0.1); // Penalize by distance
+    }
+
+    // If activity has year range
+    if (activityYearMin && activityYearMax) {
+      if (studentYear >= activityYearMin && studentYear <= activityYearMax) {
+        return 0.9; // Within range
+      }
+      if (studentYear < activityYearMin) {
+        return this.clamp(0.5 - (activityYearMin - studentYear) * 0.1); // Below range
+      }
+      if (studentYear > activityYearMax) {
+        return this.clamp(0.5 - (studentYear - activityYearMax) * 0.1); // Above range
+      }
+    }
+
+    return 0.5; // Neutral
+  }
+
+  /**
+   * Calculate TEA support fit: how well activity matches student's TEA support level
+   * TEA levels: 1=minimal, 2=low, 3=moderate, 4=high, 5=maximum
+   */
+  private calculateTeaSupportFit(activity: Activity, studentTeaLevel: number | undefined): number {
+    if (!studentTeaLevel || studentTeaLevel < 1 || studentTeaLevel > 5) return 0.5;
+
+    // Try to get from content metadata
+    const activityTeaMin = (activity.content as any)?.teaSupportMin ?? null;
+    const activityTeaMax = (activity.content as any)?.teaSupportMax ?? null;
+    const activityTeaOptimal = (activity.content as any)?.teaSupportOptimal ?? null;
+
+    if (!activityTeaMin && !activityTeaMax && !activityTeaOptimal) return 0.5;
+
+    // If activity specifies optimal level
+    if (activityTeaOptimal) {
+      if (activityTeaOptimal === studentTeaLevel) return 1.0;
+      const levelDiff = Math.abs(studentTeaLevel - activityTeaOptimal);
+      return this.clamp(1.0 - levelDiff * 0.1);
+    }
+
+    // If activity has a range
+    if (activityTeaMin && activityTeaMax) {
+      if (studentTeaLevel >= activityTeaMin && studentTeaLevel <= activityTeaMax) {
+        return 0.9; // Within range
+      }
+      if (studentTeaLevel < activityTeaMin) {
+        return this.clamp(0.5 - (activityTeaMin - studentTeaLevel) * 0.1); // Insufficient scaffolding
+      }
+      if (studentTeaLevel > activityTeaMax) {
+        return this.clamp(0.5 - (studentTeaLevel - activityTeaMax) * 0.1); // Too much scaffolding
+      }
+    }
+
+    return 0.5; // Neutral
   }
 
   private clamp(value: number): number {
