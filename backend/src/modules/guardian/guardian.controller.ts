@@ -110,6 +110,15 @@ export class GuardianController {
     return this.guardianService.getAdaptationSummaries(guardianId, childId);
   }
 
+  @Get('children/:childId/cycles')
+  @ApiOperation({ summary: 'Get the island/cycle learning path progress for a child' })
+  getChildCycles(
+    @CurrentUser('userId') guardianId: string,
+    @Param('childId') childId: string,
+  ) {
+    return this.guardianService.getChildCycles(guardianId, childId);
+  }
+
   @Post('children')
   @ApiOperation({ summary: 'Add a child account linked to the logged-in guardian' })
   addChild(

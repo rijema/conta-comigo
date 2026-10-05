@@ -151,7 +151,9 @@ export default function GuardianDashboardPage() {
   const [detail, setDetail] = useState<any>(null);
   const [longitudinal, setLongitudinal] = useState<any>(null);
   const [detailLoading, setDetailLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<"overview" | "charts" | "bncc" | "ade">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "charts" | "bncc" | "ade" | "cycles">("overview");
+  const [cycles, setCycles] = useState<any>(null);
+  const [cyclesLoading, setCyclesLoading] = useState(false);
   const [showAddChild, setShowAddChild] = useState(false);
   const [addForm, setAddForm] = useState({ childName: "", age: "", childPassword: "" });
   const [addLoading, setAddLoading] = useState(false);
@@ -214,6 +216,7 @@ export default function GuardianDashboardPage() {
     setAccessMessage("");
     setDetail(null);
     setLongitudinal(null);
+    setCycles(null);
     setDetailLoading(true);
     setActiveTab("overview" as any);
     try {
@@ -225,6 +228,16 @@ export default function GuardianDashboardPage() {
       setLongitudinal(longitudinalReport);
     } catch (e) { console.error(e); }
     finally { setDetailLoading(false); }
+  };
+
+  const loadCycles = async (childId: string) => {
+    setCyclesLoading(true);
+    try {
+      const token = authService.getStoredToken();
+      const data = await api.get<any>(`/guardian/children/${childId}/cycles`, token ?? undefined);
+      setCycles(data);
+    } catch (e) { console.error(e); }
+    finally { setCyclesLoading(false); }
   };
 
   const handleAddChild = async (e: React.FormEvent) => {
@@ -355,16 +368,19 @@ export default function GuardianDashboardPage() {
 
               {/* Tabs */}
               <div className={styles.tabsContainer}>
-                {(["overview", "charts", "bncc", "ade"] as const).map((tab, index) => (
+                {(["overview", "charts", "bncc", "ade", "cycles"] as const).map((tab, index) => (
                   <button
                     key={tab}
-                    onClick={() => setActiveTab(tab)}
+                    onClick={() => {
+                      setActiveTab(tab);
+                      if (tab === "cycles" && !cycles && selected) loadCycles(selected.id);
+                    }}
                     className={`${styles.tabButton} ${activeTab === tab ? styles.tabButtonActive : ""}`}
                     style={{
                       animationDelay: `${index * 0.05}s`
                     }}
                   >
-                    {({ overview: "📊 Visão Geral", charts: "📈 Gráficos", bncc: "📚 BNCC", ade: "🤖 IA" } as Record<string,string>)[tab]}
+                    {({ overview: "📊 Visão Geral", charts: "📈 Gráficos", bncc: "📚 BNCC", ade: "🤖 IA", cycles: "🏝️ Ciclos" } as Record<string,string>)[tab]}
                   </button>
                 ))}
               </div>
@@ -615,6 +631,57 @@ export default function GuardianDashboardPage() {
                         </div>
                       ))}
                     </div>
+                  </div>
+                )}
+
+                {/* CYCLES TAB: shows the island-by-island learning path and lock status */}
+                {activeTab === "cycles" && (
+                  <div className="bg-white rounded-2xl shadow-sm p-5 border border-slate-100">
+                    <h3 className="font-bold text-slate-700 mb-1">🏝️ Caminho de Aprendizado</h3>
+                    <p className="text-xs text-slate-500 mb-4">
+                      Cada ilha é um ciclo de 10 exercícios focado em um grupo de habilidades. {detail.name} só avança para a próxima ilha depois de concluir todos os exercícios da ilha atual — um caminho claro, sem atalhos que confundam.
+                    </p>
+                    {cyclesLoading && (
+                      <p className="text-slate-400 text-sm text-center py-6">Carregando ciclos...</p>
+                    )}
+                    {!cyclesLoading && (cycles?.cycles?.length ?? 0) === 0 && (
+                      <p className="text-slate-400 text-sm text-center py-6">Nenhum ciclo disponível ainda.</p>
+                    )}
+                    {!cyclesLoading && (cycles?.cycles?.length ?? 0) > 0 && (
+                      <div className="space-y-3">
+                        {cycles.cycles.map((cycle: any, index: number) => (
+                          <div
+                            key={cycle.islandId}
+                            className={`rounded-2xl border-2 p-4 flex items-center gap-3 ${
+                              cycle.status === "locked" ? "border-slate-200 bg-slate-50 opacity-70" :
+                              cycle.status === "completed" ? "border-green-200 bg-green-50" :
+                              "border-purple-200 bg-purple-50"
+                            }`}
+                          >
+                            <div className="text-2xl flex-shrink-0">
+                              {cycle.status === "locked" ? "🔒" : cycle.status === "completed" ? "✅" : "🎯"}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-2 flex-wrap">
+                                <p className="font-bold text-sm text-slate-700">Ciclo {index + 1}: {cycle.name}</p>
+                                <span className="text-xs font-semibold text-slate-500">
+                                  {cycle.completedExercises}/{cycle.totalExercises} exercícios
+                                </span>
+                              </div>
+                              {cycle.bnccSkills?.length > 0 && (
+                                <p className="text-xs text-slate-500 mt-0.5">BNCC: {cycle.bnccSkills.join(', ')}</p>
+                              )}
+                              <div className="h-2 bg-slate-200 rounded-full overflow-hidden mt-2">
+                                <div
+                                  className={`h-full rounded-full transition-all duration-700 ${cycle.status === "completed" ? "bg-green-500" : "bg-purple-500"}`}
+                                  style={{ width: `${cycle.completionPercentage}%` }}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </>

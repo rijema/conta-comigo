@@ -7,7 +7,7 @@ function service(profile: any, child: any) {
   const users = { findOne: jest.fn(async () => child), save };
   const profiles = { findOne: jest.fn(async () => profile) };
   return { guardian: new GuardianService(users as any, profiles as any, {} as any, {} as any,
-    {} as any, {} as any, {} as any, {} as any), users, profiles };
+    {} as any, {} as any, {} as any, {} as any, {} as any), users, profiles };
 }
 
 describe('Guardian child access', () => {
@@ -45,7 +45,7 @@ describe('Guardian plain-language evidence', () => {
       { find: jest.fn().mockResolvedValue([]) } as any,
       { find: jest.fn().mockResolvedValue(attempts) } as any,
       { getMasteryMapBySkillCode: jest.fn().mockResolvedValue({}) } as any,
-      {} as any, {} as any);
+      {} as any, {} as any, {} as any);
     const detail = await guardian.getChildDetail('guardian-1', 'child-1');
     expect(detail.stats.sessionCount).toBe(2);
     expect(detail.practicedSkills).toEqual([{ code: 'EF01MA03', count: 2 }, { code: 'EF01MA01', count: 1 }]);
@@ -62,7 +62,7 @@ describe('Guardian password change', () => {
     query.addSelect.mockReturnValue(query);
     query.where.mockReturnValue(query);
     const guardian = new GuardianService({ createQueryBuilder: jest.fn().mockReturnValue(query), save } as any,
-      {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any);
+      {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any);
     await expect(guardian.updateOwnPassword('guardian-1', {
       currentPassword: 'wrong', newPassword: 'replacement-pass',
     })).rejects.toBeInstanceOf(UnauthorizedException);

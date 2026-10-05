@@ -288,16 +288,20 @@ export default function ActivityMenuPage() {
                   const isDimmed = expandedSkill !== null && !isOpen;
                   const pct    = group.totalActivities > 0 ? Math.round((group.completedCount / group.totalActivities) * 100) : 0;
                   const allDone = group.completedCount >= group.totalActivities && group.totalActivities > 0;
+                  /* [PROPOSTA CONTA COMIGO] Island is locked until the previous one is 100% complete */
+                  const isLocked = group.island?.locked === true;
 
                   /* Subtitle: use island description or fallback to skill name */
                   const skillPt = group.island?.description || theme.sub || group.skillName;
 
                   return (
-                    <div key={group.skill} className={`rounded-[2rem] border-4 ${theme.border} overflow-hidden bg-gradient-to-br ${theme.grad} transition-all duration-300 ${isOpen ? "scale-[1.02] shadow-2xl" : isDimmed ? "scale-[.98] opacity-45 shadow-sm" : "shadow-xl"}`}>
+                    <div key={group.skill} className={`rounded-[2rem] border-4 ${theme.border} overflow-hidden bg-gradient-to-br ${theme.grad} transition-all duration-300 ${isLocked ? "opacity-50 grayscale" : isOpen ? "scale-[1.02] shadow-2xl" : isDimmed ? "scale-[.98] opacity-45 shadow-sm" : "shadow-xl"}`}>
                       <button
-                        onClick={() => setExpandedSkill(isOpen ? null : group.skill)}
-                        className="w-full text-left transition-transform hover:scale-[1.01] active:scale-[.99] motion-reduce:transform-none"
+                        onClick={() => !isLocked && setExpandedSkill(isOpen ? null : group.skill)}
+                        className={`w-full text-left transition-transform motion-reduce:transform-none ${isLocked ? "cursor-not-allowed" : "hover:scale-[1.01] active:scale-[.99]"}`}
                         aria-expanded={isOpen}
+                        aria-disabled={isLocked}
+                        disabled={isLocked}
                       >
                         <div className={`bg-gradient-to-r ${theme.headerGrad} px-4 py-3 flex items-center justify-between gap-2`}>
                           <div className="flex items-center gap-2 min-w-0">
@@ -316,29 +320,42 @@ export default function ActivityMenuPage() {
                             </div>
                           </div>
                           <div className="flex items-center gap-1 flex-shrink-0">
-                            {allDone && <span className="text-xl text-yellow-300">•</span>}
-                            <span className="text-white text-base">{isOpen ? "▲" : "▼"}</span>
+                            {isLocked ? (
+                              <span className="text-xl" aria-label="Ilha bloqueada">🔒</span>
+                            ) : (
+                              <>
+                                {allDone && <span className="text-xl text-yellow-300">•</span>}
+                                <span className="text-white text-base">{isOpen ? "▲" : "▼"}</span>
+                              </>
+                            )}
                           </div>
                         </div>
                         <div className="h-2 bg-white/20">
                           <div className="h-full bg-white/70 rounded-r-full transition-all duration-700" style={{ width: `${pct}%` }} />
                         </div>
+                        {isLocked && (
+                          <p className="bg-white/90 text-center text-xs font-bold text-slate-600 px-3 py-1.5">
+                            Complete a ilha anterior para desbloquear 🔒
+                          </p>
+                        )}
                       </button>
 
-                      {isOpen && (
+                      {isOpen && !isLocked && (
                         <div className="p-2.5 space-y-2">
                           {group.activities.map((act: any) => {
                             const cfg  = CARD_CONFIG[act.type] ?? { emoji: "🎮", label: "Jogo", mascot: "🐶" };
                             const isRec = act.recommended && !act.completed;
+                            const isExLocked = act.locked === true;
 
                             return (
                               <div key={act.id}
                                 className={`relative rounded-2xl border-2 p-3 bg-white/85 shadow-sm transition-all ${
+                                  isExLocked ? "opacity-50 border-gray-200 grayscale" :
                                   act.completed ? "opacity-60 border-gray-200" :
                                   isRec ? "border-purple-300 ring-2 ring-purple-200" : "border-white/70"
                                 }`}
                               >
-                                {isRec && (
+                                {isRec && !isExLocked && (
                                   <span className="absolute -top-2.5 left-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-extrabold px-2 py-0.5 rounded-full shadow">
                                     TitIA recomenda!
                                   </span>
@@ -346,6 +363,11 @@ export default function ActivityMenuPage() {
                                 {act.completed && (
                                   <span className="absolute -top-2.5 right-2 bg-green-500 text-white text-xs font-extrabold px-2 py-0.5 rounded-full shadow">
                                     Concluído
+                                  </span>
+                                )}
+                                {isExLocked && (
+                                  <span className="absolute -top-2.5 right-2 bg-gray-500 text-white text-xs font-extrabold px-2 py-0.5 rounded-full shadow flex items-center gap-1">
+                                    🔒 Bloqueado
                                   </span>
                                 )}
                                 <div className="flex items-center gap-2">
@@ -365,7 +387,11 @@ export default function ActivityMenuPage() {
                                       ))}
                                     </div>
                                   </div>
-                                  {!act.completed ? (
+                                  {isExLocked ? (
+                                    <div className="w-11 h-11 rounded-2xl bg-gray-200 flex items-center justify-center flex-shrink-0" aria-label="Exercício bloqueado">
+                                      <span className="text-xl">🔒</span>
+                                    </div>
+                                  ) : !act.completed ? (
                                     <button
                                       onClick={() => router.push(`/${locale}/learn?activityId=${act.id}`)}
                                       className={`flex-shrink-0 min-h-11 rounded-2xl flex items-center gap-1 px-2 text-white text-sm font-bold shadow-md active:scale-95 transition-transform ${

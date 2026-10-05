@@ -12,6 +12,7 @@ import { KnowledgeTracingService } from '../knowledge-tracing/knowledge-tracing.
 import { RecommendationExplanationService } from '../ade/recommendation-explanation.service';
 import { AdaptationTransition } from '../learning-events/entities/adaptation-transition.entity';
 import { LongitudinalLearningAnalyticsService } from '../learning-events/longitudinal-learning-analytics.service';
+import { ActivitiesService } from '../activities/activities.service';
 
 @Injectable()
 export class GuardianService {
@@ -30,8 +31,45 @@ export class GuardianService {
     private readonly recommendationExplanationService: RecommendationExplanationService,
     @InjectRepository(AdaptationTransition)
     private readonly transitionRepo: Repository<AdaptationTransition>,
+    private readonly activitiesService: ActivitiesService,
     private readonly longitudinalAnalytics?: LongitudinalLearningAnalyticsService,
   ) {}
+
+  /**
+   * [PROPOSTA CONTA COMIGO] "Ciclos" view for parents/professionals:
+   * shows the islands in sequence, each one a learning cycle, with how many
+   * exercises are done and which ones are still locked. This gives the adult
+   * a clear picture of the structured path the child is following.
+   */
+  async getChildCycles(guardianId: string, childId: string) {
+    const profile = await this.childProfileRepo.findOne({ where: { userId: childId, guardianId } });
+    if (!profile) throw new ForbiddenException('Child is not linked to this guardian');
+
+    const islandsMap = await this.activitiesService.getIslandsWithActivities(childId);
+
+    const cycles = (islandsMap.islands ?? []).map((island: any) => ({
+      islandId: island.islandId,
+      name: island.name,
+      bnccSkills: island.bnccSkills,
+      totalExercises: island.totalActivities,
+      completedExercises: island.completedCount,
+      completionPercentage:
+        island.totalActivities > 0
+          ? Math.round((island.completedCount / island.totalActivities) * 100)
+          : 0,
+      status: island.locked
+        ? 'locked'
+        : island.completedCount >= island.totalActivities && island.totalActivities > 0
+          ? 'completed'
+          : 'active',
+    }));
+
+    return {
+      cycles,
+      completedTotal: islandsMap.completedTotal,
+      totalActivities: islandsMap.totalActivities,
+    };
+  }
 
   async getLongitudinalAnalytics(guardianId: string, childId: string) {
     const profile = await this.childProfileRepo.findOne({ where: { userId: childId, guardianId } });
