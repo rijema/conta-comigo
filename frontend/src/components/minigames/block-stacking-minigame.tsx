@@ -124,14 +124,17 @@ export const BlockStackingMinigame: React.FC<BlockStackingMinigameProps> = ({
 
     // If this exercise requires a specific order (e.g. biggest-to-smallest),
     // only accept the block that is next in that order; otherwise reject
-    // with visual feedback so the child tries another block.
+    // with visual feedback so the child tries another block. The feedback
+    // lingers for ~2s (badge + red ring) instead of a quick shake only,
+    // so the child clearly understands "this one was wrong" before it
+    // fades back to normal.
     if (requiredOrder) {
       const nextRequiredId = requiredOrder[stackedBlockIds.length];
       if (draggedBlockId !== nextRequiredId) {
         setRejectedBlockId(draggedBlockId);
         setDraggedBlockId(null);
         if (rejectTimeoutRef.current) clearTimeout(rejectTimeoutRef.current);
-        rejectTimeoutRef.current = setTimeout(() => setRejectedBlockId(null), 600);
+        rejectTimeoutRef.current = setTimeout(() => setRejectedBlockId(null), 2000);
         return;
       }
     }
@@ -210,11 +213,23 @@ export const BlockStackingMinigame: React.FC<BlockStackingMinigameProps> = ({
                     exit={{ opacity: 0, scale: 0.8 }}
                     draggable
                     onDragStart={() => handleBlockDragStart(block.id)}
-                    className={`cursor-move flex flex-col items-center justify-end bg-white rounded-lg p-3 border-2 ${
-                      rejectedBlockId === block.id ? 'border-red-400' : 'border-gray-200'
+                    className={`relative cursor-move flex flex-col items-center justify-end bg-white rounded-lg p-3 border-2 transition-colors duration-300 ${
+                      rejectedBlockId === block.id
+                        ? 'border-red-500 ring-4 ring-red-300 bg-red-50'
+                        : 'border-gray-200'
                     }`}
                     style={{ width: Math.max(110, blockWidth + 24), height: 140 }}
                   >
+                    {rejectedBlockId === block.id && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.5 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center font-bold text-lg shadow-lg"
+                        aria-label="Não era este bloco"
+                      >
+                        ✕
+                      </motion.div>
+                    )}
                     <motion.div
                       whileHover={{ scale: 1.05 }}
                       whileDrag={{ scale: 0.95, opacity: 0.7 }}
