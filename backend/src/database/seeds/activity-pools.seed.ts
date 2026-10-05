@@ -96,7 +96,7 @@ const pools: Array<{ niche: string; skills: string[]; questions: Question[] }> =
     ['join_objects', 'Junte 1 bola e 2 bolas. Quantas?', ['2','3','4'], '3', 'counting', 'brinquedos'],
     ['sum_fingers', 'Mostre 3 dedos e mais 2. Quantos dedos?', ['4','5','6'], '5', 'quiz', 'corpo'],
     ['missing_addend', 'Complete: 4 + __ = 7', ['2','3','4'], '3', 'missing_number', 'equação'],
-    ['make_ten', 'Que número completa 6 para formar 10?', ['3','4','5'], '4', 'composition_decomposition', 'decomposição'],
+    ['make_ten', 'Quantos faltam para formar 10?', ['3','4','5'], '4', 'missing_number', 'decomposição', ['1','2','3','4','5','6']],
     ['add_context', 'Na mesa havia 8 copos; chegaram mais 5. Quantos há?', ['12','13','14'], '13', 'contextual_problem_solving', 'cozinha'],
   ]},
   { niche: 'subtraction', skills: ['EF01MA08'], questions: [
@@ -150,6 +150,18 @@ const pools: Array<{ niche: string; skills: string[]; questions: Question[] }> =
   ]},
 ];
 
+// Some auto-generated questions need a specific semantic "concept" so the
+// activity renderer picks the right minigame component (see activity-renderer.tsx).
+const CONCEPT_OVERRIDES: Record<string, string> = {
+  make_ten: 'decomposition',
+};
+const EXAMPLE_OVERRIDES: Record<string, string> = {
+  make_ten: 'Se já temos 6 quadrinhos preenchidos e queremos chegar em 10, faltam 4. Toque nos quadrinhos vazios para completar.',
+};
+const HINT_OVERRIDES: Record<string, string> = {
+  make_ten: 'Conte quantos quadrinhos já estão preenchidos. Depois toque nos vazios até chegar em 10.',
+};
+
 export function expandedActivityPools(): Record<string, unknown>[] {
   return pools.flatMap(({ niche, skills, questions }) => questions.map((question, index) => {
     const [structureId, prompt, answers, correctAnswer, type, context, items, questionSkills] = question;
@@ -173,7 +185,9 @@ export function expandedActivityPools(): Record<string, unknown>[] {
         options: answers.map((text, optionIndex) => ({ id: String(optionIndex), text, isCorrect: text === correctAnswer })),
         correctAnswer,
         validation: { kind: 'exact' },
-        semantic: { niche, structureId, context, sensoryProfile: index < 3 ? 'low' : 'medium' },
+        example: EXAMPLE_OVERRIDES[structureId],
+        spokenHint: HINT_OVERRIDES[structureId],
+        semantic: { niche, structureId, context, sensoryProfile: index < 3 ? 'low' : 'medium', concept: CONCEPT_OVERRIDES[structureId] },
       },
     };
   }));

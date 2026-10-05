@@ -15,6 +15,8 @@ import { ComparisonMinigame } from "../minigames/comparison-minigame";
 import { MemoryMinigame } from "../minigames/memory-minigame";
 import { CategoryMinigame } from "../minigames/category-minigame";
 import { BlockStackingMinigame } from "../minigames/block-stacking-minigame";
+import { TwoGroupSplitMinigame } from "../minigames/two-group-split-minigame";
+import { BarCombinationMinigame } from "../minigames/bar-combination-minigame";
 import { NumberLineMinigame } from "../minigames/number-line-minigame";
 import { CategorizationMinigame } from "../minigames/categorization-minigame";
 import { TenFrameMinigame } from "../minigames/ten-frame-minigame";
@@ -253,7 +255,35 @@ export function ActivityRenderer({
           />
         );
 
-      case "composition_decomposition":
+      case "composition_decomposition": {
+        // Different exercises in this family need different interaction
+        // models: ordering by size (stacking), splitting identical units
+        // into two groups (decomposition), or combining distinct-value
+        // bars to reach a target (composition). Pick by data shape.
+        if (activity.content?.bars) {
+          return (
+            <BarCombinationMinigame
+              key={activity.id}
+              skill={activity.bnccSkills?.[0] ?? 'EF01MA07'}
+              difficulty={(activity.difficulty as any) || 'easy'}
+              activity={activity}
+              onComplete={(score, isCorrect) => onAnswer({ correct: isCorrect, score })}
+              isTEAMode={true}
+            />
+          );
+        }
+        if (activity.content?.correctAnswers) {
+          return (
+            <TwoGroupSplitMinigame
+              key={activity.id}
+              skill={activity.bnccSkills?.[0] ?? 'EF01MA07'}
+              difficulty={(activity.difficulty as any) || 'easy'}
+              activity={activity}
+              onComplete={(score, isCorrect) => onAnswer({ correct: isCorrect, score })}
+              isTEAMode={true}
+            />
+          );
+        }
         // MINIGAME: Block Stacking Quest (BNCC: EF01MA03, EF01MA06)
         return (
           <BlockStackingMinigame
@@ -265,6 +295,7 @@ export function ActivityRenderer({
             isTEAMode={true}
           />
         );
+      }
 
       case "missing_number":
         // Check semantic type to decide which minigame
