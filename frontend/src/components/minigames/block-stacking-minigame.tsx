@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Activity } from '@/types';
+import { ArasaacPictogram } from '@/components/arasaac/arasaac-pictogram';
 
 /**
  * MINIGAME: Block Stacking Quest
@@ -36,6 +37,31 @@ interface BlockStackingMinigameProps {
   isTEAMode?: boolean;
 }
 
+// Pure helper so block generation is deterministic and usable both as the
+// lazy initial React state (SSR/first-paint safe, no empty-state flash) and
+// whenever the activity/difficulty changes after mount.
+function buildBlocks(
+  activity: Activity | undefined,
+  difficulty: 'very_easy' | 'easy' | 'medium' | 'hard',
+): BlockItem[] {
+  const activityBlocks = activity?.content?.items as BlockItem[] | undefined;
+
+  if (activityBlocks && Array.isArray(activityBlocks)) {
+    return activityBlocks.map((block, idx) => ({
+      id: block.id || `block-${idx}`,
+      color: block.color || BLOCK_COLORS[idx % BLOCK_COLORS.length],
+      size: block.size || 'medium',
+    }));
+  }
+
+  const blockCount = { very_easy: 2, easy: 3, medium: 4, hard: 5 }[difficulty];
+  return Array.from({ length: blockCount }, (_, idx) => ({
+    id: `block-${idx}`,
+    color: BLOCK_COLORS[idx % BLOCK_COLORS.length],
+    size: idx % 2 === 0 ? 'large' : 'medium',
+  }));
+}
+
 export const BlockStackingMinigame: React.FC<BlockStackingMinigameProps> = ({
   skill,
   difficulty,
@@ -43,33 +69,30 @@ export const BlockStackingMinigame: React.FC<BlockStackingMinigameProps> = ({
   activity,
   isTEAMode = false,
 }) => {
-  const [blocks, setBlocks] = useState<BlockItem[]>([]);
+  const [blocks, setBlocks] = useState<BlockItem[]>(() => buildBlocks(activity, difficulty));
   const [stackedBlockIds, setStackedBlockIds] = useState<string[]>([]);
   const [draggedBlockId, setDraggedBlockId] = useState<string | null>(null);
   const [isComplete, setIsComplete] = useState(false);
+  const [rejectedBlockId, setRejectedBlockId] = useState<string | null>(null);
   const stackRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout>();
+  const rejectTimeoutRef = useRef<NodeJS.Timeout>();
 
+  const requiredOrder = activity?.content?.validation?.kind === 'sequence'
+    ? (activity?.content?.correctAnswer as string[] | undefined)
+    : undefined;
+
+  // Re-derive blocks whenever the activity/difficulty changes after mount
+  // (the lazy initial state above only covers the very first render).
+  const isFirstRender = useRef(true);
   useEffect(() => {
-    const activityBlocks = activity?.content?.items as BlockItem[] | undefined;
-    let initialBlocks: BlockItem[];
-
-    if (activityBlocks && Array.isArray(activityBlocks)) {
-      initialBlocks = activityBlocks.map((block, idx) => ({
-        id: block.id || `block-${idx}`,
-        color: block.color || BLOCK_COLORS[idx % BLOCK_COLORS.length],
-        size: block.size || 'medium',
-      }));
-    } else {
-      const blockCount = { very_easy: 2, easy: 3, medium: 4, hard: 5 }[difficulty];
-      initialBlocks = Array.from({ length: blockCount }, (_, idx) => ({
-        id: `block-${idx}`,
-        color: BLOCK_COLORS[idx % BLOCK_COLORS.length],
-        size: idx % 2 === 0 ? 'large' : 'medium',
-      }));
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
     }
-
-    setBlocks(initialBlocks);
+    setBlocks(buildBlocks(activity, difficulty));
+    setStackedBlockIds([]);
+    setIsComplete(false);
   }, [difficulty, activity]);
 
   useEffect(() => {
@@ -97,10 +120,24 @@ export const BlockStackingMinigame: React.FC<BlockStackingMinigameProps> = ({
 
   const handleStackDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    if (draggedBlockId && !stackedBlockIds.includes(draggedBlockId)) {
-      setStackedBlockIds([...stackedBlockIds, draggedBlockId]);
-      setDraggedBlockId(null);
+    if (!draggedBlockId || stackedBlockIds.includes(draggedBlockId)) return;
+
+    // If this exercise requires a specific order (e.g. biggest-to-smallest),
+    // only accept the block that is next in that order; otherwise reject
+    // with visual feedback so the child tries another block.
+    if (requiredOrder) {
+      const nextRequiredId = requiredOrder[stackedBlockIds.length];
+      if (draggedBlockId !== nextRequiredId) {
+        setRejectedBlockId(draggedBlockId);
+        setDraggedBlockId(null);
+        if (rejectTimeoutRef.current) clearTimeout(rejectTimeoutRef.current);
+        rejectTimeoutRef.current = setTimeout(() => setRejectedBlockId(null), 600);
+        return;
+      }
     }
+
+    setStackedBlockIds([...stackedBlockIds, draggedBlockId]);
+    setDraggedBlockId(null);
   };
 
   const availableBlocks = blocks.filter(b => !stackedBlockIds.includes(b.id));
@@ -112,9 +149,35 @@ export const BlockStackingMinigame: React.FC<BlockStackingMinigameProps> = ({
         animate={{ opacity: 1, y: 0 }}
         className="text-center"
       >
-        <h2 className="text-2xl font-bold text-blue-900 mb-2">Pilha de Blocos</h2>
-        <p className="text-gray-700">Arraste os blocos para a pilha!</p>
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <ArasaacPictogram conceptId="library.cube" showLabel={false} imageClassName="h-10 w-10" />
+          <h2 className="text-2xl font-bold text-blue-900">{activity?.title || 'Pilha de Blocos'}</h2>
+        </div>
+        <p className="text-gray-700">
+          {activity?.content?.instructionsPt || activity?.content?.instructions || 'Arraste os blocos para a pilha!'}
+        </p>
       </motion.div>
+
+      {activity?.content?.example && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="bg-blue-50 border-2 border-blue-100 rounded-2xl p-4 mx-auto max-w-xl text-center"
+        >
+          <p className="text-xs font-extrabold text-blue-600 uppercase mb-1">Exemplo</p>
+          <p className="text-gray-700 text-sm">{activity.content.example}</p>
+        </motion.div>
+      )}
+
+      {activity?.content?.spokenHint && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-3 mx-auto max-w-xl text-center"
+        >
+          <p className="text-sm font-bold text-amber-800">💡 {activity.content.spokenHint}</p>
+        </motion.div>
+      )}
 
       <div className="bg-white rounded-lg p-4 shadow">
         <div className="text-sm text-gray-600 mb-2">
@@ -133,38 +196,38 @@ export const BlockStackingMinigame: React.FC<BlockStackingMinigameProps> = ({
       <div className="flex gap-8 flex-1">
         <div className="flex-1">
           <h3 className="font-bold text-lg mb-4 text-blue-900">Blocos Disponíveis</h3>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-wrap items-end gap-4">
             <AnimatePresence>
-              {availableBlocks.map(block => (
-                <motion.div
-                  key={block.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  draggable
-                  onDragStart={() => handleBlockDragStart(block.id)}
-                  className="cursor-move"
-                >
+              {availableBlocks.map(block => {
+                const blockWidth = SIZE_MAP[block.size || 'medium'];
+                const blockHeight = blockWidth * 0.6;
+                return (
                   <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileDrag={{ scale: 0.95, opacity: 0.7 }}
-                    className="p-4 rounded-lg border-2 border-gray-300 text-center transition"
-                    style={{
-                      backgroundColor: block.color || '#FFD700',
-                      borderColor: block.color || '#FFD700',
-                    }}
+                    key={block.id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={rejectedBlockId === block.id ? { x: [0, -8, 8, -8, 0] } : { opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    draggable
+                    onDragStart={() => handleBlockDragStart(block.id)}
+                    className={`cursor-move flex flex-col items-center justify-end bg-white rounded-lg p-3 border-2 ${
+                      rejectedBlockId === block.id ? 'border-red-400' : 'border-gray-200'
+                    }`}
+                    style={{ width: Math.max(110, blockWidth + 24), height: 140 }}
                   >
-                    <div
-                      className="h-12 rounded-md mx-auto mb-2"
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileDrag={{ scale: 0.95, opacity: 0.7 }}
+                      className="rounded-md shadow"
                       style={{
-                        backgroundColor: block.color,
-                        width: SIZE_MAP[block.size || 'medium'],
+                        backgroundColor: block.color || '#FFD700',
+                        width: blockWidth,
+                        height: blockHeight,
                       }}
                     />
                   </motion.div>
-                </motion.div>
-              ))}
+                );
+              })}
             </AnimatePresence>
           </div>
         </div>
