@@ -43,14 +43,36 @@ const TUTORIALS: Partial<Record<Activity["type"], Array<{ conceptId: string; tex
     { conceptId: "activity.point", text: "Encontre o lugar pedido." },
     { conceptId: "activity.touch", text: "Toque nesse lugar para responder." },
   ],
-  composition_decomposition: [
-    { conceptId: "library.cube", text: "Veja os blocos de tamanhos diferentes." },
-    { conceptId: "activity.touch", text: "Arraste cada bloco até a pilha." },
-    { conceptId: "activity.complete", text: "Confirme quando todos os blocos estiverem na pilha." },
-  ],
 };
 
+// Some composition_decomposition activities use a completely different
+// interaction model (bars to sum, or splitting into two groups) than the
+// default (stacking in size order). Pick the right steps by content shape,
+// matching the same branching logic used by activity-renderer.tsx.
+const COMPOSITION_BARS_STEPS = [
+  { conceptId: "mathematics.count", text: "Conte os quadradinhos de cada barra disponível." },
+  { conceptId: "activity.touch", text: "Arraste as barras para a área \"Sua Combinação\"." },
+  { conceptId: "mathematics.addition", text: "Continue somando até os quadradinhos da combinação baterem com o alvo." },
+];
+
+const COMPOSITION_SPLIT_STEPS = [
+  { conceptId: "mathematics.count", text: "Veja quantas bolinhas existem no total." },
+  { conceptId: "activity.touch", text: "Arraste cada bolinha para o Grupo 1 ou o Grupo 2." },
+  { conceptId: "mathematics.addition", text: "Continue até não sobrar nenhuma bolinha fora dos grupos." },
+];
+
+const COMPOSITION_ORDER_STEPS = [
+  { conceptId: "library.cube", text: "Veja os blocos: cada um tem um tamanho diferente." },
+  { conceptId: "activity.touch", text: "Arraste o bloco certo para a pilha, seguindo a ordem pedida (do menor ao maior, ou do maior ao menor)." },
+  { conceptId: "activity.complete", text: "Se o bloco não for o certo, ele volta com um sinal vermelho — tente outro." },
+];
+
 function getTutorialSteps(activity: Activity) {
+  if (activity.type === "composition_decomposition") {
+    if (activity.content?.bars) return COMPOSITION_BARS_STEPS;
+    if (activity.content?.correctAnswers) return COMPOSITION_SPLIT_STEPS;
+    return COMPOSITION_ORDER_STEPS;
+  }
   return TUTORIALS[activity.type] ?? [
     { conceptId: "activity.look", text: "Observe a atividade com calma." },
     { conceptId: "activity.choose", text: "Faça ou escolha sua resposta." },

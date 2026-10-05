@@ -101,7 +101,7 @@ export const BarCombinationMinigame: React.FC<BarCombinationMinigameProps> = ({ 
   const sumState = currentSum > targetValue ? 'over' : currentSum === targetValue ? 'exact' : 'under';
 
   return (
-    <div className="flex flex-col gap-6 p-6 bg-gradient-to-b from-purple-50 to-pink-50 rounded-xl min-h-screen">
+    <div className="flex flex-col gap-6 p-6 bg-gradient-to-b from-purple-50 to-pink-50 rounded-xl">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-center">
         <div className="flex items-center justify-center gap-2 mb-2">
           <ArasaacPictogram conceptId="mathematics.addition" showLabel={false} imageClassName="h-10 w-10" />
@@ -133,7 +133,7 @@ export const BarCombinationMinigame: React.FC<BarCombinationMinigameProps> = ({ 
         </div>
       </div>
 
-      <div className="flex-1">
+      <div>
         <h3 className="font-bold text-lg mb-3 text-purple-900">Barras Disponíveis</h3>
         <div className="flex flex-wrap gap-3">
           <AnimatePresence>
