@@ -11,6 +11,7 @@ import { KnowledgeTracingModule } from '../knowledge-tracing/knowledge-tracing.m
 import { AdeModule } from '../ade/ade.module';
 import { AdaptationTransition } from '../learning-events/entities/adaptation-transition.entity';
 import { LearningEventsModule } from '../learning-events/learning-events.module';
+import { ActivitiesModule } from '../activities/activities.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { LearningEventsModule } from '../learning-events/learning-events.module'
     KnowledgeTracingModule,
     AdeModule,
     LearningEventsModule,
+    ActivitiesModule,
   ],
   controllers: [GuardianController],
   providers: [GuardianService],

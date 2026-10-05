@@ -1042,6 +1042,15 @@ export class ActivitiesService {
         const validActivities = activities.filter((a) => a !== null);
         const completedCount = validActivities.filter((a) => a.completed).length;
 
+        // [PROPOSTA CONTA COMIGO] Sequential unlock within an island:
+        // activity N is locked until activity N-1 (by sequenceInIsland) is completed.
+        // The first activity of an island is always unlocked so the child always has
+        // somewhere to start.
+        const sequencedActivities = validActivities.map((activity, index) => ({
+          ...activity,
+          locked: index > 0 && !validActivities[index - 1].completed,
+        }));
+
         return {
           islandId: island.islandId,
           name: island.name,
@@ -1050,24 +1059,41 @@ export class ActivitiesService {
           arasaacPictogramIds: island.arasaacPictogramIds,
           bnccSkills: island.bnccSkills,
           sequenceOrder: island.sequenceOrder,
-          totalActivities: validActivities.length,
+          totalActivities: sequencedActivities.length,
           completedCount,
-          activities: validActivities,
+          activities: sequencedActivities,
         };
       })
     );
 
-    const totalCompleted = islandsWithActivities.reduce(
+    // [PROPOSTA CONTA COMIGO] Sequential unlock across islands:
+    // island N+1 is locked until island N is 100% completed. This gives the child
+    // (and the parent/professional watching the "ciclos" view) a clear, single path:
+    // finish every exercise in an island before the next one opens up.
+    const islandsWithLocks = islandsWithActivities.map((island, index) => {
+      const previousIsland = index > 0 ? islandsWithActivities[index - 1] : null;
+      const previousIslandCompleted =
+        !previousIsland ||
+        (previousIsland.totalActivities > 0 &&
+          previousIsland.completedCount >= previousIsland.totalActivities);
+
+      return {
+        ...island,
+        locked: index > 0 && !previousIslandCompleted,
+      };
+    });
+
+    const totalCompleted = islandsWithLocks.reduce(
       (sum, island) => sum + island.completedCount,
       0
     );
-    const totalActivities = islandsWithActivities.reduce(
+    const totalActivities = islandsWithLocks.reduce(
       (sum, island) => sum + island.totalActivities,
       0
     );
 
     return {
-      islands: islandsWithActivities,
+      islands: islandsWithLocks,
       completedTotal: totalCompleted,
       totalActivities,
     };
