@@ -1203,7 +1203,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
   activities.push(...expandedActivityPools() as any[], ...interactiveFormatActivities() as any[]);
   // Use createQueryBuilder to avoid eager-loading corrupted relations
   const existingRecords = await repo.createQueryBuilder('activity')
-    .select(['activity.id', 'activity.title', 'activity.content', 'activity.bnccSkills'])
+    .select(['activity.id', 'activity.title', 'activity.content', 'activity.bnccSkills', 'activity.type'])
     .getMany()
     .catch(() => []);
   const existingTitles = new Set(existingRecords.map((record: any) => record.title));
@@ -1215,6 +1215,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
   let speechMetadataUpdated = 0;
   let authoredContentUpdated = 0;
   let titleMetadataUpdated = 0;
+  let contentSynced = 0;
   for (const activity of activities) {
     const structureId = (activity.content as Record<string, any>)?.semantic?.structureId;
     if (typeof structureId === 'string' && existingByStructureId.has(structureId)) {
@@ -1231,6 +1232,20 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       if (JSON.stringify(existing.bnccSkills) !== JSON.stringify(activity.bnccSkills)) {
         existing.bnccSkills = activity.bnccSkills;
         shouldSave = true;
+      }
+      if (existing.type !== activity.type) {
+        existing.type = activity.type;
+        shouldSave = true;
+      }
+      // The seed file is the source of truth for authored exercise content
+      // (items, bars, correctAnswers, example, spokenHint, validation...).
+      // Without this, edits to curated exercises never reach rows that were
+      // already seeded in a previous run — only the narrow fields above
+      // would ever update, leaving stale/broken content live indefinitely.
+      if (JSON.stringify(existing.content) !== JSON.stringify(activity.content)) {
+        existing.content = activity.content;
+        shouldSave = true;
+        contentSynced += 1;
       }
       if (shouldSave) {
         await repo.save(existing);
@@ -1277,5 +1292,5 @@ export async function ActivitiesSeed(dataSource: DataSource) {
     created += 1;
   }
 
-  console.log(`✅ ${created} new activities seeded; ${titleMetadataUpdated} title metadata records updated; ${speechMetadataUpdated} speech metadata records updated; ${authoredContentUpdated} authored content corrections (${activities.length} defined)`);
+  console.log(`✅ ${created} new activities seeded; ${titleMetadataUpdated} title metadata records updated; ${contentSynced} content records resynced from seed source; ${speechMetadataUpdated} speech metadata records updated; ${authoredContentUpdated} authored content corrections (${activities.length} defined)`);
 }

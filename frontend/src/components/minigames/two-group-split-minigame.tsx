@@ -115,7 +115,7 @@ export const TwoGroupSplitMinigame: React.FC<TwoGroupSplitMinigameProps> = ({
   );
 
   return (
-    <div className="flex flex-col gap-6 p-6 bg-gradient-to-b from-blue-50 to-green-50 rounded-xl min-h-screen">
+    <div className="flex flex-col gap-6 p-6 bg-gradient-to-b from-blue-50 to-green-50 rounded-xl">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-center">
         <div className="flex items-center justify-center gap-2 mb-2">
           <ArasaacPictogram conceptId="math.part" showLabel={false} imageClassName="h-10 w-10" />
@@ -146,7 +146,7 @@ export const TwoGroupSplitMinigame: React.FC<TwoGroupSplitMinigameProps> = ({
         </p>
       </div>
 
-      <div className="flex-1">
+      <div>
         <h3 className="font-bold text-lg mb-3 text-blue-900">Blocos Disponíveis</h3>
         <div className="flex flex-wrap gap-3 min-h-[60px]">
           <AnimatePresence>{availableItems.map((item) => renderUnit(item))}</AnimatePresence>
