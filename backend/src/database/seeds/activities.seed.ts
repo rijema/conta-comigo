@@ -1203,7 +1203,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
   activities.push(...expandedActivityPools() as any[], ...interactiveFormatActivities() as any[]);
   // Use createQueryBuilder to avoid eager-loading corrupted relations
   const existingRecords = await repo.createQueryBuilder('activity')
-    .select(['activity.id', 'activity.title', 'activity.content', 'activity.bnccSkills', 'activity.type'])
+    .select(['activity.id', 'activity.title', 'activity.content', 'activity.bnccSkills', 'activity.type', 'activity.isActive'])
     .getMany()
     .catch(() => []);
   const existingTitles = new Set(existingRecords.map((record: any) => record.title));
@@ -1292,5 +1292,27 @@ export async function ActivitiesSeed(dataSource: DataSource) {
     created += 1;
   }
 
-  console.log(`✅ ${created} new activities seeded; ${titleMetadataUpdated} title metadata records updated; ${contentSynced} content records resynced from seed source; ${speechMetadataUpdated} speech metadata records updated; ${authoredContentUpdated} authored content corrections (${activities.length} defined)`);
+  // Orphaned rows: activities that exist in the DB from an earlier version
+  // of this seed file but whose title no longer appears anywhere in the
+  // current source. They never match the structureId/title branches above,
+  // so they are never corrected and stay live with broken/incomplete
+  // content forever (e.g. "Jogo da Composição: Monte o Número" - a stale
+  // 2-block duplicate of "Jogo da Composição: Combine os Blocos!" with no
+  // pictograms and no way to represent the quantity each block holds).
+  // Deactivate them instead of deleting, so no foreign-key referenced
+  // learning history is lost.
+  const ORPHANED_ACTIVITY_TITLES = ['Jogo da Composição: Monte o Número'];
+  const currentTitles = new Set(activities.map((a: any) => a.title));
+  let deactivated = 0;
+  for (const title of ORPHANED_ACTIVITY_TITLES) {
+    if (currentTitles.has(title)) continue; // guard against accidental overlap
+    const existing = existingByTitle.get(title) as any;
+    if (existing && existing.isActive !== false) {
+      existing.isActive = false;
+      await repo.save(existing);
+      deactivated += 1;
+    }
+  }
+
+  console.log(`✅ ${created} new activities seeded; ${titleMetadataUpdated} title metadata records updated; ${contentSynced} content records resynced from seed source; ${speechMetadataUpdated} speech metadata records updated; ${authoredContentUpdated} authored content corrections; ${deactivated} orphaned activities deactivated (${activities.length} defined)`);
 }
