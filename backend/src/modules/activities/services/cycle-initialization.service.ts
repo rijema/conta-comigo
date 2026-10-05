@@ -16,6 +16,7 @@ import { Repository } from 'typeorm';
 import { StudentCycleTracking } from '../entities/student-cycle-tracking.entity';
 import { CycleExerciseAssignment } from '../entities/cycle-exercise-assignment.entity';
 import { Activity } from '../entities/activity.entity';
+import { Island } from '../entities/island.entity';
 
 @Injectable()
 export class CycleInitializationService {
@@ -28,6 +29,8 @@ export class CycleInitializationService {
     private readonly assignmentRepo: Repository<CycleExerciseAssignment>,
     @InjectRepository(Activity)
     private readonly activityRepo: Repository<Activity>,
+    @InjectRepository(Island)
+    private readonly islandRepo: Repository<Island>,
   ) {}
 
   /**
@@ -38,17 +41,24 @@ export class CycleInitializationService {
     studentId: string,
     islandId: string,
   ): Promise<void> {
-    // Get all BNCC skills covered in this island
+    // [PROPOSTA CONTA COMIGO] Only consider the BNCC skills that actually
+    // belong to this island (per the live `islands` catalog), instead of
+    // every skill in the whole activity bank. Without this, every island
+    // ended up with an identical set of cycles.
+    const island = await this.islandRepo.findOne({ where: { islandId } });
+    const islandSkills = island?.bnccSkills?.length ? new Set(island.bnccSkills) : null;
+
     const exercises = await this.activityRepo.find({
       where: { isActive: true },
     });
 
-    // Group by primary skill
+    // Group by primary skill, restricted to this island's skills when known
     const skillsInIsland = new Set<string>();
     exercises.forEach((e) => {
-      if (e.bnccSkills?.[0]) {
-        skillsInIsland.add(e.bnccSkills[0]);
-      }
+      const primarySkill = e.bnccSkills?.[0];
+      if (!primarySkill) return;
+      if (islandSkills && !islandSkills.has(primarySkill)) return;
+      skillsInIsland.add(primarySkill);
     });
 
     this.logger.log(
@@ -144,7 +154,13 @@ export class CycleInitializationService {
    * Bulk initialize cycles for all students (admin operation)
    */
   async initializeAllStudentCycles(studentIds: string[]): Promise<void> {
-    const islands = ['island-sol', 'island-lua', 'island-terra'];
+    // [PROPOSTA CONTA COMIGO] Use the real, live island catalog instead of a
+    // hardcoded list of island ids that never matched production data.
+    const activeIslands = await this.islandRepo.find({
+      where: { isActive: true },
+      order: { sequenceOrder: 'ASC' },
+    });
+    const islands = activeIslands.map((i) => i.islandId);
 
     for (const studentId of studentIds) {
       for (const island of islands) {
