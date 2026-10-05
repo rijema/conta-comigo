@@ -13,12 +13,20 @@ import type { Activity } from '@/types';
 interface BlockItem {
   id: string;
   color?: string;
-  size?: 'small' | 'medium' | 'large';
-  label?: string;
+  size?: 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge' | 'xxlarge' | 'xxxlarge' | 'xxxxlarge';
 }
 
 const BLOCK_COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8'];
-const SIZE_MAP = { small: 40, medium: 60, large: 80 };
+const SIZE_MAP = { 
+  xsmall: 20, 
+  small: 35, 
+  medium: 50, 
+  large: 70, 
+  xlarge: 90,
+  xxlarge: 110,
+  xxxlarge: 130,
+  xxxxlarge: 150
+};
 
 interface BlockStackingMinigameProps {
   skill: string;
@@ -51,7 +59,6 @@ export const BlockStackingMinigame: React.FC<BlockStackingMinigameProps> = ({
         id: block.id || `block-${idx}`,
         color: block.color || BLOCK_COLORS[idx % BLOCK_COLORS.length],
         size: block.size || 'medium',
-        label: block.label || `Bloco ${idx + 1}`,
       }));
     } else {
       const blockCount = { very_easy: 2, easy: 3, medium: 4, hard: 5 }[difficulty];
@@ -59,7 +66,6 @@ export const BlockStackingMinigame: React.FC<BlockStackingMinigameProps> = ({
         id: `block-${idx}`,
         color: BLOCK_COLORS[idx % BLOCK_COLORS.length],
         size: idx % 2 === 0 ? 'large' : 'medium',
-        label: `Bloco ${idx + 1}`,
       }));
     }
 
@@ -156,9 +162,6 @@ export const BlockStackingMinigame: React.FC<BlockStackingMinigameProps> = ({
                         width: SIZE_MAP[block.size || 'medium'],
                       }}
                     />
-                    <p className="text-xs font-semibold text-white drop-shadow">
-                      {block.label || block.id}
-                    </p>
                   </motion.div>
                 </motion.div>
               ))}
