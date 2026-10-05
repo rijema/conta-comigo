@@ -689,6 +689,22 @@ export class ActivitiesService {
     return Boolean(left?.some((value) => right?.includes(value)));
   }
 
+  /** Maps the child profile's free-text asdSupportLevel ('mild'/'moderate'/
+   * 'strong') to the 1-5 numeric scale expected by the ADE engine's
+   * teaSupportLevel preference (1=minimal support needed, 5=maximum). */
+  private mapAsdSupportLevelToNumeric(asdSupportLevel: string | undefined): number | undefined {
+    switch (asdSupportLevel) {
+      case 'mild':
+        return 2;
+      case 'moderate':
+        return 3;
+      case 'strong':
+        return 4;
+      default:
+        return undefined;
+    }
+  }
+
   private sameValues(left?: string[], right?: string[]): boolean {
     return JSON.stringify([...(left ?? [])].sort()) === JSON.stringify([...(right ?? [])].sort());
   }
@@ -1240,7 +1256,15 @@ export class ActivitiesService {
         isCorrect: attempt.isCorrect,
         timeSpentSeconds: attempt.timeSpentSeconds,
       })),
-      preferences: profile?.uiPreferences,
+      preferences: {
+        ...profile?.uiPreferences,
+        // [ADE year-fit bridge] yearLevelFit/teaSupportFit were already
+        // implemented and weighted in the ranking engine, but nothing ever
+        // passed the student's real schoolYear/asdSupportLevel through, so
+        // both factors were always neutral. Wire the real profile values in.
+        yearLevel: profile?.schoolYear || undefined,
+        teaSupportLevel: this.mapAsdSupportLevelToNumeric(profile?.asdSupportLevel),
+      },
       // Pass cycle context for skill-focus filtering
       skillFocus: cycleContext?.isActive ? cycleContext.skillFocus : undefined,
     });

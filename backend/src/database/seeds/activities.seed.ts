@@ -853,7 +853,60 @@ export async function ActivitiesSeed(dataSource: DataSource) {
     },
   });
 
-
+  // EF02MA04: Composição com blocos manipulativos (progressão - 2º ano, dezenas+unidades)
+  activities.push({
+    title: 'Jogo da Composição: Combine os Blocos para Formar 23!',
+    description: 'Combine barras de dezenas e unidades para formar o número 23',
+    type: 'composition_decomposition',
+    difficulty: 'medium',
+    bnccSkills: ['EF02MA04'],
+    targetModalities: ['visual', 'sensory', 'kinesthetic', 'logical'],
+    pointsReward: 30,
+    isActive: true,
+    isNew: true,
+    accessibility: { hasVisual: true, hasAudio: true, sensoryLoad: 'medium' },
+    content: {
+      instructionsPt: 'Junte barras de blocos para formar o número 23',
+      instructions: 'Combine rods of blocks to form the number 23',
+      spokenIntroduction: 'Agora os números são maiores! Veja: as barras roxas são barras de DEZENA, cada uma tem 10 blocos. As outras barras menores são UNIDADES. Combine barras de dezena e de unidade até chegar em 23!',
+      example: 'Duas barras roxas de dezena (10 + 10 = 20) mais a barra azul de 3 unidades: 20 + 3 = 23! Ou use a barra de 8 e a de 5 junto com uma dezena: 10 + 8 + 5 = 23.',
+      spokenHint: 'Conte os quadradinhos de cada barra: as roxas sempre têm 10. Arraste barras até a soma chegar em 23.',
+      timeLimit: 70,
+      pictogramConceptIds: ['arasaac.13186', 'arasaac.26968', 'arasaac.14098'],
+      bars: [
+        { id: 'bar1', color: '#FF6B6B', value: 1 },
+        { id: 'bar2', color: '#4ECDC4', value: 2 },
+        { id: 'bar3', color: '#45B7D1', value: 3 },
+        { id: 'bar4', color: '#FFA07A', value: 5 },
+        { id: 'bar5', color: '#FFD700', value: 6 },
+        { id: 'bar6', color: '#98D8C8', value: 8 },
+        { id: 'bar7', color: '#9B59B6', value: 10 },
+        { id: 'bar8', color: '#9B59B6', value: 10 },
+      ],
+      targetValue: 23,
+      // Each bar has a fixed value and can only be used once; the two
+      // value-10 bars represent interchangeable "dezena" rods (same color,
+      // reinforcing that any group of 10 looks the same). Frontend validates
+      // by sum; this list is kept for reference/documentation.
+      validCombinations: [
+        [10, 10, 3], [10, 8, 5], [10, 6, 5, 2], [8, 6, 5, 3, 1], [10, 10, 1, 2],
+      ],
+      validation: { kind: 'set', tolerance: 0 },
+      dragDropInstructions: 'Arraste as barras (cada barra já tem seu tamanho visual correto) para a área de resposta. As barras ROXAS valem 10 cada. Combine para que o total seja 23.',
+      dragDropInstructionsPt: 'Arraste as barras (cada barra já tem seu tamanho visual correto) para a área de resposta. As barras ROXAS valem 10 cada. Combine para que o total seja 23.',
+      spokenSteps: 'Passo 1: Escolha barras de dezena (roxas) e de unidade (coloridas menores). Passo 2: Coloque na área de resposta. Passo 3: O sistema conta o total: se for 23, você acertou! Passo 4: Você pode experimentar outras combinações!',
+      spokenSuccessFeedback: 'Excelente! Você compôs o número 23 usando dezenas e unidades! Parabéns, matemático!',
+      semantic: {
+        structureId: 'composition_decomposition.composition_23_bars_dezenas',
+        type: 'manipulative',
+        concept: 'composition_through_place_value_bar_combination',
+        learningGoal: 'understanding_number_composition_with_tens_and_units',
+        mathematicalConcepts: ['NumberConcept', 'AdditionConcept', 'CompositionConcept', 'PlaceValueConcept'],
+        representation: ['object_based', 'bar_model'],
+        interactionType: ['composition_building_flexible'],
+      },
+    },
+  });
 
   // EF01MA13: Figuras geométricas espaciais - Reconhecimento de objetos 3D
   activities.push({
@@ -1201,6 +1254,26 @@ export async function ActivitiesSeed(dataSource: DataSource) {
   });
 
   activities.push(...expandedActivityPools() as any[], ...interactiveFormatActivities() as any[]);
+
+  // [ADE year-fit bridge] The hybrid recommendation engine already computes a
+  // yearLevelFit score (weight 0.8) by reading content.targetYear/targetYearMin/
+  // targetYearMax, but no seed ever populated those fields, so the factor was
+  // always neutral (0.5) for every activity. Derive them here from the primary
+  // BNCC skill code (e.g. 'EF02MA04' -> year 2) so the engine can actually use
+  // this signal, without having to hand-edit every activity individually.
+  for (const activity of activities) {
+    const content = activity.content as Record<string, any> | undefined;
+    if (!content || content.targetYear != null || content.targetYearMin != null) continue;
+    const primarySkill: string | undefined = activity.bnccSkills?.[0];
+    const match = primarySkill?.match(/^EF0?(\d)MA/);
+    if (match) {
+      const derivedYear = parseInt(match[1], 10);
+      content.targetYear = derivedYear;
+      content.targetYearMin = derivedYear;
+      content.targetYearMax = derivedYear;
+    }
+  }
+
   // Use createQueryBuilder to avoid eager-loading corrupted relations
   const existingRecords = await repo.createQueryBuilder('activity')
     .select(['activity.id', 'activity.title', 'activity.content', 'activity.bnccSkills', 'activity.type', 'activity.isActive'])
@@ -1284,6 +1357,19 @@ export async function ActivitiesSeed(dataSource: DataSource) {
         existing.content = { ...existing.content, ...authoredCorrection };
         await repo.save(existing);
         authoredContentUpdated += 1;
+      }
+      // Additive-only sync of derived year-targeting metadata (used by the
+      // ADE hybrid recommendation engine's yearLevelFit scoring). Safe to
+      // backfill even on title-matched rows since it never overwrites
+      // existing authored content, only fills in a missing field.
+      if (activityContent.targetYear != null && existing.content?.targetYear == null) {
+        existing.content = {
+          ...existing.content,
+          targetYear: activityContent.targetYear,
+          targetYearMin: activityContent.targetYearMin,
+          targetYearMax: activityContent.targetYearMax,
+        };
+        await repo.save(existing);
       }
       continue;
     }
