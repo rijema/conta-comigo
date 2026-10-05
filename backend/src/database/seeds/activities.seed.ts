@@ -525,7 +525,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
     // ── PARAMETRIC FAMILIES: coverage-driven additions ─────────────────
     {
       title: 'Decomponha o número 7',
-      description: 'Separe 7 em duas partes usando barras de blocos',
+      description: 'Separe 7 blocos em duas partes puxando e soltando os blocos',
       type: 'composition_decomposition',
       difficulty: 'medium',
       bnccSkills: ['EF01MA07'],
@@ -537,18 +537,25 @@ export async function ActivitiesSeed(dataSource: DataSource) {
         instructionsPt: 'Veja 7 blocos. Separe em 2 grupos. Quantos em cada grupo?',
         instructions: 'Look at 7 blocks. Separate into 2 groups. How many in each group?',
         spokenIntroduction: 'Você tem 7 blocos amarelos. Precisa separá-los em duas pilhas de cores diferentes. Quantos blocos em cada pilha? Existem muitas respostas corretas!',
-        howToPlayPt: 'Veja a linha com 7 blocos amarelos. Arraste alguns blocos para uma pilha vermelha (à esquerda) e o resto para uma pilha azul (à direita). Qual é a composição? Por exemplo: 3 blocos vermelhos + 4 blocos azuis = 7. Ou 2 blocos vermelhos + 5 blocos azuis = 7. Você escolhe!',
-        howToPlay: 'Look at the line with 7 yellow blocks. Drag some blocks to a red pile (left) and the rest to a blue pile (right). What is the composition? For example: 3 red blocks + 4 blue blocks = 7. Or 2 red blocks + 5 blue blocks = 7. You choose!',
+        howToPlayPt: 'Veja a linha com 7 blocos amarelos (todos do mesmo tamanho). Arraste alguns blocos para a pilha VERMELHA (à esquerda) e o resto para a pilha AZUL (à direita). Qual é a composição? Por exemplo: 3 blocos na pilha vermelha + 4 na pilha azul = 7. Ou 2 blocos vermelhos + 5 azuis = 7. Você escolhe!',
+        howToPlay: 'Look at the line with 7 yellow blocks (all the same size). Drag some blocks to the RED pile (left) and the rest to the BLUE pile (right). What is the composition? For example: 3 blocks in red pile + 4 in blue pile = 7. Or 2 red + 5 blue = 7. You choose!',
         timeLimit: 45,
-        pictogramConceptIds: ['arasaac.13186', 'arasaac.26968', 'arasaac.14098'], // ordem, tamanho, construir
+        pictogramConceptIds: ['arasaac.13186', 'arasaac.26968', 'arasaac.14098'],
+        // Visual hints showing how blocks should look
+        visualPreview: {
+          availableBlocksLabel: 'Blocos Disponíveis (7 blocos amarelos)',
+          redPileLabel: 'Pilha Vermelha (seu grupo)',
+          bluePileLabel: 'Pilha Azul (resto)',
+          exampleCompositions: ['3 + 4', '2 + 5', '4 + 3', '1 + 6'],
+        },
         items: [
-          { id: 'block1', color: '#FFD700', size: 'medium', count: 1, value: 1 },
-          { id: 'block2', color: '#FFD700', size: 'medium', count: 1, value: 1 },
-          { id: 'block3', color: '#FFD700', size: 'medium', count: 1, value: 1 },
-          { id: 'block4', color: '#FFD700', size: 'medium', count: 1, value: 1 },
-          { id: 'block5', color: '#FFD700', size: 'medium', count: 1, value: 1 },
-          { id: 'block6', color: '#FFD700', size: 'medium', count: 1, value: 1 },
-          { id: 'block7', color: '#FFD700', size: 'medium', count: 1, value: 1 },
+          { id: 'block1', color: '#FFD700', width: 50, height: 50, borderRadius: 4, count: 1, value: 1, label: 'Bloco 1' },
+          { id: 'block2', color: '#FFD700', width: 50, height: 50, borderRadius: 4, count: 1, value: 1, label: 'Bloco 2' },
+          { id: 'block3', color: '#FFD700', width: 50, height: 50, borderRadius: 4, count: 1, value: 1, label: 'Bloco 3' },
+          { id: 'block4', color: '#FFD700', width: 50, height: 50, borderRadius: 4, count: 1, value: 1, label: 'Bloco 4' },
+          { id: 'block5', color: '#FFD700', width: 50, height: 50, borderRadius: 4, count: 1, value: 1, label: 'Bloco 5' },
+          { id: 'block6', color: '#FFD700', width: 50, height: 50, borderRadius: 4, count: 1, value: 1, label: 'Bloco 6' },
+          { id: 'block7', color: '#FFD700', width: 50, height: 50, borderRadius: 4, count: 1, value: 1, label: 'Bloco 7' },
         ],
         correctAnswers: [
           ['block1', 'block2', 'block3', 'block4', 'block5', 'block6', 'block7'], // 7+0
@@ -561,8 +568,8 @@ export async function ActivitiesSeed(dataSource: DataSource) {
           [], // 0+7
         ],
         validation: { kind: 'set', tolerance: 0 },
-        dragDropInstructions: 'Arraste blocos AMARELOS para o lado VERMELHO (esquerda) e o resto para o lado AZUL (direita).',
-        dragDropInstructionsPt: 'Arraste blocos AMARELOS para o lado VERMELHO (esquerda) e o resto para o lado AZUL (direita).',
+        dragDropInstructions: 'Arraste blocos AMARELOS para o lado VERMELHO (esquerda) e o resto para o lado AZUL (direita). Os blocos já estão renderizados com tamanho correto.',
+        dragDropInstructionsPt: 'Arraste blocos AMARELOS para o lado VERMELHO (esquerda) e o resto para o lado AZUL (direita). Os blocos já estão renderizados com tamanho correto.',
         spokenSteps: 'Passo 1: Pense em um número entre 0 e 7. Passo 2: Arraste esse número de blocos para o lado vermelho. Passo 3: Os blocos restantes vão para o lado azul. Passo 4: Conte quantos tem em cada lado e aprenda a composição!',
         spokenSuccessFeedback: 'Excelente! Você decompôs o número 7! Quantos blocos você colocou em cada lado? Essa é uma forma de decompor 7!',
         semantic: {
@@ -802,7 +809,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
   // EF01MA07: Composição com blocos manipulativos
   activities.push({
     title: 'Jogo da Composição: Combine os Blocos!',
-    description: 'Combine barras de blocos para formar o número alvo (8)',
+    description: 'Combine barras de blocos de diferentes tamanhos para formar 8',
     type: 'composition_decomposition',
     difficulty: 'medium',
     bnccSkills: ['EF01MA07'],
@@ -814,20 +821,35 @@ export async function ActivitiesSeed(dataSource: DataSource) {
     content: {
       instructionsPt: 'Junte barras de blocos para formar o número 8',
       instructions: 'Combine rods of blocks to form the number 8',
-      spokenIntroduction: 'Você tem barras de blocos de diferentes tamanhos. Cada barra representa um número. Você precisa combinar duas ou mais barras para fazer exatamente 8 blocos no total!',
-      howToPlayPt: 'Veja as barras de blocos (vermelho, azul, verde, etc). Cada barra tem um número diferente de blocos. Arraste as barras para a área de resposta. Combine para fazer 8 blocos. Por exemplo: barra vermelha (5 blocos) + barra azul (3 blocos) = 8. Ou barra verde (4 blocos) + barra amarela (4 blocos) = 8. Você pode encontrar várias soluções!',
-      howToPlay: 'Look at the block rods (red, blue, green, etc). Each rod has a different number of blocks. Drag the rods to the answer area. Combine to make 8 blocks. For example: red rod (5 blocks) + blue rod (3 blocks) = 8. Or green rod (4 blocks) + yellow rod (4 blocks) = 8. You can find multiple solutions!',
+      spokenIntroduction: 'Você tem barras de blocos de diferentes tamanhos. Veja: cada barra tem uma cor diferente e um tamanho diferente! A barra vermelha é pequena (1 bloco), a barra roxa é grande (8 blocos). Você precisa combinar barras para fazer exatamente 8 blocos no total!',
+      howToPlayPt: 'Veja as barras de blocos à esquerda. Cada barra tem um tamanho diferente e uma cor diferente. A barra VERMELHA tem 1 bloco. A barra AZUL tem 2 blocos. Até a barra ROXA com 8 blocos! Arraste as barras para a área de resposta (à direita). Combine para fazer 8 blocos no total. Por exemplo: barra LARANJA (5 blocos) + barra CIANO (3 blocos) = 8. Ou barra VERDE (4 blocos) + barra VERDE (4 blocos) = 8. Você pode encontrar várias soluções!',
+      howToPlay: 'Look at the block rods on the left. Each rod has a different size and a different color. The RED rod has 1 block. The BLUE rod has 2 blocks. Up to the PURPLE rod with 8 blocks! Drag the rods to the answer area (on the right). Combine to make 8 blocks total. For example: ORANGE rod (5 blocks) + CYAN rod (3 blocks) = 8. Or GREEN rod (4 blocks) + GREEN rod (4 blocks) = 8. You can find multiple solutions!',
       timeLimit: 60,
-      pictogramConceptIds: ['arasaac.13186', 'arasaac.26968', 'arasaac.14098'], // ordem, tamanho, construir
+      pictogramConceptIds: ['arasaac.13186', 'arasaac.26968', 'arasaac.14098'],
+      // Visual preview showing bar sizes
+      visualPreview: {
+        availableBarsLabel: 'Barras de Blocos (diferentes tamanhos)',
+        dropAreaLabel: 'Área de Resposta (Combine para 8)',
+        barSizeHints: [
+          'Barra Vermelha = 1 bloco',
+          'Barra Azul = 2 blocos',
+          'Barra Ciano = 3 blocos',
+          'Barra Verde = 4 blocos',
+          'Barra Laranja = 5 blocos',
+          'Barra Amarela = 6 blocos',
+          'Barra Menta = 7 blocos',
+          'Barra Roxa = 8 blocos (você pode usar sozinha!)',
+        ],
+      },
       bars: [
-        { id: 'bar1', color: '#FF6B6B', value: 1, label: 'Barra Vermelha (1)' },
-        { id: 'bar2', color: '#4ECDC4', value: 2, label: 'Barra Azul (2)' },
-        { id: 'bar3', color: '#45B7D1', value: 3, label: 'Barra Ciano (3)' },
-        { id: 'bar4', color: '#95E1D3', value: 4, label: 'Barra Verde (4)' },
-        { id: 'bar5', color: '#FFA07A', value: 5, label: 'Barra Laranja (5)' },
-        { id: 'bar6', color: '#FFD700', value: 6, label: 'Barra Amarela (6)' },
-        { id: 'bar7', color: '#98D8C8', value: 7, label: 'Barra Menta (7)' },
-        { id: 'bar8', color: '#9B59B6', value: 8, label: 'Barra Roxo (8)' },
+        { id: 'bar1', color: '#FF6B6B', value: 1, width: 20, height: 60, borderRadius: 4, label: 'Barra Vermelha (1)', title: '1 bloco' },
+        { id: 'bar2', color: '#4ECDC4', value: 2, width: 40, height: 60, borderRadius: 4, label: 'Barra Azul (2)', title: '2 blocos' },
+        { id: 'bar3', color: '#45B7D1', value: 3, width: 60, height: 60, borderRadius: 4, label: 'Barra Ciano (3)', title: '3 blocos' },
+        { id: 'bar4', color: '#95E1D3', value: 4, width: 80, height: 60, borderRadius: 4, label: 'Barra Verde (4)', title: '4 blocos' },
+        { id: 'bar5', color: '#FFA07A', value: 5, width: 100, height: 60, borderRadius: 4, label: 'Barra Laranja (5)', title: '5 blocos' },
+        { id: 'bar6', color: '#FFD700', value: 6, width: 120, height: 60, borderRadius: 4, label: 'Barra Amarela (6)', title: '6 blocos' },
+        { id: 'bar7', color: '#98D8C8', value: 7, width: 140, height: 60, borderRadius: 4, label: 'Barra Menta (7)', title: '7 blocos' },
+        { id: 'bar8', color: '#9B59B6', value: 8, width: 160, height: 60, borderRadius: 4, label: 'Barra Roxa (8)', title: '8 blocos - sozinha já funciona!' },
       ],
       targetValue: 8,
       validCombinations: [
@@ -836,10 +858,10 @@ export async function ActivitiesSeed(dataSource: DataSource) {
         [1, 2, 5], [1, 3, 4], [2, 2, 4], [2, 3, 3], [1, 1, 6], [1, 2, 2, 3], // three+ bars
       ],
       validation: { kind: 'set', tolerance: 0 },
-      dragDropInstructions: 'Arraste as barras (de qualquer cor) para a área de resposta. Combine para que o total seja 8.',
-      dragDropInstructionsPt: 'Arraste as barras (de qualquer cor) para a área de resposta. Combine para que o total seja 8.',
-      spokenSteps: 'Passo 1: Escolha uma barra. Leia o número (ex: 5 blocos). Passo 2: Escolha outra barra. Leia o número (ex: 3 blocos). Passo 3: Coloque na área de resposta. Passo 4: O sistema conta: 5 + 3 = 8. Parabéns! Você compôs 8!',
-      spokenSuccessFeedback: 'Excelente! Você compôs o número 8 corretamente! Parabéns, matemático!',
+      dragDropInstructions: 'Arraste as barras (cada barra já tem seu tamanho visual correto) para a área de resposta. Combine para que o total seja 8. As barras MAIORES têm MAIS blocos!',
+      dragDropInstructionsPt: 'Arraste as barras (cada barra já tem seu tamanho visual correto) para a área de resposta. Combine para que o total seja 8. As barras MAIORES têm MAIS blocos!',
+      spokenSteps: 'Passo 1: Escolha uma barra. Note o tamanho! Uma barra pequena tem poucos blocos, uma barra grande tem muitos blocos. Passo 2: Escolha outra barra. Passo 3: Coloque ambas na área de resposta. Passo 4: O sistema conta o total: se for 8, você acertou! Passo 5: Você pode experimentar outras combinações!',
+      spokenSuccessFeedback: 'Excelente! Você compôs o número 8 corretamente! As barras se combinaram perfeitamente! Parabéns, matemático!',
       semantic: {
         structureId: 'composition_decomposition.composition_8_bars',
         type: 'manipulative',
@@ -851,6 +873,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       },
     },
   });
+
 
 
   // EF01MA13: Figuras geométricas espaciais - Reconhecimento de objetos 3D
