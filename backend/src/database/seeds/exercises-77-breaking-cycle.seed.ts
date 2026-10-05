@@ -612,7 +612,7 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
 
   // 15. Ordering Two-Digit Numbers - "Ordene os números: 34, 12, 56, 23"
   exercises.push({
-    id: 'd5g0e3b2-9f4d-5e2g-0c8f-6b3d2e4f5g6b',
+    id: 'd5a0e3b2-9f4d-5e2a-0c8f-6b3d2e4f5a6b',
     title: 'Ordene os números!',
     description: 'Ordene números de 2 algarismos em ordem crescente.',
     type: 'drag_drop',

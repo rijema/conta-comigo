@@ -1180,7 +1180,11 @@ export async function ActivitiesSeed(dataSource: DataSource) {
   });
 
   activities.push(...expandedActivityPools() as any[], ...interactiveFormatActivities() as any[]);
-  const existingRecords = await repo.find({ select: ['id', 'title', 'content', 'bnccSkills'] });
+  // Use createQueryBuilder to avoid eager-loading corrupted relations
+  const existingRecords = await repo.createQueryBuilder('activity')
+    .select(['activity.id', 'activity.title', 'activity.content', 'activity.bnccSkills'])
+    .getMany()
+    .catch(() => []);
   const existingTitles = new Set(existingRecords.map((record: any) => record.title));
   const existingByTitle = new Map(existingRecords.map((record: any) => [record.title, record]));
   const existingByStructureId = new Map(existingRecords
