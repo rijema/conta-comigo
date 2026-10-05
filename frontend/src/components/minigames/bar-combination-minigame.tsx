@@ -23,6 +23,35 @@ interface BarItemData {
 
 const UNIT_SIZE = 22;
 const UNIT_GAP = 3;
+const GROUP_SIZE = 10;
+const GROUP_GAP = 10;
+
+/** Renders `count` unit squares, grouped visually every 10 (base-10 blocks
+ * convention) with wrapping, so quantities beyond a single row (dezenas,
+ * centenas) stay countable and legible instead of one giant flat strip. */
+function UnitSquares({ count, color }: { count: number; color?: string }) {
+  return (
+    <div className="flex flex-wrap items-center" style={{ maxWidth: UNIT_SIZE * GROUP_SIZE + UNIT_GAP * (GROUP_SIZE - 1) + 40 }}>
+      {Array.from({ length: count }, (_, unitIdx) => {
+        const isLastInGroup = (unitIdx + 1) % GROUP_SIZE === 0 && unitIdx !== count - 1;
+        return (
+          <span
+            key={unitIdx}
+            data-unit="true"
+            className="rounded-sm"
+            style={{
+              width: UNIT_SIZE,
+              height: UNIT_SIZE,
+              backgroundColor: color || '#45B7D1',
+              marginRight: isLastInGroup ? GROUP_GAP : UNIT_GAP,
+              marginBottom: UNIT_GAP,
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+}
 
 interface BarCombinationMinigameProps {
   skill: string;
@@ -42,16 +71,9 @@ function Bar({ bar, onAction, draggable }: { bar: BarItemData; onAction: () => v
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onAction(); } }}
       data-bar-id={bar.id}
-      className="cursor-pointer rounded-lg bg-white border-2 border-gray-200 p-2 flex items-center gap-[3px] transition-transform hover:scale-105"
+      className="cursor-pointer rounded-lg bg-white border-2 border-gray-200 p-2 flex items-center transition-transform hover:scale-105"
     >
-      {Array.from({ length: bar.value }, (_, unitIdx) => (
-        <span
-          key={unitIdx}
-          data-unit="true"
-          className="rounded-sm"
-          style={{ width: UNIT_SIZE, height: UNIT_SIZE, backgroundColor: bar.color || '#45B7D1', marginRight: unitIdx < bar.value - 1 ? UNIT_GAP : 0 }}
-        />
-      ))}
+      <UnitSquares count={bar.value} color={bar.color} />
     </div>
   );
 }
@@ -126,10 +148,8 @@ export const BarCombinationMinigame: React.FC<BarCombinationMinigameProps> = ({ 
       )}
 
       <div className="flex items-center justify-center gap-4">
-        <div className="flex items-center gap-1 rounded-xl bg-white p-3 shadow">
-          {Array.from({ length: targetValue }, (_, idx) => (
-            <span key={idx} className="rounded-sm bg-gray-200" style={{ width: UNIT_SIZE, height: UNIT_SIZE, marginRight: idx < targetValue - 1 ? UNIT_GAP : 0 }} />
-          ))}
+        <div className="rounded-xl bg-white p-3 shadow">
+          <UnitSquares count={targetValue} color="#E5E7EB" />
         </div>
       </div>
 
