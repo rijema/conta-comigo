@@ -43,6 +43,11 @@ const TUTORIALS: Partial<Record<Activity["type"], Array<{ conceptId: string; tex
     { conceptId: "activity.point", text: "Encontre o lugar pedido." },
     { conceptId: "activity.touch", text: "Toque nesse lugar para responder." },
   ],
+  composition_decomposition: [
+    { conceptId: "library.cube", text: "Veja os blocos de tamanhos diferentes." },
+    { conceptId: "activity.touch", text: "Arraste cada bloco até a pilha." },
+    { conceptId: "activity.complete", text: "Confirme quando todos os blocos estiverem na pilha." },
+  ],
 };
 
 function getTutorialSteps(activity: Activity) {

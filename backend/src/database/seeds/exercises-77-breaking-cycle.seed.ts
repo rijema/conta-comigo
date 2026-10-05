@@ -207,23 +207,11 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
     content: {
       instructions: 'Coloque os blocos na pilha. Do MAIOR para o MENOR!',
       instructionsPt: 'Coloque os blocos na pilha. Do MAIOR para o MENOR!',
-      spokenIntroduction: 'Vamos montar uma pilha com blocos de tamanhos MUITO diferentes! O bloco maior e mais LARGO vem primeiro, embaixo. Depois o bloco menor, no topo. Será como uma pirâmide!',
-      howToPlayPt: 'Veja os blocos à esquerda: cada um tem um tamanho DIFERENTE! O bloco VERMELHO é o MAIOR e o MAIS LARGO (120px). O bloco ROXO é o MENOR e o MAIS ESTREITO (20px). Você precisa colocar na ordem certa: do maior para o menor. Veja como os blocos já estão renderizados com seus tamanhos reais! Arraste cada bloco para a área de pilha, começando pelo VERMELHO (o maior) na base.',
-      howToPlay: 'Look at the blocks on the left: each one has a DIFFERENT size! The RED block is the BIGGEST and the WIDEST (120px). The PURPLE block is the SMALLEST and the NARROWEST (20px). You must place them in the correct order: from biggest to smallest. See how the blocks are already rendered with their actual sizes! Drag each block to the stack area, starting with RED (the biggest) at the base.',
+      spokenIntroduction: 'Vamos montar uma pilha com blocos de tamanhos MUITO diferentes! O bloco maior vem primeiro, embaixo. Depois o bloco menor, no topo. Será como uma pirâmide!',
+      example: 'Olhe os blocos: eles têm tamanhos diferentes. Comece arrastando o MAIOR para a pilha. Se você arrastar um bloco fora de ordem, ele volta sozinho — tente o próximo maior.',
+      spokenHint: 'Compare os blocos disponíveis e arraste sempre o maior deles primeiro.',
       timeLimit: 60,
       pictogramConceptIds: ['arasaac.26968', 'arasaac.13186', 'arasaac.14098'],
-      // Visual preview showing all blocks with their sizes
-      visualPreview: {
-        availableBlocksLabel: 'Blocos Disponíveis (Veja os tamanhos diferentes!)',
-        stackAreaLabel: 'Sua Pilha (Do MAIOR para o MENOR)',
-        sizeHints: [
-          'Bloco Vermelho (120px) = MAIOR',
-          'Bloco Azul (95px)',
-          'Bloco Ciano (70px)',
-          'Bloco Laranja (45px)',
-          'Bloco Roxo (20px) = MENOR',
-        ],
-      },
       items: [
         { id: 'block1', color: '#FF6B6B', size: 'xlarge' },
         { id: 'block2', color: '#4ECDC4', size: 'large' },
@@ -272,23 +260,11 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
     content: {
       instructions: 'Coloque os blocos na pilha. Do MENOR para o MAIOR!',
       instructionsPt: 'Coloque os blocos na pilha. Do MENOR para o MAIOR!',
-      spokenIntroduction: 'Agora vamos fazer o contrário! Desta vez, comece com o bloco PEQUENO e ESTREITO embaixo e coloque blocos cada vez MAIORES e MAIS LARGOS. Será como uma escada subindo!',
-      howToPlayPt: 'Veja os 5 blocos à esquerda: cada um tem um tamanho DIFERENTE! O bloco ROXO é o MENOR e MAIS ESTREITO (20px). O bloco VERMELHO é o MAIOR e MAIS LARGO (120px). Os blocos já estão renderizados com seus tamanhos visuais reais! Você precisa colocar na ordem crescente: do menor para o maior. Como uma escada subindo! Comece com o bloco roxo (o menor e mais estreito) na base.',
-      howToPlay: 'Look at the 5 blocks on the left: each one has a DIFFERENT size! The PURPLE block is the SMALLEST and NARROWEST (20px). The RED block is the BIGGEST and WIDEST (120px). The blocks are already rendered with their actual visual sizes! You must place them in growing order: from smallest to biggest. Like a staircase going up! Start with the purple block (the smallest and narrowest) at the base.',
+      spokenIntroduction: 'Agora vamos fazer o contrário! Desta vez, comece com o bloco pequeno embaixo e coloque blocos cada vez maiores. Será como uma escada subindo!',
+      example: 'Olhe os blocos: eles têm tamanhos diferentes. Comece arrastando o MENOR para a pilha. Se você arrastar um bloco fora de ordem, ele volta sozinho — tente o próximo menor.',
+      spokenHint: 'Compare os blocos disponíveis e arraste sempre o menor deles primeiro.',
       timeLimit: 60,
       pictogramConceptIds: ['arasaac.26968', 'arasaac.17629', 'arasaac.14098'],
-      // Visual preview showing all blocks with their sizes
-      visualPreview: {
-        availableBlocksLabel: 'Blocos Disponíveis (Veja os tamanhos diferentes!)',
-        stackAreaLabel: 'Sua Escada (Do MENOR para o MAIOR)',
-        sizeHints: [
-          'Bloco Roxo (20px) = MENOR - na base!',
-          'Bloco Laranja (45px)',
-          'Bloco Ciano (70px)',
-          'Bloco Azul (95px)',
-          'Bloco Vermelho (120px) = MAIOR - no topo!',
-        ],
-      },
       items: [
         { id: 'block1', color: '#9B59B6', size: 'xsmall' },
         { id: 'block2', color: '#FFA07A', size: 'small' },

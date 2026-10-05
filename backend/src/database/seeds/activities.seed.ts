@@ -537,17 +537,10 @@ export async function ActivitiesSeed(dataSource: DataSource) {
         instructionsPt: 'Veja 7 blocos. Separe em 2 grupos. Quantos em cada grupo?',
         instructions: 'Look at 7 blocks. Separate into 2 groups. How many in each group?',
         spokenIntroduction: 'Você tem 7 blocos amarelos. Precisa separá-los em duas pilhas de cores diferentes. Quantos blocos em cada pilha? Existem muitas respostas corretas!',
-        howToPlayPt: 'Veja a linha com 7 blocos amarelos (todos do mesmo tamanho). Arraste alguns blocos para a pilha VERMELHA (à esquerda) e o resto para a pilha AZUL (à direita). Qual é a composição? Por exemplo: 3 blocos na pilha vermelha + 4 na pilha azul = 7. Ou 2 blocos vermelhos + 5 azuis = 7. Você escolhe!',
-        howToPlay: 'Look at the line with 7 yellow blocks (all the same size). Drag some blocks to the RED pile (left) and the rest to the BLUE pile (right). What is the composition? For example: 3 blocks in red pile + 4 in blue pile = 7. Or 2 red + 5 blue = 7. You choose!',
+        example: 'Se você colocar 3 blocos no Grupo 1, sobram 4 para o Grupo 2. 3 + 4 = 7. Ou 2 no Grupo 1 e 5 no Grupo 2: 2 + 5 = 7. Qualquer divisão que use todos os blocos está certa!',
+        spokenHint: 'Arraste os blocos amarelos para o Grupo 1 ou para o Grupo 2, até não sobrar nenhum.',
         timeLimit: 45,
         pictogramConceptIds: ['arasaac.13186', 'arasaac.26968', 'arasaac.14098'],
-        // Visual hints showing how blocks should look
-        visualPreview: {
-          availableBlocksLabel: 'Blocos Disponíveis (7 blocos amarelos)',
-          redPileLabel: 'Pilha Vermelha (seu grupo)',
-          bluePileLabel: 'Pilha Azul (resto)',
-          exampleCompositions: ['3 + 4', '2 + 5', '4 + 3', '1 + 6'],
-        },
         items: [
           { id: 'block1', color: '#FFD700', size: 'medium' },
           { id: 'block2', color: '#FFD700', size: 'medium' },
@@ -822,25 +815,10 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       instructionsPt: 'Junte barras de blocos para formar o número 8',
       instructions: 'Combine rods of blocks to form the number 8',
       spokenIntroduction: 'Você tem barras de blocos de diferentes tamanhos. Veja: cada barra tem uma cor diferente e um tamanho diferente! A barra vermelha é pequena (1 bloco), a barra roxa é grande (8 blocos). Você precisa combinar barras para fazer exatamente 8 blocos no total!',
-      howToPlayPt: 'Veja as barras de blocos à esquerda. Cada barra tem um tamanho diferente e uma cor diferente. A barra VERMELHA tem 1 bloco. A barra AZUL tem 2 blocos. Até a barra ROXA com 8 blocos! Arraste as barras para a área de resposta (à direita). Combine para fazer 8 blocos no total. Por exemplo: barra LARANJA (5 blocos) + barra CIANO (3 blocos) = 8. Ou barra VERDE (4 blocos) + barra VERDE (4 blocos) = 8. Você pode encontrar várias soluções!',
-      howToPlay: 'Look at the block rods on the left. Each rod has a different size and a different color. The RED rod has 1 block. The BLUE rod has 2 blocks. Up to the PURPLE rod with 8 blocks! Drag the rods to the answer area (on the right). Combine to make 8 blocks total. For example: ORANGE rod (5 blocks) + CYAN rod (3 blocks) = 8. Or GREEN rod (4 blocks) + GREEN rod (4 blocks) = 8. You can find multiple solutions!',
+      example: 'A barra laranja tem 5 blocos e a barra ciano tem 3 blocos. Juntas: 5 + 3 = 8! Ou use só a barra roxa sozinha, que já tem 8.',
+      spokenHint: 'Conte os quadradinhos de cada barra. Arraste barras até a soma chegar em 8.',
       timeLimit: 60,
       pictogramConceptIds: ['arasaac.13186', 'arasaac.26968', 'arasaac.14098'],
-      // Visual preview showing bar sizes
-      visualPreview: {
-        availableBarsLabel: 'Barras de Blocos (diferentes tamanhos)',
-        dropAreaLabel: 'Área de Resposta (Combine para 8)',
-        barSizeHints: [
-          'Barra Vermelha = 1 bloco',
-          'Barra Azul = 2 blocos',
-          'Barra Ciano = 3 blocos',
-          'Barra Verde = 4 blocos',
-          'Barra Laranja = 5 blocos',
-          'Barra Amarela = 6 blocos',
-          'Barra Menta = 7 blocos',
-          'Barra Roxa = 8 blocos (você pode usar sozinha!)',
-        ],
-      },
       bars: [
         { id: 'bar1', color: '#FF6B6B', value: 1, size: 'xsmall' },
         { id: 'bar2', color: '#4ECDC4', value: 2, size: 'small' },
@@ -852,10 +830,11 @@ export async function ActivitiesSeed(dataSource: DataSource) {
         { id: 'bar8', color: '#9B59B6', value: 8, size: 'xxxxlarge' },
       ],
       targetValue: 8,
+      // Each bar has a unique value (1-8) and can only be used once, so only
+      // combinations of distinct values are reachable (frontend validates by
+      // sum, this list is kept for reference/documentation).
       validCombinations: [
-        [8], // bar8 alone
-        [1, 7], [2, 6], [3, 5], [4, 4], // two bars
-        [1, 2, 5], [1, 3, 4], [2, 2, 4], [2, 3, 3], [1, 1, 6], [1, 2, 2, 3], // three+ bars
+        [8], [1, 7], [2, 6], [3, 5], [1, 2, 5], [1, 3, 4],
       ],
       validation: { kind: 'set', tolerance: 0 },
       dragDropInstructions: 'Arraste as barras (cada barra já tem seu tamanho visual correto) para a área de resposta. Combine para que o total seja 8. As barras MAIORES têm MAIS blocos!',
