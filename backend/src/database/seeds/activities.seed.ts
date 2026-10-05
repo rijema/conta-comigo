@@ -525,55 +525,54 @@ export async function ActivitiesSeed(dataSource: DataSource) {
     // ── PARAMETRIC FAMILIES: coverage-driven additions ─────────────────
     {
       title: 'Decomponha o número 7',
-      description: 'Forme o todo a partir de duas partes',
+      description: 'Separe 7 em duas partes usando barras de blocos',
       type: 'composition_decomposition',
-      difficulty: 'easy',
+      difficulty: 'medium',
       bnccSkills: ['EF01MA07'],
-      targetModalities: ['visual', 'logical'],
-      pointsReward: 20,
+      targetModalities: ['visual', 'sensory', 'kinesthetic'],
+      pointsReward: 25,
       isActive: true,
-      accessibility: { hasVisual: true, sensoryLoad: 'low' },
+      accessibility: { hasVisual: true, sensoryLoad: 'medium', hasAudio: true },
       content: {
-        instructionsPt: 'O número 7 pode ser formado por 4 e quanto?',
-        instructions: 'The number 7 can be composed of 4 and what number?',
-        question: '7 = 4 + ?',
-        pictogramConceptIds: ['math.whole', 'math.part'],
-        options: [
-          { id: 'part-2', text: '2', value: '2', isCorrect: false },
-          { id: 'part-3', text: '3', value: '3', isCorrect: true },
-          { id: 'part-4', text: '4', value: '4', isCorrect: false },
+        instructionsPt: 'Veja 7 blocos. Separe em 2 grupos. Quantos em cada grupo?',
+        instructions: 'Look at 7 blocks. Separate into 2 groups. How many in each group?',
+        spokenIntroduction: 'Você tem 7 blocos amarelos. Precisa separá-los em duas pilhas de cores diferentes. Quantos blocos em cada pilha? Existem muitas respostas corretas!',
+        howToPlayPt: 'Veja a linha com 7 blocos amarelos. Arraste alguns blocos para uma pilha vermelha (à esquerda) e o resto para uma pilha azul (à direita). Qual é a composição? Por exemplo: 3 blocos vermelhos + 4 blocos azuis = 7. Ou 2 blocos vermelhos + 5 blocos azuis = 7. Você escolhe!',
+        howToPlay: 'Look at the line with 7 yellow blocks. Drag some blocks to a red pile (left) and the rest to a blue pile (right). What is the composition? For example: 3 red blocks + 4 blue blocks = 7. Or 2 red blocks + 5 blue blocks = 7. You choose!',
+        timeLimit: 45,
+        pictogramConceptIds: ['arasaac.13186', 'arasaac.26968', 'arasaac.14098'], // ordem, tamanho, construir
+        items: [
+          { id: 'block1', color: '#FFD700', size: 'medium', count: 1, value: 1 },
+          { id: 'block2', color: '#FFD700', size: 'medium', count: 1, value: 1 },
+          { id: 'block3', color: '#FFD700', size: 'medium', count: 1, value: 1 },
+          { id: 'block4', color: '#FFD700', size: 'medium', count: 1, value: 1 },
+          { id: 'block5', color: '#FFD700', size: 'medium', count: 1, value: 1 },
+          { id: 'block6', color: '#FFD700', size: 'medium', count: 1, value: 1 },
+          { id: 'block7', color: '#FFD700', size: 'medium', count: 1, value: 1 },
         ],
-        correctAnswer: '3',
-        validation: { kind: 'exact' },
-        scaffolding: {
-          hints: [
-            { textLabel: 'Comece com 4 partes e conte até 7.', pictogramConceptId: 'math.part' },
-          ],
-          workedExample: '5 = 2 + 3',
-          allowManipulatives: true,
-        },
+        correctAnswers: [
+          ['block1', 'block2', 'block3', 'block4', 'block5', 'block6', 'block7'], // 7+0
+          ['block1', 'block2', 'block3', 'block4', 'block5', 'block6'], // 6+1
+          ['block1', 'block2', 'block3', 'block4', 'block5'], // 5+2
+          ['block1', 'block2', 'block3', 'block4'], // 4+3
+          ['block1', 'block2', 'block3'], // 3+4
+          ['block1', 'block2'], // 2+5
+          ['block1'], // 1+6
+          [], // 0+7
+        ],
+        validation: { kind: 'set', tolerance: 0 },
+        dragDropInstructions: 'Arraste blocos AMARELOS para o lado VERMELHO (esquerda) e o resto para o lado AZUL (direita).',
+        dragDropInstructionsPt: 'Arraste blocos AMARELOS para o lado VERMELHO (esquerda) e o resto para o lado AZUL (direita).',
+        spokenSteps: 'Passo 1: Pense em um número entre 0 e 7. Passo 2: Arraste esse número de blocos para o lado vermelho. Passo 3: Os blocos restantes vão para o lado azul. Passo 4: Conte quantos tem em cada lado e aprenda a composição!',
+        spokenSuccessFeedback: 'Excelente! Você decompôs o número 7! Quantos blocos você colocou em cada lado? Essa é uma forma de decompor 7!',
         semantic: {
-          mathematicalConcepts: ['NumberConcept', 'AdditionConcept'],
-          conceptMappingStatus: 'MAPPED',
-          representation: ['object_based', 'pictorial', 'symbolic'],
-          interactionType: ['composition_building'],
-          difficultyProfile: {
-            conceptualComplexity: null,
-            numericalMagnitude: 7,
-            abstractionLevel: null,
-            stepCount: 2,
-            distractorSimilarity: null,
-            languageLoad: null,
-            motorDemand: 'LOW',
-            sensoryLoad: 'LOW',
-            scaffoldingLevel: 'OPTIONAL',
-          },
-          affordances: {
-            requiresDragging: false,
-            requiresReading: true,
-            usesAudio: false,
-            usesPictograms: true,
-          },
+          structureId: 'composition_decomposition.number_decomposition_7',
+          type: 'manipulative',
+          concept: 'understanding_number_composition_flexible',
+          learningGoal: 'understanding_flexible_part_part_whole',
+          mathematicalConcepts: ['NumberConcept', 'CompositionConcept', 'DecompositionConcept'],
+          representation: ['object_based', 'pictorial'],
+          interactionType: ['decomposition_exploration'],
         },
       },
     },
@@ -800,39 +799,59 @@ export async function ActivitiesSeed(dataSource: DataSource) {
 
   // ── BNCC COVERAGE: 12 New Exercises for Missing Skills ──────────────────
   
-  // EF01MA07: Composição e decomposição - Minigame interativo
+  // EF01MA07: Composição com blocos manipulativos
   activities.push({
-    title: 'Jogo da Composição: Monte o Número',
-    description: 'Componha números usando dois grupos de objetos',
+    title: 'Jogo da Composição: Combine os Blocos!',
+    description: 'Combine barras de blocos para formar o número alvo (8)',
     type: 'composition_decomposition',
     difficulty: 'medium',
     bnccSkills: ['EF01MA07'],
-    targetModalities: ['visual', 'sensory', 'logical'],
-    pointsReward: 25,
+    targetModalities: ['visual', 'sensory', 'kinesthetic', 'logical'],
+    pointsReward: 28,
     isActive: true,
     isNew: true,
     accessibility: { hasVisual: true, hasAudio: true, sensoryLoad: 'medium' },
     content: {
-      instructionsPt: 'Junte dois grupos de maçãs para formar o número 8',
-      instructions: 'Combine two groups of apples to form the number 8',
-      howToPlayPt: 'Você vê 5 maçãs vermelhas e 3 maçãs verdes. Junte-as! 5 + 3 = 8. Escolha a resposta certa.',
-      howToPlay: 'You see 5 red apples and 3 green apples. Combine them! 5 + 3 = 8. Choose the correct answer.',
-      pictogramConceptIds: ['arasaac.23189', 'arasaac.23189'],
-      items: [
-        { id: 'group1', label: '5 maçãs', count: 5, visual: 'apples:5' },
-        { id: 'group2', label: '3 maçãs', count: 3, visual: 'apples:3' },
+      instructionsPt: 'Junte barras de blocos para formar o número 8',
+      instructions: 'Combine rods of blocks to form the number 8',
+      spokenIntroduction: 'Você tem barras de blocos de diferentes tamanhos. Cada barra representa um número. Você precisa combinar duas ou mais barras para fazer exatamente 8 blocos no total!',
+      howToPlayPt: 'Veja as barras de blocos (vermelho, azul, verde, etc). Cada barra tem um número diferente de blocos. Arraste as barras para a área de resposta. Combine para fazer 8 blocos. Por exemplo: barra vermelha (5 blocos) + barra azul (3 blocos) = 8. Ou barra verde (4 blocos) + barra amarela (4 blocos) = 8. Você pode encontrar várias soluções!',
+      howToPlay: 'Look at the block rods (red, blue, green, etc). Each rod has a different number of blocks. Drag the rods to the answer area. Combine to make 8 blocks. For example: red rod (5 blocks) + blue rod (3 blocks) = 8. Or green rod (4 blocks) + yellow rod (4 blocks) = 8. You can find multiple solutions!',
+      timeLimit: 60,
+      pictogramConceptIds: ['arasaac.13186', 'arasaac.26968', 'arasaac.14098'], // ordem, tamanho, construir
+      bars: [
+        { id: 'bar1', color: '#FF6B6B', value: 1, label: 'Barra Vermelha (1)' },
+        { id: 'bar2', color: '#4ECDC4', value: 2, label: 'Barra Azul (2)' },
+        { id: 'bar3', color: '#45B7D1', value: 3, label: 'Barra Ciano (3)' },
+        { id: 'bar4', color: '#95E1D3', value: 4, label: 'Barra Verde (4)' },
+        { id: 'bar5', color: '#FFA07A', value: 5, label: 'Barra Laranja (5)' },
+        { id: 'bar6', color: '#FFD700', value: 6, label: 'Barra Amarela (6)' },
+        { id: 'bar7', color: '#98D8C8', value: 7, label: 'Barra Menta (7)' },
+        { id: 'bar8', color: '#9B59B6', value: 8, label: 'Barra Roxo (8)' },
       ],
-      options: [
-        { id: 'a', text: '7', isCorrect: false },
-        { id: 'b', text: '8', isCorrect: true },
-        { id: 'c', text: '9', isCorrect: false },
+      targetValue: 8,
+      validCombinations: [
+        [8], // bar8 alone
+        [1, 7], [2, 6], [3, 5], [4, 4], // two bars
+        [1, 2, 5], [1, 3, 4], [2, 2, 4], [2, 3, 3], [1, 1, 6], [1, 2, 2, 3], // three+ bars
       ],
-      correctAnswer: '8',
-      validation: { kind: 'exact' },
-      spokenIntroduction: 'Vamos compor números! Junte os grupos de maçãs.',
-      spokenSuccessFeedback: 'Parabéns! Você compôs o número 8 corretamente!',
+      validation: { kind: 'set', tolerance: 0 },
+      dragDropInstructions: 'Arraste as barras (de qualquer cor) para a área de resposta. Combine para que o total seja 8.',
+      dragDropInstructionsPt: 'Arraste as barras (de qualquer cor) para a área de resposta. Combine para que o total seja 8.',
+      spokenSteps: 'Passo 1: Escolha uma barra. Leia o número (ex: 5 blocos). Passo 2: Escolha outra barra. Leia o número (ex: 3 blocos). Passo 3: Coloque na área de resposta. Passo 4: O sistema conta: 5 + 3 = 8. Parabéns! Você compôs 8!',
+      spokenSuccessFeedback: 'Excelente! Você compôs o número 8 corretamente! Parabéns, matemático!',
+      semantic: {
+        structureId: 'composition_decomposition.composition_8_bars',
+        type: 'manipulative',
+        concept: 'composition_through_bar_combination',
+        learningGoal: 'understanding_number_composition_multiple_solutions',
+        mathematicalConcepts: ['NumberConcept', 'AdditionConcept', 'CompositionConcept'],
+        representation: ['object_based', 'bar_model'],
+        interactionType: ['composition_building_flexible'],
+      },
     },
   });
+
 
   // EF01MA13: Figuras geométricas espaciais - Reconhecimento de objetos 3D
   activities.push({
