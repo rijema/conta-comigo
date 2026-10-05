@@ -191,13 +191,13 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
   // BNCC Skills: EF01MA03 (Comparação), EF01MA06 (Composição/Decomposição)
   exercises.push({
     id: 'dea0c6b7-ec85-4814-a3c0-2bf3de49efa8',
-    title: 'Stacking Game - Monte 5 blocos!',
+    title: 'Pilha de Blocos - Do Maior para o Menor!',
     description:
-      'Monte blocos coloridos para aprender comparação. Sensorial!',
+      'Empilhe blocos em ordem decrescente de tamanho. Crie uma pirâmide!',
     type: 'composition_decomposition',
     difficulty: 'easy',
     bnccSkills: ['EF01MA03', 'EF01MA06'],
-    targetModalities: ['visual', 'sensory'],
+    targetModalities: ['visual', 'sensory', 'logical'],
     pointsReward: 18,
     skillWeights: [
       { code: 'EF01MA03', role: 'primary', weight: 0.5 },
@@ -205,26 +205,85 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
     ],
     isActive: true,
     content: {
-      instructions: 'Monte uma pilha com 5 blocos diferentes.',
-      instructionsPt: 'Monte uma pilha com 5 blocos diferentes.',
-      howToPlayPt: 'Veja os 5 blocos de cores diferentes. Arraste cada bloco para a pilha. Coloque todos os blocos empilhados.',
-      howToPlay: 'Look at the 5 blocks of different colors. Drag each block to the stack. Stack all the blocks.',
+      instructions: 'Coloque os blocos na pilha. Do MAIOR para o MENOR!',
+      instructionsPt: 'Coloque os blocos na pilha. Do MAIOR para o MENOR!',
+      spokenIntroduction: 'Vamos montar uma pilha com blocos de tamanhos diferentes! O bloco maior vem primeiro, embaixo. Depois o bloco menor, no topo.',
+      howToPlayPt: 'Veja os blocos: cada um tem um tamanho diferente. O bloco VERMELHO é o MAIOR. O bloco ROXO é o MENOR. Você precisa colocar na ordem certa: do maior para o menor. Como uma pirâmide! Arraste cada bloco para a área de pilha, começando pelo maior.',
+      howToPlay: 'Look at the blocks: each one has a different size. The RED block is the BIGGEST. The PURPLE block is the SMALLEST. You must place them in the correct order: from biggest to smallest. Like a pyramid! Drag each block to the stack area, starting with the biggest.',
       timeLimit: 60,
-      pictogramConceptIds: ['arasaac.17331'], // unicórnio (magic/building)
+      pictogramConceptIds: ['arasaac.26968', 'arasaac.13186', 'arasaac.14098'], // ARASAAC: tamanho, ordem, construir
       items: [
-        { id: 'block1', color: '#FF6B6B', size: 'large', label: 'Bloco Vermelho' },
-        { id: 'block2', color: '#4ECDC4', size: 'medium', label: 'Bloco Azul' },
-        { id: 'block3', color: '#45B7D1', size: 'large', label: 'Bloco Ciano' },
-        { id: 'block4', color: '#FFA07A', size: 'small', label: 'Bloco Laranja' },
-        { id: 'block5', color: '#98D8C8', size: 'medium', label: 'Bloco Menta' },
+        { id: 'block1', color: '#FF6B6B', size: 'xlarge', width: 120, height: 30, label: 'Bloco Vermelho GRANDE' },
+        { id: 'block2', color: '#4ECDC4', size: 'large', width: 95, height: 25, label: 'Bloco Azul' },
+        { id: 'block3', color: '#45B7D1', size: 'medium', width: 70, height: 20, label: 'Bloco Ciano' },
+        { id: 'block4', color: '#FFA07A', size: 'small', width: 45, height: 15, label: 'Bloco Laranja' },
+        { id: 'block5', color: '#9B59B6', size: 'xsmall', width: 20, height: 10, label: 'Bloco Roxo PEQUENO' },
       ],
-      correctAnswer: ['block1', 'block3', 'block2', 'block5', 'block4'],
+      correctAnswer: ['block1', 'block2', 'block3', 'block4', 'block5'],
       validation: { kind: 'sequence' },
+      spokenSteps: 'Passo 1: Encontre o bloco VERMELHO, o maior. Arraste para a pilha. Passo 2: Encontre o bloco AZUL, o segundo maior. Coloque em cima do vermelho. Passo 3: Coloque o bloco CIANO no meio. Passo 4: Coloque o bloco LARANJA. Passo 5: Coloque o bloco ROXO, o menor, no topo!',
+      spokenSuccessFeedback: 'Excelente! Você fez uma pilha perfeita! Do maior para o menor! Isso é uma pirâmide!',
+      dragDropInstructions: 'Arraste os blocos para criar a pilha. Comece com o MAIOR na base.',
+      dragDropInstructionsPt: 'Arraste os blocos para criar a pilha. Comece com o MAIOR na base.',
       semantic: {
-        structureId: 'composition_decomposition.stacking',
+        structureId: 'composition_decomposition.stacking_ordered',
         type: 'manipulative',
-        concept: 'composition_through_arrangement',
+        concept: 'composition_through_ordered_arrangement',
         difficulty: 'easy',
+        learningGoal: 'understanding_size_ordering_and_seriation',
+      },
+    },
+    accessibility: {
+      hasAudio: true,
+      hasVisual: true,
+      hasAnimation: true,
+      sensoryLoad: 'medium',
+    },
+  });
+
+  // 4b. Stacking (Ascending) - "Pilha Crescente"
+  exercises.push({
+    id: '8c2e4f9a-b3d1-4a5e-c6f2-7d8e9a1b2c3d',
+    title: 'Pilha Crescente - Do Menor para o Maior!',
+    description:
+      'Empilhe blocos em ordem crescente. Uma escada mágica!',
+    type: 'composition_decomposition',
+    difficulty: 'medium',
+    bnccSkills: ['EF01MA03', 'EF01MA06'],
+    targetModalities: ['visual', 'sensory', 'logical'],
+    pointsReward: 22,
+    skillWeights: [
+      { code: 'EF01MA03', role: 'primary', weight: 0.6 },
+      { code: 'EF01MA06', role: 'primary', weight: 0.4 },
+    ],
+    isActive: true,
+    content: {
+      instructions: 'Coloque os blocos na pilha. Do MENOR para o MAIOR!',
+      instructionsPt: 'Coloque os blocos na pilha. Do MENOR para o MAIOR!',
+      spokenIntroduction: 'Agora vamos fazer o contrário! Desta vez, comece com o bloco PEQUENO embaixo e coloque blocos cada vez MAIORES. Será como uma escada!',
+      howToPlayPt: 'Veja os 5 blocos: cada um tem um tamanho diferente. O bloco ROXO é o MENOR. O bloco VERMELHO é o MAIOR. Você precisa colocar na ordem crescente: do menor para o maior. Como uma escada subindo! Comece com o bloco roxo (o menor) na base.',
+      howToPlay: 'Look at the 5 blocks: each one has a different size. The PURPLE block is the SMALLEST. The RED block is the BIGGEST. You must place them in growing order: from smallest to biggest. Like a staircase going up! Start with the purple block (the smallest) at the base.',
+      timeLimit: 60,
+      pictogramConceptIds: ['arasaac.26968', 'arasaac.17629', 'arasaac.14098'], // ARASAAC: tamanho, crescer, construir
+      items: [
+        { id: 'block1', color: '#9B59B6', size: 'xsmall', width: 20, height: 10, label: 'Bloco Roxo PEQUENO' },
+        { id: 'block2', color: '#FFA07A', size: 'small', width: 45, height: 15, label: 'Bloco Laranja' },
+        { id: 'block3', color: '#45B7D1', size: 'medium', width: 70, height: 20, label: 'Bloco Ciano' },
+        { id: 'block4', color: '#4ECDC4', size: 'large', width: 95, height: 25, label: 'Bloco Azul' },
+        { id: 'block5', color: '#FF6B6B', size: 'xlarge', width: 120, height: 30, label: 'Bloco Vermelho GRANDE' },
+      ],
+      correctAnswer: ['block1', 'block2', 'block3', 'block4', 'block5'],
+      validation: { kind: 'sequence' },
+      spokenSteps: 'Passo 1: Encontre o bloco ROXO, o menor. Coloque na base. Passo 2: Encontre o bloco LARANJA. Coloque em cima. Passo 3: Coloque o bloco CIANO. Passo 4: Coloque o bloco AZUL. Passo 5: Coloque o bloco VERMELHO, o maior, no topo!',
+      spokenSuccessFeedback: 'Fantástico! Você fez uma escada perfeita! Do menor para o maior! A pilha está crescendo!',
+      dragDropInstructions: 'Arraste os blocos para criar a escada. Comece com o MENOR na base.',
+      dragDropInstructionsPt: 'Arraste os blocos para criar a escada. Comece com o MENOR na base.',
+      semantic: {
+        structureId: 'composition_decomposition.stacking_ascending',
+        type: 'manipulative',
+        concept: 'composition_through_ascending_arrangement',
+        difficulty: 'medium',
+        learningGoal: 'understanding_size_ordering_reverse_seriation',
       },
     },
     accessibility: {
@@ -236,7 +295,6 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
   });
 
 
-  // 5. Number Line - "Coloque na reta"
   exercises.push({
     id: '6a5c5819-e920-445f-bbfb-d9270e0d84af',
     title: 'Coloque na reta numérica!',
