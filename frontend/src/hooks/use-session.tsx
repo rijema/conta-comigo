@@ -89,6 +89,15 @@ export function useSession() {
     return interactionCountersRef.current;
   }, []);
 
+  // GAIA accessibility safeguard: lets the UI reset the attempt counter for
+  // the current activity after the child chooses "Tentar de novo" on the
+  // 5-attempts reveal-answer prompt, so retries don't instantly re-trigger it.
+  const resetAttempts = useCallback((activityId: string) => {
+    if (interactionCountersRef.current.activityId === activityId) {
+      interactionCountersRef.current.attempts = 0;
+    }
+  }, []);
+
   const logBlockChange = useCallback((
     label: string,
     payload: {
@@ -366,6 +375,10 @@ export function useSession() {
           firstInteractionMs: Math.max(0, counters.firstInteractionAt - (session?.activityStartTime ?? counters.firstInteractionAt)),
           totalTimeMs: payload.timeSpentMs,
           hintsUsed: counters.hints,
+          // GAIA: lets the backend reveal the correct answer after 5 failed
+          // attempts on the same activity instead of allowing indefinite,
+          // frustrating retries (gaia.wiki.br/visibilidade-do-estado-do-sistema/numeros-de-tentativas).
+          attemptNumber: counters.attempts,
           sessionId: session?.id,
           recommendationId: session?.currentRecommendationId ?? undefined,
           adeDecisionContext: session?.currentRecommendationId ? { decisionId: session.currentRecommendationId } : undefined,
@@ -459,6 +472,7 @@ export function useSession() {
     startSession,
     stopSession,
     submitAnswer,
+    resetAttempts,
     markActivityStarted,
     requestActivityHelp,
     requestHint,
