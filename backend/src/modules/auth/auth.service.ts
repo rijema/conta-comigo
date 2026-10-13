@@ -220,14 +220,29 @@ export class AuthService {
         password: await bcrypt.hash(randomUUID(), 12),
         role: UserRole.GUARDIAN,
       });
+      // Do NOT auto-grant LGPD consent here: the user has not seen or
+      // accepted the Consent Term yet. The frontend must block usage and
+      // present the term after this redirect, calling
+      // POST /users/:id/lgpd-consent once the user explicitly accepts.
       user = await this.usersService.attachExternalAuth(user.id, 'google', googleId);
-      await this.usersService.grantLgpdConsent(user.id);
     } else if (!user.externalAuthId) {
       user = await this.usersService.attachExternalAuth(user.id, 'google', googleId);
     }
 
     const tokens = await this.generateTokens(user.id, user.email, user.role);
     return { user: this.sanitizeUser(user), ...tokens };
+  }
+
+  // GET /auth/me needs the full user record (including lgpdConsentGiven)
+  // so the frontend can detect accounts that still need to accept the
+  // Consent Term (e.g. right after a Google OAuth signup). The JWT payload
+  // itself only carries {userId, email, role}, so we look the user up again.
+  async getProfile(userId: string) {
+    const user = await this.usersService.findById(userId);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    return this.sanitizeUser(user);
   }
 
   async createAutbotBridgeToken(userId: string, childId?: string) {
