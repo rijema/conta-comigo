@@ -1036,10 +1036,10 @@ export async function ActivitiesSeed(dataSource: DataSource) {
   activities.push({
     title: 'Divida os Biscoitos: 12 ÷ 3',
     description: 'Resolva problemas de divisão com resto zero',
-    type: 'drag_drop',
+    type: 'quiz',
     difficulty: 'medium',
     bnccSkills: ['EF03MA08'],
-    targetModalities: ['visual', 'sensory', 'logical'],
+    targetModalities: ['visual', 'logical'],
     pointsReward: 30,
     isActive: true,
     isNew: true,
@@ -1047,14 +1047,15 @@ export async function ActivitiesSeed(dataSource: DataSource) {
     content: {
       instructionsPt: 'Distribua 12 biscoitos em 3 pratos. Quantos biscoitos em cada prato?',
       instructions: 'Distribute 12 cookies into 3 plates. How many cookies on each plate?',
-      howToPlayPt: 'Veja 12 biscoitos. Coloque-os em 3 pratos iguais. 12 ÷ 3 = 4 biscoitos em cada prato.',
-      howToPlay: 'Look at 12 cookies. Put them on 3 equal plates. 12 ÷ 3 = 4 cookies on each plate.',
+      howToPlayPt: 'Veja 12 biscoitos. Imagine 3 pratos iguais. 12 ÷ 3 = 4 biscoitos em cada prato.',
+      howToPlay: 'Look at 12 cookies. Imagine 3 equal plates. 12 ÷ 3 = 4 cookies on each plate.',
       pictogramConceptIds: ['arasaac.17333'],
-      items: [
-        { id: 'cookie1', label: 'Biscoito 1' },
-        { id: 'cookie2', label: 'Biscoito 2' },
-        { id: 'cookie3', label: 'Biscoito 3' },
-        { id: 'cookie4', label: 'Biscoito 4' },
+      // 12 cookies shown as a group visual (matches the real total in the
+      // problem) — previously only 4 items were listed, which both misled
+      // the visual count and immediately gave away the answer via the
+      // drag-and-drop basket's "0/4" progress counter.
+      visualGroups: [
+        { label: '12 biscoitos', pictogramConceptIds: Array(12).fill('arasaac.17333') },
       ],
       options: [
         { id: 'a', text: '3', isCorrect: false },
@@ -1145,7 +1146,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       instructions: 'How many squares are in a 5 × 6 grid?',
       howToPlayPt: 'Veja a malha: 5 linhas e 6 colunas. Conte: 5 × 6 = 30 quadrados. Escolha a resposta certa.',
       howToPlay: 'Look at the grid: 5 rows and 6 columns. Count: 5 × 6 = 30 squares. Choose the correct answer.',
-      pictogramConceptIds: ['arasaac.23190'],
+      pictogramConceptIds: ['library.grid'],
       items: [
         { id: 'grid', label: 'Malha 5 × 6', visual: 'grid:5x6' },
       ],
@@ -1237,7 +1238,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       instructions: 'What is 50% of 100 coins?',
       howToPlayPt: 'Veja 100 moedas. 50% significa metade. Metade de 100 é 50. Escolha a resposta certa.',
       howToPlay: 'Look at 100 coins. 50% means half. Half of 100 is 50. Choose the correct answer.',
-      pictogramConceptIds: ['arasaac.16590'],
+      pictogramConceptIds: ['library.coin'],
       items: [
         { id: 'coins', label: '100 moedas', count: 100 },
       ],
