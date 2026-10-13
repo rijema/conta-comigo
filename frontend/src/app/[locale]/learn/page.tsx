@@ -131,10 +131,14 @@ function playTap(volume: number) { playTone(620, 0.07, "sine", 0.12 * volume); }
 
 function LearnPageInner() {
   const { user, isLoading: authLoading } = useAuth();
-  const { session, startSession, stopSession, submitAnswer, markActivityStarted, requestActivityHelp, requestHint, abandonCurrentActivity, recordFirstInteraction, changeCurrentActivity, isChangingActivity, isLoading: sessionLoading, error: sessionError } = useSession();
+  const { session, startSession, stopSession, submitAnswer, resetAttempts, markActivityStarted, requestActivityHelp, requestHint, abandonCurrentActivity, recordFirstInteraction, changeCurrentActivity, isChangingActivity, isLoading: sessionLoading, error: sessionError } = useSession();
   const [showReward, setShowReward] = useState(false);
   const [showAutoHint, setShowAutoHint] = useState(false);
   const [rewardWrong, setRewardWrong] = useState(false);
+  // GAIA accessibility safeguard: after 5 failed attempts on the same
+  // activity, the backend reveals the correct answer instead of letting the
+  // child retry indefinitely (gaia.wiki.br/visibilidade-do-estado-do-sistema/numeros-de-tentativas).
+  const [answerReveal, setAnswerReveal] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const [bgIdx, setBgIdx] = useState(0);
@@ -173,6 +177,7 @@ function LearnPageInner() {
   /* rotate background on each new activity */
   useEffect(() => {
     if (session?.currentActivity) {
+      setAnswerReveal(null);
       if (settings.predictability !== 'high' && settings.visualStimulus !== 'low') setBgIdx((i) => (i + 1) % BG_THEMES.length);
       markActivityStarted(session.currentActivity.id);
       
@@ -234,8 +239,23 @@ function LearnPageInner() {
       );
       if (settings.feedbackVisual !== 'minimal' && settings.predictability !== 'high' && !settings.lowStimulationMode && !settings.animationsReduced) setRewardWrong(true);
       setTimeout(() => setRewardWrong(false), feedbackDuration);
+      if (result.feedback?.correctAnswerReveal) {
+        setAnswerReveal(String(result.feedback.correctAnswerReveal));
+      }
     }
   }, [session, settings, effectVolume, feedbackDuration, speech, submitAnswer]);
+
+  const handleTryAgainAfterReveal = () => {
+    if (session?.currentActivity?.id) resetAttempts(session.currentActivity.id);
+    setAnswerReveal(null);
+  };
+
+  const handleSkipAfterReveal = async () => {
+    setAnswerReveal(null);
+    if (settings.allowChangeActivity) {
+      await changeCurrentActivity();
+    }
+  };
 
   const handleGoToMenu = () => {
     if (settings.soundEnabled && settings.soundEffectsEnabled) playTap(effectVolume);
@@ -377,6 +397,34 @@ function LearnPageInner() {
         </div>
       )}
 
+      {/* GAIA accessibility safeguard: after 5 failed attempts in a row, offer
+          the correct answer plus an explicit choice to retry or move on,
+          instead of letting the child get stuck repeating the same error
+          (gaia.wiki.br/visibilidade-do-estado-do-sistema/numeros-de-tentativas). */}
+      {answerReveal && (
+        <div role="dialog" aria-modal="true" aria-labelledby="answer-reveal-title" className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm">
+          <section className="w-full max-w-md rounded-[2rem] border-4 border-sky-200 bg-white p-6 text-center shadow-2xl">
+            <h2 id="answer-reveal-title" className="text-xl font-black text-sky-800">Vamos ver juntos?</h2>
+            <p className="mt-2 text-sm font-semibold text-slate-600">
+              Você tentou bastante! Essa é a resposta certa:
+            </p>
+            <p className="mt-3 rounded-2xl border-2 border-sky-200 bg-sky-50 p-4 text-2xl font-extrabold text-sky-800">
+              {answerReveal}
+            </p>
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+              <button type="button" onClick={handleTryAgainAfterReveal}
+                className="min-h-14 flex-1 rounded-2xl border-2 border-slate-200 px-4 py-3 text-base font-bold text-slate-700 hover:bg-slate-100">
+                Tentar de novo
+              </button>
+              <button type="button" onClick={() => void handleSkipAfterReveal()}
+                className="min-h-14 flex-1 rounded-2xl bg-sky-600 px-4 py-3 text-base font-bold text-white hover:bg-sky-700">
+                Ir para a próxima
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
       <style>{`
         @keyframes bounceIn { 0%{transform:scale(0.3);opacity:0} 60%{transform:scale(1.2)} 100%{transform:scale(1);opacity:1} }
         @keyframes fadeInUp { 0%{transform:translateY(20px);opacity:0} 100%{transform:translateY(0);opacity:1} }
@@ -404,17 +452,37 @@ function LearnPageInner() {
             <span>Mapa</span>
           </button>
 
-          {/* Progress pill */}
+          {/* TEACCH-style visual schedule: discrete steps (not just a %) let the
+              child see exactly what's done and what's left in this round of
+              10 activities, independently and without asking an adult —
+              "visual schedules" + "individual work system" pillars of
+              Structured TEACCHing (teacch.com). */}
           <div className="flex-1 max-w-xs">
-            <div className="w-full h-4 bg-white/60 rounded-full overflow-hidden border-2 border-white shadow-inner">
-              <div
-                className="h-full rounded-full transition-all duration-700 relative overflow-hidden"
-                style={{ width: `${Math.max(progress, 4)}%`, background: "linear-gradient(90deg,#818cf8,#ec4899,#f59e0b,#34d399)" }}
-              >
-                <div className="absolute inset-0 bg-white/20 animate-pulse" />
-              </div>
+            <div
+              role="img"
+              aria-label={`Progresso: ${Math.floor(progress / 10)} de 10 atividades concluídas nesta rodada`}
+              className="flex items-center justify-between gap-1"
+            >
+              {Array.from({ length: 10 }, (_, i) => {
+                const stepDone = i < Math.floor(progress / 10);
+                const isCurrent = i === Math.floor(progress / 10) && progress < 100;
+                return (
+                  <span
+                    key={i}
+                    className={`h-4 w-4 flex-1 rounded-full border-2 transition-all duration-500 ${
+                      stepDone
+                        ? "border-emerald-400 bg-emerald-400"
+                        : isCurrent
+                          ? "border-indigo-500 bg-indigo-200 animate-pulse"
+                          : "border-slate-200 bg-white/60"
+                    }`}
+                  />
+                );
+              })}
             </div>
-            <p className="mt-0.5 text-center text-xs font-bold text-slate-500">Progresso {progress}%</p>
+            <p className="mt-0.5 text-center text-xs font-bold text-slate-500">
+              Atividade {Math.min(Math.floor(progress / 10) + 1, 10)} de 10
+            </p>
           </div>
 
           <div className="flex items-center gap-2">
