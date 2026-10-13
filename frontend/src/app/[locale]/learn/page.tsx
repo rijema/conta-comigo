@@ -139,6 +139,10 @@ function LearnPageInner() {
   // activity, the backend reveals the correct answer instead of letting the
   // child retry indefinitely (gaia.wiki.br/visibilidade-do-estado-do-sistema/numeros-de-tentativas).
   const [answerReveal, setAnswerReveal] = useState<string | null>(null);
+  // GAIA accessibility safeguard (gaia.wiki.br/visibilidade-do-estado-do-sistema/reverter-acoes):
+  // critical/irreversible actions must be confirmable, not instant — exiting
+  // mid-activity loses progress on the current item, so require a confirm step.
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const [bgIdx, setBgIdx] = useState(0);
@@ -259,6 +263,11 @@ function LearnPageInner() {
 
   const handleGoToMenu = () => {
     if (settings.soundEnabled && settings.soundEffectsEnabled) playTap(effectVolume);
+    setShowExitConfirm(true);
+  };
+
+  const confirmExitToMenu = () => {
+    setShowExitConfirm(false);
     abandonCurrentActivity();
     stopSession();
     router.push(`/${locale}/learn/menu`);
@@ -401,6 +410,31 @@ function LearnPageInner() {
           the correct answer plus an explicit choice to retry or move on,
           instead of letting the child get stuck repeating the same error
           (gaia.wiki.br/visibilidade-do-estado-do-sistema/numeros-de-tentativas). */}
+      {/* GAIA accessibility safeguard: exiting mid-activity is an irreversible
+          action (loses current progress), so require an explicit confirm step
+          instead of leaving instantly on a single tap
+          (gaia.wiki.br/visibilidade-do-estado-do-sistema/reverter-acoes). */}
+      {showExitConfirm && (
+        <div role="dialog" aria-modal="true" aria-labelledby="exit-confirm-title" className="fixed inset-0 z-[95] flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm">
+          <section className="w-full max-w-md rounded-[2rem] border-4 border-purple-200 bg-white p-6 text-center shadow-2xl">
+            <h2 id="exit-confirm-title" className="text-xl font-black text-purple-800">Sair da atividade?</h2>
+            <p className="mt-2 text-sm font-semibold text-slate-600">
+              Você vai perder o que estava fazendo aqui. Tem certeza que quer voltar para o mapa?
+            </p>
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+              <button type="button" onClick={() => setShowExitConfirm(false)}
+                className="min-h-14 flex-1 rounded-2xl border-2 border-slate-200 px-4 py-3 text-base font-bold text-slate-700 hover:bg-slate-100">
+                Continuar aqui
+              </button>
+              <button type="button" onClick={confirmExitToMenu}
+                className="min-h-14 flex-1 rounded-2xl bg-purple-600 px-4 py-3 text-base font-bold text-white hover:bg-purple-700">
+                Sim, sair
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
       {answerReveal && (
         <div role="dialog" aria-modal="true" aria-labelledby="answer-reveal-title" className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm">
           <section className="w-full max-w-md rounded-[2rem] border-4 border-sky-200 bg-white p-6 text-center shadow-2xl">
