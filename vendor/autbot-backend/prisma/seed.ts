@@ -17,17 +17,6 @@ async function main() {
 
   console.log('Banco limpo.');
 
-  //  Criar Perguntas Frequentes
-  await prisma.frequentQuestion.createMany({
-    data: [
-      { question: "Como resetar minha senha?", count: 45 },
-      { question: "O que é o autismo nível 1?", count: 120 },
-      { question: "Como cadastrar um aluno?", count: 30 },
-      { question: "O bot funciona offline?", count: 15 },
-      { question: "Contato do suporte", count: 80 },
-    ]
-  });
-
   // Criar Usuários (50 usuários variados)
   const userTypes = [
     UserType.PROFESSOR, 
