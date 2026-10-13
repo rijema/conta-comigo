@@ -1,31 +1,8 @@
 "use client";
 
-import { useState } from "react";
-
-interface Props {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-export function ConsentModal({ isOpen, onClose }: Props) {
-  if (!isOpen) return null;
-
+export function ConsentTermContent() {
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/55 p-3 backdrop-blur-sm">
-      <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white p-8 shadow-2xl">
-        <button
-          onClick={onClose}
-          className="absolute right-4 top-4 text-2xl text-slate-500 hover:text-slate-700"
-          aria-label="Fechar"
-        >
-          ×
-        </button>
-
-        <h1 className="mb-6 text-3xl font-black text-slate-900">
-          Termo de Consentimento e Política de Privacidade
-        </h1>
-
-        <div className="space-y-6 text-sm text-slate-700">
+    <div className="space-y-6 text-sm text-slate-700">
           {/* INTRODUÇÃO */}
           <section>
             <h2 className="mb-2 text-lg font-bold text-slate-900">1. Introdução</h2>
@@ -239,7 +216,34 @@ export function ConsentModal({ isOpen, onClose }: Props) {
               enviando um aviso para seu e-mail registrado.
             </p>
           </section>
-        </div>
+    </div>
+  );
+}
+
+interface Props {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export function ConsentModal({ isOpen, onClose }: Props) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/55 p-3 backdrop-blur-sm">
+      <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white p-8 shadow-2xl">
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 text-2xl text-slate-500 hover:text-slate-700"
+          aria-label="Fechar"
+        >
+          ×
+        </button>
+
+        <h1 className="mb-6 text-3xl font-black text-slate-900">
+          Termo de Consentimento e Política de Privacidade
+        </h1>
+
+        <ConsentTermContent />
 
         <div className="mt-6 flex gap-3">
           <button

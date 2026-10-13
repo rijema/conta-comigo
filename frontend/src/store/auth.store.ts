@@ -11,6 +11,7 @@ export interface AuthUser {
   role: UserRole;
   learnerId?: string; // for child role
   guardianChildren?: Array<{ id: string; name: string }>;
+  lgpdConsentGiven?: boolean;
 }
 
 interface AuthState {

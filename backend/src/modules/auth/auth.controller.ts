@@ -43,7 +43,7 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current user profile' })
   async getProfile(@CurrentUser() user: any) {
-    return user;
+    return this.authService.getProfile(user.userId);
   }
 
   @Get('google/start')
