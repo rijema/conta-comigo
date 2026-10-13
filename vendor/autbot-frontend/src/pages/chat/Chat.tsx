@@ -468,8 +468,17 @@ const Chat = () => {
 
         <div className="main-chat">
           <section className="chat-header" aria-label="Seção de chat">
-            <h1 className="sr-only">TitiA - Chat</h1>
-            {currentView === "chat" ? <div>Nova conversa</div> : <div>Histórico de Conversas</div>}
+            <div className="chat-header-left">
+              <img 
+                src="/assets/mainiconfirstpage.png" 
+                alt="TitiA" 
+                className="chat-header-logo"
+              />
+              <h1>{assistantName || "TitiA"}</h1>
+            </div>
+            <div className="chat-header-right">
+              {currentView === "chat" ? <div>Nova conversa</div> : <div>Histórico de Conversas</div>}
+            </div>
           </section>
 
           <main className="chat-body">
