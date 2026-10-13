@@ -158,6 +158,14 @@ const definitions: PictogramDefinition[] = [
   // uncurated-ID fallback and displayed the literal placeholder label
   // "pictograma ARASAAC" on screen instead of a real description.
   definition('arasaac.23190', "MATHEMATICS", "números", "🔢", 23190),
+  // Directional/position concepts used to enrich answer options for
+  // spatial-position exercises (e.g. "esquerda"/"direita"/"em cima").
+  definition('library.left', "LEARNING_LIBRARY", "esquerda", "⬅️"),
+  definition('library.right', "LEARNING_LIBRARY", "direita", "➡️"),
+  definition('library.up', "LEARNING_LIBRARY", "em cima", "⬆️"),
+  definition('library.down', "LEARNING_LIBRARY", "embaixo", "⬇️"),
+  definition('library.sun', "LEARNING_LIBRARY", "sol", "☀️"),
+  definition('library.moon', "LEARNING_LIBRARY", "lua", "🌙"),
 ];
 
 export class PictogramRegistry {
