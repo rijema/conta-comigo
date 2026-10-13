@@ -148,11 +148,31 @@ const definitions: PictogramDefinition[] = [
   definition('shape.circle', "MATHEMATICS", "círculo", "⭕", 4603),
   definition('shape.square', "MATHEMATICS", "quadrado", "⬜", 4616),
   definition('shape.triangle', "MATHEMATICS", "triângulo", "🔺"),
+  // Pictograms authored for specific exercises below (symbol-only fallback;
+  // no arasaacId since we can't verify numeric IDs without the live catalog,
+  // and showing the wrong image would be worse than a clear emoji fallback).
+  definition('library.coin', "LEARNING_LIBRARY", "moeda", "🪙"),
+  definition('library.grid', "LEARNING_LIBRARY", "malha quadriculada", "▦"),
+  // arasaac.23190 is reused across ~14 seed exercises as a generic "números"
+  // support icon. Without this curated entry it fell through to the
+  // uncurated-ID fallback and displayed the literal placeholder label
+  // "pictograma ARASAAC" on screen instead of a real description.
+  definition('arasaac.23190', "MATHEMATICS", "números", "🔢", 23190),
 ];
 
 export class PictogramRegistry {
   private readonly entries = new Map(definitions.map((entry) => [entry.conceptId, entry]));
   get(conceptId: string): PictogramDefinition | null {
+    // IMPORTANT: check curated entries FIRST. Previously the `arasaac.N` /
+    // pure-digit regex checks ran before this lookup, so ANY curated
+    // definition using an `arasaac.NNNN` conceptId (girassol, onda, planta,
+    // alvo, régua, etc. — dozens of entries above) was unreachable and
+    // ALWAYS fell back to the generic "pictograma ARASAAC" placeholder
+    // label/symbol, regardless of having a real curated label. This made
+    // real pictograms silently show the literal text "pictograma ARASAAC"
+    // instead of their actual Portuguese label across many exercises.
+    const curated = this.entries.get(conceptId as PictogramConcept);
+    if (curated) return curated;
     if (/^\d+$/.test(String(conceptId).trim())) {
       const arasaacId = Number(conceptId);
       return definition(`arasaac.${arasaacId}` as PictogramConcept, 'LEARNING_LIBRARY', 'pictograma ARASAAC', '□', arasaacId);
@@ -161,7 +181,7 @@ export class PictogramRegistry {
       const arasaacId = Number(conceptId.slice('arasaac.'.length));
       return definition(conceptId as PictogramConcept, 'LEARNING_LIBRARY', 'pictograma ARASAAC', '□', arasaacId);
     }
-    return this.entries.get(conceptId as PictogramConcept) ?? null;
+    return null;
   }
   getImageUrl(conceptId: string, size = 500): string | null {
     const entry = this.get(conceptId);
