@@ -145,8 +145,18 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
           </div>
 
           <div className="flex-1 overflow-y-auto pr-2">
-            {success && <p role="status" className="mb-4 rounded-xl bg-emerald-50 p-3 text-sm font-semibold text-emerald-800">{success}</p>}
-            {error && <p role="alert" className="mb-4 rounded-xl bg-red-50 p-3 text-sm font-semibold text-red-700">{error}</p>}
+            {success && (
+              <div role="status" className="mb-4 rounded-xl bg-emerald-50 border-l-4 border-emerald-500 p-4">
+                <p className="font-semibold text-emerald-900">✓ Sucesso!</p>
+                <p className="text-sm text-emerald-800 mt-1">{success}</p>
+              </div>
+            )}
+            {error && (
+              <div role="alert" className="mb-4 rounded-xl bg-red-50 border-l-4 border-red-500 p-4">
+                <p className="font-semibold text-red-900">⚠️ Erro</p>
+                <p className="text-sm text-red-800 mt-1">{error}</p>
+              </div>
+            )}
 
           {view === "login" ? (
             <form onSubmit={submitLogin} className="space-y-4">
@@ -208,7 +218,48 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
               {step === 1 ? <>
                 <Field label="Seu nome"><input className={fieldClass} required value={form.name} onChange={(e) => update("name", e.target.value)} /></Field>
                 <Field label="E-mail"><input type="email" autoComplete="email" className={fieldClass} required value={form.email} onChange={(e) => update("email", e.target.value)} /></Field>
-                <Field label="Senha (mínimo de 8 caracteres)"><input type="password" minLength={8} autoComplete="new-password" className={fieldClass} required value={form.password} onChange={(e) => update("password", e.target.value)} /></Field>
+               <Field label="Senha (mínimo de 8 caracteres)">
+                <div className="space-y-2">
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      minLength={8}
+                      autoComplete="new-password"
+                      className={`${fieldClass} pr-12`}
+                      required
+                      value={form.password}
+                      onChange={(e) => update("password", e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((current) => !current)}
+                      aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-700 hover:text-violet-700"
+                    >
+                      {showPassword ? "Ocultar" : "Mostrar"}
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="flex-1 bg-slate-200 rounded-full h-1.5 mr-2 overflow-hidden">
+                      <div
+                        className={`h-full transition-all ${
+                          form.password.length === 0 ? 'bg-slate-300' :
+                          form.password.length < 8 ? 'bg-red-500' :
+                          form.password.length < 12 ? 'bg-yellow-500' :
+                          'bg-green-500'
+                        }`}
+                        style={{ width: `${Math.min((form.password.length / 16) * 100, 100)}%` }}
+                      />
+                    </div>
+                    {form.password.length < 8 && (
+                      <span className="text-red-600 font-semibold">{8 - form.password.length} caracteres faltam</span>
+                    )}
+                    {form.password.length >= 8 && (
+                      <span className="text-green-600 font-semibold">✓ OK</span>
+                    )}
+                  </div>
+                </div>
+              </Field>
                 <fieldset><legend className="mb-2 font-semibold text-slate-700">Eu sou</legend><div className="grid grid-cols-2 gap-2">
                   {[{ value: "guardian", label: "Responsável" }, { value: "professional", label: "Educador" }].map(({ value, label }) =>
                     <button key={value} type="button" aria-pressed={form.role === value} onClick={() => update("role", value)}
