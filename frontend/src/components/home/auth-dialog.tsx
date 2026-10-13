@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useModalFocus } from "@/hooks/use-modal-focus";
 import { authService } from "@/lib/auth";
+import { ConsentModal } from "@/components/lgpd/consent-modal";
 
 export type AuthView = "login" | "register";
 
@@ -33,6 +34,7 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [consentModalOpen, setConsentModalOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const requiresChildProfile = form.role === "guardian";
 
@@ -103,6 +105,7 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
   };
 
   return (
+    <>
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/55 p-3 backdrop-blur-sm"
       role="button"
       tabIndex={0}
@@ -220,7 +223,17 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
                 </>}
                 <label className="flex items-start gap-3 rounded-2xl bg-violet-50 p-4 text-sm text-slate-700">
                   <input type="checkbox" checked={form.consent} onChange={(e) => update("consent", e.target.checked)} className="mt-0.5 h-5 w-5 accent-violet-600" />
-                  <span>Li e aceito o Termo de Consentimento e a Política de Privacidade para uso educacional e acadêmico.</span>
+                  <span>
+                    Li e aceito o{" "}
+                    <button
+                      type="button"
+                      onClick={() => setConsentModalOpen(true)}
+                      className="font-bold text-violet-600 hover:underline"
+                    >
+                      Termo de Consentimento e Política de Privacidade
+                    </button>
+                    {" "}para uso educacional e acadêmico.
+                  </span>
                 </label>
                 <div className="flex gap-3"><button type="button" onClick={() => setStep(1)} className="rounded-2xl border-2 border-slate-200 px-5 font-bold">Voltar</button><SubmitButton loading={loading}>Criar conta</SubmitButton></div>
               </>}
@@ -230,7 +243,9 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
         </div>
       </section>
     </div>
-  );
+    <ConsentModal isOpen={consentModalOpen} onClose={() => setConsentModalOpen(false)} />
+  </>
+);
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
