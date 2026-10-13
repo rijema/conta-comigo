@@ -18,4 +18,8 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   language?: string;
+
+  @IsOptional()
+  @IsString()
+  registrationNonce?: string;
 }

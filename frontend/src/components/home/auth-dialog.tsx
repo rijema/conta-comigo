@@ -89,10 +89,16 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
         childPassword: requiresChildProfile ? form.childPassword : undefined,
         lgpdConsent: true, consentTimestamp: new Date().toISOString(),
       });
+      authService.clearRegistrationNonce();
       setSuccess("Conta criada! Agora você já pode entrar.");
       setView("login"); setStep(1); setForm(emptyForm);
     } catch (reason: any) {
-      setError(reason?.message || "Não foi possível criar a conta.");
+      const message = reason?.message || "Não foi possível criar a conta.";
+      if (message === "Email already registered") {
+        setError("Essa conta já foi criada. Tente entrar com o mesmo e-mail ou recupere a senha.");
+      } else {
+        setError(message);
+      }
     } finally { setLoading(false); }
   };
 

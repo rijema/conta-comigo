@@ -90,6 +90,13 @@ export class UsersService {
       .getOne();
   }
 
+  async findByRegistrationNonce(registrationNonce: string): Promise<User | null> {
+    return this.userRepo.findOne({
+      where: { registrationNonce },
+      relations: ['childProfile'],
+    });
+  }
+
   async attachExternalAuth(userId: string, provider: string, externalAuthId: string): Promise<User> {
     await this.userRepo.update(userId, {
       externalAuthProvider: provider,

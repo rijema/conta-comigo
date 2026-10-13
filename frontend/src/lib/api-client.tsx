@@ -5,16 +5,18 @@ interface RequestOptions {
   body?: unknown;
   token?: string;
   signal?: AbortSignal;
+  headers?: Record<string, string>;
 }
 
 async function request<T>(
   endpoint: string,
   options: RequestOptions = {}
 ): Promise<T> {
-  const { method = "GET", body, token, signal } = options;
+  const { method = "GET", body, token, signal, headers: extraHeaders = {} } = options;
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
+    ...extraHeaders,
   };
 
   if (token) {
@@ -51,8 +53,8 @@ export const api = {
   get: <T,>(endpoint: string, token?: string): Promise<T> =>
     request<T>(endpoint, { token }),
 
-  post: <T,>(endpoint: string, body: unknown, token?: string, signal?: AbortSignal): Promise<T> =>
-    request<T>(endpoint, { method: "POST", body, token, signal }),
+  post: <T,>(endpoint: string, body: unknown, token?: string, signal?: AbortSignal, headers?: Record<string, string>): Promise<T> =>
+    request<T>(endpoint, { method: "POST", body, token, signal, headers }),
 
   put: <T,>(endpoint: string, body: unknown, token?: string): Promise<T> =>
     request<T>(endpoint, { method: "PUT", body, token }),
