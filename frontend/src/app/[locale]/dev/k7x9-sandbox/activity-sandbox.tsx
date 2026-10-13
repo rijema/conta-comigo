@@ -97,7 +97,15 @@ export function ActivitySandbox() {
 
   useEffect(() => {
     let list = activities;
-    if (typeFilter !== "all") list = list.filter((a) => a.type === typeFilter);
+    if (typeFilter !== "all") {
+      // Some activity families (e.g. number_line) are routed by the real
+      // learn flow based on content.semantic.type rather than the raw
+      // entity `type` column (which is often a generic "quiz"). Match
+      // either so sandbox filters actually surface those exercises.
+      list = list.filter(
+        (a) => a.type === typeFilter || a.content?.semantic?.type === typeFilter,
+      );
+    }
     if (diffFilter !== "all") list = list.filter((a) => a.difficulty === diffFilter);
     setFiltered(list);
     setIndex(0);
