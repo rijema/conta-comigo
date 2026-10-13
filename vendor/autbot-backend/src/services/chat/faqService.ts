@@ -4,12 +4,14 @@ import { getSimilarityScores } from "./embeddingService";
 const SIMILARITY_THRESHOLD = Number(process.env.SIMILARITY_THRESHOLD);
 
 export async function updateFrequentQuestion(
+  userId: string,
   question: string,
   answer?: string
 ) {
   try {
-    console.log("⚙️ Atualizando pergunta frequente:", question);
+    console.log("⚙️ Atualizando pergunta frequente:", question, "para usuário:", userId);
     const existingQuestions = await prisma.frequentQuestion.findMany({
+      where: { userId },
       select: { id: true, question: true },
     });
 
@@ -37,6 +39,7 @@ export async function updateFrequentQuestion(
 
     await prisma.frequentQuestion.create({
       data: {
+        userId,
         question,
         answer: answer ?? null,
       },
@@ -46,8 +49,9 @@ export async function updateFrequentQuestion(
   }
 }
 
-export async function fetchFrequentQuestions(limit = 7) {
+export async function fetchFrequentQuestions(userId: string, limit = 7) {
   return prisma.frequentQuestion.findMany({
+    where: { userId },
     orderBy: [{ count: "desc" }, { lastAskedAt: "desc" }],
     take: limit,
   });

@@ -1,9 +1,18 @@
 import { Request, Response } from 'express';
 import { fetchFrequentQuestions } from '../services/chat/faqService';
 
-export async function getFrequentQuestions(req: Request, res: Response) {
+interface IRequest extends Request {
+  user?: any;
+}
+
+export async function getFrequentQuestions(req: IRequest, res: Response) {
   try {
-    const questions = await fetchFrequentQuestions(7); 
+    if (!req.user || !req.user.id) {
+      res.status(401).json({ error: 'Usuário não autenticado' });
+      return;
+    }
+
+    const questions = await fetchFrequentQuestions(req.user.id, 7);
     res.json(questions);
   } catch (error) {
     console.error('Erro ao buscar perguntas frequentes:', error);

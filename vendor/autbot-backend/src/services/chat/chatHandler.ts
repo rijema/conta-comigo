@@ -150,7 +150,7 @@ export async function handleChatMessage(rawMsg: ClientMessage): Promise<ChatHand
         },
       });
 
-      await updateFrequentQuestion(pergunta, respostaCache);
+      await updateFrequentQuestion(userId, pergunta, respostaCache);
     } else {
     }
 
@@ -162,7 +162,7 @@ export async function handleChatMessage(rawMsg: ClientMessage): Promise<ChatHand
 
   if (!isRecusa) {
     await saveResponseToSemanticCache(userId, publico, pergunta, resposta);
-    await updateFrequentQuestion(pergunta, resposta);
+    await updateFrequentQuestion(userId, pergunta, resposta);
 
     await prisma.message.create({
       data: {
