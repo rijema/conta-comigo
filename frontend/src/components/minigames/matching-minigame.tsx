@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Activity } from '@/types';
+import { ArasaacPictogram } from '@/components/arasaac/arasaac-pictogram';
 
 /**
  * MINIGAME: Matching Quest
@@ -32,13 +33,14 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
   const [showCorrect, setShowCorrect] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout>();
 
-  // Default matching: numbers to dots
+  // Default matching: numbers to dots (fallback only used when an activity
+  // fails to load; real exercises come entirely from activity.content.items)
   const pairs = (activity?.content?.items ||
     [
-      { id: 'pair1', left: '2', right: 'dois círculos' },
-      { id: 'pair2', left: '4', right: 'quatro círculos' },
-      { id: 'pair3', left: '3', right: 'três círculos' },
-    ]) as Array<{ id: string; left: string; right: string }>;
+      { id: 'pair1', left: '2', right: 'dois círculos', rightCount: 2, rightConceptId: 'library.circle' },
+      { id: 'pair2', left: '4', right: 'quatro círculos', rightCount: 4, rightConceptId: 'library.circle' },
+      { id: 'pair3', left: '3', right: 'três círculos', rightCount: 3, rightConceptId: 'library.circle' },
+    ]) as Array<{ id: string; left: string; right: string; rightCount?: number; rightConceptId?: string }>;
 
   const correctMatches = pairs.reduce(
     (acc, pair: any) => {
@@ -91,8 +93,8 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
         animate={{ opacity: 1, y: 0 }}
         className="text-center"
       >
-        <h2 className="text-3xl font-bold text-sky-900 mb-2">Ligue o Número ao seu Valor!</h2>
-        <p className="text-lg text-gray-700">Clique em um número, depois clique em sua representação</p>
+        <h2 className="text-3xl font-bold text-sky-900 mb-2">{activity?.title || 'Ligue o Número ao seu Valor!'}</h2>
+        <p className="text-lg text-gray-700">{activity?.content?.instructionsPt || 'Clique em um número, depois clique em sua representação'}</p>
       </motion.div>
 
       <div className="bg-white rounded-lg p-8 shadow-lg flex-1">
@@ -149,7 +151,19 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
                           : 'bg-gray-100 text-gray-500 border-2 border-gray-300'
                   }`}
                 >
-                  {pair.right}
+                  {/* Render the actual pictogram quantity (e.g. 3 circles)
+                      instead of leaking raw text like "três círculos" — the
+                      visual count is what the child needs to match to the
+                      number, not a text label. */}
+                  {pair.rightConceptId && pair.rightCount ? (
+                    <span className="flex flex-wrap items-center justify-center gap-1" aria-label={pair.right}>
+                      {Array.from({ length: pair.rightCount }, (_, i) => (
+                        <ArasaacPictogram key={i} conceptId={pair.rightConceptId!} showLabel={false} imageClassName="h-8 w-8" />
+                      ))}
+                    </span>
+                  ) : (
+                    pair.right
+                  )}
                 </motion.button>
               );
             })}
