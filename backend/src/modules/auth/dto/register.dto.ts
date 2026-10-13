@@ -69,4 +69,9 @@ export class RegisterDto {
   @IsString()
   @MinLength(4)
   childPassword?: string;
+
+  @ApiProperty({ required: false, description: 'Client-side idempotency key to prevent duplicate sign-ups after a failed fetch' })
+  @IsOptional()
+  @IsString()
+  registrationNonce?: string;
 }

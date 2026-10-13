@@ -28,12 +28,48 @@ export interface RegisterPayload {
   childPassword?: string;
 }
 
+const REGISTRATION_NONCE_KEY = "pending_registration_nonce";
+
+const buildRegistrationNonce = () => {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+
+  return `register_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+};
+
 export const authService = {
   login: (payload: LoginPayload) =>
     apiClient.post<AuthTokens>("/auth/login", payload),
 
-  register: (payload: RegisterPayload) =>
-    apiClient.post<AuthTokens>("/auth/register", payload),
+  getRegistrationNonce: () => {
+    if (typeof window === "undefined") return null;
+    const existing = sessionStorage.getItem(REGISTRATION_NONCE_KEY);
+    if (existing) return existing;
+
+    const nonce = buildRegistrationNonce();
+    sessionStorage.setItem(REGISTRATION_NONCE_KEY, nonce);
+    return nonce;
+  },
+
+  clearRegistrationNonce: () => {
+    if (typeof window === "undefined") return;
+    sessionStorage.removeItem(REGISTRATION_NONCE_KEY);
+  },
+
+  register: (payload: RegisterPayload) => {
+    const registrationNonce = authService.getRegistrationNonce();
+    return apiClient.post<AuthTokens>(
+      "/auth/register",
+      {
+        ...payload,
+        registrationNonce: registrationNonce ?? undefined,
+      },
+      undefined,
+      undefined,
+      registrationNonce ? { "X-Registration-Nonce": registrationNonce } : undefined,
+    );
+  },
 
   refresh: (refreshToken: string) =>
     apiClient.post<AuthTokens>("/auth/refresh", { refreshToken }),

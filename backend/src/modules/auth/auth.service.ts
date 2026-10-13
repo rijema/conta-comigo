@@ -25,16 +25,29 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto) {
-    const existing = await this.usersService.findByEmail(dto.email);
+    const normalizedEmail = dto.email.trim().toLowerCase();
+
+    if (dto.registrationNonce) {
+      const existingByNonce = await this.usersService.findByRegistrationNonce(dto.registrationNonce);
+      if (existingByNonce) {
+        this.logger.warn(`Duplicate registration request detected for nonce ${dto.registrationNonce}; returning existing user`);
+        const tokens = await this.generateTokens(existingByNonce.id, existingByNonce.email, existingByNonce.role);
+        return { user: this.sanitizeUser(existingByNonce), ...tokens };
+      }
+    }
+
+    const existing = await this.usersService.findByEmail(normalizedEmail);
     if (existing) {
       throw new ConflictException('Email already registered');
     }
 
-    const { childProfile, lgpdConsent, consentTimestamp, childPassword, ...userFields } = dto;
+    const { childProfile, lgpdConsent, consentTimestamp, childPassword, registrationNonce, ...userFields } = dto;
     const hashedPassword = await bcrypt.hash(userFields.password, 12);
     const user = await this.usersService.create({
       ...userFields,
+      email: normalizedEmail,
       password: hashedPassword,
+      registrationNonce,
     });
 
     if (lgpdConsent) {
