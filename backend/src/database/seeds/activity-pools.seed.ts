@@ -67,7 +67,7 @@ const pools: Array<{ niche: string; skills: string[]; questions: Question[] }> =
   { niche: 'counting', skills: ['EF01MA02'], questions: [
     ['count_objects', 'Conte duas estrelas.', ['1','2','3'], '2', 'counting', 'céu'],
     ['count_grouped', 'Há 3 círculos juntos e 2 separados. Quantos ao todo?', ['4','5','6'], '5', 'counting', 'formas'],
-    ['count_scattered', 'Conte somente os triângulos entre as formas.', ['2','3','4'], '3', 'counting', 'formas'],
+    ['count_scattered', 'Conte somente os triângulos entre as formas.', ['2','3','4'], '3', 'counting', 'formas', ['🔺', '⭕', '⬜', '🔺', '⭕', '🔺']],
     ['count_from_ten', 'Uma caixa tem 10 lápis e outra tem 4. Quantos lápis?', ['12','14','15'], '14', 'quiz', 'escola'],
     ['count_missing_group', 'Há 12 livros. Você vê 7 na mesa. Quantos estão na estante?', ['4','5','6'], '5', 'contextual_problem_solving', 'biblioteca'],
   ]},
