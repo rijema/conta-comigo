@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Activity } from '@/types';
+import { ArasaacPictogram } from '@/components/arasaac/arasaac-pictogram';
 
 /**
  * MINIGAME: Pattern Completion Quest
@@ -31,13 +32,34 @@ export const PatternCompletionMinigame: React.FC<PatternCompletionMinigameProps>
   const [isCorrect, setIsCorrect] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout>();
 
-  const pattern = [2, 4, 6, null, 10];
+  // Real exercise data from the database — falls back to a safe generic
+  // example only if the activity truly has no content (should not happen
+  // in production, but keeps the component usable in isolation/tests).
+  const title = activity?.title || 'Complete o Padrão!';
+  const question =
+    activity?.content?.instructionsPt ||
+    activity?.content?.instructions ||
+    'Veja a sequência: o que vem a seguir?';
+  const spokenHint = activity?.content?.spokenHint;
+  const pictogramConceptId = activity?.content?.pictogramConceptIds?.[0];
+
   const options = activity?.content?.options ||
     [
       { id: 'a', text: '3', isCorrect: false },
       { id: 'b', text: '8', isCorrect: true },
       { id: 'c', text: '5', isCorrect: false },
     ];
+
+  // The question text always marks the missing slot with "__" in the seed
+  // data (e.g. "Continue: azul, vermelho, azul, __"). Split around it so we
+  // can render the sequence with a highlighted blank, matching whatever the
+  // real pattern is (colors, shapes, numbers, objects) instead of a fixed
+  // hardcoded numeric sequence.
+  const [beforeBlank, afterBlank] = question.includes('__')
+    ? question.split('__')
+    : [question, null];
+
+  const correctOption = options.find((o: any) => o.isCorrect);
 
   const handleSelect = (optionId: string) => {
     if (!submitted) {
@@ -71,33 +93,35 @@ export const PatternCompletionMinigame: React.FC<PatternCompletionMinigameProps>
         animate={{ opacity: 1, y: 0 }}
         className="text-center"
       >
-        <h2 className="text-3xl font-bold text-cyan-900 mb-2">Qual Número Falta?</h2>
-        <p className="text-lg text-gray-700">Veja a sequência: qual número completa?</p>
+        <h2 className="text-3xl font-bold text-cyan-900 mb-2">{title}</h2>
       </motion.div>
 
       <div className="bg-white rounded-lg p-8 shadow-lg max-w-2xl mx-auto w-full">
-        <div className="flex justify-center items-center gap-4 mb-8 flex-wrap">
-          {pattern.map((num, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: idx * 0.1 }}
-              className={`w-16 h-16 rounded-lg flex items-center justify-center font-bold text-2xl ${
-                num === null
-                  ? 'bg-yellow-300 border-4 border-yellow-400 text-yellow-600'
-                  : 'bg-cyan-400 text-white'
-              }`}
-            >
-              {num === null ? '?' : num}
-            </motion.div>
-          ))}
+        <div className="flex flex-col items-center gap-4 mb-8">
+          {pictogramConceptId && (
+            <ArasaacPictogram conceptId={pictogramConceptId} showLabel={false} imageClassName="w-16 h-16" />
+          )}
+          <p className="text-2xl font-bold text-center text-cyan-900 leading-relaxed">
+            {afterBlank !== null ? (
+              <>
+                {beforeBlank}
+                <span className="inline-flex items-center justify-center w-12 h-12 mx-1 align-middle rounded-lg bg-yellow-300 border-4 border-yellow-400 text-yellow-700 font-black">
+                  ?
+                </span>
+                {afterBlank}
+              </>
+            ) : (
+              beforeBlank
+            )}
+          </p>
         </div>
 
-        <div className="text-center mb-6 p-4 bg-cyan-50 rounded-lg">
-          <p className="text-sm text-gray-600 mb-2">Dica: qual é o padrão?</p>
-          <p className="text-xl font-bold text-cyan-700">+2, +2, +2, ...</p>
-        </div>
+        {spokenHint && (
+          <div className="text-center mb-6 p-4 bg-cyan-50 rounded-lg">
+            <p className="text-sm text-gray-600 mb-2">Dica:</p>
+            <p className="text-lg font-bold text-cyan-700">{spokenHint}</p>
+          </div>
+        )}
 
         <div className="space-y-3">
           {options.map((option: any) => (
@@ -143,7 +167,9 @@ export const PatternCompletionMinigame: React.FC<PatternCompletionMinigameProps>
         >
           <div className="text-4xl mb-2">{isCorrect ? '✅' : '❌'}</div>
           <p className="text-xl font-bold">
-            {isCorrect ? 'Correto! A resposta é 8!' : 'A resposta correta é 8 (2, 4, 6, 8, 10)'}
+            {isCorrect
+              ? `Correto! A resposta é ${correctOption?.text ?? ''}!`
+              : `A resposta correta é ${correctOption?.text ?? ''}`}
           </p>
         </motion.div>
       )}
