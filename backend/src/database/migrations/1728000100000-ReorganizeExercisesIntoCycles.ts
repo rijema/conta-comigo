@@ -18,19 +18,19 @@ export class ReorganizeExercisesIntoCycles1728000100000
 {
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Analyze exercises and log grouping (informational only)
+    // NOTE: "bnccSkills" is a JSONB array column (not a native Postgres array),
+    // so it must be expanded with jsonb_array_elements_text(), not unnest().
+    // Column names are camelCase and must be quoted; "difficulty" is a VARCHAR
+    // with values 'very_easy' | 'easy' | 'medium' | 'hard' | 'extreme' (see schema.sql).
     const result = await queryRunner.query(`
-      SELECT 
-        unnest(bncc_skills) as skill,
-        COUNT(*) as count,
+      SELECT
+        skill,
         difficulty,
-        COUNT(*) FILTER (WHERE difficulty = 'very_easy') as very_easy_count,
-        COUNT(*) FILTER (WHERE difficulty = 'easy') as easy_count,
-        COUNT(*) FILTER (WHERE difficulty = 'medium') as medium_count,
-        COUNT(*) FILTER (WHERE difficulty = 'hard') as hard_count,
-        COUNT(*) FILTER (WHERE difficulty = 'very_hard') as very_hard_count
-      FROM activities
-      WHERE is_active = true
-      GROUP BY unnest(bncc_skills), difficulty
+        COUNT(*) as count
+      FROM activities a,
+        LATERAL jsonb_array_elements_text(a."bnccSkills") AS skill
+      WHERE a."isActive" = true
+      GROUP BY skill, difficulty
       ORDER BY skill, difficulty
     `);
 
@@ -42,7 +42,7 @@ export class ReorganizeExercisesIntoCycles1728000100000
       }
       skillGroups.get(row.skill)?.push({
         difficulty: row.difficulty,
-        count: row.count,
+        count: Number(row.count),
       });
     });
 
