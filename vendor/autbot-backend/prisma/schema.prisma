@@ -34,6 +34,7 @@ model User {
   resetPasswordToken       String?   @unique
   resetPasswordTokenExpiry DateTime?
   historics Historic[]
+  frequentQuestions FrequentQuestion[]
 }
 
 enum Role {
@@ -75,10 +76,16 @@ model ChatCache {
 
 model FrequentQuestion {
   id          String   @id @default(uuid())
-  question    String   @unique
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question    String
   count       Int      @default(1)
   lastAskedAt DateTime @default(now())
-  answer      String? 
+  answer      String?
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, question])
+  @@index([userId])
 }
 
 model ConversationSummary {
