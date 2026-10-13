@@ -24,6 +24,16 @@ describe('RegisterDto', () => {
     expect(errors).toHaveLength(0);
   });
 
+  it('accepts idempotency nonce used to prevent duplicate registrations', async () => {
+    const dto = plainToInstance(RegisterDto, {
+      ...validRegistration,
+      registrationNonce: 'nonce-123',
+    });
+    const errors = await validate(dto);
+
+    expect(errors).toHaveLength(0);
+  });
+
   it('rejects legacy uppercase role values', async () => {
     const dto = plainToInstance(RegisterDto, {
       ...validRegistration,

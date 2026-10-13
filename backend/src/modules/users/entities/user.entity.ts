@@ -48,6 +48,9 @@ export class User {
   @Column({ nullable: true, unique: true, length: 255 })
   externalAuthId?: string;
 
+  @Column({ nullable: true, unique: true, length: 128, name: 'registration_nonce' })
+  registrationNonce?: string;
+
   @OneToOne(() => ChildProfile, (profile) => profile.user, {
     cascade: true,
     nullable: true,
