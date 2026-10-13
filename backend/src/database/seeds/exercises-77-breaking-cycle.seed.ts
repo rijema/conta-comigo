@@ -54,25 +54,31 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
       howToPlay: 'Look at the first group with 2 apples. Look at the second group with 4 apples. Which has more? Choose the group with 4 apples.',
       timeLimit: 30,
       pictogramConceptIds: ['arasaac.23189', 'arasaac.23190'], // ARASAAC: maçã, números
-      items: [
+      // MultipleChoiceActivity reads content.options (clickable answer
+      // buttons, each rendering its own pictogramConceptIds group), not
+      // content.items (used only for plain emoji/symbol strings elsewhere).
+      // This exercise previously stored its answers as `items`, which made
+      // it render zero clickable options AND crashed the UI trying to
+      // render the raw {id, visual, label, arasaacId} objects directly as
+      // React children ("Minified React error #31").
+      options: [
         {
           id: 'opt1',
-          visual: 'apples:2',
           label: '2 maçãs',
-          arasaacId: '23189',
+          text: '2 maçãs',
+          pictogramConceptIds: ['arasaac.23189', 'arasaac.23189'],
+          isCorrect: false,
         },
         {
           id: 'opt2',
-          visual: 'apples:4',
           label: '4 maçãs',
-          arasaacId: '23189',
+          text: '4 maçãs',
+          pictogramConceptIds: ['arasaac.23189', 'arasaac.23189', 'arasaac.23189', 'arasaac.23189'],
+          isCorrect: true,
         },
       ],
       correctAnswer: 'opt2',
       validation: { kind: 'exact' },
-      supportsDragDrop: true,
-      dragDropInstructions: 'Você também pode arrastar o grupo com MAIS frutas para a área de resposta.',
-      dragDropInstructionsPt: 'Você também pode arrastar o grupo com MAIS frutas para a área de resposta.',
       semantic: {
         structureId: 'greater_less_equal.visual',
         type: 'selection',

@@ -106,15 +106,21 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
 
   return (
     <>
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/55 p-3 backdrop-blur-sm"
+    <div className="fixed inset-0 z-[100] flex justify-center overflow-y-auto bg-slate-950/55 p-3 backdrop-blur-sm"
       role="button"
       tabIndex={0}
       onMouseDown={(event) => event.target === event.currentTarget && onClose()}
       onKeyDown={(event) => (event.key === 'Escape' || event.key === 'Enter') && event.target === event.currentTarget && onClose()}
       aria-label="Fechar autenticação"
     >
+      {/* `my-auto` (not `items-center` on the flex parent) centers the dialog
+          when it's short but lets it scroll from the top when it's taller
+          than the viewport — items-center + overflow clips the top of
+          overflowing flex children and the user can never scroll up to it.
+          `svh` (small viewport height) avoids mobile browsers' address-bar
+          collapse making `vh` taller than what's actually visible. */}
       <section ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="auth-title"
-        className="grid max-h-[94vh] w-full max-w-4xl overflow-hidden rounded-[2rem] bg-white shadow-2xl md:grid-cols-[.85fr_1.15fr]">
+        className="my-auto grid max-h-[94svh] w-full max-w-4xl overflow-hidden rounded-[2rem] bg-white shadow-2xl md:grid-cols-[.85fr_1.15fr]">
         <div className="relative hidden overflow-hidden bg-gradient-to-br from-violet-100 via-pink-50 to-amber-50 md:block">
           <Image src="/assets/mainiconfirstpage.png" alt="TitiA, assistente de aprendizagem do Conta Comigo"
             fill sizes="360px" className="object-contain object-bottom pt-12" />
@@ -266,6 +272,21 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
                       className={`rounded-2xl border-2 p-3 font-bold ${form.role === value ? "border-violet-500 bg-violet-50 text-violet-700" : "border-slate-200 text-slate-600"}`}>{label}</button>)}
                 </div></fieldset>
                 <SubmitButton loading={false}>Continuar</SubmitButton>
+                <div className="flex items-center gap-3 text-xs font-semibold text-slate-400">
+                  <span className="h-px flex-1 bg-slate-200" />ou<span className="h-px flex-1 bg-slate-200" />
+                </div>
+                <button
+                  type="button"
+                  onClick={startGoogleLogin}
+                  className="flex w-full items-center justify-center gap-3 rounded-2xl border-2 border-slate-200 bg-white px-6 py-3 font-bold text-slate-700 shadow-sm transition hover:border-violet-300 hover:bg-violet-50"
+                >
+                  <span className="text-lg" aria-hidden="true">G</span>
+                  Cadastrar com Google
+                </button>
+                <p className="text-center text-xs text-slate-500">
+                  Ao cadastrar com Google, você ainda poderá revisar e confirmar o Termo de
+                  Consentimento no seu primeiro acesso.
+                </p>
               </> : <>
                 {requiresChildProfile && <>
                   <Field label="Nome da criança"><input className={fieldClass} required value={form.childName} onChange={(e) => update("childName", e.target.value)} /></Field>
