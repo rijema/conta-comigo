@@ -73,6 +73,16 @@ export class SubmitAttemptDto {
   @IsNumber()
   hintsUsed?: number;
 
+  @ApiPropertyOptional({
+    description:
+      'Número sequencial (1-based) desta tentativa na mesma atividade, rastreado no cliente. ' +
+      'Usado para revelar a resposta correta após 5 tentativas erradas seguidas (GAIA: ' +
+      'gaia.wiki.br/visibilidade-do-estado-do-sistema/numeros-de-tentativas).',
+  })
+  @IsOptional()
+  @IsNumber()
+  attemptNumber?: number;
+
   @ApiPropertyOptional()
   @IsOptional()
   @IsObject()

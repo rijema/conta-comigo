@@ -504,7 +504,7 @@ export class ActivitiesService {
     }).catch((err: any) => this.logger.error('Kafka publish failed', err));
 
     // Generate feedback
-    const feedback = this.generateFeedback(isCorrect, activity, dto.hintsUsed ?? 0);
+    const feedback = this.generateFeedback(isCorrect, activity, dto.hintsUsed ?? 0, dto.attemptNumber);
 
     // Fetch next activity via ADE (always, so UI can advance on correct answer)
     let nextActivity: Activity | undefined;
@@ -1134,8 +1134,9 @@ export class ActivitiesService {
     isCorrect: boolean,
     activity: Activity,
     hintsUsed: number,
+    attemptNumber?: number,
   ) {
-    return {
+    const feedback: Record<string, any> = {
       isCorrect,
       message: isCorrect
         ? 'Muito bem! Você acertou! 🌟'
@@ -1144,6 +1145,42 @@ export class ActivitiesService {
       pointsEarned: isCorrect ? Math.max(activity.pointsReward - hintsUsed * 5, 0) : 0,
       encouragement: true,
     };
+
+    // GAIA (gaia.wiki.br/visibilidade-do-estado-do-sistema/numeros-de-tentativas):
+    // after up to 5 failed attempts on the same activity, reveal the correct
+    // answer instead of letting the child retry indefinitely (frustration risk
+    // for autistic learners). Only triggered on the 5th+ wrong attempt.
+    if (!isCorrect && typeof attemptNumber === 'number' && attemptNumber >= 5) {
+      feedback.correctAnswerReveal = this.resolveCorrectAnswerLabel(activity);
+    }
+
+    return feedback;
+  }
+
+  /**
+   * Produces a human-readable label for the correct answer of an activity,
+   * used only for the "reveal after 5 attempts" accessibility safeguard.
+   * Falls back gracefully across the activity content shapes used across
+   * the 14 activity types (options-based, correctAnswer scalar/array, etc.).
+   */
+  private resolveCorrectAnswerLabel(activity: Activity): string | null {
+    const content: any = activity.content ?? {};
+    const options = Array.isArray(content.options) ? content.options : [];
+
+    if (options.length > 0) {
+      const correctOption = options.find((option: any) => option?.isCorrect === true);
+      if (correctOption) return String(correctOption.text ?? correctOption.label ?? correctOption.id);
+    }
+
+    if (Array.isArray(content.correctOrder)) {
+      return content.correctOrder.map((item: any) => String(item)).join(', ');
+    }
+
+    const correct = content.correctAnswer;
+    if (correct === null || correct === undefined) return null;
+    if (Array.isArray(correct)) return correct.map((item) => String(item)).join(', ');
+    if (typeof correct === 'boolean') return correct ? 'Verdadeiro' : 'Falso';
+    return String(correct);
   }
 
   private async findMatchingActivity(
