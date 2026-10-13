@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import type { Activity } from '@/types';
 import { ArasaacPictogram } from '@/components/arasaac/arasaac-pictogram';
 
@@ -21,11 +21,14 @@ interface PatternCompletionMinigameProps {
 }
 
 export const PatternCompletionMinigame: React.FC<PatternCompletionMinigameProps> = ({
-  skill,
-  difficulty,
+  // skill/difficulty/isTEAMode are part of the shared minigame prop
+  // contract (used by other minigames / the renderer) but aren't needed
+  // by this component's own rendering logic.
+  skill: _skill,
+  difficulty: _difficulty,
   onComplete,
   activity,
-  isTEAMode = false,
+  isTEAMode: _isTEAMode = false,
 }) => {
   const [selected, setSelected] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
