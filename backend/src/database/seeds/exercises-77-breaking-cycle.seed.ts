@@ -295,10 +295,44 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
   });
 
 
+  // 5. Number Line - Ordering/Comparison (BNCC: EF01MA03, EF01MA08)
   exercises.push({
     id: '6a5c5819-e920-445f-bbfb-d9270e0d84af',
-    title: 'Coloque na reta numérica!',
-    description: 'Onde fica o 3? E o 7? Comparação pela posição.',
+    title: 'Coloque na reta numérica! (Fácil)',
+    description: 'Onde fica o número? Comparação pela posição na reta.',
+    type: 'quiz',
+    difficulty: 'very_easy',
+    bnccSkills: ['EF01MA03'],
+    targetModalities: ['visual', 'logical'],
+    pointsReward: 12,
+    skillWeights: [{ code: 'EF01MA03', role: 'primary', weight: 1.0 }],
+    isActive: true,
+    content: {
+      instructions: 'Clique onde deve ir o número 2 na reta. Entre 1 e 3!',
+      instructionsPt: 'Clique onde deve ir o número 2 na reta. Entre 1 e 3!',
+      howToPlayPt: 'Veja a reta com números (1 a 5). Onde fica o 2? Clique nesse lugar.',
+      howToPlay: 'Look at the number line (1 to 5). Where is 2? Click there.',
+      timeLimit: 40,
+      pictogramConceptIds: ['arasaac.23190'],
+      semantic: {
+        structureId: 'greater_less_equal.numberline',
+        type: 'number_line',
+        concept: 'ordering_and_comparison',
+        difficulty: 'very_easy',
+      },
+    },
+    accessibility: {
+      hasAudio: true,
+      hasVisual: true,
+      hasAnimation: false,
+      sensoryLoad: 'low',
+    },
+  });
+
+  exercises.push({
+    id: 'a9d15a82-d1e7-4b41-96b7-d1502a7d2739',
+    title: 'Coloque na reta numérica! (Médio)',
+    description: 'Onde fica o 6? Compare os números na reta.',
     type: 'quiz',
     difficulty: 'easy',
     bnccSkills: ['EF01MA03'],
@@ -307,19 +341,83 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
     skillWeights: [{ code: 'EF01MA03', role: 'primary', weight: 1.0 }],
     isActive: true,
     content: {
-      instructions:
-        'Clique onde deve ir o número 6 na reta. Entre 5 e 7!',
-      instructionsPt:
-        'Clique onde deve ir o número 6 na reta. Entre 5 e 7!',
+      instructions: 'Clique onde deve ir o número 6 na reta. Entre 5 e 7!',
+      instructionsPt: 'Clique onde deve ir o número 6 na reta. Entre 5 e 7!',
       howToPlayPt: 'Veja a reta com números. O número 6 fica entre 5 e 7. Clique no lugar certo.',
       howToPlay: 'Look at the number line. The number 6 goes between 5 and 7. Click in the right place.',
       timeLimit: 35,
-      pictogramConceptIds: ['arasaac.23190'], // números
+      pictogramConceptIds: ['arasaac.23190'],
       semantic: {
         structureId: 'greater_less_equal.numberline',
         type: 'number_line',
         concept: 'ordering_and_comparison',
         difficulty: 'easy',
+      },
+    },
+    accessibility: {
+      hasAudio: true,
+      hasVisual: true,
+      hasAnimation: false,
+      sensoryLoad: 'low',
+    },
+  });
+
+  exercises.push({
+    id: 'a9d15a82-d1e7-4b41-96b7-d1502a7d2740',
+    title: 'Coloque na reta numérica! (Desafiador)',
+    description: 'Onde fica o 15? Números de 10 a 20 na reta.',
+    type: 'quiz',
+    difficulty: 'medium',
+    bnccSkills: ['EF01MA03'],
+    targetModalities: ['visual', 'logical'],
+    pointsReward: 18,
+    skillWeights: [{ code: 'EF01MA03', role: 'primary', weight: 1.0 }],
+    isActive: true,
+    content: {
+      instructions: 'Clique onde deve ir o número 15 na reta. Entre 14 e 16!',
+      instructionsPt: 'Clique onde deve ir o número 15 na reta. Entre 14 e 16!',
+      howToPlayPt: 'Veja a reta com números (10 a 20). O número 15 fica entre 14 e 16. Clique no lugar certo.',
+      howToPlay: 'Look at the number line (10 to 20). The number 15 goes between 14 and 16. Click in the right place.',
+      timeLimit: 35,
+      pictogramConceptIds: ['arasaac.23190'],
+      semantic: {
+        structureId: 'greater_less_equal.numberline',
+        type: 'number_line',
+        concept: 'ordering_and_comparison',
+        difficulty: 'medium',
+      },
+    },
+    accessibility: {
+      hasAudio: true,
+      hasVisual: true,
+      hasAnimation: false,
+      sensoryLoad: 'low',
+    },
+  });
+
+  exercises.push({
+    id: 'a9d15a82-d1e7-4b41-96b7-d1502a7d2741',
+    title: 'Coloque na reta numérica! (Muito Desafiador)',
+    description: 'Onde fica o 35? Números de 0 a 50 na reta.',
+    type: 'quiz',
+    difficulty: 'hard',
+    bnccSkills: ['EF01MA03'],
+    targetModalities: ['visual', 'logical'],
+    pointsReward: 20,
+    skillWeights: [{ code: 'EF01MA03', role: 'primary', weight: 1.0 }],
+    isActive: true,
+    content: {
+      instructions: 'Clique onde deve ir o número 35 na reta. Entre 30 e 40!',
+      instructionsPt: 'Clique onde deve ir o número 35 na reta. Entre 30 e 40!',
+      howToPlayPt: 'Veja a reta com números (0 a 50). O número 35 fica entre 30 e 40. Clique no lugar certo.',
+      howToPlay: 'Look at the number line (0 to 50). The number 35 goes between 30 and 40. Click in the right place.',
+      timeLimit: 40,
+      pictogramConceptIds: ['arasaac.23190'],
+      semantic: {
+        structureId: 'greater_less_equal.numberline',
+        type: 'number_line',
+        concept: 'ordering_and_comparison',
+        difficulty: 'hard',
       },
     },
     accessibility: {
