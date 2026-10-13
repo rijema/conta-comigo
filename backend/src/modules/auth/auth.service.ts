@@ -27,6 +27,14 @@ export class AuthService {
   async register(dto: RegisterDto) {
     const normalizedEmail = dto.email.trim().toLowerCase();
 
+    // Validate password format
+    if (dto.password.length < 8) {
+      const charsNeeded = 8 - dto.password.length;
+      throw new BadRequestException(
+        `A senha deve ter pelo menos 8 caracteres. Você precisa de mais ${charsNeeded} caractere(s).`
+      );
+    }
+
     if (dto.registrationNonce) {
       const existingByNonce = await this.usersService.findByRegistrationNonce(dto.registrationNonce);
       if (existingByNonce) {
@@ -38,7 +46,9 @@ export class AuthService {
 
     const existing = await this.usersService.findByEmail(normalizedEmail);
     if (existing) {
-      throw new ConflictException('Email already registered');
+      throw new ConflictException(
+        `O e-mail ${normalizedEmail} já está cadastrado. Faça login ou use outro e-mail para criar uma nova conta.`
+      );
     }
 
     const { childProfile, lgpdConsent, consentTimestamp, childPassword, registrationNonce, ...userFields } = dto;
@@ -56,6 +66,11 @@ export class AuthService {
 
     if (childProfile && dto.role === 'guardian') {
       if (dto.childPassword) {
+        if (dto.childPassword.length < 4) {
+          throw new BadRequestException(
+            `A senha da criança deve ter pelo menos 4 caracteres. Você precisa de mais ${4 - dto.childPassword.length} caractere(s).`
+          );
+        }
         const childHash = await bcrypt.hash(dto.childPassword, 12);
         const childUser = await this.usersService.createChildAccount(
           user.id,
@@ -88,16 +103,28 @@ export class AuthService {
     }
 
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      if (dto.email) {
+        throw new UnauthorizedException(
+          `Não encontramos uma conta com o e-mail ${dto.email}. Verifique se o e-mail está correto ou crie uma nova conta.`
+        );
+      } else {
+        throw new UnauthorizedException(
+          `Nenhuma criança encontrada com esse nome e e-mail do responsável. Verifique os dados e tente novamente.`
+        );
+      }
     }
 
     const passwordValid = await bcrypt.compare(dto.password, user.password);
     if (!passwordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException(
+        `A senha está incorreta. Verifique sua senha e tente novamente. Se esqueceu a senha, use a opção "Recuperar senha".`
+      );
     }
 
     if (!user.isActive) {
-      throw new UnauthorizedException('Account is inactive');
+      throw new UnauthorizedException(
+        'Sua conta foi desativada. Entre em contato com o suporte (privacidade@contacomigo.com) para mais informações.'
+      );
     }
 
     this.logger.log(`User logged in: ${user.email}`);
