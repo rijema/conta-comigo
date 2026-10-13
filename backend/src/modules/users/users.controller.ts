@@ -8,6 +8,7 @@ import {
   Post,
   HttpCode,
   HttpStatus,
+  ForbiddenException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -51,7 +52,13 @@ export class UsersController {
 
   @Post(':id/lgpd-consent')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async grantConsent(@Param('id') id: string) {
+  async grantConsent(@Param('id') id: string, @CurrentUser() user: any) {
+    // A user may only grant LGPD consent for their own account — without
+    // this check, any authenticated user could pass another user's id and
+    // silently mark their consent as given.
+    if (user.userId !== id && user.role !== UserRole.ADMIN) {
+      throw new ForbiddenException('You can only grant consent for your own account');
+    }
     return this.usersService.grantLgpdConsent(id);
   }
 
