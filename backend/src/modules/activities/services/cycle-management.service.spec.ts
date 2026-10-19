@@ -4,6 +4,8 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { StudentCycleTracking } from '../entities/student-cycle-tracking.entity';
 import { CycleExerciseAssignment } from '../entities/cycle-exercise-assignment.entity';
 import { Activity } from '../entities/activity.entity';
+import { ExerciseParameters } from '../entities/exercise-parameters.entity';
+import { HybridRecommendationService } from '../../ade/hybrid-recommendation.service';
 import { Repository } from 'typeorm';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 
@@ -18,7 +20,7 @@ describe('CycleManagementService - Cycle Progression', () => {
   const mockCycleNumber = 1;
   const mockSkillFocus = 'EF01MA03';
 
-  const mockCycle: StudentCycleTracking = {
+  const buildCycle = (): StudentCycleTracking => ({
     id: 'cycle-1',
     student_id: mockUserId,
     island_id: mockIslandId,
@@ -31,9 +33,9 @@ describe('CycleManagementService - Cycle Progression', () => {
     created_at: new Date(),
     updated_at: new Date(),
     completed_at: null,
-  } as any;
+  }) as any;
 
-  const mockAssignment: CycleExerciseAssignment = {
+  const buildAssignment = (): CycleExerciseAssignment => ({
     id: 'assign-1',
     cycle_tracking_id: 'cycle-1',
     activity_id: 'activity-1',
@@ -41,7 +43,11 @@ describe('CycleManagementService - Cycle Progression', () => {
     is_completed: false,
     student_score: null,
     completed_at: null,
-  } as any;
+  }) as any;
+
+  // Fresh fixtures per test: the service mutates the entities it loads.
+  let mockCycle: StudentCycleTracking;
+  let mockAssignment: CycleExerciseAssignment;
 
   const mockActivity: Activity = {
     id: 'activity-1',
@@ -53,6 +59,8 @@ describe('CycleManagementService - Cycle Progression', () => {
   } as any;
 
   beforeEach(async () => {
+    mockCycle = buildCycle();
+    mockAssignment = buildAssignment();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CycleManagementService,
@@ -67,7 +75,7 @@ describe('CycleManagementService - Cycle Progression', () => {
         {
           provide: getRepositoryToken(CycleExerciseAssignment),
           useValue: {
-            find: jest.fn(),
+            find: jest.fn().mockResolvedValue([]),
             findOne: jest.fn(),
             save: jest.fn(),
           },
@@ -77,6 +85,14 @@ describe('CycleManagementService - Cycle Progression', () => {
           useValue: {
             findOne: jest.fn(),
           },
+        },
+        {
+          provide: getRepositoryToken(ExerciseParameters),
+          useValue: { find: jest.fn(), findOne: jest.fn() },
+        },
+        {
+          provide: HybridRecommendationService,
+          useValue: {},
         },
       ],
     }).compile();
@@ -129,7 +145,7 @@ describe('CycleManagementService - Cycle Progression', () => {
   describe('completeExercise - Cycle Progression', () => {
     it('should mark exercise complete and advance position', async () => {
       // Arrange
-      jest.spyOn(cycleRepo, 'findOne').mockResolvedValueOnce(mockCycle);
+      jest.spyOn(cycleRepo, 'findOne').mockResolvedValue(mockCycle);
       jest
         .spyOn(assignmentRepo, 'findOne')
         .mockResolvedValueOnce(mockAssignment);
@@ -167,7 +183,7 @@ describe('CycleManagementService - Cycle Progression', () => {
     it('should mark cycle complete when position reaches 10', async () => {
       // Arrange
       const cycle10 = { ...mockCycle, current_position: 10, exercises_completed_count: 9 };
-      jest.spyOn(cycleRepo, 'findOne').mockResolvedValueOnce(cycle10);
+      jest.spyOn(cycleRepo, 'findOne').mockResolvedValue(cycle10);
       jest
         .spyOn(assignmentRepo, 'findOne')
         .mockResolvedValueOnce(mockAssignment);
@@ -200,7 +216,7 @@ describe('CycleManagementService - Cycle Progression', () => {
 
     it('should record partial score (0.5) for partially correct answers', async () => {
       // Arrange
-      jest.spyOn(cycleRepo, 'findOne').mockResolvedValueOnce(mockCycle);
+      jest.spyOn(cycleRepo, 'findOne').mockResolvedValue(mockCycle);
       jest
         .spyOn(assignmentRepo, 'findOne')
         .mockResolvedValueOnce(mockAssignment);
@@ -225,7 +241,7 @@ describe('CycleManagementService - Cycle Progression', () => {
 
     it('should record zero score for incorrect answers', async () => {
       // Arrange
-      jest.spyOn(cycleRepo, 'findOne').mockResolvedValueOnce(mockCycle);
+      jest.spyOn(cycleRepo, 'findOne').mockResolvedValue(mockCycle);
       jest
         .spyOn(assignmentRepo, 'findOne')
         .mockResolvedValueOnce(mockAssignment);
@@ -268,9 +284,11 @@ describe('CycleManagementService - Cycle Progression', () => {
     it('should return detailed progress information', async () => {
       // Arrange
       jest.spyOn(cycleRepo, 'findOne').mockResolvedValueOnce(mockCycle);
-      jest
-        .spyOn(assignmentRepo, 'find')
-        .mockResolvedValueOnce([mockAssignment]);
+      jest.spyOn(assignmentRepo, 'find').mockResolvedValueOnce([
+        { ...mockAssignment, id: 'assign-p1', position_in_cycle: 1, is_completed: true, student_score: 1 },
+        { ...mockAssignment, id: 'assign-p2', position_in_cycle: 2, is_completed: true, student_score: 0.5 },
+        mockAssignment,
+      ] as any);
 
       // Act
       const result = await service.getCycleProgress(
@@ -283,42 +301,30 @@ describe('CycleManagementService - Cycle Progression', () => {
       expect(result.cycle).toEqual(mockCycle);
       expect(result.progress.completed).toBe(2);
       expect(result.progress.percentage).toBe(20); // 2/10 = 20%
+      expect(result.progress.averageScore).toBe(0.75);
     });
   });
 
   describe('Cycle state transitions', () => {
     it('should track progression from active to completed', async () => {
-      // Arrange: Start with position 9 (last exercise)
-      const penultimate = { ...mockCycle, current_position: 9, exercises_completed_count: 8 };
-      jest.spyOn(cycleRepo, 'findOne').mockResolvedValueOnce(penultimate);
-      jest
-        .spyOn(assignmentRepo, 'findOne')
-        .mockResolvedValueOnce(mockAssignment);
-      jest.spyOn(assignmentRepo, 'save').mockResolvedValueOnce(mockAssignment);
+      // Arrange: 8 of 10 done, the student is on exercise 9
+      const cycle = { ...mockCycle, current_position: 9, exercises_completed_count: 8 };
+      jest.spyOn(cycleRepo, 'findOne').mockResolvedValue(cycle);
+      jest.spyOn(assignmentRepo, 'findOne')
+        .mockResolvedValueOnce({ ...mockAssignment, position_in_cycle: 9 })
+        .mockResolvedValueOnce({ ...mockAssignment, position_in_cycle: 10 });
+      jest.spyOn(cycleRepo, 'save').mockImplementation(async (saved: any) => saved);
 
-      const completed = {
-        ...penultimate,
-        current_position: 10,
-        exercises_completed_count: 9,
-        status: 'completed' as const,
-        completed_at: new Date(),
-      };
-      jest.spyOn(cycleRepo, 'save').mockResolvedValueOnce(completed);
+      // Act + Assert: exercise 9 keeps the cycle active and advances
+      const afterNine = await service.completeExercise(mockUserId, mockIslandId, mockCycleNumber, 1.0);
+      expect(afterNine.status).toBe('active');
+      expect(afterNine.currentPosition).toBe(10);
 
-      // Act
-      await service.completeExercise(
-        mockUserId,
-        mockIslandId,
-        mockCycleNumber,
-        1.0,
-      );
-
-      // Assert: Final save should mark as completed
-      expect(cycleRepo.save).toHaveBeenCalledWith(
-        expect.objectContaining({
-          status: 'completed',
-        }),
-      );
+      // Act + Assert: exercise 10 completes the cycle
+      const afterTen = await service.completeExercise(mockUserId, mockIslandId, mockCycleNumber, 1.0);
+      expect(afterTen.status).toBe('completed');
+      expect(afterTen.cycle.exercises_completed_count).toBe(10);
+      expect(afterTen.cycle.completed_at).toBeInstanceOf(Date);
     });
   });
 });

@@ -1,4 +1,5 @@
 import { ActivitiesService } from './activities.service';
+import { createActivitiesService } from './testing/create-activities-service';
 import { LearningEventType } from '../learning-events/entities/learning-event.entity';
 import { ACTIVITY_LIFECYCLE_EVENT_TYPES } from './dto/track-activity-lifecycle.dto';
 import { TrackActivityLifecycleDto } from './dto/track-activity-lifecycle.dto';
@@ -20,19 +21,13 @@ describe('ActivitiesService learning event instrumentation', () => {
   const dataSource = {
     query: jest.fn().mockResolvedValue([{ id: skillId }]),
   };
-  const service = new ActivitiesService(
-    activityRepo as any,
-    attemptRepo as any,
-    {} as any, // islandRepo
-    {} as any, // islandActivityMappingRepo
-    {} as any,
-    {} as any,
-    {} as any,
-    learningEventService as any,
-    dataSource as any,
-    { observe: jest.fn().mockResolvedValue({}) } as any,
-    {} as any, // islandCycleValidator
-  );
+  const service = createActivitiesService({
+    activityRepo,
+    attemptRepo,
+    learningEventService,
+    dataSource,
+    knowledgeTracingService: { observe: jest.fn().mockResolvedValue({}) },
+  });
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -248,21 +243,18 @@ describe('ActivitiesService learning event instrumentation', () => {
     const islandCycleValidator = {
       validateAndResolveIslandCycle: jest.fn().mockResolvedValue({ islandId: null, cycleNumber: null }),
     };
-    const serviceWithAttempt = new ActivitiesService(
-      activityRepository as any,
-      attemptRepository as any,
-      {} as any, // islandRepo
-      {} as any, // islandActivityMappingRepo
-      { publishActivityEvent: jest.fn().mockResolvedValue(undefined) } as any,
-      { decide: jest.fn().mockRejectedValue(new Error('ADE unavailable')) } as any,
-      { getChildProfile: jest.fn().mockResolvedValue({}) } as any,
-      learningEventService as any,
-      dataSource as any,
-      { getMasteryBySkillCode: jest.fn().mockResolvedValue(0.3),
-        observe: jest.fn().mockResolvedValue({ masteryProbability: 0.4 }) } as any,
-      islandCycleValidator as any,
-      undefined, // recommendationExplanationService
-    );
+    const serviceWithAttempt = createActivitiesService({
+      activityRepo: activityRepository,
+      attemptRepo: attemptRepository,
+      kafkaProducer: { publishActivityEvent: jest.fn().mockResolvedValue(undefined) },
+      adeService: { decide: jest.fn().mockRejectedValue(new Error('ADE unavailable')) },
+      usersService: { getChildProfile: jest.fn().mockResolvedValue({}) },
+      learningEventService,
+      dataSource,
+      knowledgeTracingService: { getMasteryBySkillCode: jest.fn().mockResolvedValue(0.3),
+        observe: jest.fn().mockResolvedValue({ masteryProbability: 0.4 }) },
+      islandCycleValidator,
+    });
     const trackAnswerEvents = jest
       .spyOn(serviceWithAttempt as any, 'trackAnswerEvents')
       .mockReturnValue(new Promise<void>(() => undefined));

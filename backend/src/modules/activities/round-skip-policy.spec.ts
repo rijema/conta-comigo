@@ -1,13 +1,11 @@
 import { ActivitiesService } from './activities.service';
+import { createActivitiesService } from './testing/create-activities-service';
 import { LearningEventType } from '../learning-events/entities/learning-event.entity';
 
 const activity = (id: string, skill: string, type: string) =>
   ({ id, bnccSkills: [skill], type }) as any;
 
-const buildService = (learningEventService: any = {}) => new ActivitiesService(
-  {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any,
-  learningEventService, {} as any, {} as any, {} as any, {} as any, {} as any,
-);
+const buildService = (learningEventService: any = {}) => createActivitiesService({ learningEventService });
 
 describe('ActivitiesService round skip policy ("Quero outro")', () => {
   const a1 = activity('a1', 'EF01MA01', 'counting');

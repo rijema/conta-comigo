@@ -1,22 +1,8 @@
-import { ActivitiesService } from './activities.service';
+import { createActivitiesService } from './testing/create-activities-service';
 import { RecommendationExplanationService } from '../ade/recommendation-explanation.service';
 
 describe('ActivitiesService answer evaluation', () => {
-  const service = new ActivitiesService(
-    {} as any,
-    {} as any,
-    {} as any, // islandRepo
-    {} as any, // islandActivityMappingRepo
-    {} as any,
-    {} as any,
-    {} as any,
-    {} as any,
-    {} as any, // islandCycleValidator
-    {} as any,
-    {} as any,
-    {} as any,
-    {} as any,
-  );
+  const service = createActivitiesService();
 
   const evaluateAnswer = (activity: any, answer: any) =>
     (service as any).evaluateAnswer(activity, answer);
@@ -82,8 +68,7 @@ describe('ActivitiesService answer evaluation', () => {
 
 describe('Activity cooldown', () => {
   it('avoids the last activity, structure, items and format when alternatives exist', () => {
-    const service = new ActivitiesService({} as any, {} as any, {} as any, {} as any,
-      {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any);
+    const service = createActivitiesService();
     const activity = (id: string, structureId: string, type: string, items: string[]) => ({
       id, title: id, type, content: { items, semantic: { structureId } },
     });
@@ -103,8 +88,7 @@ describe('Activity cooldown', () => {
 describe('Weighted BNCC activity creation', () => {
   it('rejects inconsistent primary and secondary weights before persistence', async () => {
     const save = jest.fn();
-    const service = new ActivitiesService({ create: jest.fn(), save } as any,
-      {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any);
+    const service = createActivitiesService({ activityRepo: { create: jest.fn(), save } });
     await expect(service.create({
       title: 'Shopping', type: 'quiz' as any, difficulty: 'easy' as any,
       bnccSkills: ['EF01MA08', 'EF01MA03'], targetModalities: ['visual'], content: {},
@@ -118,16 +102,15 @@ describe('Weighted BNCC activity creation', () => {
 });
 
 describe('Learning selection strategy', () => {
-  const service = new ActivitiesService({} as any, {} as any, {} as any, {} as any,
-    {} as any, {} as any, {} as any, {} as any, // activityRepo, attemptRepo, islandRepo, islandActivityMappingRepo, kafkaProducer, adeService, usersService, learningEventService
-    {} as any, // dataSource
-    { getMasteryBySkillCode: jest.fn().mockResolvedValue(0.1) } as any, // knowledgeTracingService
-    { validateAndResolveIslandCycle: jest.fn() } as any, // islandCycleValidator
-    new RecommendationExplanationService(), // recommendationExplanationService
-    { getSkillRelations: jest.fn().mockReturnValue([
+  const service = createActivitiesService({
+    knowledgeTracingService: { getMasteryBySkillCode: jest.fn().mockResolvedValue(0.1) },
+    islandCycleValidator: { validateAndResolveIslandCycle: jest.fn() },
+    recommendationExplanationService: new RecommendationExplanationService(),
+    ontologyService: { getSkillRelations: jest.fn().mockReturnValue([
       { skillCode: 'EF01MA08', relation: 'relatedSkill',
         concepts: ['AdditionConcept'], source: 'SHARED_CONCEPT_DERIVED' },
-    ]) } as any); // ontologyService
+    ]) },
+  });
   const decision = () => ({
     userId: 'student-1', recommendedBnccSkill: 'EF01MA06', recommendedDifficulty: 'hard',
     xaiLog: { mlPredictions: { masteryProbability: 0.85 } }, inputSnapshot: {},
@@ -178,20 +161,16 @@ describe('Prerequisite fallback safety', () => {
     const blocked = { id: 'blocked', prerequisiteSkillCode: 'EF01MA06',
       content: {}, type: 'quiz', title: 'Blocked' };
     const available = { id: 'available', content: {}, type: 'counting', title: 'Available' };
-    const service = new ActivitiesService(
-      { find: jest.fn().mockResolvedValue([blocked, available]) } as any,
-      { find: jest.fn().mockResolvedValue([]) } as any,
-      {} as any, {} as any, {} as any,
-      {} as any, // kafkaProducer
-      {} as any, // adeService
-      { getRecentSkippedActivityIds: jest.fn().mockResolvedValue([]) } as any, // learningEventService
-      {} as any, // dataSource
-      { getMasteryMapBySkillCode: jest.fn().mockResolvedValue({ EF01MA06: 0.2 }) } as any,
-      { validateAndResolveIslandCycle: jest.fn() } as any, // islandCycleValidator
-      new RecommendationExplanationService(),
-      { isActivityPrerequisiteSatisfied: (code: string | undefined, mastery: Record<string, number>) =>
-        !code || (mastery[code] ?? 1) >= 0.5 } as any,
-    );
+    const service = createActivitiesService({
+      activityRepo: { find: jest.fn().mockResolvedValue([blocked, available]) },
+      attemptRepo: { find: jest.fn().mockResolvedValue([]) },
+      learningEventService: { getRecentSkippedActivityIds: jest.fn().mockResolvedValue([]) },
+      knowledgeTracingService: { getMasteryMapBySkillCode: jest.fn().mockResolvedValue({ EF01MA06: 0.2 }) },
+      islandCycleValidator: { validateAndResolveIslandCycle: jest.fn() },
+      recommendationExplanationService: new RecommendationExplanationService(),
+      ontologyService: { isActivityPrerequisiteSatisfied: (code: string | undefined, mastery: Record<string, number>) =>
+        !code || (mastery[code] ?? 1) >= 0.5 },
+    });
     const selected = await (service as any).selectFallbackActivity('student-1');
     expect(selected.id).toBe('available');
   });
@@ -213,19 +192,10 @@ describe('ActivitiesService semantic activity responses', () => {
       andWhere: jest.fn().mockReturnThis(),
       getMany: jest.fn().mockResolvedValue([activity]),
     };
-    const service = new ActivitiesService(
-      { createQueryBuilder: jest.fn().mockReturnValue(queryBuilder) } as any,
-      {} as any,
-      {} as any,
-      {} as any,
-      {} as any,
-      {} as any,
-      {} as any,
-      {} as any,
-      { query: jest.fn().mockResolvedValue([{ id: 'skill-1' }]) } as any,
-      {} as any,
-      {} as any, // islandCycleValidator
-    );
+    const service = createActivitiesService({
+      activityRepo: { createQueryBuilder: jest.fn().mockReturnValue(queryBuilder) },
+      dataSource: { query: jest.fn().mockResolvedValue([{ id: 'skill-1' }]) },
+    });
 
     const [result] = await service.findAll();
 
@@ -248,19 +218,10 @@ describe('ActivitiesService semantic activity responses', () => {
       bnccSkills: ['EF01MA01'],
       content: { instructionsPt: 'Marque o ponto', min: 0, max: 10 },
     };
-    const service = new ActivitiesService(
-      { findOne: jest.fn().mockResolvedValue(activity) } as any,
-      {} as any,
-      {} as any,
-      {} as any,
-      {} as any,
-      {} as any,
-      {} as any,
-      {} as any,
-      { query: jest.fn().mockRejectedValue(new Error('database unavailable')) } as any,
-      {} as any,
-      {} as any, // islandCycleValidator
-    );
+    const service = createActivitiesService({
+      activityRepo: { findOne: jest.fn().mockResolvedValue(activity) },
+      dataSource: { query: jest.fn().mockRejectedValue(new Error('database unavailable')) },
+    });
     const errorLog = jest.spyOn((service as any).logger, 'error')
       .mockImplementation(() => undefined);
 
@@ -275,8 +236,7 @@ describe('ActivitiesService semantic activity responses', () => {
 });
 
 describe('Professional experience restrictions', () => {
-  const service = new ActivitiesService({} as any, {} as any, {} as any, {} as any,
-    {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any);
+  const service = createActivitiesService();
   const activity = (type: string, count: number, skill: string, difficulty: string) => ({
     type, difficulty, bnccSkills: [skill], content: { options: Array.from({ length: count }, () => ({})) },
   });
