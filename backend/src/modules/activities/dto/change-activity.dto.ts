@@ -1,4 +1,4 @@
-import { IsInt, IsNotEmpty, IsOptional, IsString, IsUUID, Min } from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional, IsString, IsUUID, Matches, Min } from 'class-validator';
 
 export class ChangeActivityDto {
   @IsUUID() currentActivityId: string;
@@ -7,4 +7,5 @@ export class ChangeActivityDto {
   @IsOptional() @IsInt() @Min(0) timeBeforeSkipMs?: number;
   @IsOptional() @IsInt() @Min(0) attemptsBeforeSkip?: number;
   @IsOptional() @IsInt() @Min(0) hintsBeforeSkip?: number;
+  @IsOptional() @Matches(/^[a-z0-9-]{1,50}$/) focusIslandId?: string;
 }

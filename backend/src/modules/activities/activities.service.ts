@@ -145,6 +145,10 @@ export class ActivitiesService {
     skippedActivity?: Activity;
     cycleNumber?: number;
     islandId?: string;
+    /** Island the child opened on the map: recommendations stay inside it. */
+    focusIslandId?: string;
+    /** Exercise the child tapped on the map: served instead of the ranked pick. */
+    chosenActivityId?: string;
   }): Promise<{
     activity: Activity;
     adeDecision: any;
@@ -256,7 +260,7 @@ export class ActivitiesService {
     // Review can interrupt cycle, but we preserve cycle context for resuming later
     let reviewAssignmentId: string | undefined;
     let reviewActivity: Activity | null = null;
-    if (this.reviewOrchestrationService) {
+    if (this.reviewOrchestrationService && !context?.chosenActivityId) {
       try {
         const activeReview = await this.reviewOrchestrationService.getNextReviewActivity(userId);
         if (activeReview) {
@@ -311,9 +315,18 @@ export class ActivitiesService {
           current_position: cycleContext.currentPosition,
         } : undefined,
         recentSkips: await this.recentSkipCount(userId),
+        focusIslandId: context?.focusIslandId,
       });
     } catch (adeErr: any) {
       this.logger.error(`ADE failed: ${adeErr?.message}`, adeErr?.stack);
+      if (context?.chosenActivityId) {
+        return {
+          activity: await this.findChosenActivity(context.chosenActivityId),
+          adeDecision: null,
+          cycleContext: cycleContext || undefined,
+          preferredModality: (profile?.uiPreferences?.preferredModality as string | undefined) ?? null,
+        };
+      }
       const fallback = await this.selectFallbackActivity(userId, context?.excludedActivityId, {
         sessionId: context?.sessionId, skippedActivity: context?.skippedActivity, targetSkill,
       });
@@ -326,9 +339,13 @@ export class ActivitiesService {
       };
     }
 
-    // 5. Find matching activity
+    // 5. Find matching activity (or honour the child's own choice)
     let activity: Activity;
-    try {
+    if (context?.chosenActivityId) {
+      activity = await this.findChosenActivity(context.chosenActivityId);
+      await this.adeService.recordChildChoice(adeDecision, activity.id).catch((err: any) =>
+        this.logger.error(`Failed to record child choice: ${err?.message}`));
+    } else try {
       const selection = await this.findMatchingActivity(
         adeDecision,
         profile,
@@ -362,6 +379,12 @@ export class ActivitiesService {
       cycleContext: cycleContext || undefined,
       preferredModality: (profile?.uiPreferences?.preferredModality as string | undefined) ?? null,
     };
+  }
+
+  private async findChosenActivity(activityId: string): Promise<Activity> {
+    const activity = await this.activityRepo.findOne({ where: { id: activityId, isActive: true } });
+    if (!activity) throw new NotFoundException(`Activity ${activityId} not found`);
+    return activity;
   }
 
   private logSelectionSequence(userId: string, selection: ActivitySelectionResult): void {
@@ -412,6 +435,7 @@ export class ActivitiesService {
       targetSkillCode: previous.bnccSkills?.[0],
       excludedActivityId: previous.id,
       skippedActivity: previous,
+      focusIslandId: dto.focusIslandId,
     });
     if (skipEvent && replacement.adeDecision?.id && this.recommendationOutcomeService) {
       const next = replacement.activity;
@@ -576,6 +600,7 @@ export class ActivitiesService {
           sessionId: dto.sessionId,
           targetSkillCode: this.pickPreferredSkill(profile?.uiPreferences, recentAttempts),
           recentSkips: await this.recentSkipCount(userId),
+          focusIslandId: dto.focusIslandId,
         }),
         timeout,
       ]);

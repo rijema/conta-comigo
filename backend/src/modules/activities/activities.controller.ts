@@ -4,8 +4,10 @@ import {
   Post,
   Body,
   Param,
+  ParseUUIDPipe,
   Query,
   UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
 import { ActivitiesService } from './activities.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -45,8 +47,17 @@ export class ActivitiesController {
 
   @Get('next')
   @ApiOperation({ summary: 'Get next recommended activity for current child' })
-  getNext(@CurrentUser('userId') userId: string) {
-    return this.activitiesService.getNextActivity(userId);
+  getNext(
+    @CurrentUser('userId') userId: string,
+    @Query('activityId', new ParseUUIDPipe({ optional: true })) activityId?: string,
+    @Query('islandId') islandId?: string,
+  ) {
+    if (islandId && !/^[a-z0-9-]{1,50}$/.test(islandId)) throw new BadRequestException('Invalid islandId');
+    if (!activityId && !islandId) return this.activitiesService.getNextActivity(userId);
+    return this.activitiesService.getNextActivity(userId, {
+      chosenActivityId: activityId,
+      focusIslandId: islandId,
+    });
   }
 
   @Post('change')

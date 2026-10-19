@@ -6,6 +6,7 @@ import {
   IsObject,
   IsNotEmpty,
   IsUUID,
+  Matches,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -42,6 +43,11 @@ export class SubmitAttemptDto {
   @IsOptional()
   @IsNumber()
   cycleNumber?: number;
+
+  @ApiPropertyOptional({ description: 'Island the child opened on the map; next pick stays inside it' })
+  @IsOptional()
+  @Matches(/^[a-z0-9-]{1,50}$/)
+  focusIslandId?: string;
 
   @ApiPropertyOptional()
   @IsOptional()

@@ -186,12 +186,15 @@ function LearnPageInner() {
     if (authLoading) return;
     if (!user) { router.replace(`/${locale}/auth/login`); return; }
     if (!childPreferencesReady) return;
-    startSession(String(user.id));
+    startSession(String(user.id), {
+      activityId: searchParams.get("activityId"),
+      islandId: searchParams.get("islandId"),
+    });
     if (settings.soundEnabled && settings.soundEffectsEnabled && !settings.lowStimulationMode && !startCuePlayedRef.current) {
       startCuePlayedRef.current = true;
       playStart(effectVolume);
     }
-  }, [mounted, user, authLoading, childPreferencesReady, settings.soundEnabled, settings.soundEffectsEnabled, effectVolume, settings.lowStimulationMode, startSession, router, locale]);
+  }, [mounted, user, authLoading, childPreferencesReady, settings.soundEnabled, settings.soundEffectsEnabled, effectVolume, settings.lowStimulationMode, startSession, router, locale, searchParams]);
 
   /* rotate background on each new activity */
   useEffect(() => {
