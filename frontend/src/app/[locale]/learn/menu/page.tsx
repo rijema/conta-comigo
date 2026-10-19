@@ -25,9 +25,12 @@ const ISLAND_THEMES = [
 // Map island themes by islandId
 const getIslandTheme = (islandId: string, index: number) => {
   const themeMap: Record<string, typeof ISLAND_THEMES[0]> = {
-    'island-numbers': { grad: "from-yellow-300 to-orange-300",  headerGrad: "from-orange-400 to-amber-400",  border: "border-orange-300",  pictogramId: "mathematics.numbers", label: "Ilha dos Números", sub: "Números" },
-    'island-colors': { grad: "from-purple-300 to-fuchsia-300", headerGrad: "from-purple-500 to-pink-400",   border: "border-purple-300",  pictogramId: "arasaac.61042", label: "Ilha das Cores", sub: "Cores" },
-    'island-beach': { grad: "from-blue-300 to-cyan-300",      headerGrad: "from-blue-500 to-cyan-400",     border: "border-blue-300",    pictogramId: "arasaac.23189", label: "Ilha da Praia", sub: "Praia" },
+    'island-numbers': { grad: "from-yellow-300 to-orange-300",  headerGrad: "from-orange-400 to-amber-400",  border: "border-orange-300",  pictogramId: "library.star", label: "Ilha das Estrelinhas", sub: "Vamos contar!" },
+    'island-beach':   { grad: "from-blue-300 to-cyan-300",      headerGrad: "from-blue-500 to-cyan-400",     border: "border-blue-300",    pictogramId: "mathematics.more", label: "Ilha dos Gigantes e Formiguinhas", sub: "Quem tem mais?" },
+    'island-body':    { grad: "from-green-300 to-emerald-300",  headerGrad: "from-green-500 to-emerald-400", border: "border-green-300",   pictogramId: "arasaac.15195", label: "Ilha do Pomar", sub: "Junta tudo na cesta!" },
+    'island-home':    { grad: "from-amber-200 to-orange-200",   headerGrad: "from-amber-500 to-orange-400",  border: "border-amber-300",   pictogramId: "mathematics.subtraction", label: "Ilha dos Biscoitos", sub: "Quanto sobrou?" },
+    'island-colors':  { grad: "from-purple-300 to-fuchsia-300", headerGrad: "from-purple-500 to-pink-400",   border: "border-purple-300",  pictogramId: "arasaac.61042", label: "Ilha do Arco-Íris", sub: "Cores e padrões" },
+    'island-nature':  { grad: "from-indigo-300 to-violet-300",  headerGrad: "from-indigo-500 to-violet-400", border: "border-indigo-300",  pictogramId: "shape.triangle", label: "Ilha do Castelo das Formas", sub: "Que forma é essa?" },
   };
   return themeMap[islandId] || ISLAND_THEMES[index % ISLAND_THEMES.length];
 };
