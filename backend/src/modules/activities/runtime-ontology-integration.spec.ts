@@ -1,4 +1,5 @@
 import { ActivitiesService } from './activities.service';
+import { createActivitiesService } from './testing/create-activities-service';
 
 describe('ActivitiesService formal ontology integration', () => {
   it('calls semantic materialization and filtering in the production selection path', async () => {
@@ -90,23 +91,18 @@ describe('ActivitiesService formal ontology integration', () => {
     const hybrid = { rank: jest.fn().mockReturnValue(ranking) };
     const attemptRepo = { find: jest.fn().mockResolvedValue([]) };
     const learningEvents = { getRecentSkippedActivityIds: jest.fn().mockResolvedValue([]) };
-    const service = new ActivitiesService(
-      activityRepo as any,
-      attemptRepo as any,
-      {} as any, // islandRepo
-      {} as any, // islandActivityMappingRepo
-      {} as any, // kafkaProducer
-      adeService as any,
-      { getChildProfile: jest.fn().mockResolvedValue({ ontologyInstanceData: {} }) } as any, // usersService
-      learningEvents as any, // learningEventService
-      { query: jest.fn().mockResolvedValue([{ id: 'skill-id' }]) } as any, // dataSource
-      {} as any, // knowledgeTracingService
-      {} as any, // islandCycleValidator
-      { toChildDecision: jest.fn().mockReturnValue({ id: decision.id }) } as any, // recommendationExplanationService
-      ontology as any, // ontologyService
-      adapter as any, // runtimeSemanticAdapter
-      hybrid as any, // hybridRecommendationService
-    );
+    const service = createActivitiesService({
+      activityRepo,
+      attemptRepo,
+      adeService,
+      usersService: { getChildProfile: jest.fn().mockResolvedValue({ ontologyInstanceData: {} }) },
+      learningEventService: learningEvents,
+      dataSource: { query: jest.fn().mockResolvedValue([{ id: 'skill-id' }]) },
+      recommendationExplanationService: { toChildDecision: jest.fn().mockReturnValue({ id: decision.id }) },
+      ontologyService: ontology,
+      runtimeSemanticAdapter: adapter,
+      hybridRecommendationService: hybrid,
+    });
 
     const random = jest.spyOn(Math, 'random');
     const result = await service.getNextActivity('student-1');

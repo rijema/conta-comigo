@@ -1,4 +1,5 @@
 import { ActivitiesService } from './activities.service';
+import { createActivitiesService } from './testing/create-activities-service';
 import { LearningEventType } from '../learning-events/entities/learning-event.entity';
 
 describe('ActivitiesService change activity flow', () => {
@@ -17,16 +18,17 @@ describe('ActivitiesService change activity flow', () => {
     };
     const outcomeService = { attachReplacement: jest.fn().mockResolvedValue({}) };
     const knowledgeTracing = { observe: jest.fn() };
-    const service = new ActivitiesService(
-      {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any,
-      knowledgeTracing as any, {} as any, undefined, undefined, undefined, undefined, outcomeService as any,
-    );
+    const service = createActivitiesService({
+      knowledgeTracingService: knowledgeTracing,
+      recommendationOutcomeService: outcomeService,
+    });
     jest.spyOn(service, 'findById').mockResolvedValue(previous as any);
     const skipEvent = { id: '40000000-0000-0000-0000-000000000001' } as any;
     jest.spyOn(service, 'trackLifecycleEvent').mockResolvedValue(skipEvent);
     jest.spyOn(service, 'getNextActivity').mockResolvedValue({
       activity: replacement as any,
       adeDecision: { id: '20000000-0000-0000-0000-000000000002' },
+      preferredModality: null,
     });
 
     const result = await service.changeActivity('student-1', {
