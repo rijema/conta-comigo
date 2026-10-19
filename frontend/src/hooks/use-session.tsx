@@ -461,6 +461,10 @@ export function useSession() {
           ...(session?.currentActivity?.islandId && { islandId: session.currentActivity.islandId }),
           ...(session?.currentActivity?.cycleNumber !== undefined && { cycleNumber: session.currentActivity.cycleNumber }),
           ...(session?.focusIslandId && { focusIslandId: session.focusIslandId }),
+          // Generated exercises: lets the backend rebuild the exact numbers shown.
+          ...(session?.currentActivity?.content?.templateInstance && {
+            templateInstance: session.currentActivity.content.templateInstance,
+          }),
         },
         token ?? undefined,
       );

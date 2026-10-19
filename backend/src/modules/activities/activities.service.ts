@@ -15,6 +15,7 @@ import { TrackActivityLifecycleDto } from './dto/track-activity-lifecycle.dto';
 import { KnowledgeTracingService } from '../knowledge-tracing/knowledge-tracing.service';
 import { buildActivitySemanticContract } from './activity-semantic-contract';
 import { validateActivityAnswer } from './activity-answer-validator';
+import { chooseTemplateKey, materializeTemplate, templateKindOf } from './templates/activity-templates';
 import { RecommendationExplanationService } from '../ade/recommendation-explanation.service';
 import { OntologyService } from '../ontology/ontology.service';
 import type { SkillRelationEvidence } from '../ontology/ontology.service';
@@ -321,7 +322,8 @@ export class ActivitiesService {
       this.logger.error(`ADE failed: ${adeErr?.message}`, adeErr?.stack);
       if (context?.chosenActivityId) {
         return {
-          activity: await this.findChosenActivity(context.chosenActivityId),
+          activity: await this.presentToChild(
+            await this.findChosenActivity(context.chosenActivityId), userId, profile?.schoolYear),
           adeDecision: null,
           cycleContext: cycleContext || undefined,
           preferredModality: (profile?.uiPreferences?.preferredModality as string | undefined) ?? null,
@@ -332,7 +334,7 @@ export class ActivitiesService {
       });
       if (!fallback) throw new Error('No activities available');
       return {
-        activity: await this.attachSemanticContract(fallback),
+        activity: await this.presentToChild(fallback, userId, profile?.schoolYear),
         adeDecision: null,
         cycleContext: cycleContext || undefined,
         preferredModality: null,
@@ -370,7 +372,7 @@ export class ActivitiesService {
     );
 
     return {
-      activity: await this.attachSemanticContract(activity),
+      activity: await this.presentToChild(activity, userId, profile?.schoolYear),
       adeDecision: this.recommendationExplanationService.toChildDecision(
         adeDecision,
         { selectedActivityId: activity.id, selectedActivityType: activity.type },
@@ -379,6 +381,33 @@ export class ActivitiesService {
       cycleContext: cycleContext || undefined,
       preferredModality: (profile?.uiPreferences?.preferredModality as string | undefined) ?? null,
     };
+  }
+
+  /** Final step before an activity is shown: semantic contract + concrete template numbers. */
+  private async presentToChild(activity: Activity, userId: string, schoolYear?: number): Promise<Activity> {
+    const withContract = await this.attachSemanticContract(activity);
+    if (!templateKindOf(withContract)) return withContract;
+    try {
+      let year = schoolYear;
+      if (year == null) {
+        year = (await this.usersService.getChildProfile(userId).catch(() => null))?.schoolYear;
+      }
+      const previous = await this.attemptRepo.find({
+        where: { userId, activityId: activity.id },
+        order: { createdAt: 'DESC' },
+        take: 5,
+      });
+      const history = previous
+        .map((attempt) => ({
+          key: (attempt.researchTrace as any)?.presentedExercise?.templateInstance,
+          isCorrect: attempt.isCorrect,
+        }))
+        .filter((entry) => entry.key && typeof entry.key === 'object');
+      return materializeTemplate(withContract, chooseTemplateKey(year, history));
+    } catch (error: any) {
+      this.logger.warn(`Template generation failed for ${activity.id}: ${error?.message}`);
+      return withContract;
+    }
   }
 
   private async findChosenActivity(activityId: string): Promise<Activity> {
@@ -493,7 +522,15 @@ export class ActivitiesService {
     nextActivity?: Activity;
     adeDecision?: any;
   }> {
-    const activity = await this.findById(dto.activityId);
+    const storedActivity = await this.findById(dto.activityId);
+    // Template exercises are regenerated from the key the child received, so
+    // validation, mastery and research data refer to the exercise actually shown.
+    const templateInstance = templateKindOf(storedActivity)
+      ? (dto.templateInstance ?? (storedActivity.content as any)?.templateInstance ?? {})
+      : null;
+    const activity = templateInstance
+      ? materializeTemplate(storedActivity, templateInstance)
+      : storedActivity;
 
     // Calculate score
     const isCorrect = this.evaluateAnswer(activity, dto.answer);
@@ -531,6 +568,7 @@ export class ActivitiesService {
           title: activity.title,
           structureId: activity.content?.semantic?.structureId ?? null,
           skillWeights: activity.skillWeights ?? null,
+          templateInstance: (activity.content as any)?.templateInstance ?? null,
         },
         recommendationId: dto.recommendationId ?? dto.adeDecisionContext?.decisionId ?? null,
         firstInteractionMs: dto.firstInteractionMs ?? null,
@@ -631,7 +669,7 @@ export class ActivitiesService {
     }
 
     if (nextActivity) {
-      nextActivity = await this.attachSemanticContract(nextActivity);
+      nextActivity = await this.presentToChild(nextActivity, userId);
     }
 
     await masteryUpdate;

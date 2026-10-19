@@ -49,6 +49,11 @@ export class SubmitAttemptDto {
   @Matches(/^[a-z0-9-]{1,50}$/)
   focusIslandId?: string;
 
+  @ApiPropertyOptional({ description: 'Template key (year, level, seed) of the generated exercise the child answered' })
+  @IsOptional()
+  @IsObject()
+  templateInstance?: { year?: number; level?: number; seed?: number };
+
   @ApiPropertyOptional()
   @IsOptional()
   @IsNumber()
