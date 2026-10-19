@@ -1,6 +1,7 @@
 import { DataSource } from 'typeorm';
 import { expandedActivityPools } from './activity-pools.seed';
 import { interactiveFormatActivities } from './interactive-formats.seed';
+import { templateActivities } from './template-activities.seed';
 import { generate77ExercisesBreakingCycle } from './exercises-77-breaking-cycle.seed';
 
 export async function ActivitiesSeed(dataSource: DataSource) {
@@ -1254,7 +1255,11 @@ export async function ActivitiesSeed(dataSource: DataSource) {
     },
   });
 
-  activities.push(...expandedActivityPools() as any[], ...interactiveFormatActivities() as any[]);
+  activities.push(
+    ...expandedActivityPools() as any[],
+    ...interactiveFormatActivities() as any[],
+    ...templateActivities() as any[],
+  );
 
   // [ADE year-fit bridge] The hybrid recommendation engine already computes a
   // yearLevelFit score (weight 0.8) by reading content.targetYear/targetYearMin/

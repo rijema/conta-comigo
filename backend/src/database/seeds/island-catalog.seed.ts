@@ -52,7 +52,7 @@ export const ISLAND_CATALOG: IslandDefinition[] = [
     description: 'Quanto sobrou? Tirar e repartir.',
     theme: 'home',
     sequenceOrder: 4,
-    bnccSkills: ['EF01MA08', 'EF03MA08', 'EF04MA09', 'EF05MA06'],
+    bnccSkills: ['EF01MA08', 'EF02MA06', 'EF03MA06', 'EF04MA03', 'EF05MA07', 'EF03MA08', 'EF04MA09', 'EF05MA06'],
   },
   {
     islandId: 'island-colors',
@@ -90,6 +90,8 @@ const ISLAND_BY_NICHE: Record<string, string> = {
   spatial_position: 'island-nature',
 };
 
+const ADD_OR_SUBTRACT_SKILLS = new Set(['EF01MA08', 'EF02MA06', 'EF03MA06', 'EF04MA03', 'EF05MA07']);
+
 const DIFFICULTY_RANK: Record<string, number> = {
   very_easy: 1, easy: 2, medium: 3, hard: 4, extreme: 5,
 };
@@ -121,8 +123,8 @@ export function classifyActivityIsland(activity: CatalogActivity): string {
   const text = activityText(activity);
   const primarySkill = activity.bnccSkills?.[0];
 
-  // EF01MA08 covers both adding and taking-away problems; split by wording.
-  if (primarySkill === 'EF01MA08') {
+  // These skills cover both adding and taking-away problems; split by wording.
+  if (primarySkill && ADD_OR_SUBTRACT_SKILLS.has(primarySkill)) {
     if (TAKE_AWAY.test(text)) return 'island-home';
     if (JOIN.test(text)) return 'island-body';
     return 'island-home';
