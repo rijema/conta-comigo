@@ -353,6 +353,7 @@ export default function EducatorDashboardPage() {
                               <p>Conclusão: {longitudinal.observedData.recommendationSummary.completionRate == null ? "dados insuficientes" : `${Math.round(longitudinal.observedData.recommendationSummary.completionRate * 100)}%`}</p>
                               <p>Pulo: {longitudinal.observedData.recommendationSummary.skipRate == null ? "dados insuficientes" : `${Math.round(longitudinal.observedData.recommendationSummary.skipRate * 100)}%`}</p>
                               <p>“Quero outro”: {longitudinal.adaptations.totalChangeRequests}</p>
+                              <p>Pausas feitas: {longitudinal.adaptations.pauses ?? 0} · Pausas sugeridas por trocas repetidas: {longitudinal.adaptations.pauseSuggestions ?? 0}</p>
                               <p>Trocas mantendo a habilidade: {longitudinal.adaptations.sameSkillReplacements}</p>
                               <p>Fallbacks registrados: {longitudinal.adaptations.items.filter((item: any) => item.fallbackUsed).length}</p>
                             </div>

@@ -60,12 +60,16 @@ export class LongitudinalLearningAnalyticsService {
       instructionReplays: this.number(row.instructionReplays),
       skips: this.number(row.skips),
       changeRequests: this.number(row.changeRequests),
+      pauses: this.number(row.pauses),
+      pauseSuggestions: this.number(row.pauseSuggestions),
     }));
     const answers = sessions.reduce((sum: number, item: any) => sum + item.answers, 0);
     const correct = sessions.reduce((sum: number, item: any) => sum + item.correctAnswers, 0);
     const completed = sessions.reduce((sum: number, item: any) => sum + item.activitiesCompleted, 0);
     const hints = sessions.reduce((sum: number, item: any) => sum + item.hints, 0);
     const changeRequests = sessions.reduce((sum: number, item: any) => sum + item.changeRequests, 0);
+    const pauses = sessions.reduce((sum: number, item: any) => sum + item.pauses, 0);
+    const pauseSuggestions = sessions.reduce((sum: number, item: any) => sum + item.pauseSuggestions, 0);
     const recommendationOutcomes = rows.outcomes.map((row: any) => ({
       status: row.status,
       count: this.number(row.count),
@@ -126,6 +130,8 @@ export class LongitudinalLearningAnalyticsService {
       adaptations: {
         totalChangeRequests: changeRequests,
         sameSkillReplacements: rows.adaptations.filter((row: any) => row.sameSkill === true).length,
+        pauses,
+        pauseSuggestions,
         items: adaptationItems,
       },
       interactionHistory: {
@@ -161,7 +167,9 @@ export class LongitudinalLearningAnalyticsService {
     COUNT(*) FILTER (WHERE e."eventType" = 'HINT_REQUESTED') AS hints,
     COUNT(*) FILTER (WHERE e."eventType" = 'INSTRUCTION_REPLAYED') AS "instructionReplays",
     COUNT(*) FILTER (WHERE e."eventType" = 'ACTIVITY_SKIPPED') AS skips,
-    COUNT(*) FILTER (WHERE e."eventType" = 'ACTIVITY_SKIPPED' AND e.metadata->>'changeRequested' = 'true') AS "changeRequests"
+    COUNT(*) FILTER (WHERE e."eventType" = 'ACTIVITY_SKIPPED' AND e.metadata->>'changeRequested' = 'true') AS "changeRequests",
+    COUNT(*) FILTER (WHERE e."eventType"::text = 'PAUSE_STARTED') AS pauses,
+    COUNT(*) FILTER (WHERE e."eventType"::text = 'PAUSE_SUGGESTED') AS "pauseSuggestions"
     FROM learning_events e WHERE e."studentId" = $1 GROUP BY e."sessionId" ORDER BY MIN(e.timestamp)`; }
   private masterySql() { return `SELECT s.code AS "skillCode", k."masteryProbability", k.observations
     FROM student_skill_states k JOIN bncc_skills s ON s.id = k."skillId"

@@ -142,6 +142,7 @@ export class ActivitiesService {
     sessionId?: string;
     targetSkillCode?: string;
     excludedActivityId?: string;
+    skippedActivity?: Activity;
     cycleNumber?: number;
     islandId?: string;
   }): Promise<{
@@ -313,7 +314,9 @@ export class ActivitiesService {
       });
     } catch (adeErr: any) {
       this.logger.error(`ADE failed: ${adeErr?.message}`, adeErr?.stack);
-      const fallback = await this.selectFallbackActivity(userId, context?.excludedActivityId);
+      const fallback = await this.selectFallbackActivity(userId, context?.excludedActivityId, {
+        sessionId: context?.sessionId, skippedActivity: context?.skippedActivity, targetSkill,
+      });
       if (!fallback) throw new Error('No activities available');
       return {
         activity: await this.attachSemanticContract(fallback),
@@ -331,13 +334,16 @@ export class ActivitiesService {
         profile,
         context?.excludedActivityId,
         cycleContext || undefined,
+        { sessionId: context?.sessionId, skippedActivity: context?.skippedActivity },
       );
       activity = selection.activity;
       await this.persistSelection(adeDecision, selection);
       this.logSelectionSequence(userId, selection);
     } catch (matchErr: any) {
       this.logger.error(`findMatchingActivity failed: ${matchErr?.message}`);
-      const fallback = await this.selectFallbackActivity(userId, context?.excludedActivityId);
+      const fallback = await this.selectFallbackActivity(userId, context?.excludedActivityId, {
+        sessionId: context?.sessionId, skippedActivity: context?.skippedActivity, targetSkill,
+      });
       if (!fallback) throw new Error('No activities available');
       activity = fallback;
     }
@@ -405,6 +411,7 @@ export class ActivitiesService {
       sessionId: dto.sessionId,
       targetSkillCode: previous.bnccSkills?.[0],
       excludedActivityId: previous.id,
+      skippedActivity: previous,
     });
     if (skipEvent && replacement.adeDecision?.id && this.recommendationOutcomeService) {
       const next = replacement.activity;
@@ -422,7 +429,38 @@ export class ActivitiesService {
         difficultyDelta: this.semanticLevelDelta(previous.difficulty, next.difficulty),
       });
     }
-    return replacement;
+    const pauseSuggestion = await this.evaluatePauseSuggestion(userId, dto.sessionId, previous.id);
+    return { ...replacement, ...pauseSuggestion };
+  }
+
+  /**
+   * Repeated "Quero outro" in the same round usually signals fatigue or
+   * sensory overload rather than a dislike of one exercise. Every
+   * PAUSE_SUGGESTION_SKIP_THRESHOLD skips we offer a calm break and record it
+   * so professionals can see the signal.
+   */
+  private async evaluatePauseSuggestion(
+    userId: string,
+    sessionId: string,
+    activityId: string,
+  ): Promise<{ roundSkipCount: number; pauseSuggested: boolean }> {
+    if (typeof this.learningEventService.countSkipsInSession !== 'function') {
+      return { roundSkipCount: 0, pauseSuggested: false };
+    }
+    const threshold = Math.max(1, this.experimentalCount('PAUSE_SUGGESTION_SKIP_THRESHOLD', 3));
+    const roundSkipCount = await this.learningEventService.countSkipsInSession(userId, sessionId);
+    const pauseSuggested = roundSkipCount > 0 && roundSkipCount % threshold === 0;
+    if (pauseSuggested) {
+      await this.learningEventService.track({
+        studentId: userId,
+        sessionId,
+        eventType: LearningEventType.PAUSE_SUGGESTED,
+        timestamp: new Date(),
+        activityId,
+        metadata: { reason: 'repeated_change_requests', roundSkipCount, threshold },
+      });
+    }
+    return { roundSkipCount, pauseSuggested };
   }
 
   async submitAttempt(userId: string, dto: SubmitAttemptDto): Promise<{
@@ -545,13 +583,17 @@ export class ActivitiesService {
         adeDecision,
         profile,
         dto.activityId,
+        undefined,
+        { sessionId: dto.sessionId },
       );
       nextActivity = selection.activity;
       await this.persistSelection(adeDecision, selection);
     } catch (err: any) {
       this.logger.error(`Next activity fetch failed: ${err?.message}. Using cooldown fallback.`, err?.stack);
       try {
-        const fallbacks = await this.selectFallbackActivity(userId, dto.activityId);
+        const fallbacks = await this.selectFallbackActivity(userId, dto.activityId, {
+          sessionId: dto.sessionId, targetSkill: adeDecision?.recommendedBnccSkill,
+        });
         if (fallbacks) {
           nextActivity = fallbacks;
           this.logger.log(`Fallback activity selected: ${fallbacks.id}`);
@@ -651,6 +693,8 @@ export class ActivitiesService {
       const bnccSkillId = await this.resolveBnccSkillId(activity);
       const isSkip = dto.eventType === LearningEventType.ACTIVITY_SKIPPED;
       const isExit = dto.eventType === LearningEventType.ACTIVITY_ABANDONED;
+      const isPause = dto.eventType === LearningEventType.PAUSE_STARTED ||
+        dto.eventType === LearningEventType.PAUSE_ENDED;
       const event = await this.learningEventService.track({
         studentId: userId,
         sessionId: dto.sessionId,
@@ -669,9 +713,13 @@ export class ActivitiesService {
           timeBeforeExitMs: dto.timeBeforeExitMs ?? null,
           attemptsBeforeExit: dto.attemptsBeforeExit ?? null,
           hintsBeforeExit: dto.hintsBeforeExit ?? null,
+        } : isPause ? {
+          pauseTrigger: dto.pauseTrigger ?? 'child',
+          pauseDurationMs: dto.pauseDurationMs ?? null,
         } : null,
       });
-      if (event && this.recommendationOutcomeService) {
+      // Pauses are not a recommendation outcome; keep them out of outcome/evidence tables.
+      if (event && this.recommendationOutcomeService && !isPause) {
         await this.recommendationOutcomeService.synchronize(event, activity);
       }
       return event;
@@ -1188,6 +1236,7 @@ export class ActivitiesService {
     profile: any,
     excludedActivityId?: string,
     cycleContext?: CycleContextDto,
+    round?: { sessionId?: string; skippedActivity?: Activity },
   ): Promise<ActivitySelectionResult> {
     const storedActivities = (await this.activityRepo.find({ where: { isActive: true } }))
       .filter((activity) => activity.id !== excludedActivityId);
@@ -1196,21 +1245,24 @@ export class ActivitiesService {
     const activities = await Promise.all(
       storedActivities.map((activity) => this.attachSemanticContract(activity)),
     );
-    const [recentAttempts, rejectedActivityIds] = await Promise.all([
+    const [recentAttempts, rejectedActivityIds, roundSkippedIds] = await Promise.all([
       this.getRecentAttempts(adeDecision.userId, 20),
       this.learningEventService.getRecentSkippedActivityIds(adeDecision.userId, 20),
+      this.getRoundSkippedActivityIds(adeDecision.userId, round?.sessionId),
     ]);
     const masteryBySkillCode = typeof this.knowledgeTracingService.getMasteryMapBySkillCode === 'function'
       ? await this.knowledgeTracingService.getMasteryMapBySkillCode(adeDecision.userId).catch(() => ({}))
       : {};
     const preferences = profile?.uiPreferences ?? {};
-    const eligibleActivities = activities.filter((activity) =>
+    const prerequisiteEligible = activities.filter((activity) =>
       (typeof this.ontologyService?.isActivityPrerequisiteSatisfied !== 'function' ||
         this.ontologyService.isActivityPrerequisiteSatisfied(
           activity.prerequisiteSkillCode, masteryBySkillCode)) &&
       this.matchesExperienceRestrictions(activity, preferences));
-    if (!eligibleActivities.length) throw new Error('No activity satisfies known prerequisites');
-    const strategy = await this.planLearningStrategy(adeDecision, eligibleActivities, recentAttempts);
+    if (!prerequisiteEligible.length) throw new Error('No activity satisfies known prerequisites');
+    const strategy = await this.planLearningStrategy(adeDecision, prerequisiteEligible, recentAttempts);
+    const eligibleActivities = this.applyRoundSkipPolicy(
+      prerequisiteEligible, roundSkippedIds, adeDecision.recommendedBnccSkill, round?.skippedActivity);
     
     // [PROPOSTA CONTA COMIGO] Filter by recommended island first if available
     let islandCandidates = eligibleActivities;
@@ -1451,6 +1503,50 @@ export class ActivitiesService {
     return Math.floor(this.experimentalNumber(key, fallback));
   }
 
+  private async getRoundSkippedActivityIds(userId: string, sessionId?: string): Promise<string[]> {
+    if (!sessionId || typeof this.learningEventService.getSkippedActivityIdsInSession !== 'function') return [];
+    return this.learningEventService.getSkippedActivityIdsInSession(userId, sessionId);
+  }
+
+  /**
+   * "Quero outro" rules inside one round (session) of 10 activities:
+   * - an activity skipped in the round does not come back in that round;
+   * - the replacement keeps the target skill and, when possible, changes format;
+   * - if the target skill has nothing else left, the oldest skipped activity of
+   *   that skill returns (preferring another format) instead of leaving the skill.
+   */
+  applyRoundSkipPolicy(
+    candidates: Activity[],
+    roundSkippedIds: string[],
+    targetSkill?: string,
+    skippedActivity?: Pick<Activity, 'type'>,
+  ): Activity[] {
+    if (!roundSkippedIds.length && !skippedActivity) return candidates;
+    const skipped = new Set(roundSkippedIds);
+    const hasTargetSkill = (activity: Activity) =>
+      !targetSkill || Boolean(activity.bnccSkills?.includes(targetSkill));
+    const differsFromSkipped = (activity: Activity) =>
+      !skippedActivity || activity.type !== skippedActivity.type;
+    let pool = candidates.filter((activity) => !skipped.has(activity.id));
+
+    if (!pool.some(hasTargetSkill)) {
+      const oldestSkippedFirst = [...roundSkippedIds].reverse()
+        .map((id) => candidates.find((activity) => activity.id === id))
+        .filter((activity): activity is Activity => Boolean(activity));
+      const reintroduced =
+        oldestSkippedFirst.find((activity) => hasTargetSkill(activity) && differsFromSkipped(activity)) ??
+        oldestSkippedFirst.find(hasTargetSkill) ??
+        (pool.length ? undefined : oldestSkippedFirst[0]);
+      if (reintroduced) pool = [...pool, reintroduced];
+    }
+
+    if (skippedActivity) {
+      const otherFormat = pool.filter(differsFromSkipped);
+      if (otherFormat.some(hasTargetSkill)) pool = otherFormat;
+    }
+    return pool.length ? pool : candidates;
+  }
+
   private cooldown(candidates: Activity[], catalog: Activity[], recentIds: string[]): Activity[] {
     if (!candidates.length) return candidates;
     const byId = new Map(catalog.map((activity) => [activity.id, activity]));
@@ -1487,7 +1583,11 @@ export class ActivitiesService {
     return candidates;
   }
 
-  private async selectFallbackActivity(userId: string, excludedId?: string): Promise<Activity | null> {
+  private async selectFallbackActivity(
+    userId: string,
+    excludedId?: string,
+    round?: { sessionId?: string; skippedActivity?: Activity; targetSkill?: string },
+  ): Promise<Activity | null> {
     const profile = typeof this.usersService.getChildProfile === 'function'
       ? await this.usersService.getChildProfile(userId).catch(() => null)
       : null;
@@ -1496,16 +1596,19 @@ export class ActivitiesService {
     const masteryBySkillCode = typeof this.knowledgeTracingService.getMasteryMapBySkillCode === 'function'
       ? await this.knowledgeTracingService.getMasteryMapBySkillCode(userId).catch(() => ({}))
       : {};
-    const candidates = catalog.filter((item) => item.id !== excludedId &&
+    const eligible = catalog.filter((item) => item.id !== excludedId &&
       this.matchesExperienceRestrictions(item, preferences) &&
       (typeof this.ontologyService?.isActivityPrerequisiteSatisfied !== 'function' ||
         this.ontologyService.isActivityPrerequisiteSatisfied(
           item.prerequisiteSkillCode, masteryBySkillCode)));
-    if (!candidates.length) return null;
-    const [attempts, skipped] = await Promise.all([
+    if (!eligible.length) return null;
+    const [attempts, skipped, roundSkippedIds] = await Promise.all([
       this.getRecentAttempts(userId, 20),
       this.learningEventService.getRecentSkippedActivityIds(userId, 20),
+      this.getRoundSkippedActivityIds(userId, round?.sessionId),
     ]);
+    const candidates = this.applyRoundSkipPolicy(
+      eligible, roundSkippedIds, round?.targetSkill, round?.skippedActivity);
     return this.cooldown(this.preferExperienceCandidates(candidates, preferences), catalog,
       [...skipped, ...attempts.map((attempt) => attempt.activityId)])[0] ?? null;
   }

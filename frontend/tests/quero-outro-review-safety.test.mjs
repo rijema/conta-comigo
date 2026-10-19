@@ -26,8 +26,8 @@ test('changeCurrentActivity is disabled during active review', async () => {
   // Verify that it returns false during review
   assert.match(
     content,
-    /if\s*\(\s*session\.currentActivity\?\.reviewAssignmentId\s*\)\s*\{[\s\S]*?return\s+false/,
-    'changeCurrentActivity should return false when reviewAssignmentId exists'
+    /if\s*\(\s*session\.currentActivity\?\.reviewAssignmentId\s*\)\s*\{[\s\S]*?return\s+notChanged/,
+    'changeCurrentActivity should report no change when reviewAssignmentId exists'
   );
 });
 
@@ -35,7 +35,7 @@ test('review mode check happens before API call', async () => {
   const content = fs.readFileSync(useSessionPath, 'utf-8');
   
   // Find the changeCurrentActivity function
-  const functionStart = content.indexOf('const changeCurrentActivity = useCallback(async () => {');
+  const functionStart = content.indexOf('const changeCurrentActivity = useCallback(async (');
   assert.ok(functionStart !== -1, 'changeCurrentActivity function should exist');
   
   // Find the review check
@@ -47,7 +47,7 @@ test('review mode check happens before API call', async () => {
   
   // Find the API call
   const apiCallStart = content.indexOf(
-    'api.post<{ activity: any; adeDecision: any }>',
+    '"/activities/change"',
     functionStart
   );
   assert.ok(apiCallStart !== -1, 'API call should exist');

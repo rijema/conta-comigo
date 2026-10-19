@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsBoolean, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, IsUUID, Min } from 'class-validator';
+import { IsBoolean, IsEnum, IsIn, IsInt, IsNotEmpty, IsOptional, IsString, IsUUID, Min } from 'class-validator';
 import { LearningEventType } from '../../learning-events/entities/learning-event.entity';
 
 export const ACTIVITY_LIFECYCLE_EVENT_TYPES = {
@@ -10,7 +10,11 @@ export const ACTIVITY_LIFECYCLE_EVENT_TYPES = {
   INSTRUCTION_REPLAYED: LearningEventType.INSTRUCTION_REPLAYED,
   ACTIVITY_SKIPPED: LearningEventType.ACTIVITY_SKIPPED,
   ACTIVITY_ABANDONED: LearningEventType.ACTIVITY_ABANDONED,
+  PAUSE_STARTED: LearningEventType.PAUSE_STARTED,
+  PAUSE_ENDED: LearningEventType.PAUSE_ENDED,
 } as const;
+
+export const PAUSE_TRIGGERS = ['child', 'suggested'] as const;
 
 export class TrackActivityLifecycleDto {
   @ApiProperty()
@@ -67,4 +71,15 @@ export class TrackActivityLifecycleDto {
   @IsOptional()
   @IsBoolean()
   changeRequested?: boolean;
+
+  @ApiPropertyOptional({ description: 'Duration of a calm break, sent with PAUSE_ENDED' })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  pauseDurationMs?: number;
+
+  @ApiPropertyOptional({ enum: PAUSE_TRIGGERS })
+  @IsOptional()
+  @IsIn(PAUSE_TRIGGERS)
+  pauseTrigger?: typeof PAUSE_TRIGGERS[number];
 }

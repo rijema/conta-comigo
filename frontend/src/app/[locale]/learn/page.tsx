@@ -8,9 +8,11 @@ import { useAuth } from "@/hooks/use-auth";
 import { useSession } from "@/hooks/use-session";
 import { ActivityRenderer } from "@/components/activity/activity-renderer";
 import { ExerciseCelebration } from "@/components/activity/exercise-celebration";
+import { CalmPauseDialog } from "@/components/activity/calm-pause-dialog";
 import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
 import { useAccessibility } from "@/contexts/AccessibilityContext";
 import { useTitiaSpeech } from "@/hooks/use-titia-speech";
+import { useModalFocus } from "@/hooks/use-modal-focus";
 import { useVoiceCommand } from "@/hooks/use-voice-command";
 import { PushToTalkButton } from "@/components/voice/push-to-talk-button";
 import { api } from "@/lib/api-client";
@@ -131,7 +133,12 @@ function playTap(volume: number) { playTone(620, 0.07, "sine", 0.12 * volume); }
 
 function LearnPageInner() {
   const { user, isLoading: authLoading } = useAuth();
-  const { session, startSession, stopSession, submitAnswer, resetAttempts, markActivityStarted, requestActivityHelp, requestHint, abandonCurrentActivity, recordFirstInteraction, changeCurrentActivity, isChangingActivity, isLoading: sessionLoading, error: sessionError } = useSession();
+  const { session, startSession, stopSession, submitAnswer, resetAttempts, markActivityStarted, requestActivityHelp, requestHint, abandonCurrentActivity, recordFirstInteraction, changeCurrentActivity, isChangingActivity, isPaused, startPause, endPause, isLoading: sessionLoading, error: sessionError } = useSession();
+  // Rule: repeated "Quero outro" in the same round suggests a calm break.
+  const [showPauseSuggestion, setShowPauseSuggestion] = useState(false);
+  const pauseSuggestionAcceptRef = useRef<HTMLButtonElement>(null);
+  const closePauseSuggestion = useCallback(() => setShowPauseSuggestion(false), []);
+  const pauseSuggestionRef = useModalFocus<HTMLElement>(showPauseSuggestion && !isPaused, closePauseSuggestion, pauseSuggestionAcceptRef);
   const [showReward, setShowReward] = useState(false);
   const [showAutoHint, setShowAutoHint] = useState(false);
   const [rewardWrong, setRewardWrong] = useState(false);
@@ -210,21 +217,20 @@ function LearnPageInner() {
 
   useEffect(() => {
     setShowAutoHint(false);
-    if (!session?.currentActivity?.id || !settings.autoHints || session.progress >= 100) return;
+    if (!session?.currentActivity?.id || !settings.autoHints || session.progress >= 100 || isPaused) return;
     const activityId = session.currentActivity.id;
     const timer = window.setTimeout(() => {
       requestHint(activityId);
       setShowAutoHint(true);
     }, Math.max(5, settings.helpDelaySeconds) * 1000);
     return () => window.clearTimeout(timer);
-  }, [session?.currentActivity?.id, settings.autoHints, settings.helpDelaySeconds]);
+  }, [session?.currentActivity?.id, settings.autoHints, settings.helpDelaySeconds, isPaused]);
 
   const handleAnswer = useCallback(async (answer: any) => {
     if (!session?.currentActivity) return;
     const result = await submitAnswer({
       activityId: session.currentActivity.id,
       answer,
-      timeSpentMs: Date.now() - (session.activityStartTime || Date.now()),
     });
     if (result.isCorrect) {
       if (result.completed) return;
@@ -257,7 +263,8 @@ function LearnPageInner() {
   const handleSkipAfterReveal = async () => {
     setAnswerReveal(null);
     if (settings.allowChangeActivity) {
-      await changeCurrentActivity();
+      const { pauseSuggested } = await changeCurrentActivity();
+      if (pauseSuggested) setShowPauseSuggestion(true);
     }
   };
 
@@ -285,8 +292,27 @@ function LearnPageInner() {
     if (!settings.allowChangeActivity) return;
     if (settings.soundEnabled && settings.soundEffectsEnabled) playTap(effectVolume);
     speech.stopSpeech();
-    const changed = await changeCurrentActivity();
-    if (changed) speech.speakFeedback("Vamos tentar de outro jeito!");
+    const { changed, pauseSuggested } = await changeCurrentActivity();
+    if (!changed) return;
+    if (pauseSuggested) {
+      setShowPauseSuggestion(true);
+      speech.speakFeedback("Você trocou algumas vezes. Quer fazer uma pausa?");
+    } else {
+      speech.speakFeedback("Vamos tentar de outro jeito!");
+    }
+  };
+
+  const handleStartPause = (trigger: "child" | "suggested" = "child") => {
+    setShowPauseSuggestion(false);
+    if (settings.soundEnabled && settings.soundEffectsEnabled) playTap(effectVolume);
+    speech.stopSpeech();
+    startPause(trigger);
+    speech.speakFeedback("Vamos descansar um pouquinho.");
+  };
+
+  const handleEndPause = () => {
+    speech.stopSpeech();
+    endPause();
   };
 
   const handleOpenTutorial = () => {
@@ -369,7 +395,7 @@ function LearnPageInner() {
   const tutorialSteps = getTutorialSteps(activity);
 
   return (
-    <div className="min-h-screen motion-safe:transition-all motion-safe:duration-700" onPointerDownCapture={() => recordFirstInteraction(activity.id)} onKeyDownCapture={() => recordFirstInteraction(activity.id)} style={{ background: settings.lowStimulationMode || settings.visualStimulus === 'low' ? "#ecfdf5" : bg, filter: settings.visualStimulus === 'high' ? 'saturate(1.1)' : undefined, transitionDuration: settings.animationsReduced || settings.lowStimulationMode ? '0ms' : settings.animationSpeed === 'slow' ? '1200ms' : settings.animationSpeed === 'fast' ? '350ms' : '700ms' }}>
+    <div className="min-h-screen motion-safe:transition-all motion-safe:duration-700" onPointerDownCapture={(event) => { if (!(event.target as HTMLElement).closest("[data-pause-ui]")) recordFirstInteraction(activity.id); }} onKeyDownCapture={(event) => { if (!(event.target as HTMLElement).closest("[data-pause-ui]")) recordFirstInteraction(activity.id); }} style={{ background: settings.lowStimulationMode || settings.visualStimulus === 'low' ? "#ecfdf5" : bg, filter: settings.visualStimulus === 'high' ? 'saturate(1.1)' : undefined, transitionDuration: settings.animationsReduced || settings.lowStimulationMode ? '0ms' : settings.animationSpeed === 'slow' ? '1200ms' : settings.animationSpeed === 'fast' ? '350ms' : '700ms' }}>
       <h1 className="sr-only">Atividade: {activity.title}</h1>
 
       {/* ── Correct answer burst ── */}
@@ -429,6 +455,37 @@ function LearnPageInner() {
               <button type="button" onClick={confirmExitToMenu}
                 className="min-h-14 flex-1 rounded-2xl bg-purple-600 px-4 py-3 text-base font-bold text-white hover:bg-purple-700">
                 Sim, sair
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
+      <CalmPauseDialog
+        open={isPaused}
+        onResume={handleEndPause}
+        onSpeak={speech.speakExplanation}
+        soundEnabled={settings.soundEnabled}
+        musicVolume={settings.volume * (settings.audioStimulus === 'low' ? 0.12 : settings.audioStimulus === 'medium' ? 0.2 : 0.28)}
+        reducedMotion={settings.animationsReduced || settings.lowStimulationMode}
+      />
+
+      {showPauseSuggestion && !isPaused && (
+        <div data-pause-ui role="dialog" aria-modal="true" aria-labelledby="pause-suggestion-title" className="fixed inset-0 z-[95] flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm">
+          <section ref={pauseSuggestionRef} className="w-full max-w-md rounded-[2rem] border-4 border-teal-200 bg-white p-6 text-center shadow-2xl">
+            <ArasaacPictogram conceptId="library.rest" showLabel={false} imageClassName="mx-auto h-20 w-20" />
+            <h2 id="pause-suggestion-title" className="mt-2 text-xl font-black text-teal-800">Quer fazer uma pausa?</h2>
+            <p className="mt-2 text-sm font-semibold text-slate-600">
+              Você trocou algumas vezes. Tudo bem! Se quiser, a gente descansa um pouquinho com música calma.
+            </p>
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+              <button type="button" onClick={closePauseSuggestion}
+                className="min-h-14 flex-1 rounded-2xl border-2 border-slate-200 px-4 py-3 text-base font-bold text-slate-700 hover:bg-slate-100">
+                Continuar jogando
+              </button>
+              <button ref={pauseSuggestionAcceptRef} type="button" onClick={() => handleStartPause("suggested")}
+                className="min-h-14 flex-1 rounded-2xl bg-teal-600 px-4 py-3 text-base font-bold text-white hover:bg-teal-700">
+                Sim, quero pausar
               </button>
             </div>
           </section>
@@ -538,7 +595,7 @@ function LearnPageInner() {
         </span>
         {session.selectionSource === "recalculated" && <span className="inline-flex items-center gap-1 rounded-full border border-purple-200 bg-white/70 px-3 py-1 text-xs font-extrabold text-purple-700 shadow-sm">↻ Outra opção escolhida pela TitiA</span>}
       </div>
-      <div className="exercise-actions mx-auto grid max-w-5xl grid-cols-1 gap-3 px-4 pt-3 sm:grid-cols-3">
+      <div className="exercise-actions mx-auto grid max-w-5xl grid-cols-1 gap-3 px-4 pt-3 sm:grid-cols-2 lg:grid-cols-4">
         <button
           type="button"
           onClick={handleChangeActivity}
@@ -564,6 +621,12 @@ function LearnPageInner() {
           aria-label="Abrir ajuda visual sobre como jogar">
           <ArasaacPictogram conceptId="navigation.help" showLabel={false} imageClassName="h-7 w-7" />
           <span>Como jogar</span>
+        </button>
+        <button type="button" data-pause-ui onClick={() => handleStartPause("child")} disabled={isPaused}
+          className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl border-2 border-teal-300 bg-gradient-to-r from-teal-50 to-cyan-100 px-4 py-2 text-sm font-extrabold text-teal-800 shadow-md motion-safe:transition-all motion-safe:hover:scale-[1.04] hover:shadow-lg motion-safe:active:scale-[.96] disabled:opacity-60"
+          aria-label="Quero fazer uma pausa">
+          <ArasaacPictogram conceptId="navigation.pause" showLabel={false} imageClassName="h-7 w-7" />
+          <span>Quero uma pausa</span>
         </button>
       </div>
 

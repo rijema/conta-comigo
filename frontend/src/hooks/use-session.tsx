@@ -28,7 +28,16 @@ type ActivityLifecycleEventType =
   | "TUTORIAL_OPENED"
   | "INSTRUCTION_REPLAYED"
   | "ACTIVITY_SKIPPED"
-  | "ACTIVITY_ABANDONED";
+  | "ACTIVITY_ABANDONED"
+  | "PAUSE_STARTED"
+  | "PAUSE_ENDED";
+
+export type PauseTrigger = "child" | "suggested";
+
+interface PauseInterval {
+  start: number;
+  end: number | null;
+}
 
 interface ActivityInteractionCounters {
   activityId: string | null;
@@ -37,6 +46,7 @@ interface ActivityInteractionCounters {
   tutorialOpens: number;
   firstInteractionAt: number | null;
   lastAttemptAt: number | null;
+  pauses: PauseInterval[];
 }
 
 interface SkipContext {
@@ -46,6 +56,20 @@ interface SkipContext {
   timeBeforeExitMs: number;
   attemptsBeforeExit: number;
   hintsBeforeExit: number;
+  pauseDurationMs: number;
+  pauseTrigger: PauseTrigger;
+}
+
+// Calm breaks must not inflate exercise timing metrics (response time, total
+// time, time before skip), so every interval is measured minus paused time.
+function activeElapsedMs(pauses: PauseInterval[], from: number, to: number) {
+  if (to <= from) return 0;
+  const paused = pauses.reduce((total, pause) => {
+    const start = Math.max(from, pause.start);
+    const end = Math.min(to, pause.end ?? to);
+    return total + Math.max(0, end - start);
+  }, 0);
+  return Math.max(0, to - from - paused);
 }
 
 export function useSession() {
@@ -63,7 +87,9 @@ export function useSession() {
     tutorialOpens: 0,
     firstInteractionAt: null,
     lastAttemptAt: null,
+    pauses: [],
   });
+  const [pauseState, setPauseState] = useState<{ startedAt: number; trigger: PauseTrigger } | null>(null);
   const studentIdRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -84,6 +110,7 @@ export function useSession() {
         tutorialOpens: 0,
         firstInteractionAt: null,
         lastAttemptAt: null,
+        pauses: [],
       };
     }
     return interactionCountersRef.current;
@@ -232,9 +259,40 @@ export function useSession() {
   }, [getInteractionCounters, trackActivityLifecycle, trackSessionEvent]);
 
   const recordFirstInteraction = useCallback((activityId: string) => {
+    if (pauseState) return;
     const counters = getInteractionCounters(activityId);
     counters.firstInteractionAt ??= Date.now();
-  }, [getInteractionCounters]);
+  }, [getInteractionCounters, pauseState]);
+
+  const activeTimeSinceStart = useCallback((activityId: string, at = Date.now()) => {
+    if (!session) return 0;
+    return activeElapsedMs(getInteractionCounters(activityId).pauses, session.activityStartTime, at);
+  }, [getInteractionCounters, session]);
+
+  const startPause = useCallback((trigger: PauseTrigger = "child") => {
+    if (!session?.id || !session.currentActivity?.id || pauseState) return;
+    const startedAt = Date.now();
+    getInteractionCounters(session.currentActivity.id).pauses.push({ start: startedAt, end: null });
+    setPauseState({ startedAt, trigger });
+    trackActivityLifecycle(session.id, session.currentActivity.id, "PAUSE_STARTED",
+      { pauseTrigger: trigger }, session.currentRecommendationId);
+  }, [getInteractionCounters, pauseState, session, trackActivityLifecycle]);
+
+  const endPause = useCallback(() => {
+    if (!pauseState || !session?.id || !session.currentActivity?.id) {
+      setPauseState(null);
+      return;
+    }
+    const endedAt = Date.now();
+    const counters = getInteractionCounters(session.currentActivity.id);
+    const openPause = counters.pauses.find((pause) => pause.end === null);
+    if (openPause) openPause.end = endedAt;
+    setPauseState(null);
+    trackActivityLifecycle(session.id, session.currentActivity.id, "PAUSE_ENDED", {
+      pauseTrigger: pauseState.trigger,
+      pauseDurationMs: Math.max(0, endedAt - pauseState.startedAt),
+    }, session.currentRecommendationId);
+  }, [getInteractionCounters, pauseState, session, trackActivityLifecycle]);
 
   const markActivityStarted = useCallback((activityId: string) => {
     if (!session?.id) return;
@@ -266,42 +324,43 @@ export function useSession() {
     const activityId = session.currentActivity.id;
     const counters = getInteractionCounters(activityId);
     trackActivityLifecycle(session.id, activityId, "ACTIVITY_SKIPPED", {
-      timeBeforeSkipMs: Math.max(0, Date.now() - session.activityStartTime),
+      timeBeforeSkipMs: activeTimeSinceStart(activityId),
       attemptsBeforeSkip: counters.attempts,
       hintsBeforeSkip: counters.hints,
     }, session.currentRecommendationId);
-  }, [getInteractionCounters, session, trackActivityLifecycle]);
+  }, [activeTimeSinceStart, getInteractionCounters, session, trackActivityLifecycle]);
 
   const abandonCurrentActivity = useCallback(() => {
     if (!session?.id || !session.currentActivity?.id || session.progress >= 100) return;
     const activityId = session.currentActivity.id;
     const counters = getInteractionCounters(activityId);
     trackActivityLifecycle(session.id, activityId, "ACTIVITY_ABANDONED", {
-      timeBeforeExitMs: Math.max(0, Date.now() - session.activityStartTime),
+      timeBeforeExitMs: activeTimeSinceStart(activityId),
       attemptsBeforeExit: counters.attempts,
       hintsBeforeExit: counters.hints,
     }, session.currentRecommendationId);
-  }, [getInteractionCounters, session, trackActivityLifecycle]);
+  }, [activeTimeSinceStart, getInteractionCounters, session, trackActivityLifecycle]);
 
-  const changeCurrentActivity = useCallback(async () => {
-    if (!session?.currentActivity?.id || !session.currentRecommendationId || isChangingActivity) return false;
+  const changeCurrentActivity = useCallback(async (): Promise<{ changed: boolean; pauseSuggested: boolean }> => {
+    const notChanged = { changed: false, pauseSuggested: false };
+    if (!session?.currentActivity?.id || !session.currentRecommendationId || isChangingActivity) return notChanged;
     // [INTEGRATION 3C-FINAL]: Disable "Quero outro" during active review
     if (session.currentActivity?.reviewAssignmentId) {
       console.warn('Cannot change activity during active review');
-      return false;
+      return notChanged;
     }
     const token = authService.getStoredToken();
-    if (!token) return false;
+    if (!token) return notChanged;
     const counters = getInteractionCounters(session.currentActivity.id);
     setIsChangingActivity(true);
     try {
-      const result = await api.post<{ activity: any; adeDecision: any }>(
+      const result = await api.post<{ activity: any; adeDecision: any; pauseSuggested?: boolean }>(
         "/activities/change",
         {
           currentActivityId: session.currentActivity.id,
           recommendationId: session.currentRecommendationId,
           sessionId: session.id,
-          timeBeforeSkipMs: Math.max(0, Date.now() - session.activityStartTime),
+          timeBeforeSkipMs: activeTimeSinceStart(session.currentActivity.id),
           attemptsBeforeSkip: counters.attempts,
           hintsBeforeSkip: counters.hints,
         },
@@ -337,23 +396,24 @@ export function useSession() {
         activityStartTime: Date.now(),
         selectionSource: "recalculated",
       } : previous);
-      return true;
+      return { changed: true, pauseSuggested: Boolean(result.pauseSuggested) };
     } catch (changeError) {
       console.error("Failed to change activity:", changeError);
-      return false;
+      return notChanged;
     } finally {
       setIsChangingActivity(false);
     }
-  }, [getInteractionCounters, isChangingActivity, session, trackActivityLifecycle, logBlockChange]);
+  }, [activeTimeSinceStart, getInteractionCounters, isChangingActivity, session, trackActivityLifecycle, logBlockChange]);
 
   const submitAnswer = async (payload: {
     activityId: string;
     answer: any;
-    timeSpentMs: number;
   }) => {
     const token = authService.getStoredToken();
     const counters = getInteractionCounters(payload.activityId);
     const answerAt = Date.now();
+    const activityStart = session?.activityStartTime ?? answerAt;
+    const totalTimeMs = activeElapsedMs(counters.pauses, activityStart, answerAt);
     counters.firstInteractionAt ??= answerAt;
     counters.attempts += 1;
     try {
@@ -370,10 +430,10 @@ export function useSession() {
         {
           activityId: payload.activityId,
           answer: normalizedAnswer,
-          timeSpentSeconds: Math.round(payload.timeSpentMs / 1000),
-          responseTimeMs: Math.max(0, answerAt - (counters.lastAttemptAt ?? session?.activityStartTime ?? answerAt)),
-          firstInteractionMs: Math.max(0, counters.firstInteractionAt - (session?.activityStartTime ?? counters.firstInteractionAt)),
-          totalTimeMs: payload.timeSpentMs,
+          timeSpentSeconds: Math.round(totalTimeMs / 1000),
+          responseTimeMs: activeElapsedMs(counters.pauses, counters.lastAttemptAt ?? activityStart, answerAt),
+          firstInteractionMs: activeElapsedMs(counters.pauses, activityStart, counters.firstInteractionAt),
+          totalTimeMs,
           hintsUsed: counters.hints,
           // GAIA: lets the backend reveal the correct answer after 5 failed
           // attempts on the same activity instead of allowing indefinite,
@@ -460,7 +520,9 @@ export function useSession() {
     tutorialOpens: 0,
       firstInteractionAt: null,
       lastAttemptAt: null,
+      pauses: [],
     };
+    setPauseState(null);
     setSession(null);
     window.localStorage.removeItem(SESSION_STORAGE_KEY);
     studentIdRef.current = null;
@@ -481,6 +543,9 @@ export function useSession() {
     recordFirstInteraction,
     changeCurrentActivity,
     isChangingActivity,
+    isPaused: pauseState !== null,
+    startPause,
+    endPause,
     isLoading,
     error,
   };
