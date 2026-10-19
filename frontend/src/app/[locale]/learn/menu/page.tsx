@@ -393,7 +393,7 @@ export default function ActivityMenuPage() {
                                     </div>
                                   ) : !act.completed ? (
                                     <button
-                                      onClick={() => router.push(`/${locale}/learn?activityId=${act.id}`)}
+                                      onClick={() => router.push(`/${locale}/learn?${new URLSearchParams({ activityId: act.id, islandId: group.skill }).toString()}`)}
                                       className={`flex-shrink-0 min-h-11 rounded-2xl flex items-center gap-1 px-2 text-white text-sm font-bold shadow-md active:scale-95 transition-transform ${
                                         isRec ? "bg-gradient-to-br from-purple-500 to-pink-500" : "bg-gradient-to-br from-blue-400 to-blue-600"
                                       }`}

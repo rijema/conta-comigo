@@ -16,6 +16,13 @@ export interface SessionState {
   selectionSource: "recommended" | "recalculated";
   roundStats?: { correctAnswers: number; starsEarned: number; practiceLabel: string };
   preferredModality?: string | null;
+  /** Island the child opened on the map; TitiA keeps recommending inside it. */
+  focusIslandId?: string | null;
+}
+
+export interface MapChoice {
+  activityId?: string | null;
+  islandId?: string | null;
 }
 
 const SESSION_STORAGE_KEY = "contacomigo.learning-session";
@@ -203,7 +210,7 @@ export function useSession() {
       .catch((err) => console.error(`Failed to track ${eventType}:`, err));
   }, []);
 
-  const startSession = useCallback(async (studentId: string) => {
+  const startSession = useCallback(async (studentId: string, choice?: MapChoice) => {
     if (startedRef.current) return;
     const token = authService.getStoredToken();
     if (!token) return; // wait until token is available
@@ -213,7 +220,8 @@ export function useSession() {
     setError(null);
     try {
       const persisted = window.localStorage.getItem(SESSION_STORAGE_KEY);
-      if (persisted) {
+      // A tap on the island map starts a fresh round with that exercise.
+      if (persisted && !choice?.activityId) {
         try {
           const saved = JSON.parse(persisted) as { studentId: string; expiresAt: number; session: SessionState };
           if (saved.studentId === String(studentId) && saved.expiresAt > Date.now() && saved.session?.currentActivity?.id) {
@@ -230,8 +238,11 @@ export function useSession() {
       }
       const sessionId = `session-${Date.now()}`;
       setCurrentLearningSessionId(sessionId);
+      const query = new URLSearchParams();
+      if (choice?.activityId) query.set("activityId", choice.activityId);
+      if (choice?.islandId) query.set("islandId", choice.islandId);
       const { activity, adeDecision, preferredModality } = await api.get<{ activity: any; adeDecision: any; preferredModality?: string | null }>(
-        "/activities/next",
+        query.toString() ? `/activities/next?${query.toString()}` : "/activities/next",
         token,
       );
       trackSessionEvent(sessionId, "SESSION_STARTED");
@@ -246,6 +257,7 @@ export function useSession() {
         selectionSource: "recommended",
         roundStats: { correctAnswers: 0, starsEarned: 0, practiceLabel: "matemática" },
         preferredModality: preferredModality ?? null,
+        focusIslandId: choice?.islandId ?? null,
       });
       trackActivityLifecycle(sessionId, activity.id, "ACTIVITY_PRESENTED", undefined, adeDecision?.id);
       getInteractionCounters(activity.id);
@@ -363,6 +375,7 @@ export function useSession() {
           timeBeforeSkipMs: activeTimeSinceStart(session.currentActivity.id),
           attemptsBeforeSkip: counters.attempts,
           hintsBeforeSkip: counters.hints,
+          ...(session.focusIslandId && { focusIslandId: session.focusIslandId }),
         },
         token,
       );
@@ -447,6 +460,7 @@ export function useSession() {
           ...(session?.currentActivity?.reviewAssignmentId && { reviewAssignmentId: session.currentActivity.reviewAssignmentId }),
           ...(session?.currentActivity?.islandId && { islandId: session.currentActivity.islandId }),
           ...(session?.currentActivity?.cycleNumber !== undefined && { cycleNumber: session.currentActivity.cycleNumber }),
+          ...(session?.focusIslandId && { focusIslandId: session.focusIslandId }),
         },
         token ?? undefined,
       );

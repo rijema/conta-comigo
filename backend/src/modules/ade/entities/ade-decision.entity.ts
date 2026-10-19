@@ -52,7 +52,7 @@ export class AdeDecision {
   hybridRanking?: HybridRankingResult | null;
 
   @Column({ type: 'varchar', nullable: true })
-  decisionSource?: 'HYBRID_RANKING' | 'LEGACY_FALLBACK' | null;
+  decisionSource?: 'HYBRID_RANKING' | 'LEGACY_FALLBACK' | 'CHILD_CHOICE' | null;
 
   @Column({ default: false })
   fallbackUsed?: boolean;

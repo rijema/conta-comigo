@@ -20,6 +20,8 @@ export interface AdeInput {
   sessionId?: string;
   targetSkillCode?: string;
   recentSkips?: number;
+  /** Island the child chose on the map; recommendations stay inside it. */
+  focusIslandId?: string;
   cycleContext?: {
     cycleNumber: number;
     islandId: string;
@@ -122,11 +124,15 @@ export class AdeService {
       'visual';
 
     // === STEP 3.5: Island Context Enhancement ===
-    const islandEnhancement = await this.islandContextService.enhanceAdeDecision(
+    const inferredIsland = await this.islandContextService.enhanceAdeDecision(
       input.userId,
       ruleResult.recommendedDifficulty,
       primaryModality,
     );
+    const islandEnhancement = input.focusIslandId
+      ? { ...inferredIsland, islandId: input.focusIslandId, sequenceInIsland: undefined,
+          shouldStayInIsland: true, shouldProgressToNextIsland: false }
+      : inferredIsland;
 
     const xaiLog = {
       ontologyInferences: [],
@@ -219,6 +225,19 @@ export class AdeService {
           ),
       semanticFiltering: trace,
     };
+    return this.decisionRepo.save(decision);
+  }
+
+  /**
+   * The child picked the exercise on the island map. The ADE decision is kept
+   * (so "Quero outro" and outcomes keep working) but marked as the child's choice.
+   */
+  async recordChildChoice(decision: AdeDecision, activityId: string): Promise<AdeDecision> {
+    decision.selectedActivityId = activityId;
+    decision.decisionSource = 'CHILD_CHOICE';
+    decision.fallbackUsed = false;
+    decision.fallbackReason = null;
+    decision.xaiLog = { ...decision.xaiLog, finalReason: `Child choice on island map; ${decision.xaiLog?.finalReason ?? ''}` };
     return this.decisionRepo.save(decision);
   }
 
