@@ -166,6 +166,12 @@ const definitions: PictogramDefinition[] = [
   definition('library.down', "LEARNING_LIBRARY", "embaixo", "⬇️"),
   definition('library.sun', "LEARNING_LIBRARY", "sol", "☀️"),
   definition('library.moon', "LEARNING_LIBRARY", "lua", "🌙"),
+  // Calm-break pictograms (IDs checked against the ARASAAC catalog).
+  definition('library.breathe', "LEARNING_LIBRARY", "respirar fundo", "🌬️", 34377),
+  definition('library.stretch', "LEARNING_LIBRARY", "espreguiçar", "🙆", 8989),
+  definition('library.drink_water', "LEARNING_LIBRARY", "beber água", "💧", 2276),
+  definition('library.rest', "LEARNING_LIBRARY", "descansar", "🛋️", 16643),
+  definition('library.calm', "LEARNING_LIBRARY", "ficar tranquilo", "😌", 37828),
 ];
 
 export class PictogramRegistry {

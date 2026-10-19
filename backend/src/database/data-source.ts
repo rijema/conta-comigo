@@ -77,6 +77,8 @@ export function getPendingMigrationClasses() {
   const { FixCycleTrackingIslandIdType1728000104000 } = require('./migrations/1728000104000-FixCycleTrackingIslandIdType');
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { AddRegistrationNonceToUsers1729000000000 } = require('./migrations/1729000000000-AddRegistrationNonceToUsers');
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { AddPauseEventTypes1729000001000 } = require('./migrations/1729000001000-AddPauseEventTypes');
 
   return [
     BaselineProductionSchema1728000000000,
@@ -104,5 +106,7 @@ export function getPendingMigrationClasses() {
     // that selects the User entity (including login) failed with
     // "column user.registration_nonce does not exist".
     AddRegistrationNonceToUsers1729000000000,
+    // Calm-break learning events (PAUSE_SUGGESTED / PAUSE_STARTED / PAUSE_ENDED).
+    AddPauseEventTypes1729000001000,
   ];
 }

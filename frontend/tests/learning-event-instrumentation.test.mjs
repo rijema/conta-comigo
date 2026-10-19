@@ -16,9 +16,10 @@ test("activity lifecycle events reuse the session id and are deduplicated", () =
 });
 
 test("answer timing distinguishes first interaction, current response, and total time", () => {
-  assert.match(sessionHook, /responseTimeMs: Math\.max\(0, answerAt - \(counters\.lastAttemptAt/);
-  assert.match(sessionHook, /firstInteractionMs: Math\.max\(0, counters\.firstInteractionAt/);
-  assert.match(sessionHook, /totalTimeMs: payload\.timeSpentMs/);
+  assert.match(sessionHook, /responseTimeMs: activeElapsedMs\(counters\.pauses, counters\.lastAttemptAt \?\? activityStart, answerAt\)/);
+  assert.match(sessionHook, /firstInteractionMs: activeElapsedMs\(counters\.pauses, activityStart, counters\.firstInteractionAt\)/);
+  assert.match(sessionHook, /const totalTimeMs = activeElapsedMs\(counters\.pauses, activityStart, answerAt\)/);
+  assert.match(sessionHook, /timeSpentSeconds: Math\.round\(totalTimeMs \/ 1000\)/);
   assert.match(sessionHook, /hintsUsed: counters\.hints/);
   assert.doesNotMatch(sessionHook, /metadata:\s*\{[^}]*answer/s);
 });
@@ -40,7 +41,15 @@ test("assistance and skip signals are tied to explicit interactions", () => {
   assert.match(sessionHook, /counters\.tutorialOpens > 0/);
   assert.match(sessionHook, /"INSTRUCTION_REPLAYED"/);
   assert.match(sessionHook, /"ACTIVITY_SKIPPED"/);
-  assert.match(sessionHook, /timeBeforeSkipMs: Math\.max\(0, Date\.now\(\) - session\.activityStartTime\)/);
+  assert.match(sessionHook, /timeBeforeSkipMs: activeTimeSinceStart\(/);
   assert.match(sessionHook, /attemptsBeforeSkip: counters\.attempts/);
   assert.match(sessionHook, /hintsBeforeSkip: counters\.hints/);
+});
+
+test("calm breaks are excluded from exercise timing and recorded as pause events", () => {
+  assert.match(sessionHook, /function activeElapsedMs\(pauses: PauseInterval\[\], from: number, to: number\)/);
+  assert.match(sessionHook, /"PAUSE_STARTED"/);
+  assert.match(sessionHook, /"PAUSE_ENDED"/);
+  assert.match(sessionHook, /pauseDurationMs: Math\.max\(0, endedAt - pauseState\.startedAt\)/);
+  assert.match(sessionHook, /if \(pauseState\) return;/);
 });

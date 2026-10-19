@@ -42,6 +42,7 @@ describe('ActivitiesService change activity flow', () => {
     }));
     expect(service.getNextActivity).toHaveBeenCalledWith('student-1', {
       sessionId: 'session-1', targetSkillCode: 'EF01MA08', excludedActivityId: previous.id,
+      skippedActivity: previous,
     });
     expect(outcomeService.attachReplacement).toHaveBeenCalledWith(
       '20000000-0000-0000-0000-000000000001',

@@ -71,6 +71,40 @@ export class LearningEventService {
     }
   }
 
+  /**
+   * "Quero outro" choices made in one learning round (session), newest first,
+   * without duplicates. A round is the frontend's 10-activity session.
+   */
+  async getSkippedActivityIdsInSession(studentId: string, sessionId: string): Promise<string[]> {
+    try {
+      const events = await this.learningEventRepository.find({
+        where: { studentId, sessionId, eventType: LearningEventType.ACTIVITY_SKIPPED },
+        order: { timestamp: 'DESC' },
+      });
+      return [...new Set(events.flatMap((event) => event.activityId ? [event.activityId] : []))];
+    } catch (error) {
+      this.logger.error(
+        `Failed to read round skip signals for student ${studentId}; round exclusion skipped`,
+        error instanceof Error ? error.stack : String(error),
+      );
+      return [];
+    }
+  }
+
+  async countSkipsInSession(studentId: string, sessionId: string): Promise<number> {
+    try {
+      return await this.learningEventRepository.count({
+        where: { studentId, sessionId, eventType: LearningEventType.ACTIVITY_SKIPPED },
+      });
+    } catch (error) {
+      this.logger.error(
+        `Failed to count round skips for student ${studentId}`,
+        error instanceof Error ? error.stack : String(error),
+      );
+      return 0;
+    }
+  }
+
   async getRecentSkippedActivityIds(studentId: string, limit = 20, since?: Date): Promise<string[]> {
     try {
       const events = await this.learningEventRepository.find({
