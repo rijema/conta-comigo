@@ -119,7 +119,13 @@ export const OrderingTwoDigitMinigame: React.FC<OrderingTwoDigitMinigameProps> =
 
       <div className="grid grid-cols-2 gap-8 flex-1">
         {/* Available Items */}
-        <div className="bg-white rounded-lg p-6 shadow-lg">
+        <div
+          className="bg-white rounded-lg p-6 shadow-lg"
+          onDragOver={handleDragOver}
+          onDrop={handleDropOnUnordered}
+          role="group"
+          aria-label="Números para ordenar"
+        >
           <h3 className="font-bold text-lg text-fuchsia-900 mb-4">Números para Ordenar</h3>
           <div className="grid grid-cols-2 gap-4">
             <AnimatePresence>
@@ -132,7 +138,6 @@ export const OrderingTwoDigitMinigame: React.FC<OrderingTwoDigitMinigameProps> =
                   exit={{ opacity: 0, scale: 0.8 }}
                   draggable
                   onDragStart={() => handleDragStart(item.id)}
-                  onDragEnd={handleDropOnUnordered}
                   className="cursor-move"
                 >
                   <motion.div
