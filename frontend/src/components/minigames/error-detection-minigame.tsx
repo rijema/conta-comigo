@@ -32,7 +32,9 @@ export const ErrorDetectionMinigame: React.FC<ErrorDetectionMinigameProps> = ({
   const timeoutRef = useRef<NodeJS.Timeout>();
 
   // Default: Titia said "3 is greater than 9" (wrong)
-  const errorStatement = activity?.content?.errorStatement || 'A Titia disse: "3 é maior que 9"';
+  const errorStatement = activity?.content?.errorStatement ||
+    activity?.content?.instructionsPt ||
+    'A Titia disse: "3 é maior que 9"';
   const options = activity?.content?.options ||
     [
       { id: 'a', text: 'Titia acertou!', isCorrect: false },

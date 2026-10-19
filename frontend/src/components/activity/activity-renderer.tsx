@@ -30,6 +30,13 @@ import { MatchingMinigame } from "../minigames/matching-minigame";
 import { CountingCollectionMinigame } from "../minigames/counting-collection-minigame";
 import { OrderingTwoDigitMinigame } from "../minigames/ordering-two-digit-minigame";
 
+/** True when content.items are left/right pairs for the matching board. */
+export function hasMatchingPairs(activity: Activity): boolean {
+  const items = activity.content?.items;
+  return Array.isArray(items) && items.length > 0 &&
+    items.every((item: unknown) => typeof item === "object" && item !== null && "left" in item && "right" in item);
+}
+
 interface ActivityRendererProps {
   activity: Activity;
   onAnswer: (answer: any) => void;
@@ -350,6 +357,18 @@ export function ActivityRenderer({
         );
 
       case "representation_matching":
+        // Pooled exercises carry a picture (items as strings) plus answer
+        // options; only real left/right pairs can use the matching board.
+        if (!hasMatchingPairs(activity) && Array.isArray(activity.content?.options) && activity.content.options.length > 0) {
+          return (
+            <MultipleChoiceActivity
+              key={activity.id}
+              activity={activity}
+              onAnswer={onAnswer}
+              sensoryProfile={sensoryProfile}
+            />
+          );
+        }
         // MINIGAME: Matching Quest (BNCC: EF01MA03)
         return (
           <MatchingMinigame
