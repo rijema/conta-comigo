@@ -1,5 +1,6 @@
 import { BnccSkillsSeed } from './bncc-skills.seed';
 import { ActivitiesSeed } from './activities.seed';
+import { IslandCatalogSeed } from './island-catalog.seed';
 import * as dotenv from 'dotenv';
 import { AppDataSource } from '../data-source';
 
@@ -13,6 +14,7 @@ async function runSeeds() {
     console.log('🌱 Running seeds...');
     await BnccSkillsSeed(AppDataSource);
     await ActivitiesSeed(AppDataSource);
+    await IslandCatalogSeed(AppDataSource);
     console.log('✅ All seeds completed successfully!');
   } catch (error) {
     console.error('❌ Seed error:', error);
