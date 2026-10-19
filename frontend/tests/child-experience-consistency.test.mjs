@@ -44,8 +44,12 @@ test("only one learning trail is expanded and siblings are visually de-emphasize
 test("learning actions share one row and child chat supports text or ephemeral voice transcription", () => {
   const page = read("../src/app/[locale]/learn/page.tsx");
   const voice = read("../src/hooks/use-voice-command.ts");
-  assert.match(page, /lg:grid-cols-4/);
+  assert.match(page, /exercise-actions mx-auto grid max-w-5xl grid-cols-3/);
   assert.match(page, /Quero uma pausa/);
+  // Secondary help actions are grouped behind one discoverable "Ajuda" button.
+  assert.match(page, /aria-haspopup="dialog"/);
+  assert.match(page, /Aqui tem mais ajuda/);
+  assert.match(page, /Para o adulto/);
   assert.match(page, /Falar com a TitiA/);
   assert.match(page, /Como jogar/);
   assert.match(page, /guardian\/child-chat/);

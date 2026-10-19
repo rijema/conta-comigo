@@ -139,6 +139,14 @@ function LearnPageInner() {
   const pauseSuggestionAcceptRef = useRef<HTMLButtonElement>(null);
   const closePauseSuggestion = useCallback(() => setShowPauseSuggestion(false), []);
   const pauseSuggestionRef = useModalFocus<HTMLElement>(showPauseSuggestion && !isPaused, closePauseSuggestion, pauseSuggestionAcceptRef);
+  // Secondary actions ("Como jogar", "Falar com a TitiA") live behind one
+  // visible "Ajuda" button to keep the exercise screen calm. Pause and
+  // "Quero outro" stay visible so self-regulation is always one tap away.
+  const [showHelpMenu, setShowHelpMenu] = useState(false);
+  const closeHelpMenu = useCallback(() => setShowHelpMenu(false), []);
+  const helpMenuRef = useModalFocus<HTMLElement>(showHelpMenu, closeHelpMenu);
+  const [showHelpIntro, setShowHelpIntro] = useState(false);
+  const helpIntroSpokenRef = useRef(false);
   const [showReward, setShowReward] = useState(false);
   const [showAutoHint, setShowAutoHint] = useState(false);
   const [rewardWrong, setRewardWrong] = useState(false);
@@ -225,6 +233,43 @@ function LearnPageInner() {
     }, Math.max(5, settings.helpDelaySeconds) * 1000);
     return () => window.clearTimeout(timer);
   }, [session?.currentActivity?.id, settings.autoHints, settings.helpDelaySeconds, isPaused]);
+
+  // First time a child sees the exercise screen, TitiA points out that more
+  // help lives inside the "Ajuda" button (hidden options are easily missed).
+  const helpIntroKey = user?.id ? `cc-help-intro-seen-${user.id}` : null;
+  useEffect(() => {
+    if (!helpIntroKey || !session?.currentActivity?.id || isPaused) return;
+    if (localStorage.getItem(helpIntroKey)) return;
+    const showTimer = window.setTimeout(() => {
+      localStorage.setItem(helpIntroKey, "1");
+      setShowHelpIntro(true);
+    }, 2500);
+    return () => window.clearTimeout(showTimer);
+  }, [helpIntroKey, session?.currentActivity?.id, isPaused]);
+
+  useEffect(() => {
+    if (!showHelpIntro) return;
+    const hideTimer = window.setTimeout(() => setShowHelpIntro(false), 9000);
+    return () => window.clearTimeout(hideTimer);
+  }, [showHelpIntro]);
+
+  useEffect(() => {
+    if (!showHelpIntro || helpIntroSpokenRef.current || speech.isSpeaking || !speech.settings.voiceEnabled) return;
+    helpIntroSpokenRef.current = true;
+    speech.speakExplanation("Se precisar, toque em Ajuda. Lá tem como jogar e você pode falar comigo.");
+  }, [showHelpIntro, speech]);
+
+  const handleOpenHelpMenu = () => {
+    if (settings.soundEnabled && settings.soundEffectsEnabled) playTap(effectVolume);
+    setShowHelpIntro(false);
+    setShowHelpMenu(true);
+  };
+
+  const handleOpenChat = () => {
+    setShowHelpMenu(false);
+    if (settings.soundEnabled && settings.soundEffectsEnabled) playTap(effectVolume);
+    setShowChat(true);
+  };
 
   const handleAnswer = useCallback(async (answer: any) => {
     if (!session?.currentActivity) return;
@@ -317,6 +362,7 @@ function LearnPageInner() {
 
   const handleOpenTutorial = () => {
     if (!session?.currentActivity) return;
+    setShowHelpMenu(false);
     requestActivityHelp(session.currentActivity.id);
     if (settings.soundEnabled && settings.soundEffectsEnabled) playTap(effectVolume);
     setShowTutorial(true);
@@ -525,7 +571,6 @@ function LearnPageInner() {
         @media (prefers-reduced-motion: reduce) { .feedback-motion { animation: none !important; } }
         @media (min-width: 900px) and (orientation: landscape) and (max-height: 850px) {
           .exercise-header { padding-top: .25rem; padding-bottom: .25rem; }
-          .exercise-badges { padding-top: .35rem; }
           .exercise-actions { padding-top: .35rem; gap: .5rem; }
           .exercise-main { padding-top: .4rem; padding-bottom: .5rem; }
           .exercise-card-body { padding: .4rem; }
@@ -534,10 +579,11 @@ function LearnPageInner() {
 
       {/* ── Header ── */}
       <header className="exercise-header sticky top-0 z-20 bg-white/80 px-3 py-2 shadow-sm backdrop-blur-md">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3">
+        <div className="mx-auto grid max-w-5xl grid-cols-[1fr_minmax(0,20rem)_1fr] items-center gap-3">
           <button
             onClick={handleGoToMenu}
-            className="flex items-center gap-1.5 rounded-full border-2 border-purple-200 bg-gradient-to-r from-purple-100 to-pink-100 px-4 py-2 text-sm font-extrabold text-purple-700 shadow-sm transition-all hover:scale-[1.04] hover:border-purple-400 hover:shadow-md active:scale-[.96] motion-reduce:transform-none"
+            aria-label="Voltar ao mapa (sair da atividade)"
+            className="justify-self-start flex items-center gap-1.5 rounded-full border-2 border-purple-200 bg-gradient-to-r from-purple-100 to-pink-100 px-4 py-2 text-sm font-extrabold text-purple-700 shadow-sm transition-all hover:scale-[1.04] hover:border-purple-400 hover:shadow-md active:scale-[.96] motion-reduce:transform-none"
           >
             <ArasaacPictogram conceptId="navigation.home" showLabel={false} imageClassName="w-5 h-5" />
             <span>Mapa</span>
@@ -548,7 +594,7 @@ function LearnPageInner() {
               10 activities, independently and without asking an adult —
               "visual schedules" + "individual work system" pillars of
               Structured TEACCHing (teacch.com). */}
-          <div className="flex-1 max-w-xs">
+          <div className="w-full">
             <div
               role="img"
               aria-label={`Progresso: ${Math.floor(progress / 10)} de 10 atividades concluídas nesta rodada`}
@@ -576,14 +622,82 @@ function LearnPageInner() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button onClick={handleGoToMenu} className="min-h-11 rounded-lg px-3 py-1 text-sm font-bold text-gray-600 hover:text-purple-700">Sair</button>
-          </div>
         </div>
       </header>
 
-      {/* ── Activity type badge + BNCC ── */}
-      <div className="exercise-badges mx-auto flex max-w-5xl flex-wrap items-center gap-2 px-4 pt-3">
+      <div className="exercise-actions mx-auto grid max-w-5xl grid-cols-3 gap-2 px-4 pt-3 sm:gap-3">
+        <button
+          type="button"
+          onClick={handleChangeActivity}
+          disabled={isChangingActivity || !settings.allowChangeActivity}
+          aria-label="Quero outro exercício"
+          className="inline-flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl border-2 border-teal-400 bg-gradient-to-r from-teal-500 to-emerald-500 px-2 py-2 text-xs font-extrabold text-white shadow-md motion-safe:transition-all motion-safe:hover:scale-[1.04] hover:shadow-lg motion-safe:active:scale-[.96] disabled:opacity-60 sm:flex-row sm:gap-2 sm:px-4 sm:text-sm"
+        >
+          <ArasaacPictogram
+            conceptId="navigation.repeat"
+            alt="Mudar para outro exercício"
+            showLabel={false}
+            imageClassName="w-6 h-6"
+          />
+          <span>{!settings.allowChangeActivity ? "Outra atividade indisponível" : isChangingActivity ? "Escolhendo..." : "Quero outro"}</span>
+        </button>
+        <button type="button" data-pause-ui onClick={() => handleStartPause("child")} disabled={isPaused}
+          className="inline-flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl border-2 border-teal-300 bg-gradient-to-r from-teal-50 to-cyan-100 px-2 py-2 text-xs font-extrabold text-teal-800 shadow-md motion-safe:transition-all motion-safe:hover:scale-[1.04] hover:shadow-lg motion-safe:active:scale-[.96] disabled:opacity-60 sm:flex-row sm:gap-2 sm:px-4 sm:text-sm"
+          aria-label="Quero fazer uma pausa">
+          <ArasaacPictogram conceptId="navigation.pause" showLabel={false} imageClassName="h-7 w-7" />
+          <span>Quero uma pausa</span>
+        </button>
+        <div className="relative">
+          <button type="button" onClick={handleOpenHelpMenu}
+            aria-haspopup="dialog" aria-expanded={showHelpMenu}
+            aria-label="Ajuda: como jogar e falar com a TitiA"
+            className={`inline-flex min-h-14 w-full flex-col items-center justify-center gap-1 rounded-2xl border-2 border-sky-300 bg-gradient-to-r from-sky-100 to-blue-100 px-2 py-2 text-xs font-extrabold text-sky-800 shadow-md motion-safe:transition-all motion-safe:hover:scale-[1.04] hover:shadow-lg motion-safe:active:scale-[.96] sm:flex-row sm:gap-2 sm:px-4 sm:text-sm
+              ${showHelpIntro || showAutoHint ? "ring-4 ring-sky-300 motion-safe:animate-pulse" : ""}`}>
+            {/* Mini preview of what is inside, so the hidden options stay discoverable */}
+            <span className="flex items-center -space-x-2" aria-hidden="true">
+              <ArasaacPictogram conceptId="navigation.help" showLabel={false} imageClassName="h-7 w-7 rounded-full bg-white" />
+              <ArasaacPictogram conceptId="communication.help_me" showLabel={false} imageClassName="h-7 w-7 rounded-full bg-white" />
+            </span>
+            <span>Ajuda</span>
+          </button>
+          {showHelpIntro && (
+            <p role="status" className="absolute right-0 top-full z-30 mt-2 w-56 rounded-2xl border-2 border-sky-300 bg-white p-3 text-sm font-bold text-sky-900 shadow-xl">
+              👆 Aqui tem mais ajuda: como jogar e falar com a TitiA.
+            </p>
+          )}
+        </div>
+      </div>
+
+      {showAutoHint && <div className="mx-auto max-w-5xl px-4 pt-2"><p role="status" className="rounded-2xl border-2 border-sky-200 bg-white p-3 text-sm font-bold text-sky-900">💡 {activity.content?.spokenHint ?? 'Se quiser, toque em Ajuda para ver como jogar.'}</p></div>}
+
+      {showHelpMenu && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/45 p-4 sm:items-center"
+          onClick={(event) => { if (event.target === event.currentTarget) closeHelpMenu(); }}
+          role="presentation">
+          <section ref={helpMenuRef} role="dialog" aria-modal="true" aria-labelledby="help-menu-title"
+            className="w-full max-w-md rounded-[2rem] border-4 border-sky-200 bg-white p-5 shadow-2xl">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 id="help-menu-title" className="text-xl font-black text-sky-800">Ajuda</h2>
+              <button type="button" onClick={closeHelpMenu} aria-label="Fechar ajuda"
+                className="h-11 w-11 rounded-full text-2xl font-bold text-slate-400 hover:bg-slate-100 hover:text-slate-600">×</button>
+            </div>
+            <div className="grid gap-3">
+              <button type="button" onClick={handleOpenTutorial}
+                aria-label="Abrir ajuda visual sobre como jogar"
+                className="flex min-h-16 items-center gap-3 rounded-2xl border-2 border-orange-300 bg-gradient-to-r from-orange-100 to-yellow-100 px-4 py-3 text-left text-lg font-extrabold text-orange-800 shadow-sm hover:shadow-md">
+                <ArasaacPictogram conceptId="navigation.help" showLabel={false} imageClassName="h-10 w-10" />
+                <span>Como jogar</span>
+              </button>
+              <button type="button" onClick={handleOpenChat}
+                className="flex min-h-16 items-center gap-3 rounded-2xl border-2 border-sky-300 bg-gradient-to-r from-sky-100 to-blue-100 px-4 py-3 text-left text-lg font-extrabold text-sky-800 shadow-sm hover:shadow-md">
+                <ArasaacPictogram conceptId="communication.help_me" showLabel={false} imageClassName="h-10 w-10" />
+                <span>Falar com a TitiA</span>
+              </button>
+            </div>
+            {/* Curriculum metadata is for adults; kept out of the child's main view. */}
+            <details className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm">
+              <summary className="cursor-pointer font-bold text-slate-600">Para o adulto</summary>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
         {(activity.bnccSkills ?? []).map((skill: string) => (
           <span key={skill} className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-white/80 px-3 py-1 text-xs font-extrabold text-blue-700 shadow-sm">
             BNCC {skill}
@@ -594,43 +708,11 @@ function LearnPageInner() {
           Tipo: {activity.content?.formatLabel ?? ACTIVITY_TYPE_LABELS[activity.type] ?? activity.type}
         </span>
         {session.selectionSource === "recalculated" && <span className="inline-flex items-center gap-1 rounded-full border border-purple-200 bg-white/70 px-3 py-1 text-xs font-extrabold text-purple-700 shadow-sm">↻ Outra opção escolhida pela TitiA</span>}
-      </div>
-      <div className="exercise-actions mx-auto grid max-w-5xl grid-cols-1 gap-3 px-4 pt-3 sm:grid-cols-2 lg:grid-cols-4">
-        <button
-          type="button"
-          onClick={handleChangeActivity}
-          disabled={isChangingActivity || !settings.allowChangeActivity}
-          aria-label="Quero outro exercício"
-          className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl border-2 border-teal-400 bg-gradient-to-r from-teal-500 to-emerald-500 px-4 py-2 text-sm font-extrabold text-white shadow-md motion-safe:transition-all motion-safe:hover:scale-[1.04] hover:shadow-lg motion-safe:active:scale-[.96] disabled:opacity-60"
-        >
-          <ArasaacPictogram
-            conceptId="navigation.repeat"
-            alt="Mudar para outro exercício"
-            showLabel={false}
-            imageClassName="w-5 h-5"
-          />
-          <span>{!settings.allowChangeActivity ? "Outra atividade indisponível" : isChangingActivity ? "Escolhendo..." : "Quero outro"}</span>
-        </button>
-        <button type="button" onClick={() => { if (settings.soundEnabled && settings.soundEffectsEnabled) playTap(effectVolume); setShowChat(true); }}
-          className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full border-2 border-sky-300 bg-gradient-to-r from-sky-100 to-blue-100 px-4 py-2 text-sm font-extrabold text-sky-800 shadow-md transition-all hover:scale-[1.04] hover:shadow-lg active:scale-[.96] motion-reduce:transform-none">
-          <ArasaacPictogram conceptId="communication.help_me" showLabel={false} imageClassName="h-7 w-7" />
-          <span>Falar com a TitiA</span>
-        </button>
-        <button type="button" onClick={handleOpenTutorial}
-          className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl border-2 border-orange-300 bg-gradient-to-r from-orange-100 to-yellow-100 px-4 py-2 text-sm font-extrabold text-orange-800 shadow-md motion-safe:transition-all motion-safe:hover:scale-[1.04] hover:shadow-lg motion-safe:active:scale-[.96]"
-          aria-label="Abrir ajuda visual sobre como jogar">
-          <ArasaacPictogram conceptId="navigation.help" showLabel={false} imageClassName="h-7 w-7" />
-          <span>Como jogar</span>
-        </button>
-        <button type="button" data-pause-ui onClick={() => handleStartPause("child")} disabled={isPaused}
-          className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl border-2 border-teal-300 bg-gradient-to-r from-teal-50 to-cyan-100 px-4 py-2 text-sm font-extrabold text-teal-800 shadow-md motion-safe:transition-all motion-safe:hover:scale-[1.04] hover:shadow-lg motion-safe:active:scale-[.96] disabled:opacity-60"
-          aria-label="Quero fazer uma pausa">
-          <ArasaacPictogram conceptId="navigation.pause" showLabel={false} imageClassName="h-7 w-7" />
-          <span>Quero uma pausa</span>
-        </button>
-      </div>
-
-      {showAutoHint && <div className="mx-auto max-w-5xl px-4 pt-2"><p role="status" className="rounded-2xl border-2 border-sky-200 bg-white p-3 text-sm font-bold text-sky-900">💡 {activity.content?.spokenHint ?? 'Se quiser, toque em Como jogar para ver uma ajuda.'}</p></div>}
+              </div>
+            </details>
+          </section>
+        </div>
+      )}
 
       {/* ── Child chat ── */}
       {showChat && (
