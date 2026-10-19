@@ -33,10 +33,19 @@ export default function HomePage() {
 
       <header className={`fixed inset-x-0 top-1.5 z-40 border-b border-white/70 bg-white/80 backdrop-blur-xl transition-all ${compact ? "shadow-md" : ""}`}>
         <nav aria-label="Navegação principal" className={`mx-auto flex max-w-6xl items-center justify-between px-4 transition-all sm:px-6 ${compact ? "h-16" : "h-20"}`}>
-          <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="flex items-center gap-3 text-left" aria-label="Conta Comigo, voltar ao início">
-            <Image src="/assets/iconbrowser.png" width={compact ? 42 : 52} height={compact ? 42 : 52} alt="" className="rounded-full" priority />
-            <span><strong className={`${compact ? "text-xl" : "text-2xl"} block font-black leading-none text-indigo-950`}>Conta Comigo</strong><span className={`font-semibold text-violet-700 ${compact ? "hidden" : "hidden sm:block text-xs"}`}>Matemática que aprende com cada criança.</span></span>
-          </button>
+          <div className="flex items-center gap-4">
+            <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="flex items-center gap-3 text-left" aria-label="Conta Comigo, voltar ao início">
+              <Image src="/assets/iconbrowser.png" width={compact ? 42 : 52} height={compact ? 42 : 52} alt="" className="rounded-full" priority />
+              <span><strong className={`${compact ? "text-xl" : "text-2xl"} block font-black leading-none text-indigo-950`}>Conta Comigo</strong><span className={`font-semibold text-violet-700 ${compact ? "hidden" : "hidden sm:block text-xs"}`}>Matemática que aprende com cada criança.</span></span>
+            </button>
+            <div className="hidden items-center gap-4 lg:flex">
+              <span aria-hidden className={`w-px bg-slate-300 transition-all ${compact ? "h-8" : "h-10"}`} />
+              <span className="flex flex-col">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Projeto piloto com</span>
+                <Image src="/assets/logociclo.png" width={1201} height={317} alt="Ciclo – Centro Integrado de Fonoaudiologia" className={`w-auto object-contain transition-all ${compact ? "h-6" : "h-8"}`} />
+              </span>
+            </div>
+          </div>
           <div className="flex items-center gap-2">
             <button onClick={() => setShowArasaac(true)} aria-expanded={showArasaac} aria-controls="arasaac-library-dialog" className="rounded-xl px-3 py-2 text-sm font-bold text-orange-700 hover:bg-orange-50 sm:block">ARASAAC</button>
             <button onClick={() => setAuth("login")} className="rounded-xl border-2 border-violet-200 bg-white px-4 py-2 text-sm font-bold text-violet-700 hover:bg-violet-50">Entrar</button>
@@ -88,7 +97,7 @@ export default function HomePage() {
         </section>
       </main>
 
-      <footer className="border-t border-white/80 bg-indigo-950 px-5 py-6 text-center text-sm text-indigo-100"><strong className="text-white">Conta Comigo</strong> · Matemática que aprende com cada criança. · Pesquisa acadêmica</footer>
+      <footer className="border-t border-white/80 bg-indigo-950 px-5 py-6 text-center text-sm text-indigo-100"><strong className="text-white">Conta Comigo</strong> · Matemática que aprende com cada criança. · Pesquisa acadêmica · Projeto piloto com Ciclo – Centro Integrado de Fonoaudiologia</footer>
 
       {showAbout && (
         <div

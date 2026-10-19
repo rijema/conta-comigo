@@ -7,7 +7,7 @@ import { ConsentGate } from "@/components/lgpd/consent-gate";
 import Head from "next/head";
 
 export const metadata: Metadata = {
-  title: "Mestrado - Conta Comigo",
+  title: "Conta Comigo",
   description:
     "Plataforma adaptativa de ensino de matemática para crianças com TEA, alinhada à BNCC.",
   authors: [{ name: "Conta Comigo" }],
