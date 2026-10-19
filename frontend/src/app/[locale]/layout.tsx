@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { AccessibilityProvider } from "@/contexts/AccessibilityContext";
 import { ConsentGate } from "@/components/lgpd/consent-gate";
+import { TouchDragPolyfill } from "@/components/touch-drag-polyfill";
 import Head from "next/head";
 
 export const metadata: Metadata = {
@@ -49,6 +50,7 @@ export default async function RootLayout({
       </Head>
       <body className="antialiased">
         <NextIntlClientProvider locale={locale} messages={messages}>
+          <TouchDragPolyfill />
           <AccessibilityProvider>
             {children}
             <ConsentGate />
