@@ -288,7 +288,7 @@ export default function ActivityMenuPage() {
                   const isDimmed = expandedSkill !== null && !isOpen;
                   const pct    = group.totalActivities > 0 ? Math.round((group.completedCount / group.totalActivities) * 100) : 0;
                   const allDone = group.completedCount >= group.totalActivities && group.totalActivities > 0;
-                  /* [PROPOSTA CONTA COMIGO] Island is locked until the previous one is 100% complete */
+                  /* Islands are open by clinical decision; honour the flag only if the API sets it */
                   const isLocked = group.island?.locked === true;
 
                   /* Subtitle: use island description or fallback to skill name */

@@ -38,7 +38,7 @@ export class GuardianService {
   /**
    * [PROPOSTA CONTA COMIGO] "Ciclos" view for parents/professionals:
    * shows the islands in sequence, each one a learning cycle, with how many
-   * exercises are done and which ones are still locked. This gives the adult
+   * exercises are done. All islands are open (clinical decision). This gives the adult
    * a clear picture of the structured path the child is following.
    */
   async getChildCycles(guardianId: string, childId: string) {
