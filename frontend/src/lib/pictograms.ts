@@ -144,7 +144,7 @@ const definitions: PictogramDefinition[] = [
   definition('math.number_line', "MATHEMATICS", "reta numérica", "🔢"),
   definition('math.part', "MATHEMATICS", "parte", "🧩"),
   definition('math.whole', "MATHEMATICS", "todo", "🔵"),
-  definition('object.apple', "LEARNING_LIBRARY", "maçã", "🍎"),
+  definition('object.apple', "LEARNING_LIBRARY", "maçã", "🍎", 2462),
   definition('shape.circle', "MATHEMATICS", "círculo", "⭕", 4603),
   definition('shape.square', "MATHEMATICS", "quadrado", "⬜", 4616),
   definition('shape.triangle', "MATHEMATICS", "triângulo", "🔺"),
