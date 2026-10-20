@@ -9,6 +9,7 @@ import { api } from "@/lib/api-client";
 import { authService } from "@/lib/auth";
 import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
 import { ArasaacLibraryDialog } from "@/components/arasaac/arasaac-library-dialog";
+import { ProfessionalAttendanceBar } from "@/components/educator/professional-attendance-bar";
 
 /* ── Island themes — mapped to pictogram concepts with semantic meanings ── */
 const ISLAND_THEMES = [
@@ -151,6 +152,7 @@ export default function ActivityMenuPage() {
 
   return (
     <div className="min-h-screen" style={{ background: "linear-gradient(155deg,#fef9c3 0%,#fce7f3 40%,#dbeafe 100%)" }}>
+      <ProfessionalAttendanceBar />
 
       {/* ── Header ── */}
       <header className="sticky top-0 z-20 bg-white/85 backdrop-blur-md shadow-sm px-4 py-3">

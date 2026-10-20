@@ -9,6 +9,7 @@ import { useLocale } from "next-intl";
 import { isResearchDebugEnabled } from "@/lib/research-debug";
 import { ResearchDebugPanel } from "@/components/recommendation/research-debug-panel";
 import { ChatNowCard } from "@/components/titia/chat-now-card";
+import { enterAttendance } from "@/lib/attendance";
 
 const SKILLS = ["visual", "auditive", "logical", "motor", "sensory"] as const;
 type Skill = typeof SKILLS[number];
@@ -66,6 +67,8 @@ export default function EducatorDashboardPage() {
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<"overview" | "skills" | "ade" | "report">("overview");
   const [savedMsg, setSavedMsg] = useState(false);
+  const [pendingAttendances, setPendingAttendances] = useState<any[]>([]);
+  const [startingAttendance, setStartingAttendance] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const locale = useLocale();
@@ -92,7 +95,33 @@ export default function EducatorDashboardPage() {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
+    api.get<any[]>("/educator/attendance/active", token)
+      .then(setPendingAttendances)
+      .catch(console.error);
   }, [user, authLoading, locale, router]);
+
+  const handleStartAttendance = async (learnerId: string) => {
+    const token = authService.getStoredToken();
+    if (!token) return;
+    setStartingAttendance(learnerId);
+    try {
+      const result = await api.post<any>(`/educator/learners/${learnerId}/attendance/start`, {}, token);
+      enterAttendance(result);
+      router.push(`/${locale}/learn`);
+    } catch (e) {
+      console.error(e);
+      setStartingAttendance(null);
+    }
+  };
+
+  const handleDiscardAttendance = async (attendanceId: string) => {
+    const token = authService.getStoredToken();
+    if (!token) return;
+    try {
+      await api.post(`/educator/attendance/${attendanceId}/end`, {}, token);
+      setPendingAttendances((current) => current.filter((item) => item.attendanceId !== attendanceId));
+    } catch (e) { console.error(e); }
+  };
 
   const handleSelectLearner = async (learner: any, token?: string | null) => {
     const t = token ?? authService.getStoredToken();
@@ -188,6 +217,34 @@ export default function EducatorDashboardPage() {
         </div>
       </header>
 
+      {pendingAttendances.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 pt-4 print:hidden">
+          {pendingAttendances.map((item) => (
+            <div key={item.attendanceId} className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-amber-300 bg-amber-50 px-5 py-4 shadow-sm">
+              <p className="text-sm font-semibold text-amber-900">
+                ⚠️ Você tem um atendimento em andamento com <strong>{item.learnerName}</strong>, iniciado em{" "}
+                {new Date(item.startedAt).toLocaleString("pt-BR")}. O que deseja fazer?
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleStartAttendance(item.learnerId)}
+                  disabled={startingAttendance === item.learnerId}
+                  className="rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-2 text-sm font-bold text-white shadow hover:-translate-y-0.5 transition disabled:opacity-60"
+                >
+                  {startingAttendance === item.learnerId ? "Entrando…" : "▶️ Continuar atendimento"}
+                </button>
+                <button
+                  onClick={() => handleDiscardAttendance(item.attendanceId)}
+                  className="rounded-xl border-2 border-amber-300 px-4 py-2 text-sm font-bold text-amber-800 hover:bg-amber-100"
+                >
+                  Encerrar sem continuar
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto p-4 flex gap-4">
         {/* Learner sidebar */}
         <aside className="w-56 flex-shrink-0 print:hidden">
@@ -241,6 +298,13 @@ export default function EducatorDashboardPage() {
                     </p>
                   </div>
                   <div className="flex gap-2">
+                    <button
+                      onClick={() => handleStartAttendance(selected.id)}
+                      disabled={startingAttendance === selected.id}
+                      className="px-4 py-2 bg-gradient-to-r from-pink-500 via-fuchsia-500 to-violet-600 text-white rounded-xl text-sm font-black shadow-lg hover:-translate-y-0.5 transition disabled:opacity-60 print:hidden"
+                    >
+                      {startingAttendance === selected.id ? "🚀 Entrando…" : "🎈 Iniciar atendimento"}
+                    </button>
                     <button
                       onClick={handleLoadReport}
                       className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors print:hidden"

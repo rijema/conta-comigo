@@ -18,6 +18,7 @@ describe('EducatorService professional recommendation feedback', () => {
     const service = new EducatorService(
       {} as any, {} as any, {} as any, adeRepo as any, {} as any, {} as any,
       knowledgeTracing as any, {} as any, transitionRepo as any, {} as any, feedbackRepo as any,
+      {} as any, {} as any,
     );
 
     const result = await service.createAdaptationFeedback(

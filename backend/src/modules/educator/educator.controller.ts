@@ -110,4 +110,28 @@ export class EducatorController {
   getReport(@Param('learnerId') learnerId: string) {
     return this.educatorService.getFullReport(learnerId);
   }
+
+  @Post('learners/:learnerId/attendance/start')
+  @ApiOperation({ summary: 'Start (or resume) a live attendance session as the child, without their credentials' })
+  startAttendance(
+    @CurrentUser('userId') professionalId: string,
+    @Param('learnerId') learnerId: string,
+  ) {
+    return this.educatorService.startAttendance(professionalId, learnerId);
+  }
+
+  @Post('attendance/:attendanceId/end')
+  @ApiOperation({ summary: 'End a live attendance session' })
+  endAttendance(
+    @CurrentUser('userId') professionalId: string,
+    @Param('attendanceId') attendanceId: string,
+  ) {
+    return this.educatorService.endAttendance(professionalId, attendanceId);
+  }
+
+  @Get('attendance/active')
+  @ApiOperation({ summary: 'List this professional\'s attendances left active (e.g. tab closed abruptly)' })
+  getActiveAttendances(@CurrentUser('userId') professionalId: string) {
+    return this.educatorService.getActiveAttendances(professionalId);
+  }
 }

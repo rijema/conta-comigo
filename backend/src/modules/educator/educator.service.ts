@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
@@ -15,6 +15,8 @@ import { RecommendationOutcome } from '../learning-events/entities/recommendatio
 import { ProfessionalRecommendationFeedback } from './entities/professional-recommendation-feedback.entity';
 import { CreateProfessionalFeedbackDto } from './dto/create-professional-feedback.dto';
 import { LongitudinalLearningAnalyticsService } from '../learning-events/longitudinal-learning-analytics.service';
+import { Attendance, AttendanceStatus } from './entities/attendance.entity';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class EducatorService {
@@ -39,6 +41,9 @@ export class EducatorService {
     private readonly outcomeRepo: Repository<RecommendationOutcome>,
     @InjectRepository(ProfessionalRecommendationFeedback)
     private readonly professionalFeedbackRepo: Repository<ProfessionalRecommendationFeedback>,
+    @InjectRepository(Attendance)
+    private readonly attendanceRepo: Repository<Attendance>,
+    private readonly authService: AuthService,
     private readonly longitudinalAnalytics?: LongitudinalLearningAnalyticsService,
   ) {}
 
@@ -404,5 +409,78 @@ export class EducatorService {
       bnccSkills: activity.bnccSkills,
       mathematicalConcepts: this.activityConcepts(activity),
     } : null;
+  }
+
+  // --- Attendance ("Iniciar atendimento") -------------------------------
+  // A professional can jump straight into a child's experience without
+  // typing the child's credentials. Only one ACTIVE attendance per learner
+  // is kept so an abruptly closed tab can be resumed later from the
+  // professional's own dashboard (LGPD: every start/resume/end is audited
+  // here with who/when).
+
+  async startAttendance(professionalId: string, learnerId: string) {
+    const learner = await this.userRepo.findOne({ where: { id: learnerId, role: UserRole.CHILD } });
+    if (!learner) {
+      throw new NotFoundException('Learner not found');
+    }
+
+    let attendance = await this.attendanceRepo.findOne({
+      where: { learnerId, status: AttendanceStatus.ACTIVE },
+    });
+
+    const now = new Date();
+    if (attendance) {
+      attendance.professionalId = professionalId;
+      attendance.lastResumedAt = now;
+      await this.attendanceRepo.save(attendance);
+    } else {
+      attendance = await this.attendanceRepo.save(
+        this.attendanceRepo.create({
+          learnerId,
+          professionalId,
+          status: AttendanceStatus.ACTIVE,
+          startedAt: now,
+        }),
+      );
+    }
+
+    const session = await this.authService.issueSessionTokens(learner.id, learner.email, learner.role);
+
+    return { attendanceId: attendance.id, learner: session.user, accessToken: session.accessToken, refreshToken: session.refreshToken };
+  }
+
+  async endAttendance(professionalId: string, attendanceId: string) {
+    const attendance = await this.attendanceRepo.findOne({ where: { id: attendanceId } });
+    if (!attendance) {
+      throw new NotFoundException('Attendance not found');
+    }
+    if (attendance.professionalId !== professionalId) {
+      throw new ForbiddenException('This attendance belongs to another professional');
+    }
+    if (attendance.status === AttendanceStatus.ACTIVE) {
+      attendance.status = AttendanceStatus.ENDED;
+      attendance.endedAt = new Date();
+      await this.attendanceRepo.save(attendance);
+    }
+    return { id: attendance.id, status: attendance.status };
+  }
+
+  async getActiveAttendances(professionalId: string) {
+    const attendances = await this.attendanceRepo.find({
+      where: { professionalId, status: AttendanceStatus.ACTIVE },
+      order: { lastResumedAt: 'DESC', startedAt: 'DESC' },
+    });
+    if (attendances.length === 0) return [];
+
+    const learners = await this.userRepo.find({ where: { id: In(attendances.map((a) => a.learnerId)) } });
+    const learnerById = new Map(learners.map((learner) => [learner.id, learner]));
+
+    return attendances.map((attendance) => ({
+      attendanceId: attendance.id,
+      learnerId: attendance.learnerId,
+      learnerName: learnerById.get(attendance.learnerId)?.name ?? 'Criança',
+      startedAt: attendance.startedAt,
+      lastResumedAt: attendance.lastResumedAt,
+    }));
   }
 }

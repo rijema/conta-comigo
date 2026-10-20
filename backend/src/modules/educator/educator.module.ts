@@ -14,16 +14,19 @@ import { AdaptationTransition } from '../learning-events/entities/adaptation-tra
 import { RecommendationOutcome } from '../learning-events/entities/recommendation-outcome.entity';
 import { ProfessionalRecommendationFeedback } from './entities/professional-recommendation-feedback.entity';
 import { LearningEventsModule } from '../learning-events/learning-events.module';
+import { Attendance } from './entities/attendance.entity';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       User, ChildProfile, AnalyticsSnapshot, AdeDecision, ActivityAttempt, Activity,
-      AdaptationTransition, RecommendationOutcome, ProfessionalRecommendationFeedback,
+      AdaptationTransition, RecommendationOutcome, ProfessionalRecommendationFeedback, Attendance,
     ]),
     KnowledgeTracingModule,
     AdeModule,
     LearningEventsModule,
+    AuthModule,
   ],
   controllers: [EducatorController],
   providers: [EducatorService],

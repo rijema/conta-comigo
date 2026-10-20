@@ -17,6 +17,7 @@ import { useVoiceCommand } from "@/hooks/use-voice-command";
 import { PushToTalkButton } from "@/components/voice/push-to-talk-button";
 import { api } from "@/lib/api-client";
 import { authService } from "@/lib/auth";
+import { ProfessionalAttendanceBar } from "@/components/educator/professional-attendance-bar";
 import type { Activity } from "@/types";
 
 const TUTORIALS: Partial<Record<Activity["type"], Array<{ conceptId: string; text: string }>>> = {
@@ -839,14 +840,17 @@ function LearnPageInner() {
 
 export default function LearnPage() {
   return (
-    <Suspense fallback={
-      <div className="flex items-center justify-center min-h-screen" style={{ background: "linear-gradient(135deg,#fce7f3,#dbeafe,#d1fae5)" }}>
-        <div className="animate-bounce">
-          <ArasaacPictogram conceptId="state.great" showLabel={false} imageClassName="w-20 h-20" />
+    <>
+      <ProfessionalAttendanceBar />
+      <Suspense fallback={
+        <div className="flex items-center justify-center min-h-screen" style={{ background: "linear-gradient(135deg,#fce7f3,#dbeafe,#d1fae5)" }}>
+          <div className="animate-bounce">
+            <ArasaacPictogram conceptId="state.great" showLabel={false} imageClassName="w-20 h-20" />
+          </div>
         </div>
-      </div>
-    }>
-      <LearnPageInner />
-    </Suspense>
+      }>
+        <LearnPageInner />
+      </Suspense>
+    </>
   );
 }

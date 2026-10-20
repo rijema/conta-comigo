@@ -137,6 +137,18 @@ export class AuthService {
     return this.generateTokens(userId, email, role);
   }
 
+  // Used by EducatorService to issue a child session when a professional
+  // starts/resumes an "atendimento" (attendance), without the child's own
+  // credentials. Returns sanitized user + tokens, same shape as login().
+  async issueSessionTokens(userId: string, email: string, role: string) {
+    const user = await this.usersService.findById(userId);
+    if (!user || !user.isActive) {
+      throw new UnauthorizedException('User not found or inactive');
+    }
+    const tokens = await this.generateTokens(userId, email, role);
+    return { user: this.sanitizeUser(user), ...tokens };
+  }
+
   buildGoogleAuthUrl() {
     const clientId = this.configService.get<string>('GOOGLE_CLIENT_ID');
     const redirectUri = this.configService.get<string>('GOOGLE_REDIRECT_URI');
