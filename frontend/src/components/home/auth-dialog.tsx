@@ -130,7 +130,7 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
           </div>
         </div>
 
-        <div className="relative flex flex-col overflow-hidden p-5 sm:p-8">
+        <div className="relative flex min-h-0 flex-col overflow-hidden p-5 sm:p-8">
           <button ref={closeRef} type="button" onClick={onClose} aria-label="Fechar"
             className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full text-xl text-slate-700 hover:bg-slate-100 focus:ring-4 focus:ring-violet-200">×</button>
           <div className="mb-6 pr-10">
@@ -150,7 +150,7 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
             ))}
           </div>
 
-          <div className="flex-1 overflow-y-auto pr-2">
+          <div className="min-h-0 flex-1 overflow-y-auto pr-2">
             {success && (
               <div role="status" className="mb-4 rounded-xl bg-emerald-50 border-l-4 border-emerald-500 p-4">
                 <p className="font-semibold text-emerald-900">✓ Sucesso!</p>
