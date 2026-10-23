@@ -20,13 +20,20 @@ export function useAuth() {
     }
     try {
       const profile = await apiClient.get<AuthUser>("/auth/me", token);
+      // Guard against stale responses: if the token changed while this
+      // request was in flight (e.g. a professional started an "atendimento"
+      // and switched the session to the child), applying this outdated
+      // profile would silently bounce the user back to the wrong session
+      // and, on the next failed call, even log them out entirely.
+      if (localStorage.getItem("access_token") !== token) return;
       setAuth(profile, token);
     } catch (error) {
+      if (localStorage.getItem("access_token") !== token) return;
       console.error("Failed to fetch profile:", error);
       clearAuth();
       localStorage.removeItem("access_token");
     } finally {
-      setLoading(false);
+      if (localStorage.getItem("access_token") === token) setLoading(false);
     }
   }, [setAuth, clearAuth, setLoading]);
 

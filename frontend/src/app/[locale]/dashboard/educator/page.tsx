@@ -107,7 +107,9 @@ export default function EducatorDashboardPage() {
     try {
       const result = await api.post<any>(`/educator/learners/${learnerId}/attendance/start`, {}, token);
       enterAttendance(result);
-      router.push(`/${locale}/learn`);
+      // Land on the child's own menu/profile (island map), not straight into
+      // an exercise — the professional should see what the child sees first.
+      router.push(`/${locale}/learn/menu`);
     } catch (e) {
       console.error(e);
       setStartingAttendance(null);
