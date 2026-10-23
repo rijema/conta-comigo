@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { api } from "@/lib/api-client";
 import { authService } from "@/lib/auth";
@@ -72,6 +72,15 @@ export default function EducatorDashboardPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const locale = useLocale();
+  // enterAttendance() swaps the globally shared auth store to the child's
+  // session synchronously (so the learn/menu page sees a valid child token
+  // right away). That same store change re-renders this still-mounted page,
+  // whose own role-guard effect below would otherwise see "role: child" and
+  // race its own redirect against the one we want (to /learn/menu) — and
+  // lose, since the generic /dashboard route doesn't know what to do with a
+  // child session and bounces to /auth/login. This ref lets that effect know
+  // an attendance redirect is already in flight and it should stand down.
+  const attendanceNavigationRef = useRef(false);
   const researchDebugEnabled = isResearchDebugEnabled({
     environmentFlag: process.env.NEXT_PUBLIC_ENABLE_RESEARCH_DEBUG,
     queryValue: searchParams.get("research"),
@@ -79,6 +88,7 @@ export default function EducatorDashboardPage() {
   });
 
   useEffect(() => {
+    if (attendanceNavigationRef.current) return;
     if (authLoading) return;
     if (!user) { router.push(`/${locale}/auth/login`); return; }
     const role = user.role?.toLowerCase();
@@ -106,6 +116,7 @@ export default function EducatorDashboardPage() {
     setStartingAttendance(learnerId);
     try {
       const result = await api.post<any>(`/educator/learners/${learnerId}/attendance/start`, {}, token);
+      attendanceNavigationRef.current = true;
       enterAttendance(result);
       // Land on the child's own menu/profile (island map), not straight into
       // an exercise — the professional should see what the child sees first.

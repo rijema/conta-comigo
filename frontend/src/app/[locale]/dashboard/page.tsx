@@ -21,6 +21,13 @@ export default function DashboardPage() {
       router.replace(`/${locale}/dashboard/guardian`);
     } else if (role === "educator" || role === "professional") {
       router.replace(`/${locale}/dashboard/educator`);
+    } else if (role === "child") {
+      // A professional's "atendimento" (attendance) swaps the active session
+      // to the child's own; if that session ever lands here (e.g. a stale
+      // redirect fired before the attendance navigation completed), send it
+      // to the child's menu instead of login — logging out mid-attendance
+      // would be jarring and wrong.
+      router.replace(`/${locale}/learn/menu`);
     } else {
       router.replace(`/${locale}/auth/login`);
     }
