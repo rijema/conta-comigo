@@ -44,11 +44,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Deploy ML to Railway
-        uses: bervProject/railway-deploy@main
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        with:
-          service: ml-service
+        run: npx -y @railway/cli@latest up --service ml-service --detach
 
   deploy-backend:
     needs: [test-backend]
@@ -57,11 +55,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Deploy Backend to Railway
-        uses: bervProject/railway-deploy@main
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        with:
-          service: backend
+        run: npx -y @railway/cli@latest up --service backend --detach
 
   deploy-frontend:
     needs: [deploy-backend]
