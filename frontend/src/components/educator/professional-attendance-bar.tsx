@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
 import { isAttendingAsChild, getAttendanceLearnerName, exitAttendance } from "@/lib/attendance";
+import { useAuthStore } from "@/store/auth.store";
 
 /**
  * Fixed banner shown only while a professional is "inside" a child's
@@ -17,11 +18,17 @@ export function ProfessionalAttendanceBar() {
   const [ending, setEnding] = useState(false);
   const router = useRouter();
   const locale = useLocale();
+  // Re-evaluate whenever the authenticated user changes (not just on mount):
+  // isAttendingAsChild() checks the attendance stash against *this* user's
+  // id, so if a different account becomes active on an already-mounted page
+  // (e.g. client-side navigation without unmounting this component), the
+  // banner must not keep showing another child's stale attendance state.
+  const currentUserId = useAuthStore((state) => state.user?.id);
 
   useEffect(() => {
     setVisible(isAttendingAsChild());
     setLearnerName(getAttendanceLearnerName());
-  }, []);
+  }, [currentUserId]);
 
   if (!visible) return null;
 

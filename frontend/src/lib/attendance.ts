@@ -16,7 +16,17 @@ const PROFESSIONAL_TOKEN_KEY = "professional_access_token";
 const PROFESSIONAL_REFRESH_KEY = "professional_refresh_token";
 const PROFESSIONAL_USER_KEY = "professional_user";
 const ATTENDANCE_ID_KEY = "active_attendance_id";
+const ATTENDANCE_LEARNER_ID_KEY = "active_attendance_learner_id";
 const ATTENDANCE_LEARNER_NAME_KEY = "active_attendance_learner_name";
+
+const ATTENDANCE_KEYS = [
+  PROFESSIONAL_TOKEN_KEY,
+  PROFESSIONAL_REFRESH_KEY,
+  PROFESSIONAL_USER_KEY,
+  ATTENDANCE_ID_KEY,
+  ATTENDANCE_LEARNER_ID_KEY,
+  ATTENDANCE_LEARNER_NAME_KEY,
+];
 
 export interface AttendanceStartResult {
   attendanceId: string;
@@ -25,9 +35,39 @@ export interface AttendanceStartResult {
   refreshToken?: string;
 }
 
+/**
+ * Drops every "atendimento" key from localStorage. Must run on any normal
+ * login/logout/register so leftovers from a previous professional
+ * attendance never leak into an unrelated session that starts afterwards
+ * on the same browser (e.g. another child logging in directly with their
+ * own credentials would otherwise inherit the professional's banner and
+ * "Encerrar atendimento" control, and that control would act on someone
+ * else's attendance record).
+ */
+export function clearAttendanceState(): void {
+  if (typeof window === "undefined") return;
+  for (const key of ATTENDANCE_KEYS) localStorage.removeItem(key);
+}
+
 export function isAttendingAsChild(): boolean {
   if (typeof window === "undefined") return false;
-  return !!localStorage.getItem(PROFESSIONAL_TOKEN_KEY);
+  if (!localStorage.getItem(PROFESSIONAL_TOKEN_KEY)) return false;
+
+  // The stash only describes a real, *current* attendance when the user
+  // presently authenticated is the exact learner it was started for. If a
+  // different user is now logged in (e.g. someone logged in directly as a
+  // different child after a prior attendance was abandoned without going
+  // through exitAttendance), the leftover keys are stale: surfacing the
+  // attendance banner/controls here would leak another child's session
+  // state and give a professional-only action to the wrong account.
+  const attendanceLearnerId = localStorage.getItem(ATTENDANCE_LEARNER_ID_KEY);
+  const currentUserId = useAuthStore.getState().user?.id ?? null;
+  if (!attendanceLearnerId || !currentUserId || attendanceLearnerId !== currentUserId) {
+    clearAttendanceState();
+    return false;
+  }
+
+  return true;
 }
 
 export function getAttendanceLearnerName(): string | null {
@@ -40,8 +80,9 @@ export function enterAttendance(result: AttendanceStartResult) {
   const professionalUser = useAuthStore.getState().user;
   const professionalToken = authService.getStoredToken();
   const professionalRefresh = typeof window !== "undefined" ? localStorage.getItem("refresh_token") : null;
+  const alreadyAttending = !!localStorage.getItem(PROFESSIONAL_TOKEN_KEY);
 
-  if (professionalUser && professionalToken && !isAttendingAsChild()) {
+  if (professionalUser && professionalToken && !alreadyAttending) {
     // Only stash once: resuming an attendance from the banner should not
     // overwrite the real professional session with a half-impersonated one.
     localStorage.setItem(PROFESSIONAL_TOKEN_KEY, professionalToken);
@@ -49,6 +90,7 @@ export function enterAttendance(result: AttendanceStartResult) {
     localStorage.setItem(PROFESSIONAL_USER_KEY, JSON.stringify(professionalUser));
   }
   localStorage.setItem(ATTENDANCE_ID_KEY, result.attendanceId);
+  localStorage.setItem(ATTENDANCE_LEARNER_ID_KEY, result.learner.id);
   localStorage.setItem(ATTENDANCE_LEARNER_NAME_KEY, result.learner.name);
 
   authService.storeTokens({ accessToken: result.accessToken, refreshToken: result.refreshToken });
@@ -75,11 +117,7 @@ export async function exitAttendance(): Promise<string | null> {
   authService.storeTokens({ accessToken: professionalToken, refreshToken: professionalRefresh ?? undefined });
   useAuthStore.getState().setAuth(JSON.parse(professionalUserRaw), professionalToken);
 
-  localStorage.removeItem(PROFESSIONAL_TOKEN_KEY);
-  localStorage.removeItem(PROFESSIONAL_REFRESH_KEY);
-  localStorage.removeItem(PROFESSIONAL_USER_KEY);
-  localStorage.removeItem(ATTENDANCE_ID_KEY);
-  localStorage.removeItem(ATTENDANCE_LEARNER_NAME_KEY);
+  clearAttendanceState();
 
   const user = JSON.parse(professionalUserRaw) as AuthUser;
   return user.role === "professional" ? "dashboard/educator" : "dashboard";
