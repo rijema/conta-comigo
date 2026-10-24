@@ -1221,6 +1221,79 @@ export class ActivitiesService {
     });
   }
 
+  /**
+   * Activities the child has *ever* answered correctly, across all past
+   * cycles (not just the recent-attempts cooldown window). These should
+   * never be recommended again by the normal selection flow — only spaced
+   * review (handled earlier in `recommendNextActivity`, before this is
+   * consulted) is allowed to resurface them. Activities only ever attempted
+   * incorrectly are intentionally NOT included here: they remain eligible
+   * so the child can retry the same skill, ideally via a different/easier
+   * variant (see `applyRetryModalityPreference`).
+   */
+  async getEverCorrectlyCompletedActivityIds(userId: string): Promise<Set<string>> {
+    const rows = await this.attemptRepo.find({
+      where: { userId, isCorrect: true },
+      select: ['activityId'],
+    });
+    return new Set(rows.map((row) => row.activityId));
+  }
+
+  /**
+   * Excludes activities the child already completed correctly, with a
+   * safety valve: if applying the exclusion would leave no candidates
+   * (e.g. a child has mastered every activity for a skill), fall back to
+   * the unfiltered pool rather than failing activity selection.
+   */
+  private excludeEverCorrect(candidates: Activity[], everCorrectIds: Set<string>): Activity[] {
+    if (!everCorrectIds.size) return candidates;
+    const filtered = candidates.filter((activity) => !everCorrectIds.has(activity.id));
+    return filtered.length ? filtered : candidates;
+  }
+
+  /**
+   * When the child's most recent attempt at the currently targeted BNCC
+   * skill was incorrect, prefer resurfacing the *same* exercise structure
+   * but through an activity type aligned with the child's declared
+   * strengths (e.g. visual) rather than whatever happened to rank highest.
+   * Difficulty reduction is already handled separately by the rule engine
+   * (D2 rule), so this only narrows the candidate pool by modality/structure
+   * affinity. If no same-structure, strength-aligned variant exists, the
+   * candidates are left untouched so any other activity of the same BNCC
+   * skill remains selectable.
+   */
+  private applyRetryModalityPreference(
+    candidates: Activity[],
+    recentAttempts: ActivityAttempt[],
+    adeDecision: any,
+    profile: any,
+  ): Activity[] {
+    const targetSkill = adeDecision?.recommendedBnccSkill;
+    if (!targetSkill) return candidates;
+    const lastSkillAttempt = recentAttempts.find((attempt) =>
+      attempt.activity?.bnccSkills?.includes(targetSkill));
+    if (!lastSkillAttempt || lastSkillAttempt.isCorrect) return candidates;
+
+    const strengths = profile?.strengths ?? {};
+    const preferredModalities = Object.entries(strengths)
+      .filter(([, value]) => Boolean(value))
+      .map(([modality]) => modality);
+    if (!preferredModalities.length) return candidates;
+
+    const lastStructureId = lastSkillAttempt.activity?.content?.semantic?.structureId;
+    if (!lastStructureId) return candidates;
+
+    const sameStructureStrengthMatch = candidates.filter((activity) =>
+      activity.content?.semantic?.structureId === lastStructureId &&
+      activity.id !== lastSkillAttempt.activityId &&
+      activity.targetModalities?.some((modality) => preferredModalities.includes(modality)));
+
+    // Falls back to the untouched candidate pool (already scoped to the
+    // same BNCC skill upstream) when no visual/strength-aligned variant of
+    // the same structure exists.
+    return sameStructureStrengthMatch.length ? sameStructureStrengthMatch : candidates;
+  }
+
   private evaluateAnswer(activity: Activity, answer: any): boolean {
     const content = activity.type === ActivityType.DRAG_DROP && !activity.content.validation
       ? { ...activity.content, validation: { kind: 'sequence' as const } }
@@ -1311,9 +1384,15 @@ export class ActivitiesService {
       this.matchesExperienceRestrictions(activity, preferences));
     if (!prerequisiteEligible.length) throw new Error('No activity satisfies known prerequisites');
     const strategy = await this.planLearningStrategy(adeDecision, prerequisiteEligible, recentAttempts);
-    const eligibleActivities = this.applyRoundSkipPolicy(
+    const skipPolicyActivities = this.applyRoundSkipPolicy(
       prerequisiteEligible, roundSkippedIds, adeDecision.recommendedBnccSkill, round?.skippedActivity);
-    
+    // Activities the child already answered correctly, ever, should never be
+    // recommended again outside spaced review (handled earlier in the call
+    // chain). Incorrectly-attempted activities stay eligible so the skill
+    // can be retried (see applyRetryModalityPreference below).
+    const everCorrectIds = await this.getEverCorrectlyCompletedActivityIds(adeDecision.userId);
+    const eligibleActivities = this.excludeEverCorrect(skipPolicyActivities, everCorrectIds);
+
     // [PROPOSTA CONTA COMIGO] Filter by recommended island first if available
     let islandCandidates = eligibleActivities;
     if (adeDecision.recommendedIslandId) {
@@ -1396,7 +1475,8 @@ export class ActivitiesService {
       };
     }
 
-    const curriculumCandidates = this.preferExperienceCandidates(formallyValid, preferences);
+    const curriculumCandidates = this.applyRetryModalityPreference(
+      this.preferExperienceCandidates(formallyValid, preferences), recentAttempts, adeDecision, profile);
     const manualDifficulty = preferences.adaptiveDifficulty === false ? preferences.manualDifficulty : null;
     const matchingLevel = curriculumCandidates.filter((activity) =>
       activity.difficulty === (manualDifficulty ?? adeDecision.recommendedDifficulty));
@@ -1657,8 +1737,10 @@ export class ActivitiesService {
       this.learningEventService.getRecentSkippedActivityIds(userId, 20),
       this.getRoundSkippedActivityIds(userId, round?.sessionId),
     ]);
-    const candidates = this.applyRoundSkipPolicy(
-      eligible, roundSkippedIds, round?.targetSkill, round?.skippedActivity);
+    const candidates = this.excludeEverCorrect(
+      this.applyRoundSkipPolicy(eligible, roundSkippedIds, round?.targetSkill, round?.skippedActivity),
+      await this.getEverCorrectlyCompletedActivityIds(userId),
+    );
     return this.cooldown(this.preferExperienceCandidates(candidates, preferences), catalog,
       [...skipped, ...attempts.map((attempt) => attempt.activityId)])[0] ?? null;
   }
