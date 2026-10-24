@@ -397,6 +397,14 @@ describe('ReviewCandidateGenerationService', () => {
       const studentId = 'student-1';
 
       const mockSkillState = { studentId, skillId, masteryProbability: 0.5, observations: 5 };
+      // IMPORTANT: this must stay well inside the service's default 30-day
+      // lookback window (getSkillEvidence computes `cutoffDate = new
+      // Date() - lookbackDays` against the *real* wall clock). A hardcoded
+      // absolute date (e.g. '2026-09-24T10:00:00Z') silently drifts outside
+      // that window depending on what day/time the suite happens to run,
+      // making this test flaky/time-bomb-y instead of deterministic. Using
+      // an offset relative to "now" keeps it reliably within range forever.
+      const recentTimestamp = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000);
       const mockEvents = [
         {
           id: 'event-1',
@@ -404,7 +412,7 @@ describe('ReviewCandidateGenerationService', () => {
           correct: true,
           responseTimeMs: 5000,
           hintsUsed: 1,
-          timestamp: new Date('2026-09-24T10:00:00Z'),
+          timestamp: recentTimestamp,
         },
       ];
 
@@ -417,6 +425,11 @@ describe('ReviewCandidateGenerationService', () => {
       mockSkillStateRepository.find.mockResolvedValue([mockSkillState]);
       mockEventRepository.find.mockResolvedValue(mockEvents);
       const candidates2 = await service.generateReviewCandidates(studentId);
+
+      // Sanity check: both calls must actually produce a candidate, otherwise
+      // the assertions below would silently pass/fail against `undefined`.
+      expect(candidates1.length).toBeGreaterThan(0);
+      expect(candidates2.length).toBeGreaterThan(0);
 
       // Scores should be identical
       expect(candidates1[0].priorityScore).toBe(candidates2[0].priorityScore);
