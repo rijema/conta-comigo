@@ -6,13 +6,52 @@ interface RequestOptions {
   token?: string;
   signal?: AbortSignal;
   headers?: Record<string, string>;
+  /** Internal: set on the retried call after a 401 refresh, to prevent refresh loops. */
+  _isRetry?: boolean;
+}
+
+// Access tokens are short-lived (1h in production). Sessions routinely outlive
+// that — e.g. a professional's "atendimento" with a child, or just a long
+// dashboard session — so a bare 401 must not be a dead end. When a request
+// fails with 401, we transparently redeem the refresh token for a new access
+// token and retry once before giving up. Without this, callers that swallow
+// errors (`.catch(console.error)`) were silently left showing stale/empty
+// data (e.g. "Alunos (0)") instead of the real list, with no visible error.
+let refreshPromise: Promise<string | null> | null = null;
+
+async function refreshAccessToken(): Promise<string | null> {
+  if (typeof window === "undefined") return null;
+  const refreshToken = localStorage.getItem("refresh_token");
+  if (!refreshToken) return null;
+
+  if (!refreshPromise) {
+    refreshPromise = fetch(`${BASE_URL}/auth/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refreshToken }),
+    })
+      .then(async (res) => {
+        if (!res.ok) return null;
+        const data = await res.json();
+        if (!data?.accessToken) return null;
+        localStorage.setItem("access_token", data.accessToken);
+        if (data.refreshToken) localStorage.setItem("refresh_token", data.refreshToken);
+        return data.accessToken as string;
+      })
+      .catch(() => null)
+      .finally(() => {
+        refreshPromise = null;
+      });
+  }
+
+  return refreshPromise;
 }
 
 async function request<T>(
   endpoint: string,
   options: RequestOptions = {}
 ): Promise<T> {
-  const { method = "GET", body, token, signal, headers: extraHeaders = {} } = options;
+  const { method = "GET", body, token, signal, headers: extraHeaders = {}, _isRetry = false } = options;
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -29,6 +68,13 @@ async function request<T>(
     body: body ? JSON.stringify(body) : undefined,
     signal,
   });
+
+  if (response.status === 401 && token && !_isRetry) {
+    const newToken = await refreshAccessToken();
+    if (newToken) {
+      return request<T>(endpoint, { method, body, token: newToken, signal, headers: extraHeaders, _isRetry: true });
+    }
+  }
 
   if (!response.ok) {
     const payload = await response.text();
