@@ -1377,6 +1377,27 @@ export async function ActivitiesSeed(dataSource: DataSource) {
         };
         await repo.save(existing);
       }
+      // Additive-only backfill of `content.semantic` (notably `structureId`).
+      // Rows seeded *before* `semantic.structureId` existed on a given
+      // exercise never match the structureId-based branch above (that
+      // branch requires the existing row to already have it — a
+      // chicken-and-egg problem), so they fall into this title-matched path
+      // forever and their `structureId` stays permanently null. The hybrid
+      // recommendation engine's diversity filter
+      // (hybrid-recommendation.service.ts) treats any candidate lacking
+      // `structureId` as exempt from anti-repetition checks, so the
+      // exercise never gets blocked by the "don't repeat recent structures"
+      // rule and keeps ping-ponging with whatever sibling exercise it last
+      // alternated with (observed with "Decomponha o número 7"). Merging
+      // only `semantic`, and only when it is missing, never overwrites
+      // authored content.
+      if (activityContent.semantic?.structureId && !existing.content?.semantic?.structureId) {
+        existing.content = {
+          ...existing.content,
+          semantic: { ...existing.content?.semantic, ...activityContent.semantic },
+        };
+        await repo.save(existing);
+      }
       continue;
     }
     const record = repo.create(activity);
