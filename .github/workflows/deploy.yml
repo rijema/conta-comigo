@@ -32,7 +32,7 @@ jobs:
           python-version: "3.11"
       - name: Install ML deps
         working-directory: ml-service
-        run: pip install -r requirements.txt
+        run: pip install -r requirements-dev.txt
       - name: Run ML tests
         working-directory: ml-service
         run: python -m pytest tests/ -v

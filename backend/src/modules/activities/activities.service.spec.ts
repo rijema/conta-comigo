@@ -270,3 +270,102 @@ describe('Professional experience restrictions', () => {
     expect(chosen).toBe('EF01MA03');
   });
 });
+
+describe('Recommendation repetition prevention', () => {
+  describe('getEverCorrectlyCompletedActivityIds', () => {
+    it('returns the set of distinct activity ids the child has ever answered correctly', async () => {
+      const find = jest.fn().mockResolvedValue([
+        { activityId: 'a1' }, { activityId: 'a2' }, { activityId: 'a1' },
+      ]);
+      const service = createActivitiesService({ attemptRepo: { find } });
+
+      const result = await service.getEverCorrectlyCompletedActivityIds('student-1');
+
+      expect(find).toHaveBeenCalledWith({
+        where: { userId: 'student-1', isCorrect: true },
+        select: ['activityId'],
+      });
+      expect(result).toEqual(new Set(['a1', 'a2']));
+    });
+
+    it('returns an empty set when the child has no correct attempts yet', async () => {
+      const service = createActivitiesService({ attemptRepo: { find: jest.fn().mockResolvedValue([]) } });
+      const result = await service.getEverCorrectlyCompletedActivityIds('student-1');
+      expect(result.size).toBe(0);
+    });
+  });
+
+  describe('excludeEverCorrect', () => {
+    const activity = (id: string) => ({ id }) as any;
+
+    it('filters out activities already answered correctly', () => {
+      const service = createActivitiesService();
+      const candidates = [activity('a1'), activity('a2'), activity('a3')];
+      const result = (service as any).excludeEverCorrect(candidates, new Set(['a1', 'a3']));
+      expect(result.map((item: any) => item.id)).toEqual(['a2']);
+    });
+
+    it('returns candidates untouched when no activity was ever correctly completed', () => {
+      const service = createActivitiesService();
+      const candidates = [activity('a1'), activity('a2')];
+      const result = (service as any).excludeEverCorrect(candidates, new Set());
+      expect(result).toBe(candidates);
+    });
+
+    it('falls back to the unfiltered pool when every candidate was already mastered', () => {
+      const service = createActivitiesService();
+      const candidates = [activity('a1'), activity('a2')];
+      const result = (service as any).excludeEverCorrect(candidates, new Set(['a1', 'a2']));
+      expect(result).toBe(candidates);
+    });
+  });
+
+  describe('applyRetryModalityPreference', () => {
+    const service = createActivitiesService();
+    const targetSkill = 'EF01MA06';
+    const adeDecision = { recommendedBnccSkill: targetSkill };
+    const activityWith = (id: string, structureId: string, modalities: string[]) => ({
+      id, content: { semantic: { structureId } }, targetModalities: modalities,
+    }) as any;
+    const lastAttempt = (isCorrect: boolean, structureId = 'struct-1') => ({
+      activityId: 'previous', isCorrect,
+      activity: { bnccSkills: [targetSkill], content: { semantic: { structureId } } },
+    }) as any;
+
+    it('narrows candidates to the same structure in the child\'s strength modality after a wrong answer', () => {
+      const candidates = [
+        activityWith('visual-match', 'struct-1', ['visual']),
+        activityWith('auditory-match', 'struct-1', ['auditory']),
+        activityWith('other-structure', 'struct-2', ['visual']),
+      ];
+      const result = (service as any).applyRetryModalityPreference(
+        candidates, [lastAttempt(false)], adeDecision, { strengths: { visual: true } },
+      );
+      expect(result.map((item: any) => item.id)).toEqual(['visual-match']);
+    });
+
+    it('leaves candidates untouched when the last attempt on the target skill was correct', () => {
+      const candidates = [activityWith('visual-match', 'struct-1', ['visual'])];
+      const result = (service as any).applyRetryModalityPreference(
+        candidates, [lastAttempt(true)], adeDecision, { strengths: { visual: true } },
+      );
+      expect(result).toBe(candidates);
+    });
+
+    it('leaves candidates untouched when the profile has no declared strengths', () => {
+      const candidates = [activityWith('visual-match', 'struct-1', ['visual'])];
+      const result = (service as any).applyRetryModalityPreference(
+        candidates, [lastAttempt(false)], adeDecision, { strengths: {} },
+      );
+      expect(result).toBe(candidates);
+    });
+
+    it('falls back to the untouched pool when no same-structure strength-aligned variant exists', () => {
+      const candidates = [activityWith('other-structure', 'struct-2', ['visual'])];
+      const result = (service as any).applyRetryModalityPreference(
+        candidates, [lastAttempt(false)], adeDecision, { strengths: { visual: true } },
+      );
+      expect(result).toBe(candidates);
+    });
+  });
+});
