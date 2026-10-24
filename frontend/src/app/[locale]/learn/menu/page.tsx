@@ -181,9 +181,17 @@ export default function ActivityMenuPage() {
             </button>
             <button
               onClick={() => { setShowAI(true); setAiAnswer(null); setAiQuestion(""); }}
-              className="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-xl shadow-sm hover:scale-105 transition-transform"
+              className="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center shadow-sm hover:scale-105 transition-transform overflow-hidden"
               title="Perguntar à TitIA"
-            >🦋</button>
+            >
+              <Image
+                src="/assets/mainiconfirstpage.png"
+                alt="TitIA"
+                width={32}
+                height={32}
+                className="w-full h-full object-contain"
+              />
+            </button>
             <button onClick={logout} className="text-xs text-gray-400 hover:text-red-500 px-2 py-1 rounded-lg">Sair</button>
           </div>
         </div>
@@ -200,10 +208,17 @@ export default function ActivityMenuPage() {
       >
         <div className="relative overflow-hidden" style={{ background: "linear-gradient(90deg,#7c3aed,#a855f7,#ec4899,#f43f5e,#f97316,#eab308,#22c55e,#06b6d4,#3b82f6,#7c3aed)", backgroundSize: "300% 100%", animation: "rainbowBg 6s linear infinite" }}>
           <div className="relative flex items-center gap-4 px-6 py-3 max-w-5xl mx-auto">
-            <div className="w-12 h-12 rounded-2xl bg-white/25 flex items-center justify-center text-3xl flex-shrink-0 shadow-inner">🦋</div>
+            <div className="w-12 h-12 rounded-2xl bg-white/25 flex items-center justify-center flex-shrink-0 shadow-inner overflow-hidden">
+              <Image
+                src="/assets/mainiconfirstpage.png"
+                alt="TitIA"
+                width={48}
+                height={48}
+                className="w-full h-full object-contain"
+              />
+            </div>
             <div className="flex-1 min-w-0">
-             <p className="font-extrabold text-white text-sm md:text-base">TitIA escolheu para você!</p>
-              <p className="text-white/85 text-xs hidden sm:block">Sua jornada foi personalizada com carinho pela inteligência artificial!</p>
+             <p className="font-extrabold text-white text-sm md:text-base">Sua jornada foi personalizada com carinho pela TitIA!</p>
             </div>
             <div className="flex-shrink-0 bg-white/25 text-white text-xs font-bold px-3 py-1.5 rounded-full whitespace-nowrap">
              Fazer uma pergunta
