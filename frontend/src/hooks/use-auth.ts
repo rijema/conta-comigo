@@ -6,6 +6,7 @@ import { useLocale } from "next-intl";
 import { authService, LoginPayload, RegisterPayload } from "@/lib/auth";
 import { apiClient } from "@/lib/api-client";
 import { useAuthStore, AuthUser } from "@/store/auth.store";
+import { clearAttendanceState } from "@/lib/attendance";
 
 export function useAuth() {
   const { user, isAuthenticated, isLoading, isHydrated, setAuth, clearAuth, setLoading } = useAuthStore();
@@ -55,6 +56,11 @@ export function useAuth() {
     setLoading(true);
     try {
       const response = await authService.login(payload);
+      // A normal, direct login must never inherit leftover "atendimento"
+      // state from a previous professional session on this browser — that
+      // state is keyed to a specific child and otherwise leaks another
+      // child's in-progress attendance banner/controls into this session.
+      clearAttendanceState();
       authService.storeTokens(response);
       
       // If the backend already returns the user, use it. Otherwise, fetch it.
@@ -72,6 +78,7 @@ export function useAuth() {
     setLoading(true);
     try {
       const response = await authService.register(payload);
+      clearAttendanceState();
       authService.storeTokens(response);
       
       const profile = response.user || await apiClient.get<AuthUser>("/auth/me", response.accessToken);
@@ -86,6 +93,7 @@ export function useAuth() {
 
   const logout = () => {
     authService.clearTokens();
+    clearAttendanceState();
     clearAuth();
     router.push(`/${locale}`);
   };

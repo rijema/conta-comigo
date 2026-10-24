@@ -62,7 +62,7 @@ Quem participou desse mapeamento, quais critérios orientaram as associações e
 **Participantes:**
 - ✅ Engenheiro de Acessibilidade (Copilot): Análise técnica WCAG, fixação de código
 - ✅ Pesquisador Principal (Ricardo Jeremias): Validação contexto TEA, aprovação técnica
-- ⏳ Orientadores Acadêmicos (UPE/POLI): Supervisão metodológica (revisão)
+- ⏳ Orientadores Acadêmicos: Supervisão metodológica (revisão)
 
 **Critérios de Associação (4 dimensões):**
 1. **Conformidade WCAG 2.1 AA**: Qual Success Criterion é violado?
@@ -289,7 +289,7 @@ COMEÇAMOS COM:                   TERMINAMOS COM:
 
 ---
 
-**Documento preparado para: Orientadores Wylliams Barbosa Santos (UPE) e Carlo Marcelo Revoredo (POLI)**  
+**Documento preparado para: Orientadores Acadêmicos do programa de mestrado**  
 **Autor: Ricardo Jeremias**  
 **Assistido por: GitHub Copilot CLI**  
 **Data: 2026-09-20**  

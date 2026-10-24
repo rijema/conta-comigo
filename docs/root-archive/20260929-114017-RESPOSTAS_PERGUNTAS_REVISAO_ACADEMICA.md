@@ -177,7 +177,7 @@ WCAG Color Contrast Analyzer
 |-------|--------|--------------|------------------|
 | **Engenheiro de Acessibilidade** | Copilot (GitHub CLI) | WCAG 2.1 AA, React/Next.js a11y patterns, jsx-a11y, html-validate | Análise técnica, categorização, decisões de código |
 | **Pesquisador Principal** | Ricardo Jeremias | Mestrado em Inteligência Computacional, foco Learning Analytics para TEA | Validação contexto TEA, aprovação decisões, contexto científico |
-| **Orientadores Acadêmicos** | Wylliams Barbosa Santos (UPE) + Carlo Marcelo Revoredo da Silva (POLI) | Supervisão metodológica, garantia de rigor | Revisão (planejada) |
+| **Orientadores Acadêmicos** | Orientadores do programa de mestrado | Supervisão metodológica, garantia de rigor | Revisão (planejada) |
 
 ### 2.2 Critérios para Associações
 

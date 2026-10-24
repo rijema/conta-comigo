@@ -159,14 +159,14 @@ AXE DevTools (Manual)
   - Mestrado em andamento (Inteligência Computacional + Engenharia de Software)
   - Expertise em Learning Analytics para TEA
   - Conhecimento de acomodações sensoriais em crianças com autismo
-  - Orientação acadêmica em UPE/POLI
+  - Orientação acadêmica do programa de mestrado
 - **Contribuição**:
   - Validação de critérios TEA-específicos
   - Aprovação de trade-offs técnicos
   - Contextualização científica
 
 #### **Papel 3: Orientadores Acadêmicos** (Referência)
-- **Nomes**: Wylliams Barbosa Santos (UPE) e Carlo Marcelo Revoredo da Silva (POLI)
+- **Nomes**: Orientadores acadêmicos do programa de mestrado
 - **Responsabilidade**: Supervisão metodológica, garantia de rigor científico
 - **Status**: Documentação preparada para revisão
 
