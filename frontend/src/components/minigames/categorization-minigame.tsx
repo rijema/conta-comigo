@@ -107,7 +107,7 @@ export const CategorizationMinigame: React.FC<CategorizationMinigameProps> = ({
   const lesserItems = items.filter(item => categorized.lesser.includes(item.id));
 
   return (
-    <div className="flex flex-col gap-6 p-6 bg-gradient-to-b from-purple-50 to-pink-50 rounded-xl min-h-screen">
+    <div className="flex flex-col gap-6 p-6 bg-gradient-to-b from-purple-50 to-pink-50 rounded-xl">
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}

@@ -65,7 +65,7 @@ export const TenFrameMinigame: React.FC<TenFrameMinigameProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-8 p-6 bg-gradient-to-b from-orange-50 to-yellow-50 rounded-xl min-h-screen items-center justify-center">
+    <div className="flex flex-col gap-8 p-6 bg-gradient-to-b from-orange-50 to-yellow-50 rounded-xl items-center justify-center">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}

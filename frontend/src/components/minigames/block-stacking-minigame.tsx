@@ -146,7 +146,7 @@ export const BlockStackingMinigame: React.FC<BlockStackingMinigameProps> = ({
   const availableBlocks = blocks.filter(b => !stackedBlockIds.includes(b.id));
 
   return (
-    <div className="flex flex-col gap-6 p-6 bg-gradient-to-b from-blue-50 to-green-50 rounded-xl min-h-screen">
+    <div className="flex flex-col gap-6 p-6 bg-gradient-to-b from-blue-50 to-green-50 rounded-xl">
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
