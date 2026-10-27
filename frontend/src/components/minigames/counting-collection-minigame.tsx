@@ -68,7 +68,7 @@ export const CountingCollectionMinigame: React.FC<CountingCollectionMinigameProp
   }, [onComplete]);
 
   return (
-    <div className="flex flex-col gap-8 p-6 bg-gradient-to-b from-lime-50 to-green-50 rounded-xl min-h-screen">
+    <div className="flex flex-col gap-8 p-6 bg-gradient-to-b from-lime-50 to-green-50 rounded-xl">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}

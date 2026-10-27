@@ -109,7 +109,7 @@ export const NumberLineMinigame: React.FC<NumberLineMinigameProps> = ({
   }));
 
   return (
-    <div className="flex flex-col gap-8 p-8 bg-gradient-to-b from-purple-50 to-blue-50 rounded-xl min-h-screen justify-center">
+    <div className="flex flex-col gap-8 p-8 bg-gradient-to-b from-purple-50 to-blue-50 rounded-xl justify-center">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
