@@ -56,14 +56,47 @@ export const ContextualProblemMinigame: React.FC<ContextualProblemMinigameProps>
   };
   const emoji = (context && CONTEXT_EMOJI[context]) || '🧮';
 
-  const options = activity?.content?.options ||
-    [
-      { id: 'a', text: 'Maria', isCorrect: false },
-      { id: 'b', text: 'João', isCorrect: true },
-      { id: 'c', text: 'Iguais', isCorrect: false },
-    ];
+  // GUARDRAIL (see "Maçãs para o lanche" incident): this activity type is
+  // ALWAYS rendered as multiple choice here, but some authored content only
+  // carries a numeric `correctAnswer` (meant for a numeric-entry UI that
+  // doesn't exist in this component) and no `options`. Previously that fell
+  // back to a hardcoded "Maria / João / Iguais" trio — a leftover comparison
+  // scenario that made no sense next to an unrelated statement (e.g. an
+  // addition problem). Now: real `options` win; otherwise, if there's a
+  // usable numeric answer we synthesize plausible choices around it; the
+  // unrelated placeholder trio is reserved strictly for the no-activity demo
+  // preview, never for a real but misconfigured activity.
+  const options: Array<{ id: string; text: string; isCorrect: boolean }> = (() => {
+    if (activity?.content?.options?.length) return activity.content.options;
+    if (!activity) {
+      return [
+        { id: 'a', text: 'Maria', isCorrect: false },
+        { id: 'b', text: 'João', isCorrect: true },
+        { id: 'c', text: 'Iguais', isCorrect: false },
+      ];
+    }
+    const correctNumber = Number(activity.content?.correctAnswer);
+    if (!Number.isFinite(correctNumber)) return [];
+    // Deterministic pseudo-shuffle keyed by activity id so the option order
+    // doesn't jump around on re-render but still varies between activities.
+    let seed = 0;
+    for (const char of activity.id) seed = (seed * 31 + char.charCodeAt(0)) >>> 0;
+    const distractors = [correctNumber - 1, correctNumber + 1, correctNumber - 2, correctNumber + 2]
+      .filter((value, index, arr) => value >= 0 && value !== correctNumber && arr.indexOf(value) === index)
+      .slice(0, 2);
+    const values = [correctNumber, ...distractors]
+      .map((value, index) => ({ value, sortKey: (seed + index * 97) % 1000 }))
+      .sort((a, b) => a.sortKey - b.sortKey)
+      .map((entry) => entry.value);
+    return values.map((value, index) => ({
+      id: String.fromCharCode(97 + index),
+      text: String(value),
+      isCorrect: value === correctNumber,
+    }));
+  })();
 
   const correctOption = options.find((o: any) => o.isCorrect);
+  const hasUsableOptions = options.length > 0;
 
   const handleSelect = (optionId: string) => {
     if (!submitted) {
@@ -111,6 +144,11 @@ export const ContextualProblemMinigame: React.FC<ContextualProblemMinigameProps>
         </motion.div>
 
         <div className="space-y-3">
+          {!hasUsableOptions && (
+            <p role="status" className="rounded-lg border-2 border-amber-300 bg-amber-50 p-4 text-sm font-bold text-amber-800">
+              ⚠️ Este exercício ainda não tem respostas configuradas. Toque em &quot;Quero outro&quot; para pular e avise a equipe.
+            </p>
+          )}
           {options.map((option: any) => (
             <motion.button
               key={option.id}
@@ -135,7 +173,7 @@ export const ContextualProblemMinigame: React.FC<ContextualProblemMinigameProps>
 
         <motion.button
           onClick={handleSubmit}
-          disabled={submitted || !selected}
+          disabled={submitted || !selected || !hasUsableOptions}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           className="w-full mt-6 px-8 py-3 bg-rose-600 text-white rounded-lg font-bold text-lg disabled:opacity-50 shadow-lg"

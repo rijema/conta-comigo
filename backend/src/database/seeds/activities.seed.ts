@@ -764,14 +764,28 @@ export async function ActivitiesSeed(dataSource: DataSource) {
         question: '3 maçãs + 2 maçãs = ?',
         context: { operationMeaning: 'join' },
         pictogramConceptIds: ['object.apple', 'math.addition'],
-        inputMode: 'numeric',
-        correctAnswer: 5,
-        validation: { kind: 'numeric' },
+        // NOTE: `type: 'contextual_problem_solving'` is ALWAYS rendered by
+        // <ContextualProblemMinigame>, which is multiple-choice-only — it has
+        // no numeric-entry UI. This activity used to ship with only
+        // `inputMode: 'numeric'` / `correctAnswer: 5` and no `options`, so the
+        // minigame silently fell back to its hardcoded "Maria / João /
+        // Iguais" placeholder options (a leftover comparison-problem
+        // template), which made no sense next to an addition question. Every
+        // `contextual_problem_solving` activity MUST define `options` with
+        // one `isCorrect: true` entry — see `getTutorialSteps`/renderer notes.
+        options: [
+          { id: 'a', text: '4', isCorrect: false },
+          { id: 'b', text: '5', isCorrect: true },
+          { id: 'c', text: '6', isCorrect: false },
+        ],
+        correctAnswer: '5',
+        validation: { kind: 'exact' },
         scaffolding: {
           hints: [{ textLabel: 'Junte os dois grupos de maçãs e conte.', pictogramConceptId: 'object.apple' }],
           allowManipulatives: true,
         },
         semantic: {
+          structureId: 'contextual_problem_solving.add_join.macas_lanche',
           mathematicalConcepts: ['AdditionConcept', 'EarlyProblemSolvingConcept'],
           conceptMappingStatus: 'PARTIAL',
           representation: ['contextual', 'object_based', 'pictorial'],
@@ -1356,7 +1370,18 @@ export async function ActivitiesSeed(dataSource: DataSource) {
         ? { instructionsPt: activityContent.instructionsPt, instructions: activityContent.instructions }
         : activity.title === 'Ordene os passos da adição!'
           ? { acceptedOrders: activityContent.acceptedOrders }
-          : null;
+          // "Maçãs para o lanche" originally shipped with only
+          // `correctAnswer`/`validation: numeric` and no `options`. Its
+          // type (`contextual_problem_solving`) is always rendered as a
+          // multiple-choice minigame, which has no numeric-entry UI, so it
+          // silently fell back to unrelated hardcoded placeholder answers
+          // ("Maria"/"João"/"Iguais") next to an addition question. Force
+          // this one-time correction onto rows already seeded before the
+          // fix, since this activity has no `semantic.structureId` (yet)
+          // and would otherwise never get its `content` fully resynced.
+          : activity.title === 'Maçãs para o lanche'
+            ? { options: activityContent.options, correctAnswer: activityContent.correctAnswer, validation: activityContent.validation }
+            : null;
       if (authoredCorrection && Object.entries(authoredCorrection).some(
         ([key, value]) => JSON.stringify(existing.content?.[key]) !== JSON.stringify(value),
       )) {
