@@ -137,6 +137,11 @@ const definitions: PictogramDefinition[] = [
   definition("library.die", "LEARNING_LIBRARY", "dado", "🎲", 2731),
   definition("library.domino", "LEARNING_LIBRARY", "dominó", "🁣", 3095),
   definition("library.tablet_game", "LEARNING_LIBRARY", "jogar no tablet", "📱", 29151),
+  // Concrete, kid-familiar items (used instead of abstract shapes in
+  // matching/counting exercises — easier for TEA children to anchor to).
+  definition("library.dog", "LEARNING_LIBRARY", "cachorro", "🐶", 34041),
+  definition("library.cat", "LEARNING_LIBRARY", "gato", "🐱", 7114),
+  definition("library.ball", "LEARNING_LIBRARY", "bola", "⚽", 3241),
   definition('action.yes', "STATE", "sim", "✅"),
   definition('action.no', "STATE", "não", "❌"),
   definition('character.titia', "LEARNING_LIBRARY", "TitiA", "🦋"),
