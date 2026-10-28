@@ -79,10 +79,14 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
   // fails to load; real exercises come entirely from activity.content.items)
   const pairs = (activity?.content?.items ||
     [
-      { id: 'pair1', left: '2', right: 'dois círculos', rightCount: 2, rightConceptId: 'library.circle' },
-      { id: 'pair2', left: '4', right: 'quatro círculos', rightCount: 4, rightConceptId: 'library.circle' },
-      { id: 'pair3', left: '3', right: 'três círculos', rightCount: 3, rightConceptId: 'library.circle' },
-    ]) as Array<{ id: string; left: string; right: string; rightCount?: number; rightConceptId?: string }>;
+      { id: 'pair1', left: '2', right: 'dois cachorros', rightCount: 2, rightConceptId: 'library.dog' },
+      { id: 'pair2', left: '4', right: 'quatro bolas', rightCount: 4, rightConceptId: 'library.ball' },
+      { id: 'pair3', left: '3', right: 'três gatos', rightCount: 3, rightConceptId: 'library.cat' },
+    ]) as Array<{
+      id: string; left: string; right: string;
+      rightCount?: number; rightConceptId?: string;
+      leftCount?: number; leftConceptId?: string;
+    }>;
 
   const correctMatches = pairs.reduce(
     (acc, pair: any) => {
@@ -250,7 +254,7 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
         </p>
       </motion.div>
 
-      <div ref={containerRef} className="relative bg-white rounded-lg p-8 shadow-lg flex-1">
+      <div ref={containerRef} className="relative bg-white rounded-lg p-8 md:p-12 shadow-lg flex-1">
         {/* SVG overlay draws the actual connecting line/arrow the child needs
             to see — this is the core TEA-friendly fix: the "ligar" action
             must be visible as a real trace, not just a colour change. Every
@@ -293,9 +297,9 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
           )}
         </svg>
 
-        <div className="grid grid-cols-2 gap-8">
+        <div className="grid grid-cols-2 gap-10 md:gap-20 lg:gap-28">
           {/* Left column - Numbers */}
-          <div className="space-y-4">
+          <div className="space-y-6 md:space-y-10">
             <h3 className="font-bold text-lg text-sky-900 mb-6">Números</h3>
             {pairs.map((pair: any) => {
               const isSelected = selectedLeft === pair.left;
@@ -329,14 +333,26 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
                             : 'bg-sky-100 text-sky-900 border-2 border-sky-300 hover:border-sky-500'
                   }`}
                 >
-                  {pair.left}
+                  {/* Supports plain text (e.g. "2") as well as pictogram-based
+                      items (e.g. a row of dog/cat/ball icons), same as the
+                      right column — lets authors use concrete ARASAAC icons
+                      on either side instead of only raw numbers/text. */}
+                  {pair.leftConceptId && pair.leftCount ? (
+                    <span className="flex flex-wrap items-center justify-center gap-1" aria-label={pair.left}>
+                      {Array.from({ length: pair.leftCount }, (_, i) => (
+                        <ArasaacPictogram key={i} conceptId={pair.leftConceptId!} showLabel={false} imageClassName="h-8 w-8" />
+                      ))}
+                    </span>
+                  ) : (
+                    pair.left
+                  )}
                 </motion.button>
               );
             })}
           </div>
 
           {/* Right column - Representations */}
-          <div className="space-y-4">
+          <div className="space-y-6 md:space-y-10">
             <h3 className="font-bold text-lg text-sky-900 mb-6">Representações</h3>
             {pairs.map((pair: any) => {
               const matchedLeft = Object.entries(matches).find(([, right]) => right === pair.right)?.[0];
