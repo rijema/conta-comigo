@@ -7,7 +7,7 @@ import { LearningEvent, LearningEventType } from '../entities/learning-event.ent
 import { StudentSkillState } from '../../knowledge-tracing/entities/student-skill-state.entity';
 import { ActivityAttempt } from '../../activities/entities/activity-attempt.entity';
 import { Activity } from '../../activities/entities/activity.entity';
-import { ReviewType, ScoringConfiguration, ScoringBreakdown, BaselineState } from '../entities/review-assignment.entity';
+import { ReviewAssignment, ReviewType, ScoringConfiguration, ScoringBreakdown, BaselineState } from '../entities/review-assignment.entity';
 
 export interface ReviewCandidate {
   skillId: string;
@@ -33,6 +33,10 @@ export class ReviewCandidateGenerationService {
   private readonly retentionHalfLifeDays: number;
   private readonly minAttemptsForGeneralization: number;
   private readonly maxReviewsPerSkill: number;
+  // [SPACED REPETITION]: minimum time a skill must wait before it can be
+  // picked for review again, so the child never gets the exact same
+  // exercise reviewed back-to-back (therapist request).
+  private readonly skillCooldownHours: number;
   private readonly targetSuccessProbability: number;
   private readonly slowResponseThresholdMs: number;
   private readonly maxExpectedAttempts: number;
@@ -61,11 +65,14 @@ export class ReviewCandidateGenerationService {
     private readonly activityAttemptRepository: Repository<ActivityAttempt>,
     @InjectRepository(Activity)
     private readonly activityRepository: Repository<Activity>,
+    @InjectRepository(ReviewAssignment)
+    private readonly reviewAssignmentRepository: Repository<ReviewAssignment>,
     private readonly configService: ConfigService,
   ) {
     this.retentionHalfLifeDays = this.configService.get<number>('REVIEW_RETENTION_HALF_LIFE_DAYS', 14);
     this.minAttemptsForGeneralization = this.configService.get<number>('REVIEW_MIN_ATTEMPTS_GENERALIZATION', 5);
     this.maxReviewsPerSkill = this.configService.get<number>('REVIEW_MAX_REVIEWS_PER_SKILL', 3);
+    this.skillCooldownHours = this.configService.get<number>('REVIEW_SKILL_COOLDOWN_HOURS', 48);
     this.targetSuccessProbability = this.configService.get<number>('HYBRID_TARGET_SUCCESS_PROBABILITY', 0.7);
     this.slowResponseThresholdMs = this.configService.get<number>('REVIEW_SLOW_RESPONSE_THRESHOLD_MS', 10000);
     this.maxExpectedAttempts = this.configService.get<number>('REVIEW_MAX_EXPECTED_ATTEMPTS', 3);
@@ -93,6 +100,21 @@ export class ReviewCandidateGenerationService {
 
       if (evidence.totalAttempts < minEvidence) {
         continue;
+      }
+
+      // [SPACED REPETITION]: skip a skill that was already assigned for
+      // review too recently, so the same exercise doesn't come back to the
+      // child again and again — give it a minimum rest period first.
+      const lastAssignment = await this.reviewAssignmentRepository.findOne({
+        where: { studentId, skillId: skillState.skillId },
+        order: { createdAt: 'DESC' },
+      });
+      if (lastAssignment) {
+        const hoursSinceLastAssignment =
+          (Date.now() - lastAssignment.createdAt.getTime()) / (1000 * 60 * 60);
+        if (hoursSinceLastAssignment < this.skillCooldownHours) {
+          continue;
+        }
       }
 
       const scoringConfig = this.getCurrentScoringConfiguration();

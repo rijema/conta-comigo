@@ -1,10 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { ReviewAssignment, ReviewType } from '../entities/review-assignment.entity';
 import { ReviewOutcome } from '../entities/review-outcome.entity';
 import { LearningEvent } from '../entities/learning-event.entity';
 import { ChildProfile } from '../../users/entities/child-profile.entity';
+import { Activity } from '../../activities/entities/activity.entity';
 import { ReviewCandidateGenerationService } from './review-candidate-generation.service';
 import { ReviewSelectionService } from './review-selection.service';
 import { ReviewTriggerService } from './review-trigger.service';
@@ -48,6 +49,8 @@ export class ReviewOrchestrationService {
     private readonly eventRepository: Repository<LearningEvent>,
     @InjectRepository(ChildProfile)
     private readonly childProfileRepository: Repository<ChildProfile>,
+    @InjectRepository(Activity)
+    private readonly activityRepository: Repository<Activity>,
     private readonly candidateGenerationService: ReviewCandidateGenerationService,
     private readonly selectionService: ReviewSelectionService,
     private readonly triggerService: ReviewTriggerService,
@@ -362,15 +365,17 @@ export class ReviewOrchestrationService {
    * [INTEGRATION 3C-FINAL]: Returns the next review activity if one is active
    */
   async getNextReviewActivity(studentId: string): Promise<{
-    activity: any;
+    activity: Activity;
     reviewAssignmentId: string;
     reviewType: ReviewType;
   } | null> {
     // Find the first incomplete review assignment for this student
+    // (completedAt: undefined would be silently ignored by TypeORM's find(),
+    // so IsNull() is required here to actually filter out completed ones)
     const assignment = await this.assignmentRepository.findOne({
       where: {
         studentId,
-        completedAt: undefined,
+        completedAt: IsNull(),
       },
       order: { createdAt: 'ASC' },
     });
@@ -379,13 +384,22 @@ export class ReviewOrchestrationService {
       return null;
     }
 
-    // Return the activity associated with this assignment
-    // The activity is already persisted and can be loaded by the frontend
+    // [FIX] Load the full persisted Activity (title/content/type/bnccSkills),
+    // not just its id — the frontend needs the complete activity to render
+    // the exercise, and attachSemanticContract() requires these fields too.
+    const activity = await this.activityRepository.findOne({
+      where: { id: assignment.selectedActivityInstanceId },
+    });
+
+    if (!activity) {
+      this.logger.warn(
+        `ReviewAssignment ${assignment.id} points to missing activity ${assignment.selectedActivityInstanceId}`,
+      );
+      return null;
+    }
+
     return {
-      activity: {
-        id: assignment.selectedActivityInstanceId,
-        // Additional review context can be added here
-      },
+      activity,
       reviewAssignmentId: assignment.id,
       reviewType: assignment.reviewType,
     };
@@ -402,6 +416,60 @@ export class ReviewOrchestrationService {
     }
 
     return await this.triggerService.shouldTriggerRetentionReview(studentId, boundary);
+  }
+
+  /**
+   * Automatically create a review session right when the child logs in /
+   * starts a new learning session, IF one is actually due. Reuses the same
+   * priority scoring and per-skill cooldown as the manual button below, so
+   * the child never sees the same reviewed skill again before its minimum
+   * rest period has passed. No-op (and safe to call on every session start)
+   * when a review is already pending or nothing is due yet.
+   */
+  async triggerAutomaticReviewIfDue(studentId: string): Promise<void> {
+    try {
+      const existing = await this.getNextReviewActivity(studentId);
+      if (existing) return; // already has a pending review queued up
+
+      const sessionId = `auto-review-${Date.now()}`;
+      const boundary = await this.triggerService.isNewLearningSession(studentId, sessionId);
+      if (!boundary.isNewSession) return;
+
+      const shouldTrigger = await this.triggerService.shouldTriggerRetentionReview(studentId, boundary);
+      if (!shouldTrigger) return;
+
+      await this.createReviewSessionWithTrigger(studentId, sessionId, 'RETENTION');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.warn(`Automatic review trigger failed for student ${studentId}: ${message}`);
+    }
+  }
+
+  /**
+   * Manually triggered by the child tapping the "Revisão" floating button
+   * in the menu. Reuses the exact same candidate scoring/cooldown logic as
+   * the automatic trigger, but skips the "new learning session" gate since
+   * the child is explicitly asking for a review right now.
+   */
+  async startManualReviewSession(
+    studentId: string,
+  ): Promise<{ available: boolean; assignmentsCount: number }> {
+    const existing = await this.getNextReviewActivity(studentId);
+    if (existing) {
+      return { available: true, assignmentsCount: 1 };
+    }
+
+    const sessionId = `manual-review-${Date.now()}`;
+    // Smaller, more digestible session size for an on-demand review than
+    // the default 10-item automatic session.
+    const result = await this.createReviewSessionWithTrigger(studentId, sessionId, 'RETENTION', undefined, {
+      targetReviewSize: 5,
+    });
+
+    return {
+      available: result.assignments.length > 0,
+      assignmentsCount: result.assignments.length,
+    };
   }
 
   /**

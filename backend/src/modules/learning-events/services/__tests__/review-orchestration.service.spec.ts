@@ -5,6 +5,7 @@ import { ReviewAssignment, ReviewType } from '../../entities/review-assignment.e
 import { ReviewOutcome } from '../../entities/review-outcome.entity';
 import { LearningEvent } from '../../entities/learning-event.entity';
 import { ChildProfile } from '../../../users/entities/child-profile.entity';
+import { Activity } from '../../../activities/entities/activity.entity';
 import { ReviewCandidateGenerationService } from '../review-candidate-generation.service';
 import { ReviewSelectionService } from '../review-selection.service';
 import { ReviewTriggerService } from '../review-trigger.service';
@@ -16,6 +17,7 @@ describe('ReviewOrchestrationService', () => {
   let mockOutcomeRepository: any;
   let mockEventRepository: any;
   let mockChildProfileRepository: any;
+  let mockActivityRepository: any;
   let mockCandidateService: any;
   let mockSelectionService: any;
   let mockTriggerService: any;
@@ -38,6 +40,10 @@ describe('ReviewOrchestrationService', () => {
     };
 
     mockChildProfileRepository = {
+      findOne: jest.fn(),
+    };
+
+    mockActivityRepository = {
       findOne: jest.fn(),
     };
 
@@ -76,6 +82,10 @@ describe('ReviewOrchestrationService', () => {
         {
           provide: getRepositoryToken(ChildProfile),
           useValue: mockChildProfileRepository,
+        },
+        {
+          provide: getRepositoryToken(Activity),
+          useValue: mockActivityRepository,
         },
         {
           provide: ReviewCandidateGenerationService,
@@ -299,6 +309,140 @@ describe('ReviewOrchestrationService', () => {
       const shouldTrigger = await service.shouldTriggerReview(studentId, sessionId);
 
       expect(shouldTrigger).toBe(false);
+    });
+  });
+
+  describe('getNextReviewActivity', () => {
+    it('filters out completed assignments using IsNull (not undefined)', async () => {
+      // Regression test: `completedAt: undefined` in a TypeORM where clause is
+      // silently ignored (it does not mean "IS NULL"), which previously made
+      // this method always return the oldest assignment ever created, even
+      // after it was completed. It must use IsNull() to actually exclude
+      // completed assignments.
+      mockAssignmentRepository.findOne.mockResolvedValue({
+        id: 'assignment-1',
+        selectedActivityInstanceId: 'activity-1',
+        reviewType: ReviewType.RETENTION,
+      });
+      mockActivityRepository.findOne.mockResolvedValue({ id: 'activity-1', title: 'Review activity' });
+
+      await service.getNextReviewActivity('student-1');
+
+      const whereClause = mockAssignmentRepository.findOne.mock.calls[0][0].where;
+      expect(whereClause.completedAt).not.toBeUndefined();
+      expect(whereClause.completedAt).not.toBe(undefined);
+    });
+
+    it('returns the full persisted Activity, not just an id stub', async () => {
+      const fullActivity = { id: 'activity-1', title: 'Soma simples', content: { items: [] }, bnccSkills: ['EF01MA01'] };
+      mockAssignmentRepository.findOne.mockResolvedValue({
+        id: 'assignment-1',
+        selectedActivityInstanceId: 'activity-1',
+        reviewType: ReviewType.REMEDIATION,
+      });
+      mockActivityRepository.findOne.mockResolvedValue(fullActivity);
+
+      const result = await service.getNextReviewActivity('student-1');
+
+      expect(result).toEqual({
+        activity: fullActivity,
+        reviewAssignmentId: 'assignment-1',
+        reviewType: ReviewType.REMEDIATION,
+      });
+    });
+
+    it('returns null when no assignment is pending', async () => {
+      mockAssignmentRepository.findOne.mockResolvedValue(null);
+
+      const result = await service.getNextReviewActivity('student-1');
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('triggerAutomaticReviewIfDue', () => {
+    it('does nothing when a review is already pending', async () => {
+      mockAssignmentRepository.findOne.mockResolvedValue({
+        id: 'assignment-1',
+        selectedActivityInstanceId: 'activity-1',
+        reviewType: ReviewType.RETENTION,
+      });
+      mockActivityRepository.findOne.mockResolvedValue({ id: 'activity-1' });
+
+      await service.triggerAutomaticReviewIfDue('student-1');
+
+      expect(mockTriggerService.isNewLearningSession).not.toHaveBeenCalled();
+      expect(mockCandidateService.generateReviewCandidates).not.toHaveBeenCalled();
+    });
+
+    it('does nothing when not a new learning session', async () => {
+      mockAssignmentRepository.findOne.mockResolvedValue(null);
+      mockTriggerService.isNewLearningSession.mockResolvedValue({ isNewSession: false });
+
+      await service.triggerAutomaticReviewIfDue('student-1');
+
+      expect(mockTriggerService.shouldTriggerRetentionReview).not.toHaveBeenCalled();
+      expect(mockCandidateService.generateReviewCandidates).not.toHaveBeenCalled();
+    });
+
+    it('creates a review session when a new session is due for retention', async () => {
+      mockAssignmentRepository.findOne.mockResolvedValue(null);
+      mockTriggerService.isNewLearningSession.mockResolvedValue({ isNewSession: true });
+      mockTriggerService.shouldTriggerRetentionReview.mockResolvedValue(true);
+      mockCandidateService.generateReviewCandidates.mockResolvedValue([]);
+
+      await service.triggerAutomaticReviewIfDue('student-1');
+
+      expect(mockCandidateService.generateReviewCandidates).toHaveBeenCalledWith('student-1');
+    });
+  });
+
+  describe('startManualReviewSession', () => {
+    it('reports an existing pending review instead of creating a duplicate', async () => {
+      mockAssignmentRepository.findOne.mockResolvedValue({
+        id: 'assignment-1',
+        selectedActivityInstanceId: 'activity-1',
+        reviewType: ReviewType.RETENTION,
+      });
+      mockActivityRepository.findOne.mockResolvedValue({ id: 'activity-1' });
+
+      const result = await service.startManualReviewSession('student-1');
+
+      expect(result).toEqual({ available: true, assignmentsCount: 1 });
+      expect(mockCandidateService.generateReviewCandidates).not.toHaveBeenCalled();
+    });
+
+    it('reports unavailable when no skill is due (e.g. everything in cooldown)', async () => {
+      mockAssignmentRepository.findOne.mockResolvedValue(null);
+      mockCandidateService.generateReviewCandidates.mockResolvedValue([]);
+
+      const result = await service.startManualReviewSession('student-1');
+
+      expect(result).toEqual({ available: false, assignmentsCount: 0 });
+    });
+
+    it('creates a focused 5-item session when candidates are available', async () => {
+      mockAssignmentRepository.findOne.mockResolvedValue(null);
+      mockCandidateService.generateReviewCandidates.mockResolvedValue([
+        {
+          skillId: 'skill-1',
+          reviewType: ReviewType.RETENTION,
+          priorityScore: 0.5,
+          sourceInteractionIds: [],
+          baselineState: {},
+        },
+      ]);
+      mockSelectionService.selectReviewActivity.mockResolvedValue({
+        templateId: 'template-1',
+        instanceId: 'instance-1',
+        reason: 'due for retention',
+      });
+      mockAssignmentRepository.create.mockImplementation((data: any) => data);
+      mockAssignmentRepository.save.mockImplementation((data: any) => Promise.resolve({ ...data, id: 'assignment-new' }));
+
+      const result = await service.startManualReviewSession('student-1');
+
+      expect(result).toEqual({ available: true, assignmentsCount: 1 });
     });
   });
 

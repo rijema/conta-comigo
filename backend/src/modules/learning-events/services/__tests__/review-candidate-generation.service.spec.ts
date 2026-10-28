@@ -7,7 +7,7 @@ import { StudentSkillState } from '../../../knowledge-tracing/entities/student-s
 import { ActivityAttempt } from '../../../activities/entities/activity-attempt.entity';
 import { Activity } from '../../../activities/entities/activity.entity';
 import { ConfigService } from '@nestjs/config';
-import { ReviewType } from '../../entities/review-assignment.entity';
+import { ReviewAssignment, ReviewType } from '../../entities/review-assignment.entity';
 
 describe('ReviewCandidateGenerationService', () => {
   let service: ReviewCandidateGenerationService;
@@ -16,6 +16,7 @@ describe('ReviewCandidateGenerationService', () => {
   let mockSkillStateRepository: any;
   let mockActivityAttemptRepository: any;
   let mockActivityRepository: any;
+  let mockReviewAssignmentRepository: any;
   let mockConfigService: any;
 
   beforeEach(async () => {
@@ -37,6 +38,12 @@ describe('ReviewCandidateGenerationService', () => {
 
     mockActivityRepository = {
       findOne: jest.fn(),
+    };
+
+    // No prior assignment by default, so the spaced-repetition cooldown
+    // never interferes with the pre-existing scoring/normalization tests.
+    mockReviewAssignmentRepository = {
+      findOne: jest.fn().mockResolvedValue(null),
     };
 
     mockConfigService = {
@@ -65,6 +72,10 @@ describe('ReviewCandidateGenerationService', () => {
         {
           provide: getRepositoryToken(Activity),
           useValue: mockActivityRepository,
+        },
+        {
+          provide: getRepositoryToken(ReviewAssignment),
+          useValue: mockReviewAssignmentRepository,
         },
         {
           provide: ConfigService,
@@ -134,6 +145,68 @@ describe('ReviewCandidateGenerationService', () => {
       const recencyScore = (service as any).normalizeRecencyScore(14);
       expect(recencyScore).toBeGreaterThanOrEqual(0);
       expect(recencyScore).toBeLessThanOrEqual(1);
+    });
+  });
+
+  describe('Spaced Repetition Cooldown', () => {
+    it('excludes a skill reviewed more recently than the cooldown window', async () => {
+      const skillId = 'skill-1';
+      const studentId = 'student-1';
+
+      mockSkillStateRepository.find.mockResolvedValue([
+        { studentId, skillId, masteryProbability: 0.5, observations: 5 },
+      ]);
+      mockEventRepository.find.mockResolvedValue([
+        {
+          id: 'event-1',
+          eventType: LearningEventType.ANSWER_SUBMITTED,
+          correct: true,
+          responseTimeMs: 5000,
+          hintsUsed: 1,
+          timestamp: new Date(),
+        },
+      ]);
+      // A review for this exact skill was created 1 hour ago — well inside
+      // the default 48h cooldown — so it must not be offered again yet.
+      mockReviewAssignmentRepository.findOne.mockResolvedValue({
+        studentId,
+        skillId,
+        createdAt: new Date(Date.now() - 60 * 60 * 1000),
+      });
+
+      const candidates = await service.generateReviewCandidates(studentId);
+
+      expect(candidates).toHaveLength(0);
+    });
+
+    it('includes a skill again once the cooldown window has passed', async () => {
+      const skillId = 'skill-1';
+      const studentId = 'student-1';
+
+      mockSkillStateRepository.find.mockResolvedValue([
+        { studentId, skillId, masteryProbability: 0.5, observations: 5 },
+      ]);
+      mockEventRepository.find.mockResolvedValue([
+        {
+          id: 'event-1',
+          eventType: LearningEventType.ANSWER_SUBMITTED,
+          correct: true,
+          responseTimeMs: 5000,
+          hintsUsed: 1,
+          timestamp: new Date(),
+        },
+      ]);
+      // A review for this skill was created 72 hours ago — past the
+      // default 48h cooldown — so it is eligible again.
+      mockReviewAssignmentRepository.findOne.mockResolvedValue({
+        studentId,
+        skillId,
+        createdAt: new Date(Date.now() - 72 * 60 * 60 * 1000),
+      });
+
+      const candidates = await service.generateReviewCandidates(studentId);
+
+      expect(candidates.length).toBeGreaterThan(0);
     });
   });
 

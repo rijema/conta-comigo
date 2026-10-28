@@ -93,6 +93,12 @@ export class LearningEventsController {
     return this.reviewOrchestrationService.getNextReviewActivity(studentId);
   }
 
+  @Post('review/start-manual')
+  @ApiOperation({ summary: 'Manually trigger a spaced-repetition review session (floating "Revisão" button)' })
+  async startManualReview(@CurrentUser('userId') studentId: string) {
+    return this.reviewOrchestrationService.startManualReviewSession(studentId);
+  }
+
   @Get('review/evidence/:studentId')
   @ApiOperation({ summary: 'Get longitudinal review evidence for professional dashboard' })
   async getReviewEvidence(@Param('studentId') studentId: string) {

@@ -263,6 +263,12 @@ export class ActivitiesService {
     let reviewActivity: Activity | null = null;
     if (this.reviewOrchestrationService && !context?.chosenActivityId) {
       try {
+        // [SPACED REPETITION]: create a new review session automatically if
+        // one is due for this learning session (session-boundary gap +
+        // skills needing retention). No-op if a review is already pending
+        // or nothing is due — safe to call on every session start.
+        await this.reviewOrchestrationService.triggerAutomaticReviewIfDue(userId);
+
         const activeReview = await this.reviewOrchestrationService.getNextReviewActivity(userId);
         if (activeReview) {
           reviewAssignmentId = activeReview.reviewAssignmentId;
