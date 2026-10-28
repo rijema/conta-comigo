@@ -16,6 +16,14 @@ import { useTitiaSpeech } from '@/hooks/use-titia-speech';
  * desenha uma linha/seta real (SVG, sem dependência externa) conectando os
  * dois itens, e oferece arrastar o dedo de um bloco até o outro (além do
  * toque sequencial, que continua funcionando para quem usa mouse/teclado).
+ *
+ * CONFIRM-THEN-REVEAL (therapist-requested): while the child is connecting
+ * pairs, every connection uses the same neutral "connected" colour — never
+ * green or red — so nothing hints at correctness before the child is done.
+ * Only after pressing "Confirmar" does each connection turn green (correct)
+ * or red (wrong), together with concrete spoken feedback naming how many
+ * connections look wrong. Wrong pairs can then be redone individually
+ * without losing the ones that were already right.
  */
 
 interface MatchingMinigameProps {
@@ -38,16 +46,11 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
   const [matches, setMatches] = useState<Record<string, string>>({});
   const [selectedLeft, setSelectedLeft] = useState<string | null>(null);
   const [isComplete, setIsComplete] = useState(false);
-  const [showCorrect, setShowCorrect] = useState(false);
-  // Tracks whether the last completed attempt (all pairs connected) was
-  // fully correct — previously this component always showed "Perfeito!
-  // Todas as conexões certas!" even when some lines were wrong, which lies
-  // to the child about their result. It also offered no way to undo a
-  // wrong connection: once a right-side item was used, it stayed disabled
-  // forever. Now wrong matches get honest feedback plus a concrete
-  // "Tentar Novamente" action that clears every connection so the child
-  // can redo it.
-  const [allCorrect, setAllCorrect] = useState(false);
+  // `submitted` becomes true only after the child presses "Confirmar" — that
+  // is the single moment correctness is revealed (green/red). Before that,
+  // connected pairs all share one neutral colour regardless of correctness.
+  const [submitted, setSubmitted] = useState(false);
+  const [wrongLefts, setWrongLefts] = useState<Set<string>>(new Set());
   const [dragFromId, setDragFromId] = useState<string | null>(null);
   const [dragPoint, setDragPoint] = useState<Point | null>(null);
   const [hoveredRightId, setHoveredRightId] = useState<string | null>(null);
@@ -64,7 +67,10 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
     if (speech.settings.voiceEnabled && !spokenRef.current) {
       spokenRef.current = true;
       speech.speakInstruction({
-        steps: [activity?.content?.instructionsPt || activity?.content?.instructions || 'Arraste de um bloco até o outro para ligar os pares certos!'],
+        steps: [
+          activity?.content?.instructionsPt || activity?.content?.instructions || 'Arraste de um bloco até o outro para ligar os pares certos!',
+          'Quando ligar todos, toque em Confirmar.',
+        ],
       });
     }
   }, [speech.settings.voiceEnabled, speech, activity]);
@@ -104,50 +110,64 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
     };
   }, []);
 
+  // Connecting a pair never judges correctness by itself — it just records
+  // the connection with the neutral colour. Correctness is only revealed on
+  // "Confirmar" (see handleConfirm below).
   const finalizeMatch = useCallback((leftValue: string, rightValue: string) => {
-    setMatches((prev) => {
-      const next = { ...prev, [leftValue]: rightValue };
-      if (Object.keys(next).length === pairs.length) {
-        setTimeout(() => {
-          const isCorrect = Object.entries(next).every(
-            ([left, right]) => correctMatches[left] === right
-          );
-          setShowCorrect(true);
-          setAllCorrect(isCorrect);
-          setIsComplete(true);
-          if (isCorrect) {
-            timeoutRef.current = setTimeout(() => {
-              onComplete(100, true);
-            }, 1500);
-          } else {
-            // Still report the wrong attempt to the backend (keeps the
-            // 5-attempt reveal counter accurate), but do NOT lock the UI —
-            // the child needs a concrete way to fix the wrong connections.
-            onComplete(50, false);
-          }
-        }, 300);
-      }
-      return next;
-    });
+    setMatches((prev) => ({ ...prev, [leftValue]: rightValue }));
     setSelectedLeft(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pairs.length, correctMatches, onComplete]);
+  }, []);
+
+  const handleConfirm = () => {
+    const wrong = new Set(
+      Object.entries(matches)
+        .filter(([left, right]) => correctMatches[left] !== right)
+        .map(([left]) => left)
+    );
+    setWrongLefts(wrong);
+    setSubmitted(true);
+
+    if (wrong.size === 0) {
+      setIsComplete(true);
+      timeoutRef.current = setTimeout(() => onComplete(100, true), 1500);
+      return;
+    }
+
+    // Still report the wrong attempt to the backend (keeps the 5-attempt
+    // reveal counter accurate), but do NOT lock the UI — the child needs a
+    // concrete way to fix just the wrong connections.
+    onComplete(50, false);
+    if (speech.settings.voiceEnabled) {
+      const count = wrong.size;
+      speech.speakFeedback(
+        count === 1
+          ? 'Olha só, uma peça está em um lugar incorreto. Vamos corrigir?'
+          : `Olha só, ${count} peças estão em lugares incorretos. Vamos corrigir?`
+      );
+    }
+  };
 
   const handleTryAgain = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    setMatches({});
-    setSelectedLeft(null);
-    setIsComplete(false);
-    setShowCorrect(false);
-    setAllCorrect(false);
+    // Keep the connections that were already correct; only clear the wrong
+    // ones so the child redoes exactly what needs fixing.
+    setMatches((prev) => {
+      const next = { ...prev };
+      wrongLefts.forEach((left) => delete next[left]);
+      return next;
+    });
+    setSubmitted(false);
+    setWrongLefts(new Set());
   };
 
   // ── Tap-to-select (mouse/keyboard-friendly, unchanged behaviour) ──
   const handleLeftClick = (leftValue: string) => {
+    if (isComplete) return;
     setSelectedLeft(selectedLeft === leftValue ? null : leftValue);
   };
 
   const handleRightClick = (rightValue: string) => {
+    if (isComplete) return;
     if (selectedLeft) finalizeMatch(selectedLeft, rightValue);
   };
 
@@ -155,7 +175,7 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
   const DRAG_THRESHOLD = 8;
 
   const handlePointerDown = (leftValue: string, isMatched: boolean) => (event: React.PointerEvent) => {
-    if (isMatched) return;
+    if (isMatched || isComplete) return;
     const startX = event.clientX;
     const startY = event.clientY;
     let dragging = false;
@@ -214,6 +234,7 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
   });
 
   const dragPreviewFrom = dragFromId ? getCenter(leftRefs.current[dragFromId]) : null;
+  const allPlaced = Object.keys(matches).length === pairs.length;
 
   return (
     <div className="flex flex-col gap-6 p-6 bg-gradient-to-b from-sky-50 to-cyan-50 rounded-xl">
@@ -225,14 +246,15 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
         <h2 className="text-3xl font-bold text-sky-900 mb-2">{activity?.title || 'Ligue o Número ao seu Valor!'}</h2>
         <p className="flex items-center justify-center gap-2 text-lg text-gray-700">
           <ArasaacPictogram conceptId="activity.drag" showLabel={false} imageClassName="h-7 w-7" />
-          {activity?.content?.instructionsPt || 'Arraste o dedo de um número até sua representação para ligá-los.'}
+          {activity?.content?.instructionsPt || 'Arraste o dedo de um número até sua representação para ligá-los. Depois toque em Confirmar.'}
         </p>
       </motion.div>
 
       <div ref={containerRef} className="relative bg-white rounded-lg p-8 shadow-lg flex-1">
         {/* SVG overlay draws the actual connecting line/arrow the child needs
             to see — this is the core TEA-friendly fix: the "ligar" action
-            must be visible as a real trace, not just a colour change. */}
+            must be visible as a real trace, not just a colour change. Every
+            line is the same neutral blue until "Confirmar" is pressed. */}
         <svg className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
           <defs>
             <marker id="matching-arrow-neutral" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
@@ -247,8 +269,8 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
           </defs>
           {connectionLines.map(({ leftValue, rightValue, from, to }) => {
             if (!from || !to) return null;
-            const isWrong = showCorrect && correctMatches[leftValue] !== rightValue;
-            const isRight = showCorrect && correctMatches[leftValue] === rightValue;
+            const isWrong = submitted && wrongLefts.has(leftValue);
+            const isRight = submitted && !wrongLefts.has(leftValue);
             const stroke = isWrong ? '#dc2626' : isRight ? '#059669' : '#0284c7';
             const marker = isWrong ? 'matching-arrow-wrong' : isRight ? 'matching-arrow-correct' : 'matching-arrow-neutral';
             return (
@@ -279,21 +301,32 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
               const isSelected = selectedLeft === pair.left;
               const hasMatch = pair.left in matches;
               const isDraggingThis = dragFromId === pair.left;
+              const isWrongPair = submitted && wrongLefts.has(pair.left);
+              const isCorrectPair = submitted && hasMatch && !wrongLefts.has(pair.left);
 
               return (
                 <motion.button
                   key={`left-${pair.left}`}
                   ref={(el) => { leftRefs.current[pair.left] = el; }}
-                  onPointerDown={handlePointerDown(pair.left, false)}
+                  onPointerDown={handlePointerDown(pair.left, hasMatch)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  aria-label={`Número ${pair.left}${hasMatch ? ', já ligado' : ', arraste até a representação certa'}`}
+                  aria-label={`Número ${pair.left}${
+                    isWrongPair ? ', ligação errada'
+                      : isCorrectPair ? ', ligação certa'
+                        : hasMatch ? ', já ligado'
+                          : ', arraste até a representação certa'
+                  }`}
                   className={`relative z-20 w-full touch-none select-none p-6 rounded-lg font-bold text-2xl transition ${
                     isSelected || isDraggingThis
                       ? 'bg-sky-600 text-white ring-4 ring-sky-300'
-                      : hasMatch
-                        ? 'bg-emerald-200 text-sky-900'
-                        : 'bg-sky-100 text-sky-900 border-2 border-sky-300 hover:border-sky-500'
+                      : isWrongPair
+                        ? 'bg-red-200 text-red-900 ring-4 ring-red-500'
+                        : isCorrectPair
+                          ? 'bg-emerald-400 text-white ring-4 ring-emerald-600'
+                          : hasMatch
+                            ? 'bg-indigo-200 text-sky-900 ring-2 ring-indigo-400'
+                            : 'bg-sky-100 text-sky-900 border-2 border-sky-300 hover:border-sky-500'
                   }`}
                 >
                   {pair.left}
@@ -306,10 +339,13 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
           <div className="space-y-4">
             <h3 className="font-bold text-lg text-sky-900 mb-6">Representações</h3>
             {pairs.map((pair: any) => {
-              const isMatched = Object.values(matches).includes(pair.right);
+              const matchedLeft = Object.entries(matches).find(([, right]) => right === pair.right)?.[0];
+              const isMatched = Boolean(matchedLeft);
               const isCorrectMatch =
                 selectedLeft && correctMatches[selectedLeft] === pair.right;
               const isHoveredDropTarget = hoveredRightId === pair.right && !isMatched;
+              const isWrongPair = submitted && matchedLeft ? wrongLefts.has(matchedLeft) : false;
+              const isCorrectPair = submitted && matchedLeft ? !wrongLefts.has(matchedLeft) : false;
 
               return (
                 <motion.button
@@ -317,19 +353,23 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
                   ref={(el) => { rightRefs.current[pair.right] = el; }}
                   data-right-id={pair.right}
                   onClick={() => handleRightClick(pair.right)}
-                  disabled={!selectedLeft || isMatched}
+                  disabled={!selectedLeft || isMatched || isComplete}
                   whileHover={!isMatched && selectedLeft ? { scale: 1.05 } : {}}
                   whileTap={!isMatched && selectedLeft ? { scale: 0.95 } : {}}
                   className={`relative z-20 w-full touch-none p-6 rounded-lg font-bold text-lg transition ${
-                    isMatched
-                      ? 'bg-emerald-400 text-white'
-                      : isHoveredDropTarget
-                        ? 'bg-sky-300 text-sky-900 ring-4 ring-sky-400 scale-105'
-                        : selectedLeft && isCorrectMatch
-                          ? 'bg-cyan-300 text-sky-900 border-4 border-cyan-500'
-                          : selectedLeft
-                            ? 'bg-cyan-100 text-sky-900 border-2 border-cyan-400 hover:border-cyan-500'
-                            : 'bg-gray-100 text-gray-500 border-2 border-gray-300'
+                    isWrongPair
+                      ? 'bg-red-200 text-red-900 ring-4 ring-red-500'
+                      : isCorrectPair
+                        ? 'bg-emerald-400 text-white ring-4 ring-emerald-600'
+                        : isMatched
+                          ? 'bg-indigo-200 text-sky-900 ring-2 ring-indigo-400'
+                          : isHoveredDropTarget
+                            ? 'bg-sky-300 text-sky-900 ring-4 ring-sky-400 scale-105'
+                            : selectedLeft && isCorrectMatch
+                              ? 'bg-cyan-300 text-sky-900 border-4 border-cyan-500'
+                              : selectedLeft
+                                ? 'bg-cyan-100 text-sky-900 border-2 border-cyan-400 hover:border-cyan-500'
+                                : 'bg-gray-100 text-gray-500 border-2 border-gray-300'
                   }`}
                 >
                   {/* Render the actual pictogram quantity (e.g. 3 circles)
@@ -364,10 +404,28 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
             />
           </div>
         </div>
+
+        {/* CONFIRM BUTTON (TEA-FRIENDLY): the child needs an explicit,
+            concrete action to trigger the "check my answer" step — nothing
+            is judged automatically while connecting. */}
+        {!submitted && (
+          <div className="mt-6 flex justify-center">
+            <motion.button
+              type="button"
+              onClick={handleConfirm}
+              disabled={!allPlaced}
+              whileHover={allPlaced ? { scale: 1.05 } : {}}
+              whileTap={allPlaced ? { scale: 0.95 } : {}}
+              className="px-10 py-3 bg-sky-600 text-white rounded-lg font-bold text-lg shadow-lg disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Confirmar
+            </motion.button>
+          </div>
+        )}
       </div>
 
       <AnimatePresence>
-        {showCorrect && allCorrect && (
+        {isComplete && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -378,7 +436,7 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
             <p className="text-2xl font-bold text-sky-600">Perfeito! Todas as conexões certas!</p>
           </motion.div>
         )}
-        {showCorrect && !allCorrect && (
+        {submitted && !isComplete && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -386,7 +444,11 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
             className="text-center bg-red-100 text-red-900 rounded-xl p-6"
           >
             <div className="text-4xl mb-2">❌</div>
-            <p className="text-xl font-bold mb-4">Algumas ligações estão erradas (veja as linhas vermelhas).</p>
+            <p className="text-xl font-bold mb-4">
+              {wrongLefts.size === 1
+                ? 'Uma ligação está errada (veja o par vermelho).'
+                : `${wrongLefts.size} ligações estão erradas (veja os pares vermelhos).`}
+            </p>
             <motion.button
               type="button"
               onClick={handleTryAgain}
