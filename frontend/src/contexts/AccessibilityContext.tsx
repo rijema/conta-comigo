@@ -83,16 +83,29 @@ export function AccessibilityProvider({
   const user = useAuthStore((state) => state.user);
   const [professionalPreferences, setProfessionalPreferences] = useState<Partial<AccessibilitySettings> | null>(null);
   const [professionalUserId, setProfessionalUserId] = useState<string | null>(null);
+  // If the child-profile preferences fetch never resolves (slow/unstable
+  // network right after login), this unblocks the exercise after a short
+  // wait so the child is never left stuck on "Preparando sua aventura..."
+  // forever — it starts with default settings and adopts the real
+  // preferences later once/if the fetch eventually succeeds.
+  const [preferencesFallbackActive, setPreferencesFallbackActive] = useState(false);
 
   useEffect(() => {
-    if (user?.role !== 'child') { setProfessionalPreferences(null); setProfessionalUserId(null); return; }
+    if (user?.role !== 'child') { setProfessionalPreferences(null); setProfessionalUserId(null); setPreferencesFallbackActive(false); return; }
     let active = true;
     let refreshInterval: number | null = null;
+    let retryTimeout: number | null = null;
     setProfessionalPreferences(null);
     setProfessionalUserId(null);
+    setPreferencesFallbackActive(false);
+
+    const fallbackTimer = window.setTimeout(() => {
+      if (active) setPreferencesFallbackActive(true);
+    }, 6000);
 
     const stopPolling = () => {
       if (refreshInterval !== null) { window.clearInterval(refreshInterval); refreshInterval = null; }
+      if (retryTimeout !== null) { window.clearTimeout(retryTimeout); retryTimeout = null; }
       window.removeEventListener('focus', load);
     };
 
@@ -135,6 +148,10 @@ export function AccessibilityProvider({
             stopPolling();
           } else {
             console.error('Failed to load child accessibility preferences', error);
+            // Transient failure (slow/unstable network during login): retry
+            // soon instead of waiting the full 30s interval or a window
+            // focus event, so the exercise can still unblock quickly.
+            retryTimeout = window.setTimeout(() => { if (active) load(); }, 3000);
           }
         });
     };
@@ -142,7 +159,7 @@ export function AccessibilityProvider({
     load();
     window.addEventListener('focus', load);
     refreshInterval = window.setInterval(load, 30000);
-    return () => { active = false; stopPolling(); };
+    return () => { active = false; window.clearTimeout(fallbackTimer); stopPolling(); };
   }, [user?.id, user?.role]);
 
   const appliedPreferences = user?.role === 'child' && professionalUserId === user.id ? professionalPreferences : null;
@@ -168,7 +185,7 @@ export function AccessibilityProvider({
     predictability: appliedPreferences?.predictability ?? settings.predictability,
     reinforcementPreference: appliedPreferences?.reinforcementPreference ?? settings.reinforcementPreference,
   }), [settings, appliedPreferences]);
-  const childPreferencesReady = user?.role !== 'child' || professionalUserId === user.id;
+  const childPreferencesReady = user?.role !== 'child' || professionalUserId === user.id || preferencesFallbackActive;
 
   useEffect(() => {
     const stored = localStorage.getItem("a11y_settings");

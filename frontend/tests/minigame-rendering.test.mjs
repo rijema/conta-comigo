@@ -81,6 +81,26 @@ function customRequire(spec, fromFile) {
     };
   }
 
+  // Stub TitiA speech: the real hook reads from AccessibilityContext, which
+  // isn't mounted in these lightweight server-render tests. Minigames call
+  // this on mount to narrate instructions; the stub just reports speech as
+  // disabled so that effect is a no-op, keeping these tests focused on DOM
+  // output (block counts/sizes), not voice narration.
+  if (spec === '@/hooks/use-titia-speech') {
+    return {
+      useTitiaSpeech: () => ({
+        settings: { voiceEnabled: false },
+        speakInstruction: () => {},
+        speakHint: () => {},
+        speakFeedback: () => {},
+        speakPictogram: () => {},
+        speakExplanation: () => {},
+        repeatLastInstruction: () => {},
+        isSpeaking: false,
+      }),
+    };
+  }
+
   if (spec.startsWith('@/')) {
     return loadModule(resolveFile(path.join(SRC_DIR, spec.slice(2))));
   }

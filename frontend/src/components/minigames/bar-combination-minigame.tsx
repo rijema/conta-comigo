@@ -4,6 +4,7 @@ import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Activity } from '@/types';
 import { ArasaacPictogram } from '@/components/arasaac/arasaac-pictogram';
+import { useTitiaSpeech } from '@/hooks/use-titia-speech';
 
 /**
  * MINIGAME: Bar Combination (Composition)
@@ -92,6 +93,17 @@ export const BarCombinationMinigame: React.FC<BarCombinationMinigameProps> = ({ 
   const [placedIds, setPlacedIds] = useState<string[]>([]);
   const [isComplete, setIsComplete] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout>();
+
+  const spokenRef = useRef(false);
+  const speech = useTitiaSpeech({ activityId: activity?.id ?? 'bar-combination-minigame' });
+  useEffect(() => {
+    if (speech.settings.voiceEnabled && !spokenRef.current) {
+      spokenRef.current = true;
+      speech.speakInstruction({
+        steps: [activity?.content?.instructionsPt || activity?.content?.instructions || `Arraste as barras até formar o número ${targetValue}.`],
+      });
+    }
+  }, [speech.settings.voiceEnabled, speech, activity, targetValue]);
 
   useEffect(() => {
     setPlacedIds([]);

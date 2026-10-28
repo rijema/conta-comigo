@@ -170,6 +170,11 @@ function LearnPageInner() {
   const [showReviewTransition, setShowReviewTransition] = useState(false);
   const [isInReviewMode, setIsInReviewMode] = useState(false);
   const [lastNormalActivityId, setLastNormalActivityId] = useState<string | null>(null);
+  // Accessible loading state: if the activity is still not ready after a
+  // while (e.g. slow login/network), show a visible "ainda carregando" cue
+  // and a manual retry instead of leaving the child staring at a screen
+  // that never changes with no explanation.
+  const [loadingTakingLong, setLoadingTakingLong] = useState(false);
   const startCuePlayedRef = useRef(false);
   const returningRef = useRef(false);
   const router = useRouter();
@@ -196,6 +201,17 @@ function LearnPageInner() {
       playStart(effectVolume);
     }
   }, [mounted, user, authLoading, childPreferencesReady, settings.soundEnabled, settings.soundEffectsEnabled, effectVolume, settings.lowStimulationMode, startSession, router, locale, searchParams]);
+
+  // Flags the loading screen as "taking long" after 10s so children/guardians
+  // get a visible, non-silent cue (per WCAG 4.1.3 Status Messages) instead of
+  // an indefinite static screen when login/network is slow.
+  useEffect(() => {
+    if (!mounted) return;
+    const isWaiting = authLoading || sessionLoading || !session?.currentActivity;
+    if (!isWaiting) { setLoadingTakingLong(false); return; }
+    const timer = window.setTimeout(() => setLoadingTakingLong(true), 10000);
+    return () => window.clearTimeout(timer);
+  }, [mounted, authLoading, sessionLoading, session?.currentActivity]);
 
   /* rotate background on each new activity */
   useEffect(() => {
@@ -414,11 +430,17 @@ function LearnPageInner() {
 
   if (authLoading || sessionLoading || !activity) {
     return (
-      <div className="flex items-center justify-center min-h-screen" style={{ background: settings.lowStimulationMode ? "#ecfdf5" : BG_THEMES[0] }}>
+      <div
+        className="flex items-center justify-center min-h-screen"
+        style={{ background: settings.lowStimulationMode ? "#ecfdf5" : BG_THEMES[0] }}
+        role="status"
+        aria-live="polite"
+        aria-busy={!sessionError}
+      >
         <div className="text-center">
           {sessionError ? (
             <>
-              <div className="text-7xl mb-4">😔</div>
+              <div className="text-7xl mb-4" aria-hidden="true">😔</div>
               <p className="text-xl text-red-600 font-bold">Ops! Não consegui carregar a atividade.</p>
               <p className="text-gray-500 mt-2 text-sm">{sessionError}</p>
               <button onClick={() => window.location.reload()}
@@ -429,11 +451,35 @@ function LearnPageInner() {
             </>
           ) : (
             <>
-              <div className="mb-4">
+              <div className="mb-4 relative inline-block">
                 <ArasaacPictogram conceptId="state.great" showLabel={false} imageClassName="w-20 h-20" />
+                {/* Visible, accessible progress cue — a static image alone gives
+                    no indication that anything is happening (fails WCAG 4.1.3
+                    Status Messages). Spinner is skipped in low-stimulation mode. */}
+                {!settings.lowStimulationMode && !settings.animationsReduced && (
+                  <span
+                    className="absolute -inset-2 rounded-full border-4 border-blue-300 border-t-blue-600 animate-spin"
+                    aria-hidden="true"
+                  />
+                )}
               </div>
               <p className="text-2xl text-blue-700 font-extrabold">Preparando sua aventura...</p>
               <p className="text-gray-500 mt-2 text-sm">A TitIA está escolhendo a melhor atividade para você!</p>
+              {loadingTakingLong && (
+                <div className="mt-5">
+                  <p className="text-amber-600 font-semibold text-sm">
+                    Isso está demorando mais que o normal. A internet pode estar lenta.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => window.location.reload()}
+                    className="mt-3 px-6 py-3 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700"
+                  >
+                    <ArasaacPictogram conceptId="navigation.try_again" showLabel={false} imageClassName="w-7 h-7" />
+                    <span className="ml-2">Tentar novamente</span>
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>

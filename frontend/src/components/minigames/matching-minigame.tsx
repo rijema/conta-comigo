@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Activity } from '@/types';
 import { ArasaacPictogram } from '@/components/arasaac/arasaac-pictogram';
+import { useTitiaSpeech } from '@/hooks/use-titia-speech';
 
 /**
  * MINIGAME: Matching Quest
@@ -56,6 +57,17 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const leftRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const rightRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+
+  const spokenRef = useRef(false);
+  const speech = useTitiaSpeech({ activityId: activity?.id ?? 'matching-minigame' });
+  useEffect(() => {
+    if (speech.settings.voiceEnabled && !spokenRef.current) {
+      spokenRef.current = true;
+      speech.speakInstruction({
+        steps: [activity?.content?.instructionsPt || activity?.content?.instructions || 'Arraste de um bloco até o outro para ligar os pares certos!'],
+      });
+    }
+  }, [speech.settings.voiceEnabled, speech, activity]);
 
   // Default matching: numbers to dots (fallback only used when an activity
   // fails to load; real exercises come entirely from activity.content.items)

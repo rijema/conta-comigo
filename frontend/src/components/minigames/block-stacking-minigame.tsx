@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Activity } from '@/types';
 import { ArasaacPictogram } from '@/components/arasaac/arasaac-pictogram';
+import { useTitiaSpeech } from '@/hooks/use-titia-speech';
 
 /**
  * MINIGAME: Block Stacking Quest
@@ -81,6 +82,17 @@ export const BlockStackingMinigame: React.FC<BlockStackingMinigameProps> = ({
   const requiredOrder = activity?.content?.validation?.kind === 'sequence'
     ? (activity?.content?.correctAnswer as string[] | undefined)
     : undefined;
+
+  const spokenRef = useRef(false);
+  const speech = useTitiaSpeech({ activityId: activity?.id ?? `block-stacking-minigame-${skill}` });
+  useEffect(() => {
+    if (speech.settings.voiceEnabled && !spokenRef.current) {
+      spokenRef.current = true;
+      speech.speakInstruction({
+        steps: [activity?.content?.instructionsPt || activity?.content?.instructions || 'Arraste os blocos para empilhar na ordem certa!'],
+      });
+    }
+  }, [speech.settings.voiceEnabled, speech, activity]);
 
   // Re-derive blocks whenever the activity/difficulty changes after mount
   // (the lazy initial state above only covers the very first render).

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import type { Activity } from '@/types';
 import { ArasaacPictogram } from '@/components/arasaac/arasaac-pictogram';
+import { useTitiaSpeech } from '@/hooks/use-titia-speech';
 
 /**
  * MINIGAME: Pattern Completion Quest
@@ -45,6 +46,15 @@ export const PatternCompletionMinigame: React.FC<PatternCompletionMinigameProps>
     'Veja a sequência: o que vem a seguir?';
   const spokenHint = activity?.content?.spokenHint;
   const pictogramConceptId = activity?.content?.pictogramConceptIds?.[0];
+
+  const spokenRef = useRef(false);
+  const speech = useTitiaSpeech({ activityId: activity?.id ?? 'pattern-completion-minigame' });
+  useEffect(() => {
+    if (speech.settings.voiceEnabled && !spokenRef.current) {
+      spokenRef.current = true;
+      speech.speakInstruction({ steps: [question] });
+    }
+  }, [speech.settings.voiceEnabled, speech, question]);
 
   const options = activity?.content?.options ||
     [

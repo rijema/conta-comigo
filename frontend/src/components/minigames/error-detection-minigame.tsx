@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Activity } from '@/types';
+import { useTitiaSpeech } from '@/hooks/use-titia-speech';
 
 /**
  * MINIGAME: Error Detection Quest
@@ -41,6 +42,15 @@ export const ErrorDetectionMinigame: React.FC<ErrorDetectionMinigameProps> = ({
       { id: 'b', text: 'Titia errou! Porque 3 < 9', isCorrect: true },
       { id: 'c', text: 'Titia errou! Porque 3 = 9', isCorrect: false },
     ];
+
+  const spokenRef = useRef(false);
+  const speech = useTitiaSpeech({ activityId: activity?.id ?? `error-detection-minigame-${skill}` });
+  useEffect(() => {
+    if (speech.settings.voiceEnabled && !spokenRef.current) {
+      spokenRef.current = true;
+      speech.speakInstruction({ steps: [errorStatement, 'A Titia acertou ou errou?'] });
+    }
+  }, [speech.settings.voiceEnabled, speech, errorStatement]);
 
   const handleSelect = (optionId: string) => {
     if (!submitted) {
