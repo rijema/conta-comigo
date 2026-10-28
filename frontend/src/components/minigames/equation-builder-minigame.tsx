@@ -59,6 +59,16 @@ export const EquationBuilderMinigame: React.FC<EquationBuilderMinigameProps> = (
     }, 2000);
   };
 
+  // RETRY (TEA-FRIENDLY): see error-detection-minigame.tsx for rationale —
+  // a wrong answer must not permanently lock the exercise; the child needs
+  // an explicit, concrete action to try again.
+  const handleTryAgain = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setSelected(null);
+    setSubmitted(false);
+    setIsCorrect(false);
+  };
+
   useEffect(() => {
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -141,6 +151,17 @@ export const EquationBuilderMinigame: React.FC<EquationBuilderMinigameProps> = (
               ? `Perfeito! ${equation.left} ${equation.operator} 5 = ${equation.right}`
               : `A resposta correta é 5 (${equation.left} ${equation.operator} 5 = ${equation.right})`}
           </p>
+          {!isCorrect && (
+            <motion.button
+              type="button"
+              onClick={handleTryAgain}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="mt-4 px-8 py-3 bg-green-600 text-white rounded-lg font-bold text-lg shadow-lg"
+            >
+              Tentar Novamente
+            </motion.button>
+          )}
         </motion.div>
       )}
     </div>

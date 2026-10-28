@@ -38,6 +38,15 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
   const [selectedLeft, setSelectedLeft] = useState<string | null>(null);
   const [isComplete, setIsComplete] = useState(false);
   const [showCorrect, setShowCorrect] = useState(false);
+  // Tracks whether the last completed attempt (all pairs connected) was
+  // fully correct — previously this component always showed "Perfeito!
+  // Todas as conexões certas!" even when some lines were wrong, which lies
+  // to the child about their result. It also offered no way to undo a
+  // wrong connection: once a right-side item was used, it stayed disabled
+  // forever. Now wrong matches get honest feedback plus a concrete
+  // "Tentar Novamente" action that clears every connection so the child
+  // can redo it.
+  const [allCorrect, setAllCorrect] = useState(false);
   const [dragFromId, setDragFromId] = useState<string | null>(null);
   const [dragPoint, setDragPoint] = useState<Point | null>(null);
   const [hoveredRightId, setHoveredRightId] = useState<string | null>(null);
@@ -92,10 +101,18 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
             ([left, right]) => correctMatches[left] === right
           );
           setShowCorrect(true);
+          setAllCorrect(isCorrect);
           setIsComplete(true);
-          timeoutRef.current = setTimeout(() => {
-            onComplete(isCorrect ? 100 : 50, isCorrect);
-          }, 1500);
+          if (isCorrect) {
+            timeoutRef.current = setTimeout(() => {
+              onComplete(100, true);
+            }, 1500);
+          } else {
+            // Still report the wrong attempt to the backend (keeps the
+            // 5-attempt reveal counter accurate), but do NOT lock the UI —
+            // the child needs a concrete way to fix the wrong connections.
+            onComplete(50, false);
+          }
         }, 300);
       }
       return next;
@@ -103,6 +120,15 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
     setSelectedLeft(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pairs.length, correctMatches, onComplete]);
+
+  const handleTryAgain = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setMatches({});
+    setSelectedLeft(null);
+    setIsComplete(false);
+    setShowCorrect(false);
+    setAllCorrect(false);
+  };
 
   // ── Tap-to-select (mouse/keyboard-friendly, unchanged behaviour) ──
   const handleLeftClick = (leftValue: string) => {
@@ -329,7 +355,7 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
       </div>
 
       <AnimatePresence>
-        {showCorrect && (
+        {showCorrect && allCorrect && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -338,6 +364,26 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
           >
             <div className="text-6xl mb-4">🎉</div>
             <p className="text-2xl font-bold text-sky-600">Perfeito! Todas as conexões certas!</p>
+          </motion.div>
+        )}
+        {showCorrect && !allCorrect && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            className="text-center bg-red-100 text-red-900 rounded-xl p-6"
+          >
+            <div className="text-4xl mb-2">❌</div>
+            <p className="text-xl font-bold mb-4">Algumas ligações estão erradas (veja as linhas vermelhas).</p>
+            <motion.button
+              type="button"
+              onClick={handleTryAgain}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-8 py-3 bg-sky-600 text-white rounded-lg font-bold text-lg shadow-lg"
+            >
+              Tentar Novamente
+            </motion.button>
           </motion.div>
         )}
       </AnimatePresence>

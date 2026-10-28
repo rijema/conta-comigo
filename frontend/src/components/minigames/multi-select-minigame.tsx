@@ -69,6 +69,14 @@ export const MultiSelectMinigame: React.FC<MultiSelectMinigameProps> = ({
     }, 2000);
   };
 
+  // RETRY (TEA-FRIENDLY): see error-detection-minigame.tsx for rationale.
+  const handleTryAgain = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setSelected(new Set());
+    setSubmitted(false);
+    setIsCorrect(false);
+  };
+
   useEffect(() => {
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -143,8 +151,19 @@ export const MultiSelectMinigame: React.FC<MultiSelectMinigameProps> = ({
           <p className="text-xl font-bold">
             {isCorrect
               ? `Perfeito! Todos os números maiores que ${threshold}!`
-              : `Tente novamente. Números corretos: ${correctAnswers.join(', ')}`}
+              : `Quase lá. Números corretos: ${correctAnswers.join(', ')}`}
           </p>
+          {!isCorrect && (
+            <motion.button
+              type="button"
+              onClick={handleTryAgain}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="mt-4 px-8 py-3 bg-indigo-600 text-white rounded-lg font-bold text-lg shadow-lg"
+            >
+              Tentar Novamente
+            </motion.button>
+          )}
         </motion.div>
       )}
     </div>

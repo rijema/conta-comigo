@@ -50,19 +50,31 @@ export const TwoGroupSplitMinigame: React.FC<TwoGroupSplitMinigameProps> = ({
   const [groupBIds, setGroupBIds] = useState<string[]>([]);
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [isComplete, setIsComplete] = useState(false);
+  // CONFIRM BUTTON (TEA-FRIENDLY): children with autism need an explicit,
+  // concrete action to trigger the "check my answer" step — they should
+  // never be left guessing whether something happened. Previously this
+  // component auto-submitted silently when the split was correct and did
+  // absolutely nothing (no button, no message) when a *restricted* split
+  // (content.correctAnswers) was wrong, leaving the child stuck with no
+  // feedback at all. Now the child always gets an explicit "Confirmar"
+  // button once every block is placed, and always gets visible feedback
+  // (success or "tente outra combinação") after pressing it.
+  const [wasWrong, setWasWrong] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout>();
+  const wrongTimeoutRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     setGroupAIds([]);
     setGroupBIds([]);
     setIsComplete(false);
+    setWasWrong(false);
   }, [activity]);
 
   const availableItems = items.filter((item) => !groupAIds.includes(item.id) && !groupBIds.includes(item.id));
+  const allPlaced = availableItems.length === 0 && items.length > 0;
 
-  useEffect(() => {
-    const allPlaced = availableItems.length === 0 && items.length > 0;
-    if (!allPlaced) return;
+  const handleConfirm = () => {
+    if (!allPlaced || isComplete) return;
 
     const isValidSplit = !correctAnswers || correctAnswers.some((combo) => {
       const comboSet = new Set(combo);
@@ -70,15 +82,24 @@ export const TwoGroupSplitMinigame: React.FC<TwoGroupSplitMinigameProps> = ({
     });
 
     if (isValidSplit) {
+      setWasWrong(false);
       setIsComplete(true);
       timeoutRef.current = setTimeout(() => onComplete(100, true), 1500);
+    } else {
+      // Give clear, concrete feedback and let the child try a different
+      // split — do NOT advance to the next activity on a wrong answer.
+      setWasWrong(true);
+      if (wrongTimeoutRef.current) clearTimeout(wrongTimeoutRef.current);
+      wrongTimeoutRef.current = setTimeout(() => setWasWrong(false), 2500);
     }
+  };
 
+  useEffect(() => {
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (wrongTimeoutRef.current) clearTimeout(wrongTimeoutRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [availableItems.length, groupAIds, items.length]);
+  }, []);
 
   const handleDragStart = (id: string) => setDraggedId(id);
   const handleDragOver = (e: React.DragEvent) => e.preventDefault();
@@ -187,11 +208,33 @@ export const TwoGroupSplitMinigame: React.FC<TwoGroupSplitMinigameProps> = ({
         </div>
       </div>
 
+      <motion.button
+        type="button"
+        onClick={handleConfirm}
+        disabled={!allPlaced || isComplete}
+        whileHover={allPlaced && !isComplete ? { scale: 1.03 } : {}}
+        whileTap={allPlaced && !isComplete ? { scale: 0.97 } : {}}
+        className="w-full px-8 py-4 bg-blue-600 text-white rounded-xl font-bold text-lg disabled:opacity-40 disabled:cursor-not-allowed shadow-lg"
+      >
+        Confirmar
+      </motion.button>
+
       <AnimatePresence>
         {isComplete && (
           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="text-center">
             <div className="text-4xl mb-2">🎉</div>
             <p className="text-xl font-bold text-green-600">Parabéns!</p>
+          </motion.div>
+        )}
+        {wasWrong && !isComplete && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1, x: [0, -8, 8, -8, 0] }}
+            exit={{ opacity: 0 }}
+            className="text-center bg-red-100 text-red-900 rounded-xl p-4"
+          >
+            <div className="text-3xl mb-1">❌</div>
+            <p className="text-lg font-bold">Quase lá! Tente outra combinação.</p>
           </motion.div>
         )}
       </AnimatePresence>

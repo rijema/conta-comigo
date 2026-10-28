@@ -30,8 +30,17 @@ export const CategorizationMinigame: React.FC<CategorizationMinigameProps> = ({
   const [categorized, setCategorized] = useState<{ greater: string[]; lesser: string[] }>({ greater: [], lesser: [] });
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [isComplete, setIsComplete] = useState(false);
+  const [isCorrect, setIsCorrect] = useState(false);
+  // CONFIRM BUTTON + REAL FEEDBACK (TEA-FRIENDLY): this component used to
+  // auto-submit as soon as every item was placed AND always display
+  // "Perfeito!" regardless of whether the split was actually correct —
+  // silently telling a child they got it right when they didn't. Now the
+  // child must press an explicit "Confirmar" button, and gets honest
+  // success/error feedback with a chance to fix a wrong split.
+  const [wasWrong, setWasWrong] = useState(false);
   const threshold = 5;
   const timeoutRef = useRef<NodeJS.Timeout>();
+  const wrongTimeoutRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     const itemsData = activity?.content?.items || [
@@ -48,27 +57,39 @@ export const CategorizationMinigame: React.FC<CategorizationMinigameProps> = ({
     }));
 
     setItems(parsedItems);
+    setCategorized({ greater: [], lesser: [] });
+    setIsComplete(false);
+    setWasWrong(false);
   }, [activity]);
 
-  useEffect(() => {
-    const allCategorized = items.length > 0 && (categorized.greater.length + categorized.lesser.length === items.length);
-    if (allCategorized) {
-      const isCorrect = items.every(item => {
-        if (Number(item.value) > threshold) return categorized.greater.includes(item.id);
-        if (Number(item.value) < threshold) return categorized.lesser.includes(item.id);
-        return true;
-      });
+  const allCategorized = items.length > 0 && (categorized.greater.length + categorized.lesser.length === items.length);
 
+  const handleConfirm = () => {
+    if (!allCategorized || isComplete) return;
+
+    const correct = items.every(item => {
+      if (Number(item.value) > threshold) return categorized.greater.includes(item.id);
+      if (Number(item.value) < threshold) return categorized.lesser.includes(item.id);
+      return true;
+    });
+
+    if (correct) {
+      setIsCorrect(true);
       setIsComplete(true);
-      timeoutRef.current = setTimeout(() => {
-        onComplete(isCorrect ? 100 : 50, isCorrect);
-      }, 1500);
+      timeoutRef.current = setTimeout(() => onComplete(100, true), 1500);
+    } else {
+      setWasWrong(true);
+      if (wrongTimeoutRef.current) clearTimeout(wrongTimeoutRef.current);
+      wrongTimeoutRef.current = setTimeout(() => setWasWrong(false), 2500);
     }
+  };
 
+  useEffect(() => {
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (wrongTimeoutRef.current) clearTimeout(wrongTimeoutRef.current);
     };
-  }, [categorized, items, onComplete]);
+  }, []);
 
   const handleItemDragStart = (itemId: string) => {
     setDraggedItem(itemId);
@@ -178,7 +199,9 @@ export const CategorizationMinigame: React.FC<CategorizationMinigameProps> = ({
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
-                    className="bg-green-200 rounded-lg px-4 py-2 font-bold text-green-900 shadow"
+                    draggable={!isComplete}
+                    onDragStart={() => handleItemDragStart(item.id)}
+                    className="bg-green-200 rounded-lg px-4 py-2 font-bold text-green-900 shadow cursor-move"
                   >
                     {item.label}
                   </motion.div>
@@ -205,7 +228,9 @@ export const CategorizationMinigame: React.FC<CategorizationMinigameProps> = ({
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
-                    className="bg-blue-200 rounded-lg px-4 py-2 font-bold text-blue-900 shadow"
+                    draggable={!isComplete}
+                    onDragStart={() => handleItemDragStart(item.id)}
+                    className="bg-blue-200 rounded-lg px-4 py-2 font-bold text-blue-900 shadow cursor-move"
                   >
                     {item.label}
                   </motion.div>
@@ -217,8 +242,19 @@ export const CategorizationMinigame: React.FC<CategorizationMinigameProps> = ({
         </div>
       </div>
 
+      <motion.button
+        type="button"
+        onClick={handleConfirm}
+        disabled={!allCategorized || isComplete}
+        whileHover={allCategorized && !isComplete ? { scale: 1.03 } : {}}
+        whileTap={allCategorized && !isComplete ? { scale: 0.97 } : {}}
+        className="w-full px-8 py-4 bg-purple-600 text-white rounded-xl font-bold text-lg disabled:opacity-40 disabled:cursor-not-allowed shadow-lg"
+      >
+        Confirmar
+      </motion.button>
+
       <AnimatePresence>
-        {isComplete && (
+        {isComplete && isCorrect && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -229,6 +265,17 @@ export const CategorizationMinigame: React.FC<CategorizationMinigameProps> = ({
               <div className="text-6xl mb-4">🎉</div>
               <p className="text-3xl font-bold text-white">Perfeito!</p>
             </div>
+          </motion.div>
+        )}
+        {wasWrong && !isComplete && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1, x: [0, -8, 8, -8, 0] }}
+            exit={{ opacity: 0 }}
+            className="text-center bg-red-100 text-red-900 rounded-xl p-4"
+          >
+            <div className="text-3xl mb-1">❌</div>
+            <p className="text-lg font-bold">Quase lá! Confira os grupos e tente de novo.</p>
           </motion.div>
         )}
       </AnimatePresence>

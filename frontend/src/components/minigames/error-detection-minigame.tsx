@@ -61,6 +61,19 @@ export const ErrorDetectionMinigame: React.FC<ErrorDetectionMinigameProps> = ({
     }, 2000);
   };
 
+  // RETRY (TEA-FRIENDLY): a wrong answer used to leave the whole exercise
+  // permanently locked (buttons disabled forever, no way to try again) —
+  // the child would see "Tente outra vez!" but had no concrete action to
+  // actually do that. Now an explicit "Tentar Novamente" button appears
+  // alongside the wrong-answer feedback so the child can pick a new
+  // answer immediately.
+  const handleTryAgain = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setSelected(null);
+    setSubmitted(false);
+    setIsCorrect(false);
+  };
+
   useEffect(() => {
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -142,6 +155,17 @@ export const ErrorDetectionMinigame: React.FC<ErrorDetectionMinigameProps> = ({
               ? 'Correto! 3 é menor que 9, não maior!'
               : 'A resposta correta é: Titia errou porque 3 é menor que 9'}
           </p>
+          {!isCorrect && (
+            <motion.button
+              type="button"
+              onClick={handleTryAgain}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="mt-4 px-8 py-3 bg-violet-600 text-white rounded-lg font-bold text-lg shadow-lg"
+            >
+              Tentar Novamente
+            </motion.button>
+          )}
         </motion.div>
       )}
     </div>
