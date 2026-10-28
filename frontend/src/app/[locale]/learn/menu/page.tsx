@@ -10,6 +10,7 @@ import { authService } from "@/lib/auth";
 import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
 import { ArasaacLibraryDialog } from "@/components/arasaac/arasaac-library-dialog";
 import { ProfessionalAttendanceBar } from "@/components/educator/professional-attendance-bar";
+import { SESSION_STORAGE_KEY } from "@/hooks/use-session";
 
 /* ── Island themes — mapped to pictogram concepts with semantic meanings ── */
 const ISLAND_THEMES = [
@@ -67,6 +68,12 @@ export default function ActivityMenuPage() {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
 
+  // [REVIEW] Floating "Revisão" button: lets the child request a spaced-
+  // repetition review session on demand, instead of only waiting for it to
+  // show up automatically at login.
+  const [reviewLoading, setReviewLoading] = useState(false);
+  const [reviewMessage, setReviewMessage] = useState<string | null>(null);
+
   useEffect(() => {
     const token = authService.getStoredToken();
     if (!token) { router.replace(`/${locale}/auth/login`); return; }
@@ -123,6 +130,33 @@ export default function ActivityMenuPage() {
 
   const openVisualLibrary = () => {
     setShowArasaac(true);
+  };
+
+  const handleRequestReview = async () => {
+    if (reviewLoading) return;
+    setReviewLoading(true);
+    setReviewMessage(null);
+    const token = authService.getStoredToken();
+    try {
+      const res = await api.post<{ available: boolean; assignmentsCount: number }>(
+        "/learning-events/review/start-manual",
+        {},
+        token ?? undefined,
+      );
+      if (res.available) {
+        // Force a fresh "/activities/next" fetch on the learn page instead
+        // of resuming a cached session, so the freshly-created review
+        // actually shows up right away.
+        window.localStorage.removeItem(SESSION_STORAGE_KEY);
+        router.push(`/${locale}/learn`);
+      } else {
+        setReviewMessage("Nada para revisar agora! Continue jogando, você está indo muito bem! 🙂");
+      }
+    } catch {
+      setReviewMessage("Não consegui preparar a revisão agora. Tente de novo em instantes.");
+    } finally {
+      setReviewLoading(false);
+    }
   };
 
   if (isLoading) {
@@ -459,6 +493,38 @@ export default function ActivityMenuPage() {
           </div>
         )}
       </main>
+
+      {/* ── Revisão floating button (spaced-repetition, on-demand) ── */}
+      <div className="fixed bottom-6 left-6 z-30 flex flex-col items-start gap-2">
+        {reviewMessage && (
+          <div
+            role="status"
+            aria-live="polite"
+            className="max-w-xs bg-white text-sky-900 text-sm font-semibold rounded-2xl px-4 py-3 shadow-xl border-2 border-sky-200"
+          >
+            {reviewMessage}
+            <button
+              onClick={() => setReviewMessage(null)}
+              className="block mt-1 text-xs font-bold text-sky-500 underline"
+            >
+              Ok, entendi
+            </button>
+          </div>
+        )}
+        <button
+          onClick={handleRequestReview}
+          disabled={reviewLoading}
+          className="w-16 h-16 rounded-full bg-gradient-to-br from-sky-500 to-emerald-500 text-white text-3xl flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-transform disabled:opacity-60"
+          title="Praticar o que já aprendi (Revisão)"
+          aria-label="Praticar o que já aprendi (Revisão)"
+        >
+          {reviewLoading ? (
+            <span className="text-xl animate-spin">⏳</span>
+          ) : (
+            <span>🔁</span>
+          )}
+        </button>
+      </div>
 
       {/* ── TitIA floating button ── */}
       <button

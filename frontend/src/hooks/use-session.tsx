@@ -25,7 +25,9 @@ export interface MapChoice {
   islandId?: string | null;
 }
 
-const SESSION_STORAGE_KEY = "contacomigo.learning-session";
+// Exported so callers that need to force a fresh "/activities/next" fetch
+// (e.g. the manual review button) can invalidate the cached session first.
+export const SESSION_STORAGE_KEY = "contacomigo.learning-session";
 const SESSION_TTL_MS = 8 * 60 * 60 * 1000;
 
 type ActivityLifecycleEventType =
