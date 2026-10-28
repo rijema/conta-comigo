@@ -84,7 +84,6 @@ export const OrderingTwoDigitMinigame: React.FC<OrderingTwoDigitMinigameProps> =
     if (ordered.length !== items.length) return;
 
     const correct = ordered.every((id, idx) => {
-      const item = items.find(i => i.id === id);
       const sortedItems = [...items].sort((a, b) => a.value - b.value);
       return sortedItems[idx].id === id;
     });
@@ -95,6 +94,16 @@ export const OrderingTwoDigitMinigame: React.FC<OrderingTwoDigitMinigameProps> =
     timeoutRef.current = setTimeout(() => {
       onComplete(correct ? 100 : 50, correct);
     }, 2000);
+  };
+
+  // RETRY (TEA-FRIENDLY): the child could already rearrange the sequence
+  // after a wrong submission, but the "Verificar Sequência" button stayed
+  // disabled forever, so there was no way to actually confirm a corrected
+  // attempt. Now pressing "Tentar Novamente" re-enables the submit button.
+  const handleTryAgain = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setSubmitted(false);
+    setIsCorrect(false);
   };
 
   useEffect(() => {
@@ -208,9 +217,20 @@ export const OrderingTwoDigitMinigame: React.FC<OrderingTwoDigitMinigameProps> =
           <div className="text-4xl mb-2">{isCorrect ? '✅' : '❌'}</div>
           <p className="text-xl font-bold">
             {isCorrect
-              ? 'Ordem correta! 12, 23, 34, 56 (crescente)'
-              : 'Tente novamente. Ordem: 12, 23, 34, 56'}
+              ? `Ordem correta! ${[...items].sort((a, b) => a.value - b.value).map(i => i.label).join(', ')} (crescente)`
+              : `Quase lá. A ordem certa é: ${[...items].sort((a, b) => a.value - b.value).map(i => i.label).join(', ')}`}
           </p>
+          {!isCorrect && (
+            <motion.button
+              type="button"
+              onClick={handleTryAgain}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="mt-4 px-8 py-3 bg-fuchsia-600 text-white rounded-lg font-bold text-lg shadow-lg"
+            >
+              Tentar Novamente
+            </motion.button>
+          )}
         </motion.div>
       )}
     </div>

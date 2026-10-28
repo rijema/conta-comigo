@@ -53,6 +53,16 @@ export const TrueFalseMinigame: React.FC<TrueFalseMinigameProps> = ({
     }, 2000);
   };
 
+  // RETRY (TEA-FRIENDLY): see error-detection-minigame.tsx for rationale —
+  // this component used to say "Tente novamente!" but gave no way to
+  // actually do that (buttons stayed permanently disabled).
+  const handleTryAgain = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setSelected(null);
+    setSubmitted(false);
+    setIsCorrect(false);
+  };
+
   useEffect(() => {
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -140,6 +150,17 @@ export const TrueFalseMinigame: React.FC<TrueFalseMinigameProps> = ({
           <p className="text-xl font-bold">
             {isCorrect ? 'Resposta correta!' : 'Tente novamente!'}
           </p>
+          {!isCorrect && (
+            <motion.button
+              type="button"
+              onClick={handleTryAgain}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="mt-4 px-8 py-3 bg-amber-600 text-white rounded-lg font-bold text-lg shadow-lg"
+            >
+              Tentar Novamente
+            </motion.button>
+          )}
         </motion.div>
       )}
     </div>
