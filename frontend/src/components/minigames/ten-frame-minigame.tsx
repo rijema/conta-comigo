@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Activity } from '@/types';
+import { useTitiaSpeech } from '@/hooks/use-titia-speech';
 
 /**
  * MINIGAME: Ten Frame Quest
@@ -35,6 +36,17 @@ export const TenFrameMinigame: React.FC<TenFrameMinigameProps> = ({
   const startCount = activity?.content?.items?.length || 7;
   const target = 10;
   const needed = target - startCount;
+
+  const spokenRef = useRef(false);
+  const speech = useTitiaSpeech({ activityId: activity?.id ?? `ten-frame-minigame-${skill}` });
+  useEffect(() => {
+    if (speech.settings.voiceEnabled && !spokenRef.current) {
+      spokenRef.current = true;
+      speech.speakInstruction({
+        steps: [activity?.content?.instructionsPt || activity?.content?.instructions || 'Toque nos quadrados para completar o quadro de 10.'],
+      });
+    }
+  }, [speech.settings.voiceEnabled, speech, activity]);
 
   useEffect(() => {
     if (selectedBoxes.size === needed) {

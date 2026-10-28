@@ -26,6 +26,60 @@ export interface SpokenInstruction {
   steps: string[];
 }
 
+// TitiA is established in the product as a female character ("a titia"), so
+// every voice she uses — exercise narration, hints, feedback, explanations —
+// must sound female. The Web Speech API has no "gender" property on
+// SpeechSynthesisVoice, so this is a best-effort match against voice names
+// known to be female across the engines commonly available for pt-BR
+// (Chrome/Google, Microsoft/Edge, Safari/macOS, Android TTS). Without this,
+// speak() falls back to whatever voice happens to be the OS/browser default
+// for the language, which is not guaranteed to be female.
+const FEMALE_VOICE_NAME_HINTS = [
+  "female", "mulher", "luciana", "joana", "maria", "camila", "vitória", "vitoria",
+  "fernanda", "raquel", "francisca", "ines", "inês", "helena", "carla", "isabela",
+];
+const MALE_VOICE_NAME_HINTS = [
+  "male", "homem", "daniel", "ricardo", "diego", "felipe", "fred", "miguel", "thiago", "bruno", "jorge",
+];
+
+function scorePortugueseVoice(voice: SpeechSynthesisVoice): number {
+  const lang = (voice.lang || "").toLowerCase();
+  const name = (voice.name || "").toLowerCase();
+  let score: number;
+  if (lang === "pt-br") score = 10;
+  else if (lang.startsWith("pt")) score = 5;
+  else return -100;
+  if (FEMALE_VOICE_NAME_HINTS.some((hint) => name.includes(hint))) score += 20;
+  if (MALE_VOICE_NAME_HINTS.some((hint) => name.includes(hint))) score -= 30;
+  return score;
+}
+
+function pickFemalePortugueseVoice(): SpeechSynthesisVoice | null {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices.length) return null;
+  const ranked = [...voices].sort((a, b) => scorePortugueseVoice(b) - scorePortugueseVoice(a));
+  const best = ranked[0];
+  return best && scorePortugueseVoice(best) > -100 ? best : null;
+}
+
+let cachedFemaleVoice: SpeechSynthesisVoice | null = null;
+let voiceListenerAttached = false;
+
+function refreshCachedVoice() {
+  const voice = pickFemalePortugueseVoice();
+  if (voice) cachedFemaleVoice = voice;
+}
+
+function ensureVoiceListener() {
+  if (voiceListenerAttached || typeof window === "undefined" || !("speechSynthesis" in window)) return;
+  voiceListenerAttached = true;
+  refreshCachedVoice();
+  // Chrome/Edge load voices asynchronously — the first getVoices() call often
+  // returns an empty list, so we must react once the real list is ready.
+  window.speechSynthesis.addEventListener("voiceschanged", refreshCachedVoice);
+}
+
 export class BrowserSpeechEngine implements TitiaSpeechEngine {
   private activeUtterance: SpeechSynthesisUtterance | null = null;
 
@@ -36,11 +90,14 @@ export class BrowserSpeechEngine implements TitiaSpeechEngine {
 
   speak({ text, rate, language, volume, onEnd, onStart, onFailure }: SpeechRequest): void {
     if (!this.isAvailable()) { onFailure?.(); return; }
+    ensureVoiceListener();
+    if (!cachedFemaleVoice) refreshCachedVoice();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = language;
     utterance.rate = rate;
     utterance.volume = volume ?? 1;
     utterance.pitch = 1.05;
+    if (cachedFemaleVoice) utterance.voice = cachedFemaleVoice;
     utterance.onend = onEnd;
     utterance.onerror = onEnd;
     this.activeUtterance = utterance;

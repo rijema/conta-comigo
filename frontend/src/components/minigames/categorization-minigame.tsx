@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Activity } from '@/types';
+import { useTitiaSpeech } from '@/hooks/use-titia-speech';
 
 /**
  * MINIGAME: Categorization Quest
@@ -41,6 +42,17 @@ export const CategorizationMinigame: React.FC<CategorizationMinigameProps> = ({
   const threshold = 5;
   const timeoutRef = useRef<NodeJS.Timeout>();
   const wrongTimeoutRef = useRef<NodeJS.Timeout>();
+
+  const spokenRef = useRef(false);
+  const speech = useTitiaSpeech({ activityId: activity?.id ?? `categorization-minigame-${skill}` });
+  useEffect(() => {
+    if (speech.settings.voiceEnabled && !spokenRef.current) {
+      spokenRef.current = true;
+      speech.speakInstruction({
+        steps: [activity?.content?.instructionsPt || activity?.content?.instructions || 'Separe os números: quem é MAIOR e quem é MENOR?'],
+      });
+    }
+  }, [speech.settings.voiceEnabled, speech, activity]);
 
   useEffect(() => {
     const itemsData = activity?.content?.items || [

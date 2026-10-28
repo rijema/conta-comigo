@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Activity } from '@/types';
+import { useTitiaSpeech } from '@/hooks/use-titia-speech';
 
 /**
  * MINIGAME: Equation Builder Quest
@@ -39,6 +40,17 @@ export const EquationBuilderMinigame: React.FC<EquationBuilderMinigameProps> = (
       { id: 'b', text: '5', isCorrect: true },
       { id: 'c', text: '6', isCorrect: false },
     ];
+
+  const spokenRef = useRef(false);
+  const speech = useTitiaSpeech({ activityId: activity?.id ?? `equation-builder-minigame-${skill}` });
+  useEffect(() => {
+    if (speech.settings.voiceEnabled && !spokenRef.current) {
+      spokenRef.current = true;
+      speech.speakInstruction({
+        steps: [activity?.content?.instructionsPt || activity?.content?.instructions || 'Complete a conta escolhendo o número certo.'],
+      });
+    }
+  }, [speech.settings.voiceEnabled, speech, activity]);
 
   const handleSelect = (optionId: string) => {
     if (!submitted) {

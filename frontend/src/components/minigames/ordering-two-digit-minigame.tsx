@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Activity } from '@/types';
+import { useTitiaSpeech } from '@/hooks/use-titia-speech';
 
 /**
  * MINIGAME: Ordering Two-Digit Numbers Quest
@@ -51,6 +52,17 @@ export const OrderingTwoDigitMinigame: React.FC<OrderingTwoDigitMinigameProps> =
     const shuffled = [...parsed].sort(() => Math.random() - 0.5);
     setItems(shuffled);
   }, [activity]);
+
+  const spokenRef = useRef(false);
+  const speech = useTitiaSpeech({ activityId: activity?.id ?? `ordering-two-digit-minigame-${skill}` });
+  useEffect(() => {
+    if (speech.settings.voiceEnabled && !spokenRef.current) {
+      spokenRef.current = true;
+      speech.speakInstruction({
+        steps: [activity?.content?.instructionsPt || activity?.content?.instructions || 'Arraste os números para colocá-los em ordem, do menor para o maior.'],
+      });
+    }
+  }, [speech.settings.voiceEnabled, speech, activity]);
 
   const handleDragStart = (id: string) => {
     setDraggedId(id);

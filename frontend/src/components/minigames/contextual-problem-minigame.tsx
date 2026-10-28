@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import type { Activity } from '@/types';
+import { useTitiaSpeech } from '@/hooks/use-titia-speech';
 
 /**
  * MINIGAME: Contextual Problem Quest
@@ -44,6 +45,15 @@ export const ContextualProblemMinigame: React.FC<ContextualProblemMinigameProps>
     activity?.content?.instructions ||
     'Leia o problema com atenção.';
   const context: string | undefined = activity?.content?.semantic?.context;
+
+  const spokenRef = useRef(false);
+  const speech = useTitiaSpeech({ activityId: activity?.id ?? 'contextual-problem-minigame' });
+  useEffect(() => {
+    if (speech.settings.voiceEnabled && !spokenRef.current) {
+      spokenRef.current = true;
+      speech.speakInstruction({ steps: [statement] });
+    }
+  }, [speech.settings.voiceEnabled, speech, statement]);
 
   const CONTEXT_EMOJI: Record<string, string> = {
     biblioteca: '📚',

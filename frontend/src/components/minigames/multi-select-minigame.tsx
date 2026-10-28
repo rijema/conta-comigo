@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Activity } from '@/types';
+import { useTitiaSpeech } from '@/hooks/use-titia-speech';
 
 /**
  * MINIGAME: Multi-Select Quest
@@ -42,6 +43,17 @@ export const MultiSelectMinigame: React.FC<MultiSelectMinigameProps> = ({
       { id: 'e', value: 3, label: '3' },
       { id: 'f', value: 8, label: '8' },
     ];
+
+  const spokenRef = useRef(false);
+  const speech = useTitiaSpeech({ activityId: activity?.id ?? `multi-select-minigame-${skill}` });
+  useEffect(() => {
+    if (speech.settings.voiceEnabled && !spokenRef.current) {
+      spokenRef.current = true;
+      speech.speakInstruction({
+        steps: [activity?.content?.instructionsPt || activity?.content?.instructions || `Toque em todos os números maiores que ${threshold}.`],
+      });
+    }
+  }, [speech.settings.voiceEnabled, speech, activity, threshold]);
 
   const correctAnswers = items
     .filter((item: any) => Number(item.value || item.label) > threshold)

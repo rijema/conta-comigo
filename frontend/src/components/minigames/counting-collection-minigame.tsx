@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Activity } from '@/types';
+import { useTitiaSpeech } from '@/hooks/use-titia-speech';
 
 /**
  * MINIGAME: Counting Collection Quest
@@ -36,6 +37,17 @@ export const CountingCollectionMinigame: React.FC<CountingCollectionMinigameProp
   const maxPerGroup = 10;
   const expectedGroups = Math.floor(totalObjects / maxPerGroup);
   const remainder = totalObjects % maxPerGroup;
+
+  const spokenRef = useRef(false);
+  const speech = useTitiaSpeech({ activityId: activity?.id ?? `counting-collection-minigame-${skill}` });
+  useEffect(() => {
+    if (speech.settings.voiceEnabled && !spokenRef.current) {
+      spokenRef.current = true;
+      speech.speakInstruction({
+        steps: [activity?.content?.instructionsPt || activity?.content?.instructions || `Conte até ${totalObjects}, agrupando de 10 em 10.`],
+      });
+    }
+  }, [speech.settings.voiceEnabled, speech, activity, totalObjects]);
 
   const handleAddGroup = () => {
     if (counted + maxPerGroup <= totalObjects) {

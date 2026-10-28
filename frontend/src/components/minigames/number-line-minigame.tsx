@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import type { Activity } from '@/types';
+import { useTitiaSpeech } from '@/hooks/use-titia-speech';
 
 /**
  * MINIGAME: Number Line Quest
@@ -76,6 +77,15 @@ export const NumberLineMinigame: React.FC<NumberLineMinigameProps> = ({
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, [difficulty]);
+
+  const spokenRef = useRef(false);
+  const speech = useTitiaSpeech({ activityId: activity?.id ?? `number-line-minigame-${skill}` });
+  useEffect(() => {
+    if (problem && speech.settings.voiceEnabled && !spokenRef.current) {
+      spokenRef.current = true;
+      speech.speakInstruction({ steps: [`Toque na reta numérica no lugar onde fica o número ${problem.targetNumber}.`] });
+    }
+  }, [problem, speech.settings.voiceEnabled, speech]);
 
   const handleLineClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (isAnswered || !problem || !lineRef.current) return;

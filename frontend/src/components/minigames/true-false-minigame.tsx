@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Activity } from '@/types';
+import { useTitiaSpeech } from '@/hooks/use-titia-speech';
 
 /**
  * MINIGAME: True/False Quest
@@ -34,6 +35,15 @@ export const TrueFalseMinigame: React.FC<TrueFalseMinigameProps> = ({
   // Default: 7 > 4 is true
   const statement = activity?.content?.statement || '7 é MAIOR que 4?';
   const correctAnswer = activity?.content?.correctAnswer || 'true';
+
+  const spokenRef = useRef(false);
+  const speech = useTitiaSpeech({ activityId: activity?.id ?? `true-false-minigame-${skill}` });
+  useEffect(() => {
+    if (speech.settings.voiceEnabled && !spokenRef.current) {
+      spokenRef.current = true;
+      speech.speakInstruction({ steps: [statement, 'Isso é verdadeiro ou falso?'] });
+    }
+  }, [speech.settings.voiceEnabled, speech, statement]);
 
   const handleSelect = (answer: string) => {
     if (!submitted) {

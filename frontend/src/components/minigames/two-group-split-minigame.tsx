@@ -4,6 +4,7 @@ import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Activity } from '@/types';
 import { ArasaacPictogram } from '@/components/arasaac/arasaac-pictogram';
+import { useTitiaSpeech } from '@/hooks/use-titia-speech';
 
 /**
  * MINIGAME: Two Group Split (Decomposition)
@@ -45,6 +46,17 @@ export const TwoGroupSplitMinigame: React.FC<TwoGroupSplitMinigameProps> = ({
   }, [activity]);
 
   const correctAnswers = activity?.content?.correctAnswers as string[][] | undefined;
+
+  const spokenRef = useRef(false);
+  const speech = useTitiaSpeech({ activityId: activity?.id ?? 'two-group-split-minigame' });
+  useEffect(() => {
+    if (speech.settings.voiceEnabled && !spokenRef.current) {
+      spokenRef.current = true;
+      speech.speakInstruction({
+        steps: [activity?.content?.instructionsPt || activity?.content?.instructions || 'Arraste os blocos para os dois grupos!'],
+      });
+    }
+  }, [speech.settings.voiceEnabled, speech, activity]);
 
   const [groupAIds, setGroupAIds] = useState<string[]>([]);
   const [groupBIds, setGroupBIds] = useState<string[]>([]);
