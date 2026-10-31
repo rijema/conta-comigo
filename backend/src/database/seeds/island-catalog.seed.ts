@@ -18,6 +18,8 @@ export interface IslandDefinition {
   theme: string;
   sequenceOrder: number;
   bnccSkills: string[];
+  /** Checked ARASAAC concept IDs (frontend registry); replaces the old 404 IDs stored in the database. */
+  pictograms: string[];
 }
 
 export const ISLAND_CATALOG: IslandDefinition[] = [
@@ -27,6 +29,7 @@ export const ISLAND_CATALOG: IslandDefinition[] = [
     description: 'Vamos contar! Contar, ler e conhecer os números.',
     theme: 'numbers',
     sequenceOrder: 1,
+    pictograms: ['library.star', 'mathematics.numbers'],
     bnccSkills: ['EF01MA01', 'EF01MA02', 'EF01MA04', 'EF01MA07', 'EF02MA01', 'EF02MA04',
       'EF03MA01', 'EF03MA02', 'EF04MA01', 'EF04MA02', 'EF05MA01',
       // 2º–5º ano progression (out/2026)
@@ -38,7 +41,10 @@ export const ISLAND_CATALOG: IslandDefinition[] = [
     description: 'Quem tem mais? Comparar, ordenar e medir.',
     theme: 'beach',
     sequenceOrder: 2,
-    bnccSkills: ['EF01MA03', 'EF01MA05', 'EF01MA17',
+    pictograms: ['library.elephant', 'library.ant', 'library.ruler'],
+    // EF01MA15/EF01MA16 are "Grandezas e medidas" in the official BNCC text
+    // (comparing lengths/capacities/masses; sequence of events in time).
+    bnccSkills: ['EF01MA03', 'EF01MA05', 'EF01MA15', 'EF01MA16', 'EF01MA17',
       // 2º–5º ano progression (out/2026): BNCC "Grandezas e medidas" and data reading
       'EF02MA03', 'EF02MA18', 'EF03MA18', 'EF03MA22', 'EF03MA23', 'EF03MA24',
       'EF04MA20', 'EF04MA21', 'EF04MA22', 'EF04MA23', 'EF04MA27',
@@ -50,6 +56,7 @@ export const ISLAND_CATALOG: IslandDefinition[] = [
     description: 'Junta tudo na cesta! Somar e multiplicar.',
     theme: 'body',
     sequenceOrder: 3,
+    pictograms: ['library.tree', 'object.apple', 'library.strawberry'],
     bnccSkills: ['EF01MA06', 'EF02MA05', 'EF02MA07', 'EF03MA07', 'EF04MA06',
       // 2º–5º ano progression (out/2026)
       'EF02MA08', 'EF03MA03', 'EF04MA08', 'EF05MA08', 'EF05MA09', 'EF05MA12'],
@@ -60,6 +67,7 @@ export const ISLAND_CATALOG: IslandDefinition[] = [
     description: 'Quanto sobrou? Tirar e repartir.',
     theme: 'home',
     sequenceOrder: 4,
+    pictograms: ['library.cookie', 'library.plate', 'library.pizza'],
     bnccSkills: ['EF01MA08', 'EF02MA06', 'EF03MA06', 'EF04MA03', 'EF05MA07', 'EF03MA08', 'EF04MA09', 'EF05MA06',
       // 2º–5º ano progression (out/2026)
       'EF03MA09', 'EF04MA07', 'EF04MA25', 'EF05MA03', 'EF05MA04', 'EF05MA13'],
@@ -70,7 +78,8 @@ export const ISLAND_CATALOG: IslandDefinition[] = [
     description: 'Cores e padrões: organizar e continuar sequências.',
     theme: 'colors',
     sequenceOrder: 5,
-    bnccSkills: ['EF01MA09', 'EF01MA10', 'EF01MA15',
+    pictograms: ['library.rainbow', 'mathematics.sequence'],
+    bnccSkills: ['EF01MA09', 'EF01MA10',
       // 2º–5º ano progression (out/2026): BNCC "Álgebra" (sequences and equalities)
       'EF02MA09', 'EF02MA11', 'EF03MA10', 'EF03MA11', 'EF04MA11', 'EF04MA12',
       'EF04MA14', 'EF04MA15', 'EF05MA10', 'EF05MA11'],
@@ -81,7 +90,8 @@ export const ISLAND_CATALOG: IslandDefinition[] = [
     description: 'Que forma é essa? Formas e posições.',
     theme: 'nature',
     sequenceOrder: 6,
-    bnccSkills: ['EF01MA11', 'EF01MA12', 'EF01MA13', 'EF01MA14', 'EF01MA16', 'EF02MA14', 'EF03MA15',
+    pictograms: ['library.castle', 'library.triangle', 'library.cube'],
+    bnccSkills: ['EF01MA11', 'EF01MA12', 'EF01MA13', 'EF01MA14', 'EF02MA14', 'EF03MA15',
       // 2º–5º ano progression (out/2026)
       'EF02MA15', 'EF03MA13', 'EF03MA14', 'EF04MA17', 'EF04MA18', 'EF04MA19',
       'EF05MA15', 'EF05MA16', 'EF05MA17'],
@@ -233,17 +243,18 @@ export const IslandCatalogSeed = async (dataSource: DataSource): Promise<void> =
   await dataSource.transaction(async (manager) => {
     for (const island of ISLAND_CATALOG) {
       await manager.query(`
-        INSERT INTO "islands" ("islandId", "name", "description", "theme", "sequenceOrder", "bnccSkills", "isActive")
-        VALUES ($1, $2, $3, $4, $5, $6::jsonb, true)
+        INSERT INTO "islands" ("islandId", "name", "description", "theme", "sequenceOrder", "bnccSkills", "arasaacPictogramIds", "isActive")
+        VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7::jsonb, true)
         ON CONFLICT ("islandId") DO UPDATE SET
           "name" = EXCLUDED."name",
           "description" = EXCLUDED."description",
           "sequenceOrder" = EXCLUDED."sequenceOrder",
           "bnccSkills" = EXCLUDED."bnccSkills",
+          "arasaacPictogramIds" = EXCLUDED."arasaacPictogramIds",
           "isActive" = true,
           "updatedAt" = CURRENT_TIMESTAMP
       `, [island.islandId, island.name, island.description, island.theme, island.sequenceOrder,
-        JSON.stringify(island.bnccSkills)]);
+        JSON.stringify(island.bnccSkills), JSON.stringify(island.pictograms)]);
     }
 
     if (!placements.length) return;

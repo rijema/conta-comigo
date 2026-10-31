@@ -223,7 +223,7 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
       example: 'Olhe os blocos: eles têm tamanhos diferentes. Comece arrastando o MAIOR para a pilha. Se você arrastar um bloco fora de ordem, ele volta sozinho — tente o próximo maior.',
       spokenHint: 'Compare os blocos disponíveis e arraste sempre o maior deles primeiro.',
       timeLimit: 60,
-      pictogramConceptIds: ['arasaac.26968', 'arasaac.13186', 'arasaac.14098'],
+      pictogramConceptIds: ['library.cube'],
       items: [
         { id: 'block1', color: '#FF6B6B', size: 'xlarge' },
         { id: 'block2', color: '#4ECDC4', size: 'large' },
@@ -276,7 +276,7 @@ export function generate77ExercisesBreakingCycle(): ExerciseData[] {
       example: 'Olhe os blocos: eles têm tamanhos diferentes. Comece arrastando o MENOR para a pilha. Se você arrastar um bloco fora de ordem, ele volta sozinho — tente o próximo menor.',
       spokenHint: 'Compare os blocos disponíveis e arraste sempre o menor deles primeiro.',
       timeLimit: 60,
-      pictogramConceptIds: ['arasaac.26968', 'arasaac.17629', 'arasaac.14098'],
+      pictogramConceptIds: ['library.cube'],
       items: [
         { id: 'block1', color: '#9B59B6', size: 'xsmall' },
         { id: 'block2', color: '#FFA07A', size: 'small' },
