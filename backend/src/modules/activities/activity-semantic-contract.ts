@@ -234,17 +234,93 @@ const FAMILY_PROFILES: Record<SemanticActivityType, FamilyProfile> = {
 
 // Reuses only mappings already documented in Batch 02D. A BNCC claim describes
 // curriculum intent; it does not prove that a concrete activity is correctly tagged.
-const BNCC_CONCEPT_MAPPINGS: Record<string, string[]> = {
+/**
+ * Mirrors cc:addressesMathematicalConcept in ontology/contacomigo/contacomigo.owl
+ * (kept in sync by activity-semantic-contract.spec.ts). The 1º ano entries are
+ * unchanged; the 2º–5º ano entries were added with ontology v0.5.0.
+ */
+export const BNCC_CONCEPT_MAPPINGS: Record<string, string[]> = {
   EF01MA01: ['NumberConcept'],
   EF01MA03: ['CountingConcept', 'ComparisonConcept'],
   EF01MA06: ['AdditionConcept', 'EarlyProblemSolvingConcept'],
   EF01MA07: ['NumberConcept', 'AdditionConcept'],
   EF01MA08: ['AdditionConcept', 'SubtractionConcept', 'EarlyProblemSolvingConcept'],
   EF01MA14: ['BasicGeometryConcept', 'SquareConcept', 'RectangleConcept'],
+  // 2º–5º ano (ontology v0.5.0): mapped as "partial" pending professional review.
+  EF02MA01: ['PlaceValueConcept', 'ComparisonConcept'],
+  EF02MA03: ['ComparisonConcept', 'SubtractionConcept'],
+  EF02MA04: ['PlaceValueConcept', 'AdditionConcept'],
+  EF02MA05: ['AdditionConcept', 'SubtractionConcept'],
+  EF02MA06: ['AdditionConcept', 'SubtractionConcept', 'EarlyProblemSolvingConcept'],
+  EF02MA07: ['MultiplicationConcept', 'AdditionConcept'],
+  EF02MA08: ['MultiplicationConcept', 'DivisionConcept'],
+  EF02MA09: ['SequencePatternConcept'],
+  EF02MA11: ['SequencePatternConcept'],
+  EF02MA14: ['SpatialFigureConcept'],
+  EF02MA15: ['BasicGeometryConcept'],
+  EF02MA18: ['TimeMeasurementConcept'],
+  EF03MA01: ['PlaceValueConcept', 'ComparisonConcept'],
+  EF03MA02: ['PlaceValueConcept'],
+  EF03MA03: ['AdditionConcept', 'MultiplicationConcept'],
+  EF03MA04: ['NumberConcept', 'AdditionConcept', 'SubtractionConcept'],
+  EF03MA06: ['AdditionConcept', 'SubtractionConcept', 'EarlyProblemSolvingConcept'],
+  EF03MA07: ['MultiplicationConcept'],
+  EF03MA08: ['DivisionConcept'],
+  EF03MA09: ['DivisionConcept', 'FractionConcept'],
+  EF03MA10: ['SequencePatternConcept'],
+  EF03MA11: ['EqualityConcept'],
+  EF03MA13: ['SpatialFigureConcept'],
+  EF03MA14: ['SpatialFigureConcept'],
+  EF03MA15: ['PolygonConcept'],
+  EF03MA18: ['MeasurementConcept'],
+  EF03MA22: ['TimeMeasurementConcept'],
+  EF03MA23: ['TimeMeasurementConcept'],
+  EF03MA24: ['MoneyConcept'],
+  EF04MA01: ['PlaceValueConcept', 'ComparisonConcept'],
+  EF04MA02: ['PlaceValueConcept'],
+  EF04MA03: ['AdditionConcept', 'SubtractionConcept', 'EarlyProblemSolvingConcept'],
+  EF04MA06: ['MultiplicationConcept'],
+  EF04MA07: ['DivisionConcept'],
+  EF04MA08: ['CombinatoricsConcept'],
+  EF04MA09: ['FractionConcept'],
+  EF04MA10: ['DecimalNumberConcept', 'MoneyConcept'],
+  EF04MA11: ['SequencePatternConcept', 'MultiplicationConcept'],
+  EF04MA12: ['SequencePatternConcept', 'DivisionConcept'],
+  EF04MA14: ['EqualityConcept'],
+  EF04MA15: ['EqualityConcept'],
+  EF04MA17: ['SpatialFigureConcept'],
+  EF04MA18: ['AngleConcept'],
+  EF04MA19: ['SymmetryConcept'],
+  EF04MA20: ['MeasurementConcept'],
+  EF04MA21: ['AreaPerimeterConcept'],
+  EF04MA22: ['TimeMeasurementConcept'],
+  EF04MA23: ['MeasurementConcept'],
+  EF04MA25: ['MoneyConcept', 'SubtractionConcept'],
+  EF04MA27: ['DataInterpretationConcept'],
+  EF05MA01: ['PlaceValueConcept', 'ComparisonConcept'],
+  EF05MA02: ['DecimalNumberConcept'],
+  EF05MA03: ['FractionConcept', 'DivisionConcept'],
+  EF05MA04: ['FractionConcept'],
+  EF05MA05: ['FractionConcept', 'DecimalNumberConcept', 'ComparisonConcept'],
+  EF05MA06: ['PercentageConcept'],
+  EF05MA07: ['AdditionConcept', 'SubtractionConcept', 'DecimalNumberConcept'],
+  EF05MA08: ['MultiplicationConcept', 'DivisionConcept', 'DecimalNumberConcept'],
+  EF05MA09: ['CombinatoricsConcept'],
+  EF05MA10: ['EqualityConcept'],
+  EF05MA11: ['EqualityConcept'],
+  EF05MA12: ['ProportionalityConcept'],
+  EF05MA13: ['ProportionalityConcept'],
+  EF05MA15: ['CoordinateLocationConcept'],
+  EF05MA16: ['SpatialFigureConcept'],
+  EF05MA17: ['PolygonConcept', 'AngleConcept'],
+  EF05MA19: ['MeasurementConcept'],
+  EF05MA20: ['AreaPerimeterConcept'],
+  EF05MA24: ['DataInterpretationConcept'],
 };
 
 const NEEDS_REVIEW_CODES = new Set(['EF01MA03', 'EF01MA07']);
-const PARTIAL_CODES = new Set(['EF01MA01', 'EF01MA06', 'EF01MA14']);
+const PARTIAL_CODES = new Set(['EF01MA01', 'EF01MA06', 'EF01MA14',
+  ...Object.keys(BNCC_CONCEPT_MAPPINGS).filter((code) => !code.startsWith('EF01'))]);
 
 function normalizeActivityType(source: ActivitySemanticSource): SemanticActivityType {
   const type = String(source.type ?? '');
