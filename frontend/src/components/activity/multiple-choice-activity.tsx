@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import type { Activity, SensoryProfile } from "@/types";
 import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
 import { useTitiaSpeech } from "@/hooks/use-titia-speech";
+import { pictogramRegistry } from "@/lib/pictograms";
 
 interface Props {
   activity: Activity;
@@ -12,6 +13,12 @@ interface Props {
 }
 
 const SHAPE_SYMBOLS = /[○◯⭕●⬜□△▲🔺]/g;
+// Some seeds list pictogram concept IDs (e.g. "arasaac.17333") in
+// content.items; they used to be printed as raw text. Only strings that look
+// like a concept ID AND exist in the registry are drawn as pictograms, so
+// numbers ("5") and emoji keep rendering as text exactly as before.
+const PICTOGRAM_ITEM = /^(?:arasaac\.\d+|[a-z]+\.[a-z0-9_]+)$/;
+export const isPictogramItem = (item: string) => PICTOGRAM_ITEM.test(item) && pictogramRegistry.get(item) !== null;
 
 export function MultipleChoiceActivity({ activity, onAnswer, sensoryProfile }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
@@ -69,7 +76,9 @@ export function MultipleChoiceActivity({ activity, onAnswer, sensoryProfile }: P
           </div>)}</div>}
       {displayItems.length > 0 && (
         <div className="mb-4 flex flex-wrap justify-center gap-2 rounded-2xl border-2 border-yellow-200 bg-yellow-50 p-3">
-          {displayItems.map((item, index) => <span key={index} className="select-none text-4xl">{item}</span>)}
+          {displayItems.map((item, index) => isPictogramItem(item)
+            ? <ArasaacPictogram key={index} conceptId={item} showLabel={false} imageClassName="h-11 w-11" />
+            : <span key={index} className="select-none text-4xl">{item}</span>)}
         </div>
       )}
       {activity.content?.imageUrl && (
