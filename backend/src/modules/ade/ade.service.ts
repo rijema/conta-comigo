@@ -19,6 +19,12 @@ export interface AdeInput {
   recentAttempts: ActivityAttempt[];
   sessionId?: string;
   targetSkillCode?: string;
+  /**
+   * 'progression' when the target skill was suggested by curricular
+   * progression (school year + performance). Such a target is not an explicit
+   * choice, so review/explore strategies stay available.
+   */
+  targetSkillSource?: 'progression';
   recentSkips?: number;
   /** Island the child chose on the map; recommendations stay inside it. */
   focusIslandId?: string;
@@ -170,7 +176,8 @@ export class AdeService {
         weaknesses,
         recentAccuracy,
         currentMastery,
-        targetSkillExplicit: Boolean(input.targetSkillCode),
+        targetSkillExplicit: Boolean(input.targetSkillCode) && input.targetSkillSource !== 'progression',
+        ...(input.targetSkillSource ? { targetSkillSource: input.targetSkillSource } : {}),
         recentSkips: input.recentSkips ?? 0,
         supportLevel: profile.asdSupportLevel,
         shouldReduceStimulation: ruleResult.shouldReduceStimulation,

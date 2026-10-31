@@ -36,6 +36,16 @@ import { CycleManagementService } from './services/cycle-management.service';
 import { StudentCycleTracking } from './entities/student-cycle-tracking.entity';
 import { CycleContextDto } from './dto/cycle-context.dto';
 import { CycleInitializationService } from './services/cycle-initialization.service';
+import {
+  ProgressionAttempt,
+  applyYearWindow,
+  bnccYear,
+  chooseProgressionSkill,
+  demonstratedYear,
+  performanceBand,
+  progressionEnabled,
+  yearWindow,
+} from './services/learning-progression';
 
 interface ActivitySelectionResult {
   activity: Activity;
@@ -301,9 +311,16 @@ export class ActivitiesService {
     // 3. Determine target skill based on cycle context
     // If in active cycle, skill_focus is FORCED (not overridable)
     // If not in cycle, use provided skill or pick preferred skill
-    const targetSkill = cycleContext?.isActive
+    // Priority: active cycle > explicit request > professional's prioritized
+    // skills > curricular progression (school year + performance) > ADE default.
+    const attemptsForSkill = await this.getRecentAttempts(userId, 20);
+    const explicitOrPreferred = cycleContext?.isActive
       ? cycleContext.skillFocus
-      : (context?.targetSkillCode ?? this.pickPreferredSkill(profile?.uiPreferences, await this.getRecentAttempts(userId, 20)));
+      : (context?.targetSkillCode ?? this.pickPreferredSkill(profile?.uiPreferences, attemptsForSkill));
+    const progressionSkill = explicitOrPreferred
+      ? undefined
+      : await this.progressionTargetSkill(userId, profile, attemptsForSkill, context?.focusIslandId);
+    const targetSkill = explicitOrPreferred ?? progressionSkill;
 
     // 4. Call ADE to decide (with cycle context)
     let adeDecision: any;
@@ -315,6 +332,7 @@ export class ActivitiesService {
         recentAttempts,
         sessionId: context?.sessionId,
         targetSkillCode: targetSkill,
+        ...(progressionSkill ? { targetSkillSource: 'progression' as const } : {}),
         cycleContext: cycleContext ? {
           cycleNumber: cycleContext.cycleNumber,
           islandId: cycleContext.islandId,
@@ -636,13 +654,18 @@ export class ActivitiesService {
         setTimeout(() => reject(new Error('ADE timeout')), 3000),
       );
       const recentAttempts = await this.getRecentAttempts(userId, 20);
+      const preferredSkill = this.pickPreferredSkill(profile?.uiPreferences, recentAttempts);
+      const progressionSkill = preferredSkill
+        ? undefined
+        : await this.progressionTargetSkill(userId, profile, recentAttempts, dto.focusIslandId);
       adeDecision = await Promise.race([
         this.adeService.decide({
           userId,
           profile,
           recentAttempts,
           sessionId: dto.sessionId,
-          targetSkillCode: this.pickPreferredSkill(profile?.uiPreferences, recentAttempts),
+          targetSkillCode: preferredSkill ?? progressionSkill,
+          ...(progressionSkill ? { targetSkillSource: 'progression' as const } : {}),
           recentSkips: await this.recentSkipCount(userId),
           focusIslandId: dto.focusIslandId,
         }),
@@ -1400,6 +1423,7 @@ export class ActivitiesService {
     const eligibleActivities = this.excludeEverCorrect(skipPolicyActivities, everCorrectIds);
 
     // [PROPOSTA CONTA COMIGO] Filter by recommended island first if available
+    const progressionWindow = this.progressionYearWindow(profile, recentAttempts, strategy.mode);
     let islandCandidates = eligibleActivities;
     if (adeDecision.recommendedIslandId) {
       // Get activities mapped to the recommended island
@@ -1414,6 +1438,8 @@ export class ActivitiesService {
         islandCandidates = islandActivities;
       }
     }
+    // Keep exercises within the child's school-year window (safety valve inside).
+    if (progressionWindow) islandCandidates = applyYearWindow(islandCandidates, progressionWindow);
     
     const sameSkill = islandCandidates.filter((activity) =>
       activity.bnccSkills?.includes(adeDecision.recommendedBnccSkill));
@@ -1464,7 +1490,14 @@ export class ActivitiesService {
     });
     const semanticResult = this.ontologyService.getValidActivityCandidates(facts);
     const validIds = new Set(semanticResult.validCandidateIds);
-    const formallyValid = eligibleActivities.filter((activity) => validIds.has(activity.id));
+    const allFormallyValid = eligibleActivities.filter((activity) => validIds.has(activity.id));
+    // The formal path used to ignore the island the child opened and the
+    // school-year window; keep both when they still leave candidates.
+    const islandIds = new Set(islandCandidates.map((activity) => activity.id));
+    const scopedFormallyValid = progressionWindow
+      ? allFormallyValid.filter((activity) => islandIds.has(activity.id))
+      : allFormallyValid;
+    const formallyValid = scopedFormallyValid.length ? scopedFormallyValid : allFormallyValid;
 
     if (semanticResult.trace.fallbackUsed) {
       const candidates = this.cooldown(this.preferExperienceCandidates(legacyCandidates.length > 0 ? legacyCandidates : skillCandidates, preferences), activities, recentIds);
@@ -1577,8 +1610,13 @@ export class ActivitiesService {
       strategy.evidence.push(repeatedErrors
         ? `${reinforceErrors}_errors_in_recent_${strategyWindow}_attempts`
         : `${reinforceSkips}_recent_skips`);
-      const prerequisite = relations.find((relation) => relation.relation === 'prerequisiteSkill' &&
+      const prerequisites = relations.filter((relation) => relation.relation === 'prerequisiteSkill' &&
         activities.some((activity) => activity.bnccSkills?.includes(relation.skillCode)));
+      // Review the closest prerequisite (highest school year), not the oldest one.
+      const prerequisite = progressionEnabled()
+        ? [...prerequisites].sort((left, right) => (right.grade ?? 0) - (left.grade ?? 0) ||
+          left.skillCode.localeCompare(right.skillCode))[0]
+        : prerequisites[0];
       if (prerequisite && !decision.inputSnapshot?.targetSkillExplicit) {
         strategy.mode = 'review';
         strategy.relation = prerequisite;
@@ -1590,10 +1628,17 @@ export class ActivitiesService {
         attempt.isCorrect && !attempt.hintsUsed &&
         Number(attempt.timeSpentSeconds) > 0 && Number(attempt.timeSpentSeconds) <= slowThreshold) &&
       new Set(recent.slice(0, exploreSuccesses).map((attempt) => attempt.activityId)).size === exploreSuccesses) {
-      const related = relations.find((relation) => relation.relation === 'relatedSkill' &&
+      const currentGrade = bnccYear(originalSkill);
+      // Exploring after stable success must not move to an earlier school year.
+      const explorable = relations.filter((relation) => relation.relation === 'relatedSkill' &&
         activities.some((activity) => activity.bnccSkills?.includes(relation.skillCode)) &&
         !recentAttempts.slice(0, 5).some((attempt) =>
-          attempt.activity?.bnccSkills?.includes(relation.skillCode)));
+          attempt.activity?.bnccSkills?.includes(relation.skillCode)) &&
+        (!progressionEnabled() || currentGrade === null || relation.grade == null || relation.grade >= currentGrade));
+      const related = progressionEnabled()
+        ? [...explorable].sort((left, right) => (left.grade ?? 0) - (right.grade ?? 0) ||
+          left.skillCode.localeCompare(right.skillCode))[0]
+        : explorable[0];
       if (related) {
         strategy.mode = 'explore';
         strategy.relation = related;
@@ -1773,6 +1818,87 @@ export class ActivitiesService {
       if (manual.length > 0) candidates = manual;
     }
     return candidates;
+  }
+
+  private toProgressionAttempts(attempts: ActivityAttempt[]): ProgressionAttempt[] {
+    return attempts.map((attempt) => ({
+      skill: attempt.activity?.bnccSkills?.[0] ?? null,
+      isCorrect: Boolean(attempt.isCorrect),
+      hintsUsed: attempt.hintsUsed,
+    }));
+  }
+
+  /**
+   * School-year window for candidate exercises (see services/learning-progression.ts).
+   * Review of a prerequisite always allows earlier years.
+   */
+  private progressionYearWindow(profile: any, recentAttempts: ActivityAttempt[], strategyMode?: string) {
+    if (!progressionEnabled()) return null;
+    const attempts = this.toProgressionAttempts(recentAttempts);
+    const window = this.experimentalCount('ADE_STRATEGY_RECENT_WINDOW', 5);
+    const band = strategyMode === 'review' ? 'struggling' : performanceBand(attempts, this.progressionParameters());
+    return yearWindow(profile?.schoolYear, band, demonstratedYear(attempts, window));
+  }
+
+  private progressionParameters() {
+    return {
+      window: this.experimentalCount('ADE_STRATEGY_RECENT_WINDOW', 5),
+      strongAccuracy: this.experimentalNumber('ADE_EXPLORE_MASTERY_THRESHOLD', 0.8),
+      strugglingErrors: this.experimentalCount('ADE_REINFORCE_MIN_ERRORS', 2),
+      advanceStreak: this.experimentalCount('ADE_EXPLORE_MIN_INDEPENDENT_SUCCESSES', 3),
+      masteryThreshold: this.experimentalNumber('ADE_EXPLORE_MASTERY_THRESHOLD', 0.8),
+    };
+  }
+
+  /**
+   * Target skill chosen by curricular progression when nobody (cycle, request
+   * or professional preference) fixed one. Never throws: on any problem the
+   * ADE keeps its previous default (the skill of the last attempt).
+   */
+  private async progressionTargetSkill(
+    userId: string,
+    profile: any,
+    recentAttempts: ActivityAttempt[],
+    focusIslandId?: string,
+  ): Promise<string | undefined> {
+    if (!progressionEnabled()) return undefined;
+    try {
+      let scope = await this.activityRepo.find({ where: { isActive: true } });
+      if (focusIslandId) {
+        const mappings = await this.islandActivityMappingRepo.find({ where: { islandId: focusIslandId, isActive: true } });
+        const ids = new Set(mappings.map((mapping) => mapping.activityId));
+        const inIsland = scope.filter((activity) => ids.has(activity.id));
+        if (inIsland.length) scope = inIsland;
+      }
+      const attempts = this.toProgressionAttempts(recentAttempts);
+      const parameters = this.progressionParameters();
+      const window = yearWindow(profile?.schoolYear, performanceBand(attempts, parameters),
+        demonstratedYear(attempts, parameters.window));
+      const currentSkill = attempts[0]?.skill ?? null;
+      const related = new Set(currentSkill && typeof this.ontologyService?.getSkillRelations === 'function'
+        ? this.ontologyService.getSkillRelations(currentSkill).map((relation) => relation.skillCode)
+        : []);
+      const codes = [...new Set(scope.map((activity) => activity.bnccSkills?.[0])
+        .filter((code): code is string => bnccYear(code) !== null))];
+      const masteryBySkill = typeof this.knowledgeTracingService.getMasteryMapBySkillCode === 'function'
+        ? await this.knowledgeTracingService.getMasteryMapBySkillCode(userId).catch(() => ({}))
+        : {};
+      const choice = chooseProgressionSkill({
+        currentSkill,
+        available: codes.map((code) => ({ code, sharesConceptWithCurrent: related.has(code) })),
+        window,
+        attempts,
+        masteryBySkill,
+        parameters,
+      });
+      if (choice) {
+        this.logger.debug(`Progression skill for ${userId}: ${choice.skill} (${choice.reason}, years ${window.minYear}-${window.maxYear})`);
+      }
+      return choice?.skill;
+    } catch (error: any) {
+      this.logger.warn(`Progression skill selection skipped: ${error?.message ?? error}`);
+      return undefined;
+    }
   }
 
   private pickPreferredSkill(preferences: ChildProfile['uiPreferences'] | null | undefined, recentAttempts: ActivityAttempt[]): string | undefined {
