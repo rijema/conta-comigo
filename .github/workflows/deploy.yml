@@ -57,7 +57,7 @@ jobs:
       - name: Deploy Backend to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: npx -y @railway/cli@latest up --service new-backend --detach
+        run: npx -y @railway/cli@latest up --service backbone-ontology-backend --detach
 
   deploy-frontend:
     needs: [deploy-backend]
