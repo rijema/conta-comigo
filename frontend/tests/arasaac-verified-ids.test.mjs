@@ -59,3 +59,23 @@ test("quiz items that are pictogram IDs are drawn, not printed as text", () => {
   assert.match(multipleChoice, /isPictogramItem\(item\)/);
   assert.match(multipleChoice, /pictogramRegistry\.get\(item\) !== null/);
 });
+
+test("pictograms whose image shows something else are not used (6198 X-ray, 16165 person at door)", () => {
+  for (const wrongId of [6198, 16165]) {
+    assert.equal(registeredImageIds().includes(wrongId), false, `ARASAAC ${wrongId} shows an unrelated image`);
+  }
+});
+
+test("the island map uses checked pictograms, no BNCC codes, and named start buttons", () => {
+  const menu = read("../src/app/[locale]/learn/menu/page.tsx");
+  const themeBlock = menu.slice(menu.indexOf("const themeMap"), menu.indexOf("return themeMap"));
+  const concepts = [...themeBlock.matchAll(/"((?:library|object|mathematics)\.[a-z_]+)"/g)].map((m) => m[1]);
+  assert.ok(concepts.length >= 12);
+  for (const conceptId of concepts) {
+    assert.equal(typeof conceptImageId(conceptId), "number", `${conceptId} needs a checked image`);
+  }
+  assert.doesNotMatch(menu, /arasaacPictogramIds\?\.\[0\]/, "old island IDs from the database (404) must not be shown");
+  assert.doesNotMatch(menu, /`BNCC \$\{group\.island\.bnccSkills/);
+  assert.match(menu, /aria-label=\{`Começar: \$\{act\.title\}`\}/);
+  assert.match(menu, /from-orange-700/);
+});
