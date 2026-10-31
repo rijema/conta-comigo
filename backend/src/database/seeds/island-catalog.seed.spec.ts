@@ -1,4 +1,7 @@
 import { expandedActivityPools } from './activity-pools.seed';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
+import { withOfficialText } from './bncc-skills.seed';
 import {
   ISLAND_CATALOG,
   classifyActivityIsland,
@@ -57,5 +60,24 @@ describe('island catalog', () => {
     const pomar = plan.filter((p) => p.islandId === 'island-body')
       .sort((a, b) => a.sequenceInIsland - b.sequenceInIsland);
     expect(pomar[pomar.length - 1].activityId).toBe('year3');
+  });
+
+  it('stores island pictograms that have a checked ARASAAC image in the frontend registry', () => {
+    const registry = readFileSync(resolve(__dirname, '../../../../frontend/src/lib/pictograms.ts'), 'utf8');
+    for (const island of ISLAND_CATALOG) {
+      expect(island.pictograms.length).toBeGreaterThan(0);
+      for (const conceptId of island.pictograms) {
+        const escaped = conceptId.replace(/\./g, '\\.');
+        expect(registry).toMatch(new RegExp(`definition\\(\\s*['"]${escaped}['"][^\\n]*,\\s*\\d+\\)`));
+      }
+    }
+  });
+
+  it('places EF01MA15/16 with measures, as in the official BNCC thematic unit', () => {
+    const beach = ISLAND_CATALOG.find((island) => island.islandId === 'island-beach')!;
+    expect(beach.bnccSkills).toEqual(expect.arrayContaining(['EF01MA15', 'EF01MA16']));
+    const corrected = withOfficialText({ code: 'EF01MA15', year: 1, thematicUnit: 'Geometria', description: 'Classificar objetos' });
+    expect(corrected.thematicUnit).toBe('Grandezas e medidas');
+    expect(corrected.description).toMatch(/^Comparar comprimentos, capacidades ou massas/);
   });
 });

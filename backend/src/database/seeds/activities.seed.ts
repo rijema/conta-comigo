@@ -30,7 +30,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
         instructions: 'How many stars do you see?',
         howToPlayPt: 'Veja as estrelas. Conte uma, duas, três. Escolha o número correto.',
         howToPlay: 'Look at the stars. Count one, two, three. Choose the correct number.',
-        pictogramConceptIds: ['arasaac.17331'],
+        pictogramConceptIds: ['library.star'],
         options: [
           { id: 'a', text: '2', isCorrect: false },
           { id: 'b', text: '3', isCorrect: true },
@@ -177,7 +177,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
         instructions: 'Add blue balls + red balls = ?',
         howToPlayPt: 'Veja as bolas azuis. Conte-as. Depois veja as bolas vermelhas. Conte-as. Junte os dois grupos e escolha o total.',
         howToPlay: 'Look at the blue balls. Count them. Then look at the red balls. Count them. Add both groups and choose the total.',
-        pictogramConceptIds: ['arasaac.16590', 'arasaac.16591'],
+        pictogramConceptIds: ['library.ball'],
         options: [
           { id: 'a', text: '4', isCorrect: false },
           { id: 'b', text: '5', isCorrect: true },
@@ -490,7 +490,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
         instructions: 'What is this shape?',
         howToPlayPt: 'Veja a forma. Tem 4 lados iguais. É um quadrado. Escolha o nome certo.',
         howToPlay: 'Look at the shape. It has 4 equal sides. It is a square. Choose the correct name.',
-        pictogramConceptIds: ['arasaac.17331'],
+        pictogramConceptIds: ['library.square'],
         options: [
           { id: 'a', text: 'Círculo', isCorrect: false },
           { id: 'b', text: 'Quadrado', isCorrect: true },
@@ -542,7 +542,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
         example: 'Se você colocar 3 blocos no Grupo 1, sobram 4 para o Grupo 2. 3 + 4 = 7. Ou 2 no Grupo 1 e 5 no Grupo 2: 2 + 5 = 7. Qualquer divisão que use todos os blocos está certa!',
         spokenHint: 'Arraste os blocos amarelos para o Grupo 1 ou para o Grupo 2, até não sobrar nenhum.',
         timeLimit: 45,
-        pictogramConceptIds: ['arasaac.13186', 'arasaac.26968', 'arasaac.14098'],
+        pictogramConceptIds: ['library.cube'],
         items: [
           { id: 'block1', color: '#FFD700', size: 'medium' },
           { id: 'block2', color: '#FFD700', size: 'medium' },
@@ -834,7 +834,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       example: 'A barra laranja tem 5 blocos e a barra ciano tem 3 blocos. Juntas: 5 + 3 = 8! Ou use só a barra roxa sozinha, que já tem 8.',
       spokenHint: 'Conte os quadradinhos de cada barra. Arraste barras até a soma chegar em 8.',
       timeLimit: 60,
-      pictogramConceptIds: ['arasaac.13186', 'arasaac.26968', 'arasaac.14098'],
+      pictogramConceptIds: ['library.cube'],
       bars: [
         { id: 'bar1', color: '#FF6B6B', value: 1, size: 'xsmall' },
         { id: 'bar2', color: '#4ECDC4', value: 2, size: 'small' },
@@ -888,7 +888,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       example: 'Duas barras roxas de dezena (10 + 10 = 20) mais a barra azul de 3 unidades: 20 + 3 = 23! Ou use a barra de 8 e a de 5 junto com uma dezena: 10 + 8 + 5 = 23.',
       spokenHint: 'Conte os quadradinhos de cada barra: as roxas sempre têm 10. Arraste barras até a soma chegar em 23.',
       timeLimit: 70,
-      pictogramConceptIds: ['arasaac.13186', 'arasaac.26968', 'arasaac.14098'],
+      pictogramConceptIds: ['library.cube'],
       bars: [
         { id: 'bar1', color: '#FF6B6B', value: 1 },
         { id: 'bar2', color: '#4ECDC4', value: 2 },
@@ -941,7 +941,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       instructions: 'Which of these objects has the shape of a cube?',
       howToPlayPt: 'Um cubo tem 6 faces quadradas. Um dado é um cubo. Uma caixa de presente pode ser um cubo. Escolha qual objeto é um cubo.',
       howToPlay: 'A cube has 6 square faces. A die is a cube. A gift box can be a cube. Choose which object is a cube.',
-      pictogramConceptIds: ['arasaac.23191'],
+      pictogramConceptIds: ['library.cube'],
       options: [
         { id: 'a', text: 'Bola', isCorrect: false },
         { id: 'b', text: 'Caixa de presente', isCorrect: true },
@@ -971,7 +971,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       instructions: 'How many wheels do 3 cars have? Each car has 4 wheels.',
       howToPlayPt: 'Veja a história: 3 carros, cada um com 4 rodas. 3 × 4 = 12 rodas. Conte os grupos de 4.',
       howToPlay: 'Look at the story: 3 cars, each with 4 wheels. 3 × 4 = 12 wheels. Count the groups of 4.',
-      pictogramConceptIds: ['arasaac.16590'],
+      pictogramConceptIds: ['library.car', 'library.wheel'],
       items: [
         { id: 'car1', label: 'Carro 1: 4 rodas', count: 4 },
         { id: 'car2', label: 'Carro 2: 4 rodas', count: 4 },
@@ -1006,7 +1006,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       instructions: 'What is the name of this 3D shape?',
       howToPlayPt: 'Veja a forma: tem uma ponta no topo e uma base redonda. É um cone! Escolha o nome certo.',
       howToPlay: 'Look at the shape: it has a point at the top and a round base. It is a cone! Choose the correct name.',
-      pictogramConceptIds: ['arasaac.23191'],
+      pictogramConceptIds: ['library.cone'],
       options: [
         { id: 'a', text: 'Cilindro', isCorrect: false },
         { id: 'b', text: 'Cone', isCorrect: true },
@@ -1102,7 +1102,7 @@ export async function ActivitiesSeed(dataSource: DataSource) {
       instructions: 'Which shape has exactly 4 sides?',
       howToPlayPt: 'Conte os lados: o círculo não tem lados. O triângulo tem 3 lados. O quadrado tem 4 lados! Escolha a forma com 4 lados.',
       howToPlay: 'Count the sides: the circle has no sides. The triangle has 3 sides. The square has 4 sides! Choose the shape with 4 sides.',
-      pictogramConceptIds: ['arasaac.17331'],
+      pictogramConceptIds: ['library.square'],
       options: [
         { id: 'a', text: 'Círculo', isCorrect: false },
         { id: 'b', text: 'Quadrado', isCorrect: true },
@@ -1403,6 +1403,14 @@ export async function ActivitiesSeed(dataSource: DataSource) {
           targetYearMin: activityContent.targetYearMin,
           targetYearMax: activityContent.targetYearMax,
         };
+        await repo.save(existing);
+      }
+      // Pictogram corrections (out/2026): several exercises pointed to ARASAAC
+      // IDs that do not exist (e.g. 17331 for both "estrelas" and "quadrado").
+      // Only `pictogramConceptIds` is synced; nothing else in the row changes.
+      if (Array.isArray(activityContent.pictogramConceptIds) &&
+        JSON.stringify(existing.content?.pictogramConceptIds) !== JSON.stringify(activityContent.pictogramConceptIds)) {
+        existing.content = { ...existing.content, pictogramConceptIds: activityContent.pictogramConceptIds };
         await repo.save(existing);
       }
       // Additive-only backfill of `content.semantic` (notably `structureId`).

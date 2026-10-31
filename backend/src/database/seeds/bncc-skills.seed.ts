@@ -10,6 +10,13 @@ const OFFICIAL_SKILLS = officialBncc.skills as Record<string, OfficialSkill>;
  * is not yet listed above. Rows that already exist are never changed
  * (ON CONFLICT DO NOTHING), so this is additive only.
  */
+export function withOfficialText<T extends { code: string; year: number; thematicUnit: string; description: string }>(skill: T): T {
+  const official = OFFICIAL_SKILLS[skill.code];
+  return official
+    ? { ...skill, year: official.year, thematicUnit: official.thematicUnit, description: official.description }
+    : skill;
+}
+
 export function progressionSkillRows(existingCodes: Set<string>) {
   const codes = [...new Set(CURRICULUM_PROGRESSION_SPECS.map((spec) => spec.skill))]
     .filter((code) => !existingCodes.has(code))
@@ -76,11 +83,18 @@ export const BnccSkillsSeed = async (dataSource: DataSource): Promise<void> => {
 
   skills.push(...progressionSkillRows(new Set(skills.map((skill) => skill.code))));
 
-  for (const skill of skills) {
+  // The descriptions above were hand-written summaries and some were wrong
+  // (e.g. EF01MA15 is "Comparar comprimentos, capacidades ou massas...", not
+  // a classification skill). The official MEC text and thematic unit always
+  // win; knowledge_object keeps the short summary used in dashboards.
+  for (const skill of skills.map(withOfficialText)) {
     await dataSource.query(
       `INSERT INTO bncc_skills (code, year, thematic_unit, knowledge_object, description)
        VALUES ($1, $2, $3, $4, $5)
-       ON CONFLICT (code) DO NOTHING`,
+       ON CONFLICT (code) DO UPDATE SET
+         year = EXCLUDED.year,
+         thematic_unit = EXCLUDED.thematic_unit,
+         description = EXCLUDED.description`,
       [skill.code, skill.year, skill.thematicUnit, skill.knowledgeObject, skill.description],
     );
   }
