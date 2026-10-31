@@ -29,6 +29,7 @@ interface Props {
 interface DragItem {
   id: string;
   label: string;
+  spokenText?: string;
   emoji?: string;
   pictogramConceptId?: string;
   pictogramConceptIds?: string[];
@@ -178,15 +179,16 @@ export function DragDropActivity({ activity, onAnswer }: Props) {
   const speech = useTitiaSpeech({ activityId: activity.id });
 
   const question = activity.content?.question || activity.content?.instructionsPt || "";
+  const spokenQuestion = activity.content?.spokenQuestion || question;
 
   useEffect(() => {
-    if (speech.settings.voiceEnabled && !spokenRef.current && question) {
+    if (speech.settings.voiceEnabled && !spokenRef.current && spokenQuestion) {
       spokenRef.current = true;
       speech.speakInstruction({
-        steps: [question],
+        steps: [spokenQuestion],
       });
     }
-  }, [speech.settings.voiceEnabled, question, speech]);
+  }, [speech.settings.voiceEnabled, spokenQuestion, speech]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -239,7 +241,10 @@ export function DragDropActivity({ activity, onAnswer }: Props) {
   };
 
   const handleSelectItem = (id: string) => {
-    if (!submitted) setSelected((previous) => previous === id ? null : id);
+    if (submitted) return;
+    const item = getItem(id);
+    if (selected !== id && item) speech.speakPictogram(item.spokenText ?? item.label, `item.${id}`);
+    setSelected((previous) => previous === id ? null : id);
   };
 
   const handleTapSlot = (slotIndex: number) => {

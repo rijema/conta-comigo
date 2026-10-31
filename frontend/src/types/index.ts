@@ -20,6 +20,8 @@ export interface ActivityOption {
   isCorrect: boolean;
   value?: unknown;
   pictogramConceptId?: string;
+  /** What TitiA says for this option when it differs from the text ("1/4" -> "um quarto"). */
+  spokenText?: string;
 }
 
 export interface ActivityContent {
@@ -31,6 +33,8 @@ export interface ActivityContent {
   correctAnswer?: any;
   example?: string;
   spokenIntroduction?: string;
+  /** Question as TitiA reads it, without symbols that speech engines misread. */
+  spokenQuestion?: string;
   spokenSteps?: string[];
   spokenHint?: string;
   spokenSuccessFeedback?: string;

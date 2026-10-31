@@ -32,18 +32,21 @@ export function MultipleChoiceActivity({ activity, onAnswer, sensoryProfile }: P
   const targetShape = isShapeActivity ? question.match(SHAPE_SYMBOLS)?.[0] : null;
   const visibleQuestion = isShapeActivity ? question.replace(SHAPE_SYMBOLS, "").trim() : question;
 
+  // Authored speech avoids symbols that voices misread ("1/4", "R$", "°C").
+  const spokenQuestion = activity.content?.spokenQuestion || visibleQuestion;
+
   useEffect(() => {
-    if (speech.settings.voiceEnabled && !spokenRef.current && visibleQuestion) {
+    if (speech.settings.voiceEnabled && !spokenRef.current && spokenQuestion) {
       spokenRef.current = true;
       speech.speakInstruction({
-        steps: [visibleQuestion],
+        steps: [spokenQuestion],
       });
     }
-  }, [speech.settings.voiceEnabled, visibleQuestion, speech]);
+  }, [speech.settings.voiceEnabled, spokenQuestion, speech]);
 
   const select = (option: any) => {
     setSelected(option.id);
-    if (option.text) speech.speakPictogram(option.text, `option.${option.id}`);
+    if (option.text) speech.speakPictogram(option.spokenText ?? option.text, `option.${option.id}`);
   };
 
   const handleSubmit = () => {
