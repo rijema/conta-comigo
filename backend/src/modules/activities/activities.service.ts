@@ -212,13 +212,15 @@ export class ActivitiesService {
     } else {
       // Auto-detect active cycle for this student/island
       try {
-        const activeCycle = await this.cycleTrackingRepo.findOne({
-          where: {
-            student_id: userId,
-            status: 'active',
-          },
-          order: { updated_at: 'DESC' },
-        });
+        const activeCycle = progressionEnabled() && context?.focusIslandId
+          ? await this.activeCycleForIsland(userId, context.focusIslandId, profile)
+          : await this.cycleTrackingRepo.findOne({
+            where: {
+              student_id: userId,
+              status: 'active',
+            },
+            order: { updated_at: 'DESC' },
+          });
         if (activeCycle) {
           cycleContext = {
             cycleNumber: activeCycle.cycle_number,
@@ -1818,6 +1820,27 @@ export class ActivitiesService {
       if (manual.length > 0) candidates = manual;
     }
     return candidates;
+  }
+
+  /**
+   * Active cycle inside the island the child opened. Previously any active
+   * cycle (even from another island) forced its skill; cycles are created in
+   * BNCC-code order, so that was usually a 1º ano skill. Prefers the first
+   * cycle whose skill is inside the child's school-year window; returns null
+   * when the island has no active cycle, so progression chooses the skill.
+   */
+  private async activeCycleForIsland(userId: string, islandId: string, profile: any) {
+    const cycles = await this.cycleTrackingRepo.find({
+      where: { student_id: userId, island_id: islandId, status: 'active' },
+      order: { cycle_number: 'ASC' },
+    });
+    if (!cycles.length) return null;
+    const window = this.progressionYearWindow(profile, await this.getRecentAttempts(userId, 20));
+    const inWindow = window && cycles.find((cycle) => {
+      const year = bnccYear(cycle.skill_focus);
+      return year !== null && year >= window.minYear && year <= window.maxYear;
+    });
+    return inWindow || cycles[0];
   }
 
   private toProgressionAttempts(attempts: ActivityAttempt[]): ProgressionAttempt[] {
