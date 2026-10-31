@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { api } from "@/lib/api-client";
 import { authService } from "@/lib/auth";
 import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
+import { pictogramRegistry } from "@/lib/pictograms";
 import { ArasaacLibraryDialog } from "@/components/arasaac/arasaac-library-dialog";
 import { ProfessionalAttendanceBar } from "@/components/educator/professional-attendance-bar";
 import { SESSION_STORAGE_KEY } from "@/hooks/use-session";
@@ -26,24 +27,53 @@ const ISLAND_THEMES = [
 
 // Map island themes by islandId
 const getIslandTheme = (islandId: string, index: number) => {
-  const themeMap: Record<string, typeof ISLAND_THEMES[0]> = {
-    'island-numbers': { grad: "from-yellow-300 to-orange-300",  headerGrad: "from-orange-400 to-amber-400",  border: "border-orange-300",  pictogramId: "library.star", label: "Ilha das Estrelinhas", sub: "Vamos contar!" },
-    'island-beach':   { grad: "from-blue-300 to-cyan-300",      headerGrad: "from-blue-500 to-cyan-400",     border: "border-blue-300",    pictogramId: "mathematics.more", label: "Ilha dos Gigantes e Formiguinhas", sub: "Quem tem mais?" },
-    'island-body':    { grad: "from-green-300 to-emerald-300",  headerGrad: "from-green-500 to-emerald-400", border: "border-green-300",   pictogramId: "arasaac.15195", label: "Ilha do Pomar", sub: "Junta tudo na cesta!" },
-    'island-home':    { grad: "from-amber-200 to-orange-200",   headerGrad: "from-amber-500 to-orange-400",  border: "border-amber-300",   pictogramId: "mathematics.subtraction", label: "Ilha dos Biscoitos", sub: "Quanto sobrou?" },
-    'island-colors':  { grad: "from-purple-300 to-fuchsia-300", headerGrad: "from-purple-500 to-pink-400",   border: "border-purple-300",  pictogramId: "arasaac.61042", label: "Ilha do Arco-Íris", sub: "Cores e padrões" },
-    'island-nature':  { grad: "from-indigo-300 to-violet-300",  headerGrad: "from-indigo-500 to-violet-400", border: "border-indigo-300",  pictogramId: "shape.triangle", label: "Ilha do Castelo das Formas", sub: "Que forma é essa?" },
+  // Header colours use the 700 shades so white text keeps >= 4.5:1 contrast
+  // (WCAG 1.4.3). Pictograms were checked on static.arasaac.org (out/2026).
+  const themeMap: Record<string, typeof ISLAND_THEMES[0] & { pictograms: string[] }> = {
+    'island-numbers': { grad: "from-yellow-300 to-orange-300",  headerGrad: "from-orange-700 to-amber-700",  border: "border-orange-300",  pictogramId: "library.star", pictograms: ["library.star", "mathematics.numbers"], label: "Ilha das Estrelinhas", sub: "Vamos contar!" },
+    'island-beach':   { grad: "from-blue-300 to-cyan-300",      headerGrad: "from-blue-700 to-cyan-700",     border: "border-blue-300",    pictogramId: "library.elephant", pictograms: ["library.elephant", "library.ant", "library.ruler"], label: "Ilha dos Gigantes e Formiguinhas", sub: "Quem tem mais?" },
+    'island-body':    { grad: "from-green-300 to-emerald-300",  headerGrad: "from-green-700 to-emerald-700", border: "border-green-300",   pictogramId: "library.tree", pictograms: ["library.tree", "object.apple", "library.strawberry"], label: "Ilha do Pomar", sub: "Junta tudo na cesta!" },
+    'island-home':    { grad: "from-amber-200 to-orange-200",   headerGrad: "from-amber-700 to-orange-700",  border: "border-amber-300",   pictogramId: "library.cookie", pictograms: ["library.cookie", "library.plate", "library.pizza"], label: "Ilha dos Biscoitos", sub: "Quanto sobrou?" },
+    'island-colors':  { grad: "from-purple-300 to-fuchsia-300", headerGrad: "from-purple-700 to-fuchsia-700", border: "border-purple-300", pictogramId: "library.rainbow", pictograms: ["library.rainbow", "mathematics.sequence"], label: "Ilha do Arco-Íris", sub: "Cores e padrões" },
+    'island-nature':  { grad: "from-indigo-300 to-violet-300",  headerGrad: "from-indigo-700 to-violet-700", border: "border-indigo-300",  pictogramId: "library.castle", pictograms: ["library.castle", "library.triangle", "library.cube"], label: "Ilha do Castelo das Formas", sub: "Que forma é essa?" },
   };
-  return themeMap[islandId] || ISLAND_THEMES[index % ISLAND_THEMES.length];
+  return themeMap[islandId] || { ...ISLAND_THEMES[index % ISLAND_THEMES.length], pictograms: [] as string[] };
 };
 
 const CARD_CONFIG: Record<string, { pictogramId: string; label: string }> = {
-  counting:        { pictogramId: "mathematics.numbers", label: "Contagem com escolha" },
+  counting:        { pictogramId: "mathematics.count", label: "Contar" },
   multiple_choice: { pictogramId: "activity.choose", label: "Escolher" },
-  quiz:            { pictogramId: "activity.look", label: "Perguntas" },
-  drag_drop:       { pictogramId: "activity.drag", label: "Arrastar" },
-  number_line:     { pictogramId: "mathematics.order", label: "Reta Numérica" },
+  quiz:            { pictogramId: "activity.choose", label: "Escolher" },
+  drag_drop:       { pictogramId: "activity.move", label: "Arrastar" },
+  number_line:     { pictogramId: "mathematics.order", label: "Reta numérica" },
+  representation_matching: { pictogramId: "activity.point", label: "Ligar e agrupar" },
+  composition_decomposition: { pictogramId: "mathematics.addition", label: "Montar números" },
+  missing_number:  { pictogramId: "mathematics.sequence", label: "Número que falta" },
+  pattern_completion: { pictogramId: "mathematics.sequence", label: "Padrões" },
+  contextual_problem_solving: { pictogramId: "activity.look", label: "Historinha" },
+  error_detection: { pictogramId: "activity.look", label: "Achar o erro" },
+  visual_puzzle:   { pictogramId: "activity.look", label: "Desafio visual" },
+  yes_no:          { pictogramId: "state.yes", label: "Sim ou não" },
 };
+const DEFAULT_CARD = { pictogramId: "library.learning_game", label: "Jogo" };
+
+/**
+ * The card shows a pictogram from the exercise itself (e.g. the cookies of a
+ * cookie problem), so each niche looks different. Only concepts with a checked
+ * ARASAAC image are used; otherwise the activity-type icon is shown.
+ */
+function exercisePictogram(act: any, fallback: string): string {
+  const content = act.content ?? {};
+  const candidates: unknown[] = [
+    ...(content.visualGroups ?? []).flatMap((group: any) => group?.pictogramConceptIds ?? []),
+    ...(content.options ?? []).map((option: any) => option?.pictogramConceptId),
+    ...(content.items ?? []).map((item: any) => (typeof item === "string" ? item : item?.pictogramConceptId)),
+    ...(content.pictogramConceptIds ?? []),
+  ];
+  const found = candidates.find((id): id is string =>
+    typeof id === "string" && pictogramRegistry.get(id)?.arasaacId != null && !id.startsWith("number."));
+  return found ?? fallback;
+}
 
 const AI_QUESTIONS = [
   "Por que aprender matemática é tão bom?",
@@ -359,18 +389,19 @@ export default function ActivityMenuPage() {
                       >
                         <div className={`bg-gradient-to-r ${theme.headerGrad} px-4 py-3 flex items-center justify-between gap-2`}>
                           <div className="flex items-center gap-2 min-w-0">
-                            <div className="w-10 h-10 rounded-2xl bg-white/25 flex items-center justify-center shadow-inner flex-shrink-0">
-                              <ArasaacPictogram 
-                                conceptId={group.island?.arasaacPictogramIds?.[0] || theme.pictogramId} 
-                                showLabel={false}
-                                imageClassName="w-8 h-8"
-                              />
+                            {/* Decorative: the island name below is the accessible label. */}
+                            <div className="flex flex-shrink-0 -space-x-2" aria-hidden="true">
+                              {(theme.pictograms.length ? theme.pictograms : [theme.pictogramId]).map((conceptId) => (
+                                <span key={conceptId} className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white shadow-md ring-2 ring-white/70">
+                                  <ArasaacPictogram conceptId={conceptId} showLabel={false} imageClassName="w-8 h-8" />
+                                </span>
+                              ))}
                             </div>
                             <div className="min-w-0">
                               <p className="font-extrabold text-white text-sm drop-shadow truncate">{group.island?.name || theme.label}</p>
-                              <p className="text-white/80 text-xs font-semibold truncate">{skillPt}</p>
-                              <p className="text-white text-xs font-extrabold">{group.island?.bnccSkills?.length ? `BNCC ${group.island.bnccSkills.join(', ')}` : 'Sem vínculo BNCC validado'}</p>
-                              <p className="text-white/65 text-xs">{group.completedCount}/{group.totalActivities}</p>
+                              <p className="text-white text-xs font-semibold truncate">{skillPt}</p>
+                              {/* BNCC codes are for professionals (dashboard), not for the child's map. */}
+                              <p className="text-white text-xs" aria-label={`${group.completedCount} de ${group.totalActivities} exercícios feitos`}>{group.completedCount}/{group.totalActivities}</p>
                             </div>
                           </div>
                           <div className="flex items-center gap-1 flex-shrink-0">
@@ -397,7 +428,8 @@ export default function ActivityMenuPage() {
                       {isOpen && !isLocked && (
                         <div className="p-2.5 space-y-2">
                           {group.activities.map((act: any) => {
-                            const cfg  = CARD_CONFIG[act.type] ?? { emoji: "🎮", label: "Jogo", mascot: "🐶" };
+                            const cfg  = CARD_CONFIG[act.type] ?? DEFAULT_CARD;
+                            const cardPictogram = exercisePictogram(act, cfg.pictogramId);
                             const isRec = act.recommended && !act.completed;
                             const isExLocked = act.locked === true;
 
@@ -425,20 +457,17 @@ export default function ActivityMenuPage() {
                                   </span>
                                 )}
                                 <div className="flex items-center gap-2">
-                                  <div className="w-11 h-11 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0 border border-gray-100">
-                                    <ArasaacPictogram 
-                                      conceptId={cfg.pictogramId} 
+                                  <div className="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0 border border-gray-100" aria-hidden="true">
+                                    <ArasaacPictogram
+                                      conceptId={cardPictogram}
                                       showLabel={false}
-                                      imageClassName="w-8 h-8"
+                                      imageClassName="w-10 h-10"
                                     />
                                   </div>
                                   <div className="flex-1 min-w-0">
                                     <p className="font-extrabold text-slate-800 text-xs leading-tight line-clamp-2">{act.title}</p>
                                     <div className="mt-1 flex flex-wrap items-center gap-1">
-                                      <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700">{cfg.label}</span>
-                                      {(act.bnccSkills ?? [group.skill]).map((code: string) => (
-                                        <span key={code} className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700">{code}</span>
-                                      ))}
+                                      <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-bold text-blue-800">{cfg.label}</span>
                                     </div>
                                   </div>
                                   {isExLocked ? (
@@ -448,6 +477,7 @@ export default function ActivityMenuPage() {
                                   ) : !act.completed ? (
                                     <button
                                       onClick={() => router.push(`/${locale}/learn?${new URLSearchParams({ activityId: act.id, islandId: group.skill }).toString()}`)}
+                                      aria-label={`Começar: ${act.title}`}
                                       className={`flex-shrink-0 min-h-11 rounded-2xl flex items-center gap-1 px-2 text-white text-sm font-bold shadow-md active:scale-95 transition-transform ${
                                         isRec ? "bg-gradient-to-br from-purple-500 to-pink-500" : "bg-gradient-to-br from-blue-400 to-blue-600"
                                       }`}

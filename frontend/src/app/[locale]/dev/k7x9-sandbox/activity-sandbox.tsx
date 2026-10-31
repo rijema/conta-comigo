@@ -63,6 +63,23 @@ export function ActivitySandbox() {
   const [error, setError] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState("all");
   const [diffFilter, setDiffFilter] = useState("all");
+  // Shareable review links, e.g. ?set=progressao&ano=4 shows only the
+  // 2º–5º ano exercises (structureId "bncc_progression.*") of the 4º ano.
+  const [setFilter, setSetFilter] = useState("all");
+  const [yearFilter, setYearFilter] = useState("all");
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("set") === "progressao") setSetFilter("progressao");
+    const year = params.get("ano");
+    if (year && /^[1-5]$/.test(year)) setYearFilter(year);
+  }, []);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (setFilter === "all") params.delete("set"); else params.set("set", setFilter);
+    if (yearFilter === "all") params.delete("ano"); else params.set("ano", yearFilter);
+    const query = params.toString();
+    window.history.replaceState(null, "", `${window.location.pathname}${query ? `?${query}` : ""}`);
+  }, [setFilter, yearFilter]);
   const [answered, setAnswered] = useState<Record<string, "correct" | "wrong">>({});
   const [showTutorial, setShowTutorial] = useState(false);
   const [showChat, setShowChat] = useState(false);
@@ -107,9 +124,15 @@ export function ActivitySandbox() {
       );
     }
     if (diffFilter !== "all") list = list.filter((a) => a.difficulty === diffFilter);
+    if (setFilter === "progressao") {
+      list = list.filter((a) => String(a.content?.semantic?.structureId ?? "").startsWith("bncc_progression."));
+    }
+    if (yearFilter !== "all") {
+      list = list.filter((a) => (a.bnccSkills?.[0]?.match(/^EF0(\d)MA/)?.[1] ?? "1") === yearFilter);
+    }
     setFiltered(list);
     setIndex(0);
-  }, [activities, typeFilter, diffFilter]);
+  }, [activities, typeFilter, diffFilter, setFilter, yearFilter]);
 
   const handleActivityUpdated = useCallback((updated: Activity) => {
     setActivityOverrides((prev) => ({ ...prev, [updated.id]: updated }));
@@ -230,6 +253,25 @@ export function ActivitySandbox() {
           {/* Filters */}
           <div className="flex items-center gap-2 flex-wrap">
             <select
+              aria-label="Conjunto de exercícios"
+              value={setFilter}
+              onChange={(e) => setSetFilter(e.target.value)}
+              className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium shadow-sm"
+            >
+              <option value="all">Todos os exercícios</option>
+              <option value="progressao">Novos: 2º ao 5º ano</option>
+            </select>
+            <select
+              aria-label="Ano escolar"
+              value={yearFilter}
+              onChange={(e) => setYearFilter(e.target.value)}
+              className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium shadow-sm"
+            >
+              <option value="all">Todos os anos</option>
+              {["1", "2", "3", "4", "5"].map((year) => <option key={year} value={year}>{year}º ano</option>)}
+            </select>
+            <select
+              aria-label="Tipo de exercício"
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
               className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium shadow-sm"
@@ -239,6 +281,7 @@ export function ActivitySandbox() {
               ))}
             </select>
             <select
+              aria-label="Dificuldade"
               value={diffFilter}
               onChange={(e) => setDiffFilter(e.target.value)}
               className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium shadow-sm"

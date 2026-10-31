@@ -51,7 +51,7 @@ const definitions: PictogramDefinition[] = [
   definition("state.great", "STATE", "muito bem", "🌟"),
   definition("state.done", "STATE", "concluído", "🏁"),
   definition("state.wait", "STATE", "espere", "⏳", 36914),
-  definition("mathematics.numbers", "MATHEMATICS", "números", "🔢", 6198),
+  definition("mathematics.numbers", "MATHEMATICS", "números", "🔢", 2879), // 6198 showed an X-ray (checked out/2026)
   definition("mathematics.addition", "MATHEMATICS", "adição", "➕", 5868),
   definition("mathematics.subtraction", "MATHEMATICS", "subtração", "➖", 5841),
   definition("mathematics.equal", "MATHEMATICS", "igual", "🟰", 3423),
@@ -88,7 +88,7 @@ const definitions: PictogramDefinition[] = [
   // seed, migration or attempt history needs to change.
   definition("arasaac.14494", "LEARNING_LIBRARY", "girassol", "🌻"),       // Island theme: counting
   definition("arasaac.16590", "LEARNING_LIBRARY", "onda", "🌊"),           // Island theme: sea/addition
-  definition("arasaac.16165", "LEARNING_LIBRARY", "planta", "🌿", 16165),  // Island theme: forest/subtraction (ID exists)
+  definition("arasaac.16165", "LEARNING_LIBRARY", "planta", "🌿", 3143),   // Island theme (16165 showed a person at a door; 3143 checked)
   definition("arasaac.17784", "LEARNING_LIBRARY", "flor", "🌸", 3102),     // Island theme: flowers/comparison (checked)
   definition("arasaac.15195", "LEARNING_LIBRARY", "maçã", "🍎", 2462),     // Island theme: apples/shapes (checked)
   definition("arasaac.20951", "LEARNING_LIBRARY", "tartaruga", "🐢"),      // Island theme: animals/measures
@@ -172,7 +172,7 @@ const definitions: PictogramDefinition[] = [
   // uncurated-ID fallback and displayed the literal placeholder label
   // "pictograma ARASAAC" on screen instead of a real description.
   // 23190 does not exist on static.arasaac.org (404): emoji fallback only.
-  definition('arasaac.23190', "MATHEMATICS", "números", "🔢"),
+  definition('arasaac.23190', "MATHEMATICS", "números", "🔢", 2879),
   // Seed-only IDs that do not exist on ARASAAC (404) but have ONE meaning in
   // every exercise that uses them, so they can safely point to a checked
   // pictogram. IDs used with different meanings in different exercises
@@ -246,6 +246,14 @@ const definitions: PictogramDefinition[] = [
   definition('library.bus', "LEARNING_LIBRARY", "ônibus", "🚌", 2262),
   definition('library.tshirt', "LEARNING_LIBRARY", "camiseta", "👕", 2309),
   definition('library.pants', "LEARNING_LIBRARY", "calça", "👖", 2565),
+  // Island map themes (checked out/2026)
+  definition('library.elephant', "LEARNING_LIBRARY", "elefante", "🐘", 2372),
+  definition('library.ant', "LEARNING_LIBRARY", "formiga", "🐜", 2425),
+  definition('library.plate', "LEARNING_LIBRARY", "prato", "🍽️", 2532),
+  definition('library.rainbow', "LEARNING_LIBRARY", "arco-íris", "🌈", 2986),
+  definition('library.castle', "LEARNING_LIBRARY", "castelo", "🏰", 5950),
+  definition('library.wheel', "LEARNING_LIBRARY", "roda", "🛞", 6209),
+  definition('library.car', "LEARNING_LIBRARY", "carro", "🚗", 2339),
 ];
 
 export class PictogramRegistry {
