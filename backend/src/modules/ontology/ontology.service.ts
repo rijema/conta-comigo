@@ -19,6 +19,8 @@ interface SkillDefinition {
   iri: string;
   code: string;
   mathematicalConcepts: string[];
+  /** School year (1–5) from cc:belongsToGrade; null when not asserted. */
+  grade: number | null;
 }
 
 interface PrerequisiteDefinition {
@@ -40,6 +42,8 @@ export interface SkillRelationEvidence {
   relation: 'prerequisiteSkill' | 'relatedSkill' | 'complementarySkill' | 'contrastSkill';
   concepts: string[];
   source: 'ASSERTED_CONCEPT_PREREQUISITE' | 'SHARED_CONCEPT_DERIVED';
+  /** School year of the related skill (cc:belongsToGrade), so callers can keep progression direction. */
+  grade: number | null;
 }
 
 @Injectable()
@@ -169,19 +173,25 @@ export class OntologyService implements OnModuleInit {
     const relations: SkillRelationEvidence[] = [];
     for (const candidate of ontology.skillsByCode.values()) {
       if (candidate.code === skillCode) continue;
-      const prerequisiteConcepts = ontology.prerequisites
+      // Concept prerequisites are year-agnostic; a skill from a LATER school
+      // year must never be offered as a prerequisite of an earlier one
+      // (e.g. EF03MA04 is not a prerequisite of EF02MA01 just because both
+      // touch number concepts).
+      const laterGrade = candidate.grade !== null && target.grade !== null && candidate.grade > target.grade;
+      const prerequisiteConcepts = laterGrade ? [] : ontology.prerequisites
         .filter((relation) => target.mathematicalConcepts.includes(relation.dependentConcept) &&
           candidate.mathematicalConcepts.includes(relation.prerequisiteConcept))
         .map((relation) => relation.prerequisiteConcept);
       if (prerequisiteConcepts.length) {
         relations.push({ skillCode: candidate.code, relation: 'prerequisiteSkill',
-          concepts: [...new Set(prerequisiteConcepts)], source: 'ASSERTED_CONCEPT_PREREQUISITE' });
+          concepts: [...new Set(prerequisiteConcepts)], source: 'ASSERTED_CONCEPT_PREREQUISITE',
+          grade: candidate.grade });
         continue;
       }
       const shared = candidate.mathematicalConcepts.filter((concept) =>
         target.mathematicalConcepts.includes(concept));
       if (shared.length) relations.push({ skillCode: candidate.code, relation: 'relatedSkill',
-        concepts: [...new Set(shared)], source: 'SHARED_CONCEPT_DERIVED' });
+        concepts: [...new Set(shared)], source: 'SHARED_CONCEPT_DERIVED', grade: candidate.grade });
     }
     return relations.sort((left, right) => left.skillCode.localeCompare(right.skillCode));
   }
@@ -274,6 +284,7 @@ export class OntologyService implements OnModuleInit {
       iri: `${CC_NS}unmapped_${facts.targetSkill}`,
       code: facts.targetSkill,
       mathematicalConcepts: [],
+      grade: null,
     };
     return {
       validCandidateIds: decisions
@@ -365,6 +376,9 @@ export class OntologyService implements OnModuleInit {
         const code = this.firstText(individual, CC_NS, 'hasCurriculumCode');
         if (!code) throw new Error(`BNCC skill ${iri} has no curriculum code`);
         if (skillsByCode.has(code)) throw new Error(`Duplicate BNCC skill code ${code}`);
+        const gradeMatch = this.resourceValues(individual, CC_NS, 'belongsToGrade')
+          .map((value) => this.localName(value).match(/^BNCCElementaryYear(\d)$/))
+          .find(Boolean);
         skillsByCode.set(code, {
           iri,
           code,
@@ -373,6 +387,7 @@ export class OntologyService implements OnModuleInit {
             CC_NS,
             'addressesMathematicalConcept',
           ).map((value) => this.localName(value)),
+          grade: gradeMatch ? Number(gradeMatch[1]) : null,
         });
       }
       if (types.includes(`${CC_NS}PrerequisiteRelation`)) {

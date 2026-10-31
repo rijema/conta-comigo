@@ -61,8 +61,8 @@ describe('OntologyService', () => {
     expect(service.getStatus()).toEqual(expect.objectContaining({
       loaded: true,
       ontologyIri: 'https://contacomigo.org/ontology',
-      ontologyVersion: '0.4.0',
-      cachedBnccSkills: 6,
+      ontologyVersion: '0.5.0',
+      cachedBnccSkills: 75,
     }));
     expect((service as any).ontology).toBe(firstCache);
   });
@@ -78,6 +78,42 @@ describe('OntologyService', () => {
     expect(relations.some((relation) => relation.relation === 'prerequisiteSkill')).toBe(false);
   });
 
+  it('keeps the original 1º ano skills free of prerequisites (v0.5.0 is additive)', () => {
+    const service = new OntologyService(config());
+    service.loadOnce();
+    for (const code of ['EF01MA01', 'EF01MA03', 'EF01MA06', 'EF01MA07', 'EF01MA08', 'EF01MA14']) {
+      expect(service.getSkillRelations(code).filter((r) => r.relation === 'prerequisiteSkill')).toEqual([]);
+    }
+  });
+
+  it('derives BNCC-grounded prerequisites that never point to a later school year', () => {
+    const service = new OntologyService(config());
+    service.loadOnce();
+    const multiplication = service.getSkillRelations('EF03MA07');
+    expect(multiplication).toEqual(expect.arrayContaining([
+      expect.objectContaining({ skillCode: 'EF01MA06', relation: 'prerequisiteSkill',
+        concepts: ['AdditionConcept'], source: 'ASSERTED_CONCEPT_PREREQUISITE', grade: 1 }),
+    ]));
+    const fractions = service.getSkillRelations('EF04MA09');
+    expect(fractions).toEqual(expect.arrayContaining([
+      expect.objectContaining({ skillCode: 'EF03MA08', relation: 'prerequisiteSkill', grade: 3 }),
+    ]));
+    for (const code of ['EF02MA01', 'EF03MA07', 'EF04MA09', 'EF05MA06', 'EF05MA02']) {
+      const own = Number(code[3]);
+      for (const relation of service.getSkillRelations(code)) {
+        if (relation.relation === 'prerequisiteSkill') expect(relation.grade).toBeLessThanOrEqual(own);
+      }
+    }
+  });
+
+  it('reports the school year of related skills so callers can keep progression direction', () => {
+    const service = new OntologyService(config());
+    service.loadOnce();
+    const related = service.getSkillRelations('EF02MA07').filter((r) => r.relation === 'relatedSkill');
+    expect(related.length).toBeGreaterThan(0);
+    for (const relation of related) expect(relation.grade).toBe(Number(relation.skillCode[3]));
+  });
+
   it('includes a semantically aligned candidate and excludes an invalid one', () => {
     const service = new OntologyService(config());
     service.loadOnce();
@@ -91,7 +127,7 @@ describe('OntologyService', () => {
     expect(result.excludedCandidateIds).toEqual(['invalid']);
     expect(result.trace.candidateDecisions[1].reasons)
       .toContain('TARGET_SKILL_NOT_DECLARED_BY_ACTIVITY');
-    expect(result.trace.ontologyVersion).toBe('0.4.0');
+    expect(result.trace.ontologyVersion).toBe('0.5.0');
     expect(result.trace.fallbackUsed).toBe(false);
   });
 
@@ -115,8 +151,8 @@ describe('OntologyService', () => {
     service.loadOnce();
 
     const result = service.getValidActivityCandidates({
-      ...facts([activity('legacy', ['EF02MA01'], [])]),
-      targetSkill: 'EF02MA01',
+      ...facts([activity('legacy', ['EF02MA23'], [])]),
+      targetSkill: 'EF02MA23',
     });
 
     expect(result.validCandidateIds).toEqual([]);

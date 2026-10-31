@@ -202,7 +202,11 @@ test('represented BNCC skills are unique, official-source attributed, and concep
   const skills = bnccSkillBlocks(ontology);
   const codes = skills.map(({ code }) => code);
 
-  assert.deepEqual(codes, ['EF01MA01', 'EF01MA03', 'EF01MA06', 'EF01MA07', 'EF01MA08', 'EF01MA14']);
+  // v0.5.0 keeps the original six 1º ano skills first and adds 69 skills of
+  // the 2º–5º ano, one for each BNCC code used by a seeded exercise.
+  assert.deepEqual(codes.slice(0, 6), ['EF01MA01', 'EF01MA03', 'EF01MA06', 'EF01MA07', 'EF01MA08', 'EF01MA14']);
+  assert.equal(codes.length, 75);
+  assert.ok(codes.slice(6).every((code) => /^EF0[2-5]MA\d{2}$/.test(code)));
   assert.equal(new Set(codes).size, codes.length);
 
   for (const { code, body } of skills) {
@@ -241,7 +245,8 @@ test('BNCC competency-query fixtures return the expected curriculum answers', as
   ]);
   assert.deepEqual(
     skills.filter(({ body }) => mappedConcepts(body).includes('AdditionConcept')).map(({ code }) => code),
-    ['EF01MA06', 'EF01MA07', 'EF01MA08'],
+    ['EF01MA06', 'EF01MA07', 'EF01MA08', 'EF02MA04', 'EF02MA05', 'EF02MA06', 'EF02MA07',
+      'EF03MA03', 'EF03MA04', 'EF03MA06', 'EF04MA03', 'EF05MA07'],
   );
   assert.equal((activitiesSeed.match(/bnccSkills: \['EF01MA06'\]/g) ?? []).length, 6);
   assert.deepEqual(
@@ -263,7 +268,7 @@ test('BNCC competency-query fixtures return the expected curriculum answers', as
   ];
   assert.deepEqual(
     activitySkillCodes.filter((code) => !byCode.has(code)).sort(),
-    ['EF02MA01', 'EF02MA05', 'EF03MA07'],
+    ['EF01MA13'],
   );
 });
 

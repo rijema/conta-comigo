@@ -15,7 +15,7 @@
   <owl:Ontology rdf:about="https://contacomigo.org/ontology">
     <rdfs:label xml:lang="pt-BR">Ontologia ContaComigo</rdfs:label>
     <rdfs:comment xml:lang="pt-BR">Fundação semântica educacional para matemática inicial. Esta versão não importa nem executa a OntoMathEdu.</rdfs:comment>
-    <owl:versionInfo>0.4.0</owl:versionInfo>
+    <owl:versionInfo>0.5.0</owl:versionInfo>
     <dcterms:source rdf:resource="http://ontomathpro.org/ontomathedu#"/>
     <dcterms:source rdf:resource="https://github.com/CLLKazan/OntoMathEdu"/>
     <dcterms:source rdf:resource="https://ceur-ws.org/Vol-2634/WiP1.pdf"/>
@@ -65,6 +65,10 @@
   <owl:AnnotationProperty rdf:about="https://contacomigo.org/ontology#mappingOrigin">
     <rdfs:label xml:lang="en">mapping origin</rdfs:label>
     <rdfs:comment xml:lang="en">Provenance category for a curriculum-to-mathematics mapping.</rdfs:comment>
+  </owl:AnnotationProperty>
+  <owl:AnnotationProperty rdf:about="https://contacomigo.org/ontology#relationReviewStatus">
+    <rdfs:label xml:lang="en">relation review status</rdfs:label>
+    <rdfs:comment xml:lang="en">Provenance of a didactic relation: grounded_in_bncc_text, or needs_professional_review when the BNCC text supports it only partially.</rdfs:comment>
   </owl:AnnotationProperty>
   <owl:AnnotationProperty rdf:about="https://contacomigo.org/ontology#analyticsSourceEventType">
     <rdfs:label xml:lang="en">analytics source event type</rdfs:label>
@@ -209,6 +213,135 @@
     <cc:sourceOntology rdf:resource="http://ontomathpro.org/ontomathedu#"/>
     <cc:sourceIRI rdf:resource="http://ontomathpro.org/ontomathedu#R9x3QFCyHrHe0SoE3ZCZr94"/>
     <cc:alignmentRelation>related</cc:alignmentRelation>
+  </owl:Class>
+
+  <!-- 2º–5º ano concepts (v0.5.0). Local ContaComigo concepts grounded in the
+       BNCC objects of knowledge; they do not claim OntoMathEdu equivalents. -->
+  <owl:Class rdf:about="https://contacomigo.org/ontology#PlaceValueConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#NumberConcept"/>
+    <rdfs:label xml:lang="en">Place value concept</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conceito de valor posicional (sistema de numeração decimal)</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Conceito local fundamentado nas habilidades BNCC EF02MA01, EF03MA02, EF04MA02.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#DecimalNumberConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#NumberConcept"/>
+    <rdfs:label xml:lang="en">Decimal number concept</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conceito de número decimal</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Conceito local fundamentado nas habilidades BNCC EF04MA10, EF05MA02.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#MultiplicationConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
+    <rdfs:label xml:lang="en">Multiplication concept</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conceito de multiplicação</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Conceito local fundamentado nas habilidades BNCC EF02MA07, EF03MA07, EF04MA06.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#DivisionConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
+    <rdfs:label xml:lang="en">Division concept</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conceito de divisão</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Conceito local fundamentado nas habilidades BNCC EF03MA08, EF04MA07.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#FractionConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#NumberConcept"/>
+    <rdfs:label xml:lang="en">Fraction concept</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conceito de fração</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Conceito local fundamentado nas habilidades BNCC EF04MA09, EF05MA03, EF05MA04.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#PercentageConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
+    <rdfs:label xml:lang="en">Percentage concept</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conceito de porcentagem</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Conceito local fundamentado nas habilidades BNCC EF05MA06.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#EqualityConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
+    <rdfs:label xml:lang="en">Equality concept</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conceito de igualdade e equivalência</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Conceito local fundamentado nas habilidades BNCC EF03MA11, EF04MA14, EF05MA10.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#ProportionalityConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
+    <rdfs:label xml:lang="en">Proportionality concept</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conceito de proporcionalidade</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Conceito local fundamentado nas habilidades BNCC EF05MA12, EF05MA13.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#CombinatoricsConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
+    <rdfs:label xml:lang="en">Counting principle concept</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conceito de princípio multiplicativo de contagem</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Conceito local fundamentado nas habilidades BNCC EF04MA08, EF05MA09.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#MeasurementConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
+    <rdfs:label xml:lang="en">Measurement concept</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conceito de grandezas e medidas</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Conceito local fundamentado nas habilidades BNCC EF03MA18, EF04MA20, EF05MA19.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#TimeMeasurementConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#MeasurementConcept"/>
+    <rdfs:label xml:lang="en">Time measurement concept</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conceito de medida de tempo</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Conceito local fundamentado nas habilidades BNCC EF02MA18, EF03MA22, EF03MA23, EF04MA22.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#MoneyConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#MeasurementConcept"/>
+    <rdfs:label xml:lang="en">Money concept</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conceito de sistema monetário</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Conceito local fundamentado nas habilidades BNCC EF03MA24, EF04MA25.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#AreaPerimeterConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#MeasurementConcept"/>
+    <rdfs:label xml:lang="en">Area and perimeter concept</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conceito de área e perímetro</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Conceito local fundamentado nas habilidades BNCC EF04MA21, EF05MA20.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#DataInterpretationConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
+    <rdfs:label xml:lang="en">Data interpretation concept</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conceito de leitura e interpretação de dados</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Conceito local fundamentado nas habilidades BNCC EF04MA27, EF05MA24.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#SpatialFigureConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#BasicGeometryConcept"/>
+    <rdfs:label xml:lang="en">Spatial figure concept</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conceito de figura geométrica espacial</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Conceito local fundamentado nas habilidades BNCC EF02MA14, EF03MA13, EF04MA17.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#PolygonConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#BasicGeometryConcept"/>
+    <rdfs:label xml:lang="en">Polygon concept</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conceito de polígono (lados e vértices)</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Conceito local fundamentado nas habilidades BNCC EF03MA15, EF05MA17.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#SymmetryConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#BasicGeometryConcept"/>
+    <rdfs:label xml:lang="en">Reflection symmetry concept</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conceito de simetria de reflexão</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Conceito local fundamentado nas habilidades BNCC EF04MA19.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#CoordinateLocationConcept">
+    <rdfs:subClassOf rdf:resource="https://contacomigo.org/ontology#BasicGeometryConcept"/>
+    <rdfs:label xml:lang="en">Coordinate location concept</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Conceito de localização por coordenadas</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Conceito local fundamentado nas habilidades BNCC EF05MA15.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:Class>
 
   <!-- Curricular, learner, activity, and evidence bridge concepts. -->
@@ -1081,6 +1214,34 @@
     <rdf:type rdf:resource="https://contacomigo.org/ontology#CurriculumDomain"/>
     <rdfs:label xml:lang="pt-BR">Geometria</rdfs:label>
   </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCCElementaryYear2">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#CurriculumLevel"/>
+    <rdfs:label xml:lang="pt-BR">2º ano do Ensino Fundamental</rdfs:label>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCCElementaryYear3">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#CurriculumLevel"/>
+    <rdfs:label xml:lang="pt-BR">3º ano do Ensino Fundamental</rdfs:label>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCCElementaryYear4">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#CurriculumLevel"/>
+    <rdfs:label xml:lang="pt-BR">4º ano do Ensino Fundamental</rdfs:label>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCCElementaryYear5">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#CurriculumLevel"/>
+    <rdfs:label xml:lang="pt-BR">5º ano do Ensino Fundamental</rdfs:label>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCCAlgebraDomain">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#CurriculumDomain"/>
+    <rdfs:label xml:lang="pt-BR">Álgebra</rdfs:label>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCCMeasuresDomain">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#CurriculumDomain"/>
+    <rdfs:label xml:lang="pt-BR">Grandezas e medidas</rdfs:label>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCCStatisticsDomain">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#CurriculumDomain"/>
+    <rdfs:label xml:lang="pt-BR">Probabilidade e estatística</rdfs:label>
+  </owl:NamedIndividual>
 
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF01MA01">
     <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
@@ -1180,6 +1341,1073 @@
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
 
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA01">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF02MA01</rdfs:label>
+    <cc:hasCurriculumCode>EF02MA01</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Comparar e ordenar números naturais (até a ordem de centenas) pela compreensão de características do sistema de numeração decimal (valor posicional e função do zero).</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear2"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#PlaceValueConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#ComparisonConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">3</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA03">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF02MA03</rdfs:label>
+    <cc:hasCurriculumCode>EF02MA03</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Comparar quantidades de objetos de dois conjuntos, por estimativa e/ou por correspondência (um a um, dois a dois, entre outros), para indicar “tem mais”, “tem menos” ou “tem a mesma quantidade”, indicando, quando for o caso, quantos a mais e quantos a menos.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear2"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#ComparisonConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#SubtractionConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA04">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF02MA04</rdfs:label>
+    <cc:hasCurriculumCode>EF02MA04</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Compor e decompor números naturais de até três ordens, com suporte de material manipulável, por meio de diferentes adições.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear2"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#PlaceValueConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA05">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF02MA05</rdfs:label>
+    <cc:hasCurriculumCode>EF02MA05</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Construir fatos básicos da adição e subtração e utilizá-los no cálculo mental ou escrito.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear2"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#SubtractionConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA06">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF02MA06</rdfs:label>
+    <cc:hasCurriculumCode>EF02MA06</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Resolver e elaborar problemas de adição e de subtração, envolvendo números de até três ordens, com os significados de juntar, acrescentar, separar, retirar, utilizando estratégias pessoais.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear2"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#SubtractionConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#EarlyProblemSolvingConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA07">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF02MA07</rdfs:label>
+    <cc:hasCurriculumCode>EF02MA07</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Resolver e elaborar problemas de multiplicação (por 2, 3, 4 e 5) com a ideia de adição de parcelas iguais por meio de estratégias e formas de registro pessoais, utilizando ou não suporte de imagens e/ou material manipulável.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear2"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#MultiplicationConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA08">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF02MA08</rdfs:label>
+    <cc:hasCurriculumCode>EF02MA08</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Resolver e elaborar problemas envolvendo dobro, metade, triplo e terça parte, com o suporte de imagens ou material manipulável, utilizando estratégias pessoais.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear2"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#MultiplicationConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#DivisionConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA09">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF02MA09</rdfs:label>
+    <cc:hasCurriculumCode>EF02MA09</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Construir sequências de números naturais em ordem crescente ou decrescente a partir de um número qualquer, utilizando uma regularidade estabelecida.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear2"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCAlgebraDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#SequencePatternConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA11">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF02MA11</rdfs:label>
+    <cc:hasCurriculumCode>EF02MA11</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Descrever os elementos ausentes em sequências repetitivas e em sequências recursivas de números naturais, objetos ou figuras.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear2"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCAlgebraDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#SequencePatternConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA14">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF02MA14</rdfs:label>
+    <cc:hasCurriculumCode>EF02MA14</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Reconhecer, nomear e comparar figuras geométricas espaciais (cubo, bloco retangular, pirâmide, cone, cilindro e esfera), relacionando-as com objetos do mundo físico.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear2"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCGeometryDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#SpatialFigureConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA15">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF02MA15</rdfs:label>
+    <cc:hasCurriculumCode>EF02MA15</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Reconhecer, comparar e nomear figuras planas (círculo, quadrado, retângulo e triângulo), por meio de características comuns, em desenhos apresentados em diferentes disposições ou em sólidos geométricos.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear2"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCGeometryDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#BasicGeometryConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA18">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF02MA18</rdfs:label>
+    <cc:hasCurriculumCode>EF02MA18</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Indicar a duração de intervalos de tempo entre duas datas, como dias da semana e meses do ano, utilizando calendário, para planejamentos e organização de agenda.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear2"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCMeasuresDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#TimeMeasurementConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA01">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF03MA01</rdfs:label>
+    <cc:hasCurriculumCode>EF03MA01</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Ler, escrever e comparar números naturais de até a ordem de unidade de milhar, estabelecendo relações entre os registros numéricos e em língua materna.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear3"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#PlaceValueConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#ComparisonConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">3</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA02">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF03MA02</rdfs:label>
+    <cc:hasCurriculumCode>EF03MA02</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Identificar características do sistema de numeração decimal, utilizando a composição e a decomposição de número natural de até quatro ordens.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear3"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#PlaceValueConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA03">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF03MA03</rdfs:label>
+    <cc:hasCurriculumCode>EF03MA03</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Construir e utilizar fatos básicos da adição e da multiplicação para o cálculo mental ou escrito.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear3"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#MultiplicationConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA04">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF03MA04</rdfs:label>
+    <cc:hasCurriculumCode>EF03MA04</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Estabelecer a relação entre números naturais e pontos da reta numérica para utilizá-la na ordenação dos números naturais e também na construção de fatos da adição e da subtração, relacionando-os com deslocamentos para a direita ou para a esquerda.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear3"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#NumberConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#SubtractionConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA06">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF03MA06</rdfs:label>
+    <cc:hasCurriculumCode>EF03MA06</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Resolver e elaborar problemas de adição e subtração com os significados de juntar, acrescentar, separar, retirar, comparar e completar quantidades, utilizando diferentes estratégias de cálculo exato ou aproximado, incluindo cálculo mental.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear3"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#SubtractionConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#EarlyProblemSolvingConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA07">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF03MA07</rdfs:label>
+    <cc:hasCurriculumCode>EF03MA07</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Resolver e elaborar problemas de multiplicação (por 2, 3, 4, 5 e 10) com os significados de adição de parcelas iguais e elementos apresentados em disposição retangular, utilizando diferentes estratégias de cálculo e registros.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear3"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#MultiplicationConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">4</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA08">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF03MA08</rdfs:label>
+    <cc:hasCurriculumCode>EF03MA08</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Resolver e elaborar problemas de divisão de um número natural por outro (até 10), com resto zero e com resto diferente de zero, com os significados de repartição equitativa e de medida, por meio de estratégias e registros pessoais.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear3"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#DivisionConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">3</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA09">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF03MA09</rdfs:label>
+    <cc:hasCurriculumCode>EF03MA09</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Associar o quociente de uma divisão com resto zero de um número natural por 2, 3, 4, 5 e 10 às ideias de metade, terça, quarta, quinta e décima partes.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear3"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#DivisionConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#FractionConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA10">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF03MA10</rdfs:label>
+    <cc:hasCurriculumCode>EF03MA10</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Identificar regularidades em sequências ordenadas de números naturais, resultantes da realização de adições ou subtrações sucessivas, por um mesmo número, descrever uma regra de formação da sequência e determinar elementos faltantes ou seguintes.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear3"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCAlgebraDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#SequencePatternConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA11">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF03MA11</rdfs:label>
+    <cc:hasCurriculumCode>EF03MA11</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Compreender a ideia de igualdade para escrever diferentes sentenças de adições ou de subtrações de dois números naturais que resultem na mesma soma ou diferença.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear3"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCAlgebraDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#EqualityConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA13">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF03MA13</rdfs:label>
+    <cc:hasCurriculumCode>EF03MA13</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Associar figuras geométricas espaciais (cubo, bloco retangular, pirâmide, cone, cilindro e esfera) a objetos do mundo físico e nomear essas figuras.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear3"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCGeometryDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#SpatialFigureConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA14">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF03MA14</rdfs:label>
+    <cc:hasCurriculumCode>EF03MA14</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Descrever características de algumas figuras geométricas espaciais (prismas retos, pirâmides, cilindros, cones), relacionando-as com suas planificações.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear3"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCGeometryDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#SpatialFigureConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA15">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF03MA15</rdfs:label>
+    <cc:hasCurriculumCode>EF03MA15</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Classificar e comparar figuras planas (triângulo, quadrado, retângulo, trapézio e paralelogramo) em relação a seus lados (quantidade, posições relativas e comprimento) e vértices.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear3"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCGeometryDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#PolygonConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">7</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA18">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF03MA18</rdfs:label>
+    <cc:hasCurriculumCode>EF03MA18</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Escolher a unidade de medida e o instrumento mais apropriado para medições de comprimento, tempo e capacidade.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear3"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCMeasuresDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#MeasurementConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA22">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF03MA22</rdfs:label>
+    <cc:hasCurriculumCode>EF03MA22</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Ler e registrar medidas e intervalos de tempo, utilizando relógios (analógico e digital) para informar os horários de início e término de realização de uma atividade e sua duração.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear3"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCMeasuresDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#TimeMeasurementConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA23">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF03MA23</rdfs:label>
+    <cc:hasCurriculumCode>EF03MA23</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Ler horas em relógios digitais e em relógios analógicos e reconhecer a relação entre hora e minutos e entre minuto e segundos.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear3"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCMeasuresDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#TimeMeasurementConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA24">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF03MA24</rdfs:label>
+    <cc:hasCurriculumCode>EF03MA24</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Resolver e elaborar problemas que envolvam a comparação e a equivalência de valores monetários do sistema brasileiro em situações de compra, venda e troca.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear3"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCMeasuresDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#MoneyConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA01">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF04MA01</rdfs:label>
+    <cc:hasCurriculumCode>EF04MA01</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Ler, escrever e ordenar números naturais até a ordem de dezenas de milhar.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear4"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#PlaceValueConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#ComparisonConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">3</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA02">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF04MA02</rdfs:label>
+    <cc:hasCurriculumCode>EF04MA02</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Mostrar, por decomposição e composição, que todo número natural pode ser escrito por meio de adições e multiplicações por potências de dez, para compreender o sistema de numeração decimal e desenvolver estratégias de cálculo.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear4"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#PlaceValueConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA03">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF04MA03</rdfs:label>
+    <cc:hasCurriculumCode>EF04MA03</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Resolver e elaborar problemas com números naturais envolvendo adição e subtração, utilizando estratégias diversas, como cálculo, cálculo mental e algoritmos, além de fazer estimativas do resultado.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear4"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#SubtractionConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#EarlyProblemSolvingConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA06">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF04MA06</rdfs:label>
+    <cc:hasCurriculumCode>EF04MA06</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Resolver e elaborar problemas envolvendo diferentes significados da multiplicação (adição de parcelas iguais, organização retangular e proporcionalidade), utilizando estratégias diversas, como cálculo por estimativa, cálculo mental e algoritmos.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear4"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#MultiplicationConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">3</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA07">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF04MA07</rdfs:label>
+    <cc:hasCurriculumCode>EF04MA07</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Resolver e elaborar problemas de divisão cujo divisor tenha no máximo dois algarismos, envolvendo os significados de repartição equitativa e de medida, utilizando estratégias diversas, como cálculo por estimativa, cálculo mental e algoritmos.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear4"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#DivisionConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA08">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF04MA08</rdfs:label>
+    <cc:hasCurriculumCode>EF04MA08</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Resolver, com o suporte de imagem e/ou material manipulável, problemas simples de contagem, como a determinação do número de agrupamentos possíveis ao se combinar cada elemento de uma coleção com todos os elementos de outra, utilizando estratégias e formas de registro pessoais.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear4"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#CombinatoricsConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA09">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF04MA09</rdfs:label>
+    <cc:hasCurriculumCode>EF04MA09</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Reconhecer as frações unitárias mais usuais (1/2, 1/3, 1/4, 1/5, 1/10 e 1/100) como unidades de medida menores do que uma unidade, utilizando a reta numérica como recurso.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear4"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#FractionConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">3</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA10">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF04MA10</rdfs:label>
+    <cc:hasCurriculumCode>EF04MA10</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Reconhecer que as regras do sistema de numeração decimal podem ser estendidas para a representação decimal de um número racional e relacionar décimos e centésimos com a representação do sistema monetário brasileiro.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear4"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#DecimalNumberConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#MoneyConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA11">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF04MA11</rdfs:label>
+    <cc:hasCurriculumCode>EF04MA11</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Identificar regularidades em sequências numéricas compostas por múltiplos de um número natural.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear4"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCAlgebraDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#SequencePatternConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#MultiplicationConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA12">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF04MA12</rdfs:label>
+    <cc:hasCurriculumCode>EF04MA12</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Reconhecer, por meio de investigações, que há grupos de números naturais para os quais as divisões por um determinado número resultam em restos iguais, identificando regularidades.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear4"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCAlgebraDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#SequencePatternConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#DivisionConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA14">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF04MA14</rdfs:label>
+    <cc:hasCurriculumCode>EF04MA14</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Reconhecer e mostrar, por meio de exemplos, que a relação de igualdade existente entre dois termos permanece quando se adiciona ou se subtrai um mesmo número a cada um desses termos.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear4"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCAlgebraDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#EqualityConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA15">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF04MA15</rdfs:label>
+    <cc:hasCurriculumCode>EF04MA15</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Determinar o número desconhecido que torna verdadeira uma igualdade que envolve as operações fundamentais com números naturais.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear4"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCAlgebraDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#EqualityConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA17">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF04MA17</rdfs:label>
+    <cc:hasCurriculumCode>EF04MA17</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Associar prismas e pirâmides a suas planificações e analisar, nomear e comparar seus atributos, estabelecendo relações entre as representações planas e espaciais.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear4"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCGeometryDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#SpatialFigureConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA18">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF04MA18</rdfs:label>
+    <cc:hasCurriculumCode>EF04MA18</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Reconhecer ângulos retos e não retos em figuras poligonais com o uso de dobraduras, esquadros ou softwares de geometria.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear4"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCGeometryDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#AngleConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA19">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF04MA19</rdfs:label>
+    <cc:hasCurriculumCode>EF04MA19</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Reconhecer simetria de reflexão em figuras e em pares de figuras geométricas planas e utilizá-la na construção de figuras congruentes, com o uso de malhas quadriculadas e de softwares de geometria.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear4"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCGeometryDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#SymmetryConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA20">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF04MA20</rdfs:label>
+    <cc:hasCurriculumCode>EF04MA20</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Medir e estimar comprimentos (incluindo perímetros), massas e capacidades, utilizando unidades de medida padronizadas mais usuais, valorizando e respeitando a cultura local.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear4"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCMeasuresDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#MeasurementConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA21">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF04MA21</rdfs:label>
+    <cc:hasCurriculumCode>EF04MA21</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Medir, comparar e estimar área de figuras planas desenhadas em malha quadriculada, pela contagem dos quadradinhos ou de metades de quadradinho, reconhecendo que duas figuras com formatos diferentes podem ter a mesma medida de área.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear4"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCMeasuresDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#AreaPerimeterConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA22">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF04MA22</rdfs:label>
+    <cc:hasCurriculumCode>EF04MA22</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Ler e registrar medidas e intervalos de tempo em horas, minutos e segundos em situações relacionadas ao seu cotidiano, como informar os horários de início e término de realização de uma tarefa e sua duração.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear4"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCMeasuresDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#TimeMeasurementConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA23">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF04MA23</rdfs:label>
+    <cc:hasCurriculumCode>EF04MA23</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Reconhecer temperatura como grandeza e o grau Celsius como unidade de medida a ela associada e utilizá-lo em comparações de temperaturas em diferentes regiões do Brasil ou no exterior ou, ainda, em discussões que envolvam problemas relacionados ao aquecimento global.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear4"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCMeasuresDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#MeasurementConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA25">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF04MA25</rdfs:label>
+    <cc:hasCurriculumCode>EF04MA25</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Resolver e elaborar problemas que envolvam situações de compra e venda e formas de pagamento, utilizando termos como troco e desconto, enfatizando o consumo ético, consciente e responsável.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear4"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCMeasuresDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#MoneyConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#SubtractionConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA27">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF04MA27</rdfs:label>
+    <cc:hasCurriculumCode>EF04MA27</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Analisar dados apresentados em tabelas simples ou de dupla entrada e em gráficos de colunas ou pictóricos, com base em informações das diferentes áreas do conhecimento, e produzir texto com a síntese de sua análise.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear4"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCStatisticsDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#DataInterpretationConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA01">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF05MA01</rdfs:label>
+    <cc:hasCurriculumCode>EF05MA01</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Ler, escrever e ordenar números naturais até a ordem das centenas de milhar com compreensão das principais características do sistema de numeração decimal.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear5"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#PlaceValueConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#ComparisonConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA02">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF05MA02</rdfs:label>
+    <cc:hasCurriculumCode>EF05MA02</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Ler, escrever e ordenar números racionais na forma decimal com compreensão das principais características do sistema de numeração decimal, utilizando, como recursos, a composição e decomposição e a reta numérica.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear5"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#DecimalNumberConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA03">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF05MA03</rdfs:label>
+    <cc:hasCurriculumCode>EF05MA03</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Identificar e representar frações (menores e maiores que a unidade), associando-as ao resultado de uma divisão ou à ideia de parte de um todo, utilizando a reta numérica como recurso.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear5"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#FractionConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#DivisionConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA04">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF05MA04</rdfs:label>
+    <cc:hasCurriculumCode>EF05MA04</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Identificar frações equivalentes.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear5"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#FractionConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA05">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF05MA05</rdfs:label>
+    <cc:hasCurriculumCode>EF05MA05</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Comparar e ordenar números racionais positivos (representações fracionária e decimal), relacionando-os a pontos na reta numérica.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear5"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#FractionConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#DecimalNumberConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#ComparisonConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA06">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF05MA06</rdfs:label>
+    <cc:hasCurriculumCode>EF05MA06</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Associar as representações 10%, 25%, 50%, 75% e 100% respectivamente à décima parte, quarta parte, metade, três quartos e um inteiro, para calcular porcentagens, utilizando estratégias pessoais, cálculo mental e calculadora, em contextos de educação financeira, entre outros.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear5"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#PercentageConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA07">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF05MA07</rdfs:label>
+    <cc:hasCurriculumCode>EF05MA07</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Resolver e elaborar problemas de adição e subtração com números naturais e com números racionais, cuja representação decimal seja finita, utilizando estratégias diversas, como cálculo por estimativa, cálculo mental e algoritmos.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear5"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#SubtractionConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#DecimalNumberConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA08">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF05MA08</rdfs:label>
+    <cc:hasCurriculumCode>EF05MA08</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Resolver e elaborar problemas de multiplicação e divisão com números naturais e com números racionais cuja representação decimal é finita (com multiplicador natural e divisor natural e diferente de zero), utilizando estratégias diversas, como cálculo por estimativa, cálculo mental e algoritmos.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear5"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#MultiplicationConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#DivisionConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#DecimalNumberConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA09">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF05MA09</rdfs:label>
+    <cc:hasCurriculumCode>EF05MA09</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Resolver e elaborar problemas simples de contagem envolvendo o princípio multiplicativo, como a determinação do número de agrupamentos possíveis ao se combinar cada elemento de uma coleção com todos os elementos de outra coleção, por meio de diagramas de árvore ou por tabelas.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear5"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#CombinatoricsConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA10">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF05MA10</rdfs:label>
+    <cc:hasCurriculumCode>EF05MA10</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Concluir, por meio de investigações, que a relação de igualdade existente entre dois membros permanece ao adicionar, subtrair, multiplicar ou dividir cada um desses membros por um mesmo número, para construir a noção de equivalência.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear5"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCAlgebraDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#EqualityConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA11">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF05MA11</rdfs:label>
+    <cc:hasCurriculumCode>EF05MA11</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Resolver e elaborar problemas cuja conversão em sentença matemática seja uma igualdade com uma operação em que um dos termos é desconhecido.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear5"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCAlgebraDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#EqualityConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA12">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF05MA12</rdfs:label>
+    <cc:hasCurriculumCode>EF05MA12</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Resolver problemas que envolvam variação de proporcionalidade direta entre duas grandezas, para associar a quantidade de um produto ao valor a pagar, alterar as quantidades de ingredientes de receitas, ampliar ou reduzir escala em mapas, entre outros.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear5"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCAlgebraDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#ProportionalityConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA13">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF05MA13</rdfs:label>
+    <cc:hasCurriculumCode>EF05MA13</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Resolver problemas envolvendo a partilha de uma quantidade em duas partes desiguais, tais como dividir uma quantidade em duas partes, de modo que uma seja o dobro da outra, com compreensão da ideia de razão entre as partes e delas com o todo.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear5"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCAlgebraDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#ProportionalityConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA15">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF05MA15</rdfs:label>
+    <cc:hasCurriculumCode>EF05MA15</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Interpretar, descrever e representar a localização ou movimentação de objetos no plano cartesiano (1º quadrante), utilizando coordenadas cartesianas, indicando mudanças de direção e de sentido e giros.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear5"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCGeometryDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#CoordinateLocationConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA16">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF05MA16</rdfs:label>
+    <cc:hasCurriculumCode>EF05MA16</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Associar figuras espaciais a suas planificações (prismas, pirâmides, cilindros e cones) e analisar, nomear e comparar seus atributos.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear5"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCGeometryDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#SpatialFigureConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA17">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF05MA17</rdfs:label>
+    <cc:hasCurriculumCode>EF05MA17</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Reconhecer, nomear e comparar polígonos, considerando lados, vértices e ângulos, e desenhá-los, utilizando material de desenho ou tecnologias digitais.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear5"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCGeometryDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#PolygonConcept"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#AngleConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA19">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF05MA19</rdfs:label>
+    <cc:hasCurriculumCode>EF05MA19</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Resolver e elaborar problemas envolvendo medidas das grandezas comprimento, área, massa, tempo, temperatura e capacidade, recorrendo a transformações entre as unidades mais usuais em contextos socioculturais.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear5"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCMeasuresDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#MeasurementConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA20">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF05MA20</rdfs:label>
+    <cc:hasCurriculumCode>EF05MA20</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Concluir, por meio de investigações, que figuras de perímetros iguais podem ter áreas diferentes e que, também, figuras que têm a mesma área podem ter perímetros diferentes.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear5"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCMeasuresDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#AreaPerimeterConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA24">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#BNCCSkill"/>
+    <rdfs:label xml:lang="pt-BR">EF05MA24</rdfs:label>
+    <cc:hasCurriculumCode>EF05MA24</cc:hasCurriculumCode>
+    <cc:hasOfficialDescription xml:lang="pt-BR">Interpretar dados estatísticos apresentados em textos, tabelas e gráficos (colunas ou linhas), referentes a outras áreas do conhecimento ou a outros contextos, como saúde e trânsito, e produzir textos com o objetivo de sintetizar conclusões.</cc:hasOfficialDescription>
+    <cc:belongsToCurriculum rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+    <cc:belongsToGrade rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear5"/>
+    <cc:belongsToCurriculumDomain rdf:resource="https://contacomigo.org/ontology#BNCCStatisticsDomain"/>
+    <cc:addressesMathematicalConcept rdf:resource="https://contacomigo.org/ontology#DataInterpretationConcept"/>
+    <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
+    <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
+    <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+
   <!-- Each curriculum-to-mathematics assertion is a ContaComigo semantic
        analysis grounded in, but not directly asserted by, the official BNCC. -->
   <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF01MA01"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#NumberConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
@@ -1195,5 +2423,208 @@
   <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF01MA14"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#BasicGeometryConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
   <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF01MA14"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#SquareConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
   <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF01MA14"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#RectangleConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+
+  <!-- Concept prerequisites (v0.5.0). Only relations whose dependent concept is
+       new in this version, so relations between the original 1º ano skills are
+       unchanged. Each one quotes the BNCC text that supports it. -->
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#Prerequisite_AdditionToMultiplication">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#PrerequisiteRelation"/>
+    <cc:prerequisiteConcept rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/>
+    <cc:dependentConcept rdf:resource="https://contacomigo.org/ontology#MultiplicationConcept"/>
+    <cc:mappingOrigin>ContaComigo semantic analysis of BNCC EF02MA07; EF03MA07</cc:mappingOrigin>
+    <cc:relationReviewStatus>grounded_in_bncc_text</cc:relationReviewStatus>
+    <rdfs:comment xml:lang="pt-BR">A BNCC apresenta a multiplicação "com a ideia de adição de parcelas iguais" (EF02MA07) e "com os significados de adição de parcelas iguais" (EF03MA07).</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#Prerequisite_MultiplicationToDivision">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#PrerequisiteRelation"/>
+    <cc:prerequisiteConcept rdf:resource="https://contacomigo.org/ontology#MultiplicationConcept"/>
+    <cc:dependentConcept rdf:resource="https://contacomigo.org/ontology#DivisionConcept"/>
+    <cc:mappingOrigin>ContaComigo semantic analysis of BNCC EF04MA04; EF04MA13</cc:mappingOrigin>
+    <cc:relationReviewStatus>needs_professional_review</cc:relationReviewStatus>
+    <rdfs:comment xml:lang="pt-BR">A BNCC pede "as relações inversas entre as operações [...] de multiplicação e de divisão" (EF04MA13). No 2º e 3º ano a divisão por repartição aparece junto com a multiplicação; por isso esta relação requer revisão profissional.</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#Prerequisite_DivisionToFraction">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#PrerequisiteRelation"/>
+    <cc:prerequisiteConcept rdf:resource="https://contacomigo.org/ontology#DivisionConcept"/>
+    <cc:dependentConcept rdf:resource="https://contacomigo.org/ontology#FractionConcept"/>
+    <cc:mappingOrigin>ContaComigo semantic analysis of BNCC EF03MA09; EF05MA03</cc:mappingOrigin>
+    <cc:relationReviewStatus>grounded_in_bncc_text</cc:relationReviewStatus>
+    <rdfs:comment xml:lang="pt-BR">A BNCC associa "o quociente de uma divisão [...] às ideias de metade, terça, quarta, quinta e décima partes" (EF03MA09) e frações "ao resultado de uma divisão" (EF05MA03).</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#Prerequisite_FractionToPercentage">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#PrerequisiteRelation"/>
+    <cc:prerequisiteConcept rdf:resource="https://contacomigo.org/ontology#FractionConcept"/>
+    <cc:dependentConcept rdf:resource="https://contacomigo.org/ontology#PercentageConcept"/>
+    <cc:mappingOrigin>ContaComigo semantic analysis of BNCC EF05MA06</cc:mappingOrigin>
+    <cc:relationReviewStatus>grounded_in_bncc_text</cc:relationReviewStatus>
+    <rdfs:comment xml:lang="pt-BR">A BNCC associa 10%, 25%, 50%, 75% e 100% "à décima parte, quarta parte, metade, três quartos e um inteiro" (EF05MA06).</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#Prerequisite_PlaceValueToDecimal">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#PrerequisiteRelation"/>
+    <cc:prerequisiteConcept rdf:resource="https://contacomigo.org/ontology#PlaceValueConcept"/>
+    <cc:dependentConcept rdf:resource="https://contacomigo.org/ontology#DecimalNumberConcept"/>
+    <cc:mappingOrigin>ContaComigo semantic analysis of BNCC EF04MA10</cc:mappingOrigin>
+    <cc:relationReviewStatus>grounded_in_bncc_text</cc:relationReviewStatus>
+    <rdfs:comment xml:lang="pt-BR">A BNCC pede reconhecer "que as regras do sistema de numeração decimal podem ser estendidas para a representação decimal" (EF04MA10).</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#Prerequisite_NumberToPlaceValue">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#PrerequisiteRelation"/>
+    <cc:prerequisiteConcept rdf:resource="https://contacomigo.org/ontology#NumberConcept"/>
+    <cc:dependentConcept rdf:resource="https://contacomigo.org/ontology#PlaceValueConcept"/>
+    <cc:mappingOrigin>ContaComigo semantic analysis of BNCC EF01MA07; EF02MA04</cc:mappingOrigin>
+    <cc:relationReviewStatus>grounded_in_bncc_text</cc:relationReviewStatus>
+    <rdfs:comment xml:lang="pt-BR">A BNCC usa compor e decompor números "contribuindo para a compreensão de características do sistema de numeração decimal" (EF01MA07), ampliando para três ordens no 2º ano (EF02MA04).</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#Prerequisite_MeasurementToAreaPerimeter">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#PrerequisiteRelation"/>
+    <cc:prerequisiteConcept rdf:resource="https://contacomigo.org/ontology#MeasurementConcept"/>
+    <cc:dependentConcept rdf:resource="https://contacomigo.org/ontology#AreaPerimeterConcept"/>
+    <cc:mappingOrigin>ContaComigo semantic analysis of BNCC EF04MA20; EF04MA21</cc:mappingOrigin>
+    <cc:relationReviewStatus>grounded_in_bncc_text</cc:relationReviewStatus>
+    <rdfs:comment xml:lang="pt-BR">A BNCC trata perímetro como medida de comprimento (EF04MA20) antes de comparar áreas em malha (EF04MA21).</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#Prerequisite_AdditionToEquality">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#PrerequisiteRelation"/>
+    <cc:prerequisiteConcept rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/>
+    <cc:dependentConcept rdf:resource="https://contacomigo.org/ontology#EqualityConcept"/>
+    <cc:mappingOrigin>ContaComigo semantic analysis of BNCC EF03MA11</cc:mappingOrigin>
+    <cc:relationReviewStatus>grounded_in_bncc_text</cc:relationReviewStatus>
+    <rdfs:comment xml:lang="pt-BR">A BNCC constrói a ideia de igualdade com "diferentes sentenças de adições ou de subtrações [...] que resultem na mesma soma ou diferença" (EF03MA11).</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#Prerequisite_MultiplicationToCombinatorics">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#PrerequisiteRelation"/>
+    <cc:prerequisiteConcept rdf:resource="https://contacomigo.org/ontology#MultiplicationConcept"/>
+    <cc:dependentConcept rdf:resource="https://contacomigo.org/ontology#CombinatoricsConcept"/>
+    <cc:mappingOrigin>ContaComigo semantic analysis of BNCC EF04MA08; EF05MA09</cc:mappingOrigin>
+    <cc:relationReviewStatus>grounded_in_bncc_text</cc:relationReviewStatus>
+    <rdfs:comment xml:lang="pt-BR">A BNCC trata a contagem de agrupamentos pelo "princípio multiplicativo" (EF05MA09), combinando cada elemento de uma coleção com todos os de outra (EF04MA08).</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#Prerequisite_MultiplicationToProportionality">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#PrerequisiteRelation"/>
+    <cc:prerequisiteConcept rdf:resource="https://contacomigo.org/ontology#MultiplicationConcept"/>
+    <cc:dependentConcept rdf:resource="https://contacomigo.org/ontology#ProportionalityConcept"/>
+    <cc:mappingOrigin>ContaComigo semantic analysis of BNCC EF04MA06; EF05MA12</cc:mappingOrigin>
+    <cc:relationReviewStatus>grounded_in_bncc_text</cc:relationReviewStatus>
+    <rdfs:comment xml:lang="pt-BR">A BNCC lista a proporcionalidade entre os "significados da multiplicação" (EF04MA06) antes dos problemas de proporcionalidade direta (EF05MA12).</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#Prerequisite_BasicGeometryToPolygon">
+    <rdf:type rdf:resource="https://contacomigo.org/ontology#PrerequisiteRelation"/>
+    <cc:prerequisiteConcept rdf:resource="https://contacomigo.org/ontology#BasicGeometryConcept"/>
+    <cc:dependentConcept rdf:resource="https://contacomigo.org/ontology#PolygonConcept"/>
+    <cc:mappingOrigin>ContaComigo semantic analysis of BNCC EF01MA14; EF02MA15; EF03MA15</cc:mappingOrigin>
+    <cc:relationReviewStatus>grounded_in_bncc_text</cc:relationReviewStatus>
+    <rdfs:comment xml:lang="pt-BR">A BNCC progride de identificar figuras planas (EF01MA14) e reconhecer características comuns (EF02MA15) para classificá-las por lados e vértices (EF03MA15).</rdfs:comment>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:NamedIndividual>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF02MA01"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#PlaceValueConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF02MA01"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#ComparisonConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF02MA03"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#ComparisonConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF02MA03"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#SubtractionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF02MA04"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#PlaceValueConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF02MA04"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF02MA05"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF02MA05"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#SubtractionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF02MA06"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF02MA06"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#SubtractionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF02MA06"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#EarlyProblemSolvingConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF02MA07"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#MultiplicationConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF02MA07"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF02MA08"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#MultiplicationConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF02MA08"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#DivisionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF02MA09"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#SequencePatternConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF02MA11"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#SequencePatternConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF02MA14"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#SpatialFigureConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF02MA15"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#BasicGeometryConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF02MA18"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#TimeMeasurementConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF03MA01"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#PlaceValueConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF03MA01"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#ComparisonConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF03MA02"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#PlaceValueConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF03MA03"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF03MA03"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#MultiplicationConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF03MA04"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#NumberConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF03MA04"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF03MA04"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#SubtractionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF03MA06"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF03MA06"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#SubtractionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF03MA06"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#EarlyProblemSolvingConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF03MA07"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#MultiplicationConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF03MA08"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#DivisionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF03MA09"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#DivisionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF03MA09"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#FractionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF03MA10"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#SequencePatternConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF03MA11"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#EqualityConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF03MA13"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#SpatialFigureConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF03MA14"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#SpatialFigureConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF03MA15"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#PolygonConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF03MA18"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#MeasurementConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF03MA22"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#TimeMeasurementConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF03MA23"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#TimeMeasurementConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF03MA24"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#MoneyConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA01"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#PlaceValueConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA01"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#ComparisonConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA02"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#PlaceValueConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA03"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA03"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#SubtractionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA03"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#EarlyProblemSolvingConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA06"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#MultiplicationConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA07"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#DivisionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA08"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#CombinatoricsConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA09"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#FractionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA10"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#DecimalNumberConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA10"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#MoneyConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA11"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#SequencePatternConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA11"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#MultiplicationConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA12"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#SequencePatternConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA12"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#DivisionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA14"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#EqualityConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA15"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#EqualityConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA17"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#SpatialFigureConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA18"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#AngleConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA19"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#SymmetryConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA20"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#MeasurementConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA21"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#AreaPerimeterConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA22"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#TimeMeasurementConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA23"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#MeasurementConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA25"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#MoneyConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA25"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#SubtractionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF04MA27"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#DataInterpretationConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA01"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#PlaceValueConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA01"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#ComparisonConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA02"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#DecimalNumberConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA03"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#FractionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA03"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#DivisionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA04"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#FractionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA05"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#FractionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA05"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#DecimalNumberConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA05"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#ComparisonConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA06"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#PercentageConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA07"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#AdditionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA07"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#SubtractionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA07"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#DecimalNumberConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA08"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#MultiplicationConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA08"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#DivisionConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA08"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#DecimalNumberConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA09"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#CombinatoricsConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA10"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#EqualityConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA11"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#EqualityConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA12"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#ProportionalityConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA13"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#ProportionalityConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA15"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#CoordinateLocationConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA16"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#SpatialFigureConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA17"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#PolygonConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA17"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#AngleConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA19"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#MeasurementConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA20"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#AreaPerimeterConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+  <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA24"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#DataInterpretationConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
 
 </rdf:RDF>

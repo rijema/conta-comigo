@@ -1,5 +1,22 @@
 import { buildActivitySemanticContract } from './activity-semantic-contract';
 
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
+import { BNCC_CONCEPT_MAPPINGS } from './activity-semantic-contract';
+
+describe('BNCC concept mappings mirror the ontology', () => {
+  it('uses exactly the concepts asserted by cc:addressesMathematicalConcept for every skill', () => {
+    const owl = readFileSync(resolve(__dirname, '../../../../ontology/contacomigo/contacomigo.owl'), 'utf8');
+    const fromOntology = Object.fromEntries([...owl.matchAll(
+      /<owl:NamedIndividual rdf:about="https:\/\/contacomigo\.org\/ontology#BNCC_(EF\d{2}MA\d{2})">([\s\S]*?)<\/owl:NamedIndividual>/g,
+    )].map(([, code, body]) => [code, [...body.matchAll(/addressesMathematicalConcept rdf:resource="[^"]+#([^"]+)"/g)].map((m) => m[1])]));
+    expect(Object.keys(BNCC_CONCEPT_MAPPINGS).sort()).toEqual(Object.keys(fromOntology).sort());
+    for (const [code, concepts] of Object.entries(fromOntology)) {
+      expect(BNCC_CONCEPT_MAPPINGS[code]).toEqual(concepts);
+    }
+  });
+});
+
 describe('activity semantic contract', () => {
   const families = [
     {
@@ -81,7 +98,8 @@ describe('activity semantic contract', () => {
     const result = buildActivitySemanticContract({
       title: 'Text-only activity',
       type: 'multiple_choice',
-      bnccSkills: ['EF02MA05'],
+      // A skill that is still not represented in the ontology (v0.5.0).
+      bnccSkills: ['EF02MA23'],
       content: { instructionsPt: 'Escolha uma opção' },
     }, null);
 
