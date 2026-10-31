@@ -28,7 +28,9 @@ export const ISLAND_CATALOG: IslandDefinition[] = [
     theme: 'numbers',
     sequenceOrder: 1,
     bnccSkills: ['EF01MA01', 'EF01MA02', 'EF01MA04', 'EF01MA07', 'EF02MA01', 'EF02MA04',
-      'EF03MA01', 'EF03MA02', 'EF04MA01', 'EF04MA02', 'EF05MA01'],
+      'EF03MA01', 'EF03MA02', 'EF04MA01', 'EF04MA02', 'EF05MA01',
+      // 2º–5º ano progression (out/2026)
+      'EF03MA04', 'EF04MA10', 'EF05MA02', 'EF05MA05'],
   },
   {
     islandId: 'island-beach',
@@ -36,7 +38,11 @@ export const ISLAND_CATALOG: IslandDefinition[] = [
     description: 'Quem tem mais? Comparar, ordenar e medir.',
     theme: 'beach',
     sequenceOrder: 2,
-    bnccSkills: ['EF01MA03', 'EF01MA05', 'EF01MA17'],
+    bnccSkills: ['EF01MA03', 'EF01MA05', 'EF01MA17',
+      // 2º–5º ano progression (out/2026): BNCC "Grandezas e medidas" and data reading
+      'EF02MA03', 'EF02MA18', 'EF03MA18', 'EF03MA22', 'EF03MA23', 'EF03MA24',
+      'EF04MA20', 'EF04MA21', 'EF04MA22', 'EF04MA23', 'EF04MA27',
+      'EF05MA19', 'EF05MA20', 'EF05MA24'],
   },
   {
     islandId: 'island-body',
@@ -44,7 +50,9 @@ export const ISLAND_CATALOG: IslandDefinition[] = [
     description: 'Junta tudo na cesta! Somar e multiplicar.',
     theme: 'body',
     sequenceOrder: 3,
-    bnccSkills: ['EF01MA06', 'EF02MA05', 'EF02MA07', 'EF03MA07', 'EF04MA06'],
+    bnccSkills: ['EF01MA06', 'EF02MA05', 'EF02MA07', 'EF03MA07', 'EF04MA06',
+      // 2º–5º ano progression (out/2026)
+      'EF02MA08', 'EF03MA03', 'EF04MA08', 'EF05MA08', 'EF05MA09', 'EF05MA12'],
   },
   {
     islandId: 'island-home',
@@ -52,7 +60,9 @@ export const ISLAND_CATALOG: IslandDefinition[] = [
     description: 'Quanto sobrou? Tirar e repartir.',
     theme: 'home',
     sequenceOrder: 4,
-    bnccSkills: ['EF01MA08', 'EF02MA06', 'EF03MA06', 'EF04MA03', 'EF05MA07', 'EF03MA08', 'EF04MA09', 'EF05MA06'],
+    bnccSkills: ['EF01MA08', 'EF02MA06', 'EF03MA06', 'EF04MA03', 'EF05MA07', 'EF03MA08', 'EF04MA09', 'EF05MA06',
+      // 2º–5º ano progression (out/2026)
+      'EF03MA09', 'EF04MA07', 'EF04MA25', 'EF05MA03', 'EF05MA04', 'EF05MA13'],
   },
   {
     islandId: 'island-colors',
@@ -60,7 +70,10 @@ export const ISLAND_CATALOG: IslandDefinition[] = [
     description: 'Cores e padrões: organizar e continuar sequências.',
     theme: 'colors',
     sequenceOrder: 5,
-    bnccSkills: ['EF01MA09', 'EF01MA10', 'EF01MA15'],
+    bnccSkills: ['EF01MA09', 'EF01MA10', 'EF01MA15',
+      // 2º–5º ano progression (out/2026): BNCC "Álgebra" (sequences and equalities)
+      'EF02MA09', 'EF02MA11', 'EF03MA10', 'EF03MA11', 'EF04MA11', 'EF04MA12',
+      'EF04MA14', 'EF04MA15', 'EF05MA10', 'EF05MA11'],
   },
   {
     islandId: 'island-nature',
@@ -68,7 +81,10 @@ export const ISLAND_CATALOG: IslandDefinition[] = [
     description: 'Que forma é essa? Formas e posições.',
     theme: 'nature',
     sequenceOrder: 6,
-    bnccSkills: ['EF01MA11', 'EF01MA12', 'EF01MA13', 'EF01MA14', 'EF01MA16', 'EF02MA14', 'EF03MA15'],
+    bnccSkills: ['EF01MA11', 'EF01MA12', 'EF01MA13', 'EF01MA14', 'EF01MA16', 'EF02MA14', 'EF03MA15',
+      // 2º–5º ano progression (out/2026)
+      'EF02MA15', 'EF03MA13', 'EF03MA14', 'EF04MA17', 'EF04MA18', 'EF04MA19',
+      'EF05MA15', 'EF05MA16', 'EF05MA17'],
   },
 ];
 
