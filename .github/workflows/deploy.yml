@@ -46,7 +46,7 @@ jobs:
       - name: Deploy ML to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: npx -y @railway/cli@latest up --service ml-service --detach
+        run: npx -y @railway/cli@latest up --service machine-learning-service --detach
 
   deploy-backend:
     needs: [test-backend]
@@ -57,7 +57,7 @@ jobs:
       - name: Deploy Backend to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: npx -y @railway/cli@latest up --service backend --detach
+        run: npx -y @railway/cli@latest up --service new-backend --detach
 
   deploy-frontend:
     needs: [deploy-backend]
