@@ -1,0 +1,5 @@
+
+# Playwright progression check (e2e/progression)
+public/__progression-preview.json
+e2e/progression/shots/
+.preview-tmp/
