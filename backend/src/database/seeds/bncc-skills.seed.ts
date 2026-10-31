@@ -1,4 +1,31 @@
 import { DataSource } from 'typeorm';
+import officialBncc from './data/bncc-matematica-anos-iniciais.json';
+import { CURRICULUM_PROGRESSION_SPECS } from './curriculum-progression.seed';
+
+type OfficialSkill = { year: number; thematicUnit: string; description: string };
+const OFFICIAL_SKILLS = officialBncc.skills as Record<string, OfficialSkill>;
+
+/**
+ * Official MEC text for every BNCC skill used by the 2º–5º ano exercises that
+ * is not yet listed above. Rows that already exist are never changed
+ * (ON CONFLICT DO NOTHING), so this is additive only.
+ */
+export function progressionSkillRows(existingCodes: Set<string>) {
+  const codes = [...new Set(CURRICULUM_PROGRESSION_SPECS.map((spec) => spec.skill))]
+    .filter((code) => !existingCodes.has(code))
+    .sort();
+  return codes.map((code) => {
+    const official = OFFICIAL_SKILLS[code];
+    if (!official) throw new Error(`BNCC skill ${code} is not in the official data file`);
+    return {
+      code,
+      year: official.year,
+      thematicUnit: official.thematicUnit,
+      knowledgeObject: official.thematicUnit,
+      description: official.description,
+    };
+  });
+}
 
 export const BnccSkillsSeed = async (dataSource: DataSource): Promise<void> => {
   const skills = [
@@ -46,6 +73,8 @@ export const BnccSkillsSeed = async (dataSource: DataSource): Promise<void> => {
     { code: 'EF02MA14', year: 2, thematicUnit: 'Geometria', knowledgeObject: 'Reconhecer figuras espaciais', description: 'Reconhecer, nomear e comparar figuras geométricas espaciais.' },
     { code: 'EF03MA15', year: 3, thematicUnit: 'Geometria', knowledgeObject: 'Classificar figuras planas', description: 'Classificar e comparar figuras planas em relação a lados e vértices.' },
   ];
+
+  skills.push(...progressionSkillRows(new Set(skills.map((skill) => skill.code))));
 
   for (const skill of skills) {
     await dataSource.query(

@@ -33,6 +33,17 @@ test("no registry entry points to an ARASAAC ID known not to exist", () => {
   }
 });
 
+test("every pictogram used by the 2º–5º ano exercises is registered with a checked image", () => {
+  const seed = read("../../backend/src/database/seeds/curriculum-progression.seed.ts");
+  const concepts = new Set([...seed.matchAll(/'((?:library|object)\.[a-z_]+)'/g)].map((match) => match[1]));
+  assert.ok(concepts.size > 40, "expected the curriculum seed to use many pictograms");
+  for (const conceptId of concepts) {
+    const imageId = conceptImageId(conceptId);
+    assert.notEqual(imageId, undefined, `${conceptId} must be registered in pictograms.ts`);
+    assert.equal(typeof imageId, "number", `${conceptId} must have a checked ARASAAC image ID`);
+  }
+});
+
 test("euro money pictograms are not used for amounts in reais", () => {
   for (const euroId of [4630, 8633, 10279, 4776, 4780, 4784, 4788]) {
     assert.equal(registeredImageIds().includes(euroId), false, `ARASAAC ${euroId} shows euros`);

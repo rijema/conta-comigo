@@ -3,6 +3,7 @@ import { expandedActivityPools } from './activity-pools.seed';
 import { interactiveFormatActivities } from './interactive-formats.seed';
 import { templateActivities } from './template-activities.seed';
 import { generate77ExercisesBreakingCycle } from './exercises-77-breaking-cycle.seed';
+import { curriculumProgressionActivities } from './curriculum-progression.seed';
 
 export async function ActivitiesSeed(dataSource: DataSource) {
   const repo = dataSource.getRepository('activities');
@@ -1273,6 +1274,8 @@ export async function ActivitiesSeed(dataSource: DataSource) {
     ...expandedActivityPools() as any[],
     ...interactiveFormatActivities() as any[],
     ...templateActivities() as any[],
+    // 2º–5º ano (out/2026): additive only, see curriculum-progression.seed.ts.
+    ...curriculumProgressionActivities() as any[],
   );
 
   // [ADE year-fit bridge] The hybrid recommendation engine already computes a
