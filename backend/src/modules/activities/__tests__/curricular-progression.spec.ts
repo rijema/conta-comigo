@@ -127,3 +127,23 @@ describe('learning strategy keeps progression direction', () => {
     expect(strategy.selectedSkill).toBe('EF02MA07');
   });
 });
+
+describe('cycles respect the island the child opened', () => {
+  const cycle = (n: number, skill: string) => ({ cycle_number: n, skill_focus: skill, island_id: 'island-body', status: 'active' });
+  const service = (cycles: any[], attempts: any[] = []) => createActivitiesService({
+    cycleTrackingRepo: { find: jest.fn().mockResolvedValue(cycles) },
+    attemptRepo: { find: jest.fn().mockResolvedValue(attempts) },
+  }) as any;
+
+  it('prefers the first active cycle inside the school-year window', async () => {
+    const chosen = await service([cycle(1, 'EF01MA06'), cycle(2, 'EF02MA07'), cycle(3, 'EF04MA06')])
+      .activeCycleForIsland('child', 'island-body', { schoolYear: 4 });
+    expect(chosen.skill_focus).toBe('EF04MA06');
+  });
+
+  it('keeps the first cycle when none is in the window, and none when the island has no cycle', async () => {
+    expect((await service([cycle(1, 'EF01MA06')]).activeCycleForIsland('child', 'island-body', { schoolYear: 4 })).skill_focus)
+      .toBe('EF01MA06');
+    expect(await service([]).activeCycleForIsland('child', 'island-body', { schoolYear: 4 })).toBeNull();
+  });
+});
