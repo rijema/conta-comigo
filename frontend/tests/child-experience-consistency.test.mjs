@@ -28,7 +28,8 @@ test("speech stop keeps its place and choices are spoken", () => {
   const guided = read("../src/components/activity/guided-instructions.tsx");
   const choice = read("../src/components/activity/multiple-choice-activity.tsx");
   assert.match(guided, /disabled=\{!speech\.isSpeaking\}/);
-  assert.match(choice, /speech\.speakPictogram\(option\.text/);
+  // Choices are spoken; authored spokenText ("um quarto") wins over the visible text ("1/4").
+  assert.match(choice, /speech\.speakPictogram\(option\.(?:spokenText \?\? option\.)?text/);
 });
 
 test("only one learning trail is expanded and siblings are visually de-emphasized", () => {

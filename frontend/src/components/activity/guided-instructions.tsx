@@ -27,9 +27,12 @@ export function getActivitySpokenInstruction(activity: Activity): SpokenInstruct
     number_line: ["Mova o marcador até o número pedido.", "Depois, confirme."],
   };
   const authoredSteps = explicitSteps.length > 0 ? explicitSteps : splitAuthoredInstruction(authoredFallback || "");
+  const guidance = content.interaction === "categorize"
+    ? ["Toque em um item e depois no grupo certo.", "Quando terminar, confirme."]
+    : interactionGuidance[activity.type] ?? ["Faça sua escolha com calma.", "Depois, confirme."];
   return {
     introduction: content.spokenIntroduction || "Oi! A TitiA vai te explicar.",
-    steps: [...authoredSteps, ...(interactionGuidance[activity.type] ?? ["Faça sua escolha com calma.", "Depois, confirme."])],
+    steps: [...authoredSteps, ...guidance],
   };
 }
 
