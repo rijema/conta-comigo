@@ -106,6 +106,32 @@ describe('OntologyService', () => {
     }
   });
 
+  it('does not activate a prerequisite explicitly awaiting professional review', () => {
+    const service = new OntologyService(config());
+    service.loadOnce();
+
+    // Multiplication -> Division is present in the OWL, but marked
+    // needs_professional_review and must not drive a curricular decision.
+    expect(service.getStatus().cachedPrerequisiteRelations).toBe(11);
+    const relations = service.getSkillRelations('EF03MA08');
+    expect(relations).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        skillCode: 'EF02MA07',
+        relation: 'prerequisiteSkill',
+      }),
+    ]));
+
+    const decision = service.getValidActivityCandidates({
+      ...facts([activity('division', ['EF03MA08'], ['DivisionConcept'])]),
+      targetSkill: 'EF03MA08',
+    });
+    expect(decision.trace.semanticRelations).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        subject: 'https://contacomigo.org/ontology#Prerequisite_MultiplicationToDivision',
+      }),
+    ]));
+  });
+
   it('reports the school year of related skills so callers can keep progression direction', () => {
     const service = new OntologyService(config());
     service.loadOnce();
