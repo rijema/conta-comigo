@@ -27,6 +27,7 @@ interface PrerequisiteDefinition {
   iri: string;
   prerequisiteConcept: string;
   dependentConcept: string;
+  reviewStatus: string | null;
 }
 
 interface CachedOntology {
@@ -179,6 +180,7 @@ export class OntologyService implements OnModuleInit {
       // touch number concepts).
       const laterGrade = candidate.grade !== null && target.grade !== null && candidate.grade > target.grade;
       const prerequisiteConcepts = laterGrade ? [] : ontology.prerequisites
+        .filter((relation) => relation.reviewStatus === 'grounded_in_bncc_text')
         .filter((relation) => target.mathematicalConcepts.includes(relation.dependentConcept) &&
           candidate.mathematicalConcepts.includes(relation.prerequisiteConcept))
         .map((relation) => relation.prerequisiteConcept);
@@ -228,7 +230,10 @@ export class OntologyService implements OnModuleInit {
       predicate: `${CC_NS}addressesMathematicalConcept`,
       object: `${CC_NS}${concept}`,
     }));
+    // A relation that still requires professional review is documented in the
+    // ontology, but must not be exposed as an actionable prerequisite.
     const relevantPrerequisites = ontology.prerequisites.filter((relation) =>
+      relation.reviewStatus === 'grounded_in_bncc_text' &&
       targetSkill.mathematicalConcepts.includes(relation.dependentConcept),
     );
     semanticRelations.push(...relevantPrerequisites.flatMap((relation) => [
@@ -398,6 +403,7 @@ export class OntologyService implements OnModuleInit {
             iri,
             prerequisiteConcept: this.localName(prerequisite),
             dependentConcept: this.localName(dependent),
+            reviewStatus: this.firstText(individual, CC_NS, 'relationReviewStatus') || null,
           });
         }
       }

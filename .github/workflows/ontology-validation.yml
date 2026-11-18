@@ -1,0 +1,76 @@
+name: Ontology and Recommendation Validation
+
+on:
+  push:
+    branches:
+      - review/ontology-prerequisite-governance-2026
+  pull_request:
+    paths:
+      - 'backend/src/modules/ontology/**'
+      - 'backend/src/modules/activities/runtime-ontology-integration.spec.ts'
+      - 'ontology/contacomigo/contacomigo.owl'
+      - '.github/workflows/ontology-validation.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  backend-semantic-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - name: Install locked backend dependencies
+        working-directory: backend
+        run: npm ci
+      - name: Execute ontology and integration unit tests
+        working-directory: backend
+        run: npm test -- --runInBand ontology.service.spec.ts runtime-semantic.adapter.spec.ts runtime-ontology-integration.spec.ts
+      - name: Typecheck and compile backend
+        working-directory: backend
+        run: npm run build
+
+  owl-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install RDF parser and OWL reasoner
+        run: python -m pip install --disable-pip-version-check rdflib owlready2
+      - name: Parse all RDF/XML triples
+        run: |
+          python - <<'PY'
+          import rdflib
+          graph = rdflib.Graph()
+          graph.parse('ontology/contacomigo/contacomigo.owl', format='xml')
+          print('RDF triples:', len(graph))
+          if not graph:
+              raise SystemExit('Empty RDF graph')
+          PY
+      - name: Check OWL consistency with HermiT
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from owlready2 import get_ontology, sync_reasoner, default_world
+          file = Path('ontology/contacomigo/contacomigo.owl')
+          ontology = get_ontology(file.resolve().as_uri()).load()
+          print('OWL classes loaded:', len(list(ontology.classes())))
+          sync_reasoner([ontology], infer_property_values=False, debug=1)
+          inconsistent = list(default_world.inconsistent_classes())
+          print('Unsatisfiable classes:', [x.name for x in inconsistent])
+          if inconsistent:
+              raise SystemExit('Ontology contains unsatisfiable classes')
+          print('HermiT completed without detected inconsistency')
+          PY
