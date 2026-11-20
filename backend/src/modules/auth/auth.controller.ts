@@ -48,8 +48,8 @@ export class AuthController {
 
   @Get('google/start')
   @ApiOperation({ summary: 'Start Google login flow' })
-  async googleStart(@Res() res: Response) {
-    const url = this.authService.buildGoogleAuthUrl();
+  async googleStart(@Query('role') role: string, @Res() res: Response) {
+    const url = this.authService.buildGoogleAuthUrl(role);
     return res.redirect(url);
   }
 
@@ -57,9 +57,10 @@ export class AuthController {
   @ApiOperation({ summary: 'Handle Google login callback' })
   async googleCallback(
     @Query('code') code: string,
+    @Query('state') state: string,
     @Res() res: Response,
   ) {
-    const result = await this.authService.loginWithGoogleCode(code);
+    const result = await this.authService.loginWithGoogleCode(code, state);
     const frontendUrl = this.authService.getFrontendAuthRedirectUrl();
     const redirectUrl = new URL(frontendUrl);
     redirectUrl.searchParams.set('accessToken', result.accessToken);
