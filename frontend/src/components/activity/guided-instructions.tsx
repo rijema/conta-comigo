@@ -5,6 +5,7 @@ import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
 import Image from "next/image";
 import { useTitiaSpeech } from "@/hooks/use-titia-speech";
 import type { Activity } from "@/types";
+import { useAccessibility } from "@/contexts/AccessibilityContext";
 import type { SpokenInstruction } from "@/lib/titia-speech-service";
 
 function splitAuthoredInstruction(text: string): string[] {
@@ -38,6 +39,7 @@ export function getActivitySpokenInstruction(activity: Activity): SpokenInstruct
 
 export function GuidedInstructions({ activity }: { activity: Activity }) {
   const speech = useTitiaSpeech({ activityId: activity.id });
+  const hiddenByProfessional = useAccessibility().settings.hiddenControls.includes("guide");
   const instruction = useMemo(() => getActivitySpokenInstruction(activity), [activity]);
   const [hasSpokenInstruction, setHasSpokenInstruction] = useState(false);
   // Collapsed by default: the full explanation box used to take up most of
@@ -53,6 +55,9 @@ export function GuidedInstructions({ activity }: { activity: Activity }) {
   }, [activity.id, stopSpeech]);
 
   if (instruction.steps.length === 0) return null;
+
+  // A professional can hide this bar for a child ("Ajustar tela de interação").
+  if (hiddenByProfessional) return null;
 
   return (
     <section className="mb-3 overflow-hidden rounded-3xl border-2 border-purple-200 bg-purple-50 bg-gradient-to-r from-purple-50 via-pink-50 to-orange-50 shadow-sm"

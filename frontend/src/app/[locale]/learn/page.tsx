@@ -7,6 +7,8 @@ import Image from "next/image";
 import { useAuth } from "@/hooks/use-auth";
 import { useSession } from "@/hooks/use-session";
 import { ActivityRenderer } from "@/components/activity/activity-renderer";
+import { ChildDisplaySettings } from "@/components/learner/child-display-settings";
+import { useHoldToActivate } from "@/hooks/use-hold-to-activate";
 import { ExerciseCelebration } from "@/components/activity/exercise-celebration";
 import { CalmPauseDialog } from "@/components/activity/calm-pause-dialog";
 import { ArasaacPictogram } from "@/components/arasaac/arasaac-pictogram";
@@ -291,12 +293,21 @@ function LearnPageInner() {
     setShowChat(true);
   };
 
+  // One answer at a time: a nervous double tap on "Confirmar" must not
+  // record two attempts (GAIA G28; attempts also drive the 5-try reveal, G21).
+  const answerInFlightRef = useRef(false);
   const handleAnswer = useCallback(async (answer: any) => {
-    if (!session?.currentActivity) return;
-    const result = await submitAnswer({
-      activityId: session.currentActivity.id,
-      answer,
-    });
+    if (!session?.currentActivity || answerInFlightRef.current) return;
+    answerInFlightRef.current = true;
+    let result: Awaited<ReturnType<typeof submitAnswer>>;
+    try {
+      result = await submitAnswer({
+        activityId: session.currentActivity.id,
+        answer,
+      });
+    } finally {
+      answerInFlightRef.current = false;
+    }
     if (result.isCorrect) {
       if (result.completed) return;
       if (settings.soundEnabled && settings.soundEffectsEnabled) playCorrect(effectVolume);
@@ -414,6 +425,17 @@ function LearnPageInner() {
     onTranscript: (transcript) => { void askTitia(transcript); },
   });
 
+  // "Quero outro" discards the exercise and is logged as a skip, so a stray
+  // touch must not trigger it: by default it needs a short press-and-hold
+  // (GAIA G28). The professional can turn this off per child.
+  const changeHold = useHoldToActivate({
+    enabled: settings.holdToChangeActivity,
+    disabled: isChangingActivity || !settings.allowChangeActivity,
+    onActivate: () => { void handleChangeActivity(); },
+  });
+  const isHidden = (id: typeof settings.hiddenControls[number]) => settings.hiddenControls.includes(id);
+  const visibleActions = (["change", "pause", "help"] as const).filter((id) => !isHidden(id)).length;
+
   const activity = session?.currentActivity;
   const progress = session?.progress ?? 0;
 
@@ -491,7 +513,7 @@ function LearnPageInner() {
   const tutorialSteps = getTutorialSteps(activity);
 
   return (
-    <div className="min-h-screen motion-safe:transition-all motion-safe:duration-700" onPointerDownCapture={(event) => { if (!(event.target as HTMLElement).closest("[data-pause-ui]")) recordFirstInteraction(activity.id); }} onKeyDownCapture={(event) => { if (!(event.target as HTMLElement).closest("[data-pause-ui]")) recordFirstInteraction(activity.id); }} style={{ background: settings.lowStimulationMode || settings.visualStimulus === 'low' ? "#ecfdf5" : bg, filter: settings.visualStimulus === 'high' ? 'saturate(1.1)' : undefined, transitionDuration: settings.animationsReduced || settings.lowStimulationMode ? '0ms' : settings.animationSpeed === 'slow' ? '1200ms' : settings.animationSpeed === 'fast' ? '350ms' : '700ms' }}>
+    <div className="cc-child min-h-screen motion-safe:transition-all motion-safe:duration-700" onPointerDownCapture={(event) => { if (!(event.target as HTMLElement).closest("[data-pause-ui]")) recordFirstInteraction(activity.id); }} onKeyDownCapture={(event) => { if (!(event.target as HTMLElement).closest("[data-pause-ui]")) recordFirstInteraction(activity.id); }} style={{ background: settings.lowStimulationMode || settings.visualStimulus === 'low' ? "#ecfdf5" : bg, filter: settings.visualStimulus === 'high' ? 'saturate(1.1)' : undefined, transitionDuration: settings.animationsReduced || settings.lowStimulationMode ? '0ms' : settings.animationSpeed === 'slow' ? '1200ms' : settings.animationSpeed === 'fast' ? '350ms' : '700ms' }}>
       <h1 className="sr-only">Atividade: {activity.title}</h1>
 
       {/* ── Correct answer burst ── */}
@@ -616,6 +638,7 @@ function LearnPageInner() {
         @keyframes bounceIn { 0%{transform:scale(0.3);opacity:0} 60%{transform:scale(1.2)} 100%{transform:scale(1);opacity:1} }
         @keyframes fadeInUp { 0%{transform:translateY(20px);opacity:0} 100%{transform:translateY(0);opacity:1} }
         @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-10px)} 40%{transform:translateX(10px)} 60%{transform:translateX(-8px)} 80%{transform:translateX(8px)} }
+        @keyframes holdFill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
         @keyframes feedbackFlash { 0%{opacity:0} 10%,82%{opacity:1} 100%{opacity:0} }
         @keyframes feedbackSweep { 0%{transform:translateX(-105%)} 12%,82%{transform:translateX(0)} 100%{transform:translateX(105%)} }
         @media (prefers-reduced-motion: reduce) { .feedback-motion { animation: none !important; } }
@@ -630,21 +653,21 @@ function LearnPageInner() {
       {/* ── Header ── */}
       <header className="exercise-header sticky top-0 z-20 bg-white/80 px-3 py-2 shadow-sm backdrop-blur-md">
         <div className="mx-auto grid max-w-5xl grid-cols-[1fr_minmax(0,20rem)_1fr] items-center gap-3">
-          <button
+          {isHidden("map") ? <span /> : <button
             onClick={handleGoToMenu}
             aria-label="Voltar ao mapa (sair da atividade)"
-            className="justify-self-start flex items-center gap-1.5 rounded-full border-2 border-purple-200 bg-purple-100 bg-gradient-to-r from-purple-100 to-pink-100 px-4 py-2 text-sm font-extrabold text-purple-700 shadow-sm transition-all hover:scale-[1.04] hover:border-purple-400 hover:shadow-md active:scale-[.96] motion-reduce:transform-none"
+            className="cc-action justify-self-start flex items-center gap-1.5 rounded-full border-2 border-purple-200 bg-purple-100 bg-gradient-to-r from-purple-100 to-pink-100 px-4 py-2 text-sm font-extrabold text-purple-700 shadow-sm transition-all hover:scale-[1.04] hover:border-purple-400 hover:shadow-md active:scale-[.96] motion-reduce:transform-none"
           >
             <ArasaacPictogram conceptId="navigation.home" showLabel={false} imageClassName="w-5 h-5" />
             <span>Mapa</span>
-          </button>
+          </button>}
 
           {/* TEACCH-style visual schedule: discrete steps (not just a %) let the
               child see exactly what's done and what's left in this round of
               10 activities, independently and without asking an adult —
               "visual schedules" + "individual work system" pillars of
               Structured TEACCHing (teacch.com). */}
-          <div className="w-full">
+          {isHidden("progress") ? <span /> : <div className="w-full">
             <div
               role="img"
               aria-label={`Progresso: ${Math.floor(progress / 10)} de 10 atividades concluídas nesta rodada`}
@@ -670,18 +693,28 @@ function LearnPageInner() {
             <p className="mt-0.5 text-center text-xs font-bold text-slate-600">
               Atividade {Math.min(Math.floor(progress / 10) + 1, 10)} de 10
             </p>
-          </div>
+          </div>}
 
+          {isHidden("settings") ? <span /> : (
+            <ChildDisplaySettings
+              readingText={String(activity.content?.question ?? activity.content?.prompt ?? activity.title ?? "")}
+              readingOptions={(Array.isArray(activity.content?.options) ? activity.content.options : [])
+                .map((o: any) => String(o?.text ?? o?.label ?? o ?? "")).filter(Boolean)}
+              onSpeak={speech.speakExplanation}
+            />
+          )}
         </div>
       </header>
 
-      <div className="exercise-actions mx-auto grid max-w-5xl grid-cols-3 gap-2 px-4 pt-3 sm:gap-3">
+      {visibleActions > 0 && <div className={`exercise-actions mx-auto grid max-w-5xl gap-2 px-4 pt-3 sm:gap-3 ${visibleActions === 3 ? "grid-cols-3" : visibleActions === 2 ? "grid-cols-2" : "grid-cols-1"}`}>
+        {!isHidden("change") && <div className="relative">
         <button
           type="button"
-          onClick={handleChangeActivity}
+          {...changeHold.handlers}
           disabled={isChangingActivity || !settings.allowChangeActivity}
           aria-label="Quero outro exercício"
-          className="inline-flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl border-2 border-teal-400 bg-teal-700 bg-gradient-to-r from-teal-700 to-emerald-700 px-2 py-2 text-xs font-extrabold text-white shadow-md motion-safe:transition-all motion-safe:hover:scale-[1.04] hover:shadow-lg motion-safe:active:scale-[.96] disabled:opacity-60 sm:flex-row sm:gap-2 sm:px-4 sm:text-sm"
+          aria-describedby={settings.holdToChangeActivity ? "change-hold-hint" : undefined}
+          className="cc-action relative w-full overflow-hidden select-none inline-flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl border-2 border-teal-400 bg-teal-700 bg-gradient-to-r from-teal-700 to-emerald-700 px-2 py-2 text-xs font-extrabold text-white shadow-md motion-safe:transition-all motion-safe:hover:scale-[1.04] hover:shadow-lg motion-safe:active:scale-[.96] disabled:opacity-60 sm:flex-row sm:gap-2 sm:px-4 sm:text-sm"
         >
           <ArasaacPictogram
             conceptId="navigation.repeat"
@@ -690,18 +723,32 @@ function LearnPageInner() {
             imageClassName="w-6 h-6"
           />
           <span>{!settings.allowChangeActivity ? "Outra atividade indisponível" : isChangingActivity ? "Escolhendo..." : "Quero outro"}</span>
+          {/* Hold progress (GAIA G28): fills while the finger stays down. */}
+          {changeHold.holding && (
+            <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-1.5 origin-left bg-white"
+              style={{ animation: `holdFill ${changeHold.durationMs}ms linear forwards` }} />
+          )}
         </button>
-        <button type="button" data-pause-ui onClick={() => handleStartPause("child")} disabled={isPaused}
-          className="inline-flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl border-2 border-teal-300 bg-teal-50 bg-gradient-to-r from-teal-50 to-cyan-100 px-2 py-2 text-xs font-extrabold text-teal-800 shadow-md motion-safe:transition-all motion-safe:hover:scale-[1.04] hover:shadow-lg motion-safe:active:scale-[.96] disabled:opacity-60 sm:flex-row sm:gap-2 sm:px-4 sm:text-sm"
+        {settings.holdToChangeActivity && (
+          <span id="change-hold-hint" className="sr-only">Segure o botão para trocar de exercício.</span>
+        )}
+        {changeHold.hint && (
+          <p role="status" className="absolute left-0 top-full z-30 mt-2 w-56 rounded-2xl border-2 border-teal-700 bg-white p-3 text-sm font-bold text-teal-900 shadow-xl">
+            ✋ Segure o botão um pouquinho para trocar.
+          </p>
+        )}
+        </div>}
+        {!isHidden("pause") && <button type="button" data-pause-ui onClick={() => handleStartPause("child")} disabled={isPaused}
+          className="cc-action inline-flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl border-2 border-teal-300 bg-teal-50 bg-gradient-to-r from-teal-50 to-cyan-100 px-2 py-2 text-xs font-extrabold text-teal-800 shadow-md motion-safe:transition-all motion-safe:hover:scale-[1.04] hover:shadow-lg motion-safe:active:scale-[.96] disabled:opacity-60 sm:flex-row sm:gap-2 sm:px-4 sm:text-sm"
           aria-label="Quero fazer uma pausa">
           <ArasaacPictogram conceptId="navigation.pause" showLabel={false} imageClassName="h-7 w-7" />
           <span>Quero uma pausa</span>
-        </button>
-        <div className="relative">
+        </button>}
+        {!isHidden("help") && <div className="relative">
           <button type="button" onClick={handleOpenHelpMenu}
             aria-haspopup="dialog" aria-expanded={showHelpMenu}
             aria-label="Ajuda: como jogar e falar com a TitiA"
-            className={`inline-flex min-h-14 w-full flex-col items-center justify-center gap-1 rounded-2xl border-2 border-sky-300 bg-sky-100 bg-gradient-to-r from-sky-100 to-blue-100 px-2 py-2 text-xs font-extrabold text-sky-800 shadow-md motion-safe:transition-all motion-safe:hover:scale-[1.04] hover:shadow-lg motion-safe:active:scale-[.96] sm:flex-row sm:gap-2 sm:px-4 sm:text-sm
+            className={`cc-action inline-flex min-h-14 w-full flex-col items-center justify-center gap-1 rounded-2xl border-2 border-sky-300 bg-sky-100 bg-gradient-to-r from-sky-100 to-blue-100 px-2 py-2 text-xs font-extrabold text-sky-800 shadow-md motion-safe:transition-all motion-safe:hover:scale-[1.04] hover:shadow-lg motion-safe:active:scale-[.96] sm:flex-row sm:gap-2 sm:px-4 sm:text-sm
               ${showHelpIntro || showAutoHint ? "ring-4 ring-sky-300 motion-safe:animate-pulse" : ""}`}>
             {/* Mini preview of what is inside, so the hidden options stay discoverable */}
             <span className="flex items-center -space-x-2" aria-hidden="true">
@@ -715,8 +762,8 @@ function LearnPageInner() {
               👆 Aqui tem mais ajuda: como jogar e falar com a TitiA.
             </p>
           )}
-        </div>
-      </div>
+        </div>}
+      </div>}
 
       {showAutoHint && <div className="mx-auto max-w-5xl px-4 pt-2"><p role="status" className="rounded-2xl border-2 border-sky-200 bg-white p-3 text-sm font-bold text-sky-900">💡 {activity.content?.spokenHint ?? 'Se quiser, toque em Ajuda para ver como jogar.'}</p></div>}
 
@@ -850,7 +897,7 @@ function LearnPageInner() {
 
       {/* ── Activity card ── */}
       <main className="exercise-main mx-auto w-full max-w-5xl px-3 pb-6 pt-3 sm:px-4">
-        <div className="overflow-hidden rounded-3xl border-2 border-white/80 bg-white/80 shadow-xl backdrop-blur-sm">
+        <div className="cc-surface overflow-hidden rounded-3xl border-2 border-white/80 bg-white/80 shadow-xl backdrop-blur-sm">
           {/* Colourful top stripe per activity type */}
           <div className="h-2" style={{
             background: activity.type === "multiple_choice" ? "linear-gradient(90deg,#34d399,#059669)" :
@@ -859,7 +906,7 @@ function LearnPageInner() {
                         activity.type === "number_line"     ? "linear-gradient(90deg,#ec4899,#db2777)" :
                         "linear-gradient(90deg,#06b6d4,#0284c7)"
           }} />
-          <div className="exercise-card-body p-3">
+          <div className="cc-stage exercise-card-body p-3">
             <ActivityRenderer
               activity={activity}
               onAnswer={handleAnswer}

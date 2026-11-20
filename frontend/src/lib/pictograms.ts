@@ -4,7 +4,7 @@ export type PictogramCategory = "NAVIGATION" | "STATE" | "MATHEMATICS" |
   "ACTIVITY_ACTION" | "COMMUNICATION" | "NUMBER" | "LEARNING_LIBRARY";
 
 export type PictogramConcept =
-  | `navigation.${"back" | "next" | "home" | "start" | "finish" | "help" | "repeat" | "listen" | "pause" | "try_again" | "change_activity"}`
+  | `navigation.${"back" | "next" | "home" | "start" | "finish" | "help" | "repeat" | "listen" | "pause" | "try_again" | "change_activity" | "settings" | "read" | "magnify"}`
   | `state.${"yes" | "no" | "ok" | "confirm" | "correct" | "incorrect" | "great" | "done" | "wait"}`
   | `mathematics.${"numbers" | "addition" | "subtraction" | "equal" | "more" | "less" | "count" | "compare" | "order" | "sequence" | "pattern" | "shape" | "color" | "size"}`
   | `activity.${"drag" | "choose" | "touch" | "listen" | "look" | "match" | "complete" | "move" | "point"}`
@@ -40,6 +40,11 @@ const definitions: PictogramDefinition[] = [
   definition("navigation.repeat", "NAVIGATION", "repetir", "🔁", 11752),
   definition("navigation.listen", "NAVIGATION", "ouvir", "🔊", 6572),
   definition("navigation.pause", "NAVIGATION", "pausar", "⏸️", 38213),
+  // Child display settings (checked on static.arasaac.org, nov/2026):
+  // 39466 "botão de configuração", 7141 "ler", 9927 "lupa".
+  definition("navigation.settings", "NAVIGATION", "ajustes", "⚙️", 39466),
+  definition("navigation.read", "NAVIGATION", "ler", "📖", 7141),
+  definition("navigation.magnify", "NAVIGATION", "ampliar", "🔍", 9927),
   definition("navigation.try_again", "NAVIGATION", "tentar novamente", "🔄"),
   definition("navigation.change_activity", "NAVIGATION", "mudar atividade", "🎮"),
   definition("state.yes", "STATE", "sim", "✅", 5584),

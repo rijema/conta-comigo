@@ -115,3 +115,80 @@ html {
 html {
   scroll-behavior: smooth;
 }
+
+/* ── Touch safety (GAIA G28) ──
+   No double-tap zoom or 300 ms delay on controls, so one tap is one action. */
+button, a, input, select, textarea, label, [role="button"] {
+  touch-action: manipulation;
+}
+
+/* ── Child display settings (exercise gear; GAIA G05/G06/G17) ──
+   Scoped to .cc-child (child screens) so a professional using the same
+   browser during an "atendimento" keeps the default dashboard. */
+html[data-reading-font="atkinson"] .cc-child,
+html[data-reading-font="atkinson"] .cc-child * {
+  font-family: var(--font-atkinson), system-ui, sans-serif !important;
+}
+html[data-reading-font="lexend"] .cc-child,
+html[data-reading-font="lexend"] .cc-child * {
+  font-family: var(--font-lexend), system-ui, sans-serif !important;
+}
+/* Pictogram and item enlargement: `zoom` changes layout size, so enlarged
+   content reflows instead of overlapping. */
+.cc-child .cc-stage .cc-pictogram {
+  zoom: var(--pictogram-scale, 1);
+}
+.cc-child .cc-stage {
+  zoom: var(--item-scale, 1);
+}
+
+/* Color themes. Every pair keeps WCAG AA (text >= 4.5:1, boundaries >= 3:1);
+   checked by e2e/a11y/audit.js. */
+html[data-color-theme="cream"] .cc-child {
+  --cc-page: #f7f0dc; --cc-surface: #fffaeb; --cc-text: #2b2118;
+  --cc-primary: #3b4a6b; --cc-on-primary: #fffaeb;
+  --cc-action: #efe3c4; --cc-action-border: #7a5c2e; --cc-on-action: #2b2118;
+}
+html[data-color-theme="calm"] .cc-child {
+  --cc-page: #e8eef3; --cc-surface: #f7f9fb; --cc-text: #1e2b36;
+  --cc-primary: #3d5a6c; --cc-on-primary: #ffffff;
+  --cc-action: #dce5ec; --cc-action-border: #4e6577; --cc-on-action: #1e2b36;
+}
+html[data-color-theme="cream"] .cc-child,
+html[data-color-theme="calm"] .cc-child {
+  background: var(--cc-page) !important;
+  color: var(--cc-text);
+}
+html[data-color-theme="cream"] .cc-child .cc-surface,
+html[data-color-theme="calm"] .cc-child .cc-surface {
+  background: var(--cc-surface) !important;
+  backdrop-filter: none !important;
+}
+html[data-color-theme="cream"] .cc-child .cc-action,
+html[data-color-theme="calm"] .cc-child .cc-action {
+  background: var(--cc-action) !important;
+  border-color: var(--cc-action-border) !important;
+  color: var(--cc-on-action) !important;
+}
+html[data-color-theme="cream"] .cc-child [aria-label^="Confirmar"]:not(:disabled),
+html[data-color-theme="calm"] .cc-child [aria-label^="Confirmar"]:not(:disabled) {
+  background: var(--cc-primary) !important;
+  color: var(--cc-on-primary) !important;
+}
+html[data-color-theme="cream"] .cc-child [aria-label^="Opção:"][aria-pressed="false"],
+html[data-color-theme="calm"] .cc-child [aria-label^="Opção:"][aria-pressed="false"] {
+  background: var(--cc-surface) !important;
+  border-color: var(--cc-action-border) !important;
+  color: var(--cc-text) !important;
+}
+
+/* Button labels (GAIA G06): picture + word, picture only or word only on the
+   child's action buttons. The accessible name (aria-label) never changes;
+   "icons" hides the word visually but keeps it for screen readers. */
+html[data-button-labels="text"] .cc-child .cc-action .cc-pictogram {
+  display: none !important;
+}
+html[data-button-labels="icons"] .cc-child .cc-action > span:not(:first-child):not([aria-hidden="true"]) {
+  position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important;
+  margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important;
+}

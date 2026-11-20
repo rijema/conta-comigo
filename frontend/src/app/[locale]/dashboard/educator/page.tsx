@@ -10,6 +10,7 @@ import { isResearchDebugEnabled } from "@/lib/research-debug";
 import { ResearchDebugPanel } from "@/components/recommendation/research-debug-panel";
 import { ChatNowCard } from "@/components/titia/chat-now-card";
 import { enterAttendance } from "@/lib/attendance";
+import { ChildScreenEditor } from "@/components/educator/child-screen-editor";
 
 const SKILLS = ["visual", "auditive", "logical", "motor", "sensory"] as const;
 type Skill = typeof SKILLS[number];
@@ -65,7 +66,7 @@ export default function EducatorDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<"overview" | "skills" | "ade" | "report">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "skills" | "screen" | "ade" | "report">("overview");
   const [savedMsg, setSavedMsg] = useState(false);
   const [pendingAttendances, setPendingAttendances] = useState<any[]>([]);
   const [startingAttendance, setStartingAttendance] = useState<string | null>(null);
@@ -336,8 +337,8 @@ export default function EducatorDashboardPage() {
                 </div>
 
                 {/* Tabs */}
-                <div className="flex gap-1 mt-4 print:hidden">
-                  {(["overview", "skills", "ade", "report"] as const).map((tab) => (
+                <div className="flex flex-wrap gap-1 mt-4 print:hidden">
+                  {(["overview", "skills", "screen", "ade", "report"] as const).map((tab) => (
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
@@ -347,7 +348,7 @@ export default function EducatorDashboardPage() {
                           : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                       }`}
                     >
-                      {{ overview: "📊 Visão Geral", skills: "🎨 Perfil e experiência", ade: "🤖 IA/ADE", report: "📄 Relatório" }[tab]}
+                      {{ overview: "📊 Visão Geral", skills: "🎨 Perfil e experiência", screen: "🖐️ Ajustar tela da criança", ade: "🤖 IA/ADE", report: "📄 Relatório" }[tab]}
                     </button>
                   ))}
                 </div>
@@ -544,6 +545,18 @@ export default function EducatorDashboardPage() {
                     <SkillEditor
                       profile={profile}
                       onSave={handleSaveSkills}
+                      saving={saving}
+                      savedMsg={savedMsg}
+                    />
+                  )}
+
+                  {/* CHILD SCREEN TAB: hide/show exercise-screen controls */}
+                  {activeTab === "screen" && (
+                    <ChildScreenEditor
+                      key={selected.id}
+                      learnerName={selected.name}
+                      uiPreferences={profile.uiPreferences ?? {}}
+                      onSave={(uiPreferences) => handleSaveSkills({ uiPreferences })}
                       saving={saving}
                       savedMsg={savedMsg}
                     />

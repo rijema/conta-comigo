@@ -16,6 +16,8 @@ export function ProfessionalAttendanceBar() {
   const [visible, setVisible] = useState(false);
   const [learnerName, setLearnerName] = useState<string | null>(null);
   const [ending, setEnding] = useState(false);
+  // Two-step end (GAIA G20/G28): one stray tap must not close the session.
+  const [confirming, setConfirming] = useState(false);
   const router = useRouter();
   const locale = useLocale();
   // Re-evaluate whenever the authenticated user changes (not just on mount):
@@ -43,14 +45,27 @@ export function ProfessionalAttendanceBar() {
       <p className="text-sm font-bold">
         🩺 Atendimento em andamento{learnerName ? ` · ${learnerName}` : ""}
       </p>
-      <button
-        type="button"
-        onClick={handleEnd}
-        disabled={ending}
-        className="rounded-full bg-black/20 px-4 py-1.5 text-sm font-bold hover:bg-black/30 focus-visible:outline-white disabled:opacity-60"
-      >
-        {ending ? "Encerrando…" : "Encerrar atendimento"}
-      </button>
+      {confirming ? (
+        <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Confirmar encerramento do atendimento">
+          <span className="text-sm font-bold">Encerrar mesmo?</span>
+          <button type="button" onClick={handleEnd} disabled={ending} autoFocus
+            className="rounded-full bg-white px-4 py-1.5 text-sm font-black text-violet-900 hover:bg-violet-50 focus-visible:outline-white">
+            {ending ? "Encerrando…" : "Sim, encerrar"}
+          </button>
+          <button type="button" onClick={() => setConfirming(false)} disabled={ending}
+            className="rounded-full bg-black/20 px-4 py-1.5 text-sm font-bold hover:bg-black/30 focus-visible:outline-white">
+            Continuar atendimento
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setConfirming(true)}
+          className="rounded-full bg-black/20 px-4 py-1.5 text-sm font-bold hover:bg-black/30 focus-visible:outline-white"
+        >
+          Encerrar atendimento
+        </button>
+      )}
     </div>
   );
 }

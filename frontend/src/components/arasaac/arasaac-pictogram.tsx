@@ -53,7 +53,7 @@ export function ArasaacPictogram({
         <img
           src={imageUrl}
           alt={accessibleAlt}
-          className={`${imageClassName} object-contain`}
+          className={`cc-pictogram ${imageClassName} object-contain`}
           loading="lazy"
           onError={() => setImageFailed(true)}
         />
@@ -61,7 +61,7 @@ export function ArasaacPictogram({
         <span
           role="img"
           aria-label={accessibleAlt}
-          className={`${imageClassName} inline-flex items-center justify-center text-4xl`}
+          className={`cc-pictogram ${imageClassName} inline-flex items-center justify-center text-4xl`}
           data-pictogram-fallback="true"
         >
           {entry?.symbol ?? "□"}
