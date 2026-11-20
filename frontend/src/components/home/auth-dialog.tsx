@@ -64,14 +64,14 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
     }
   };
 
-  const startGoogleLogin = () => {
+  const startGoogleLogin = (role: "guardian" | "professional") => {
     const backendUrl = process.env.NEXT_PUBLIC_API_URL;
     if (!backendUrl) {
       setError("Login com Google não está configurado neste ambiente.");
       return;
     }
 
-    window.location.assign(`${backendUrl}/auth/google/start`);
+    window.location.assign(`${backendUrl}/auth/google/start?role=${role}`);
   };
 
   const submitRegister = async (event: React.FormEvent) => {
@@ -106,12 +106,12 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
 
   return (
     <>
+    {/* The backdrop is not a control (it wraps the dialog, so giving it
+        role="button" nests interactive elements — WCAG 4.1.2). Clicking it is
+        a mouse shortcut; keyboard users close with Escape or the × button. */}
+    {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
     <div className="fixed inset-0 z-[100] flex justify-center overflow-y-auto bg-slate-950/55 p-3 backdrop-blur-sm"
-      role="button"
-      tabIndex={0}
       onMouseDown={(event) => event.target === event.currentTarget && onClose()}
-      onKeyDown={(event) => (event.key === 'Escape' || event.key === 'Enter') && event.target === event.currentTarget && onClose()}
-      aria-label="Fechar autenticação"
     >
       {/* `my-auto` (not `items-center` on the flex parent) centers the dialog
           when it's short but lets it scroll from the top when it's taller
@@ -120,8 +120,9 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
           `svh` (small viewport height) avoids mobile browsers' address-bar
           collapse making `vh` taller than what's actually visible. */}
       <section ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="auth-title"
+        onKeyDown={(event) => event.key === "Escape" && onClose()}
         className="my-auto grid max-h-[94svh] w-full max-w-4xl overflow-hidden rounded-[2rem] bg-white shadow-2xl md:grid-cols-[.85fr_1.15fr]">
-        <div className="relative hidden overflow-hidden bg-gradient-to-br from-violet-100 via-pink-50 to-amber-50 md:block">
+        <div className="relative hidden overflow-hidden bg-violet-100 bg-gradient-to-br from-violet-100 via-pink-50 to-amber-50 md:block">
           <Image src="/assets/mainiconfirstpage.png" alt="TitiA, assistente de aprendizagem do Conta Comigo"
             fill sizes="360px" className="object-contain object-bottom pt-12" />
           <div className="absolute left-6 top-6 right-6 rounded-2xl bg-white/80 p-4 backdrop-blur">
@@ -210,7 +211,7 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
               {accessRole !== "child" && (
                 <button
                   type="button"
-                  onClick={startGoogleLogin}
+                  onClick={() => startGoogleLogin(accessRole === "professional" ? "professional" : "guardian")}
                   className="flex w-full items-center justify-center gap-3 rounded-2xl border-2 border-slate-200 bg-white px-6 py-3 font-bold text-slate-700 shadow-sm transition hover:border-violet-300 hover:bg-violet-50"
                 >
                   <span className="text-lg" aria-hidden="true">G</span>
@@ -222,7 +223,7 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
             <form onSubmit={submitRegister} className="space-y-4">
               <p className="text-sm text-slate-700">Etapa {step} de 2</p>
               {step === 1 ? <>
-                <Field label="Seu nome"><input className={fieldClass} required value={form.name} onChange={(e) => update("name", e.target.value)} /></Field>
+                <Field label="Seu nome"><input autoComplete="name" className={fieldClass} required value={form.name} onChange={(e) => update("name", e.target.value)} /></Field>
                 <Field label="E-mail"><input type="email" autoComplete="email" className={fieldClass} required value={form.email} onChange={(e) => update("email", e.target.value)} /></Field>
                <Field label="Senha (mínimo de 8 caracteres)">
                 <div className="space-y-2">
@@ -258,10 +259,10 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
                       />
                     </div>
                     {form.password.length < 8 && (
-                      <span className="text-red-600 font-semibold">{8 - form.password.length} caracteres faltam</span>
+                      <span className="text-red-700 font-semibold">{8 - form.password.length} caracteres faltam</span>
                     )}
                     {form.password.length >= 8 && (
-                      <span className="text-green-600 font-semibold">✓ OK</span>
+                      <span className="text-green-700 font-semibold">✓ OK</span>
                     )}
                   </div>
                 </div>
@@ -272,18 +273,18 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
                       className={`rounded-2xl border-2 p-3 font-bold ${form.role === value ? "border-violet-500 bg-violet-50 text-violet-700" : "border-slate-200 text-slate-600"}`}>{label}</button>)}
                 </div></fieldset>
                 <SubmitButton loading={false}>Continuar</SubmitButton>
-                <div className="flex items-center gap-3 text-xs font-semibold text-slate-400">
+                <div className="flex items-center gap-3 text-xs font-semibold text-slate-600">
                   <span className="h-px flex-1 bg-slate-200" />ou<span className="h-px flex-1 bg-slate-200" />
                 </div>
                 <button
                   type="button"
-                  onClick={startGoogleLogin}
+                  onClick={() => startGoogleLogin(form.role)}
                   className="flex w-full items-center justify-center gap-3 rounded-2xl border-2 border-slate-200 bg-white px-6 py-3 font-bold text-slate-700 shadow-sm transition hover:border-violet-300 hover:bg-violet-50"
                 >
                   <span className="text-lg" aria-hidden="true">G</span>
                   Cadastrar com Google
                 </button>
-                <p className="text-center text-xs text-slate-500">
+                <p className="text-center text-xs text-slate-600">
                   Ao cadastrar com Google, você ainda poderá revisar e confirmar o Termo de
                   Consentimento no seu primeiro acesso.
                 </p>
@@ -325,5 +326,5 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function SubmitButton({ loading, children }: { loading: boolean; children: React.ReactNode }) {
-  return <button type="submit" disabled={loading} className="w-full rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-3.5 font-black text-white shadow-lg hover:-translate-y-0.5 disabled:opacity-50">{loading ? "Aguarde…" : children}</button>;
+  return <button type="submit" disabled={loading} className="w-full rounded-2xl bg-violet-700 bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-3.5 font-black text-white shadow-lg hover:-translate-y-0.5 disabled:opacity-50">{loading ? "Aguarde…" : children}</button>;
 }

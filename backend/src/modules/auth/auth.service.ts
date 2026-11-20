@@ -149,7 +149,14 @@ export class AuthService {
     return { user: this.sanitizeUser(user), ...tokens };
   }
 
-  buildGoogleAuthUrl() {
+  // Roles a person may pick for themselves when signing up with Google.
+  // CHILD accounts are created by a guardian and ADMIN is never self-assigned,
+  // so anything else falls back to GUARDIAN.
+  private googleSignupRole(requested?: string): UserRole {
+    return requested === UserRole.PROFESSIONAL ? UserRole.PROFESSIONAL : UserRole.GUARDIAN;
+  }
+
+  buildGoogleAuthUrl(requestedRole?: string) {
     const clientId = this.configService.get<string>('GOOGLE_CLIENT_ID');
     const redirectUri = this.configService.get<string>('GOOGLE_REDIRECT_URI');
 
@@ -164,6 +171,9 @@ export class AuthService {
     url.searchParams.set('scope', 'openid email profile');
     url.searchParams.set('access_type', 'offline');
     url.searchParams.set('prompt', 'consent');
+    // Carries the role chosen in the dialog through Google and back to the
+    // callback; it only matters when the Google account is new to us.
+    url.searchParams.set('state', this.googleSignupRole(requestedRole));
     return url.toString();
   }
 
@@ -171,7 +181,7 @@ export class AuthService {
     return this.configService.get<string>('FRONTEND_AUTH_CALLBACK_URL', 'http://localhost:3000/pt/dashboard');
   }
 
-  async loginWithGoogleCode(code: string) {
+  async loginWithGoogleCode(code: string, state?: string) {
     if (!code) {
       throw new BadRequestException('Google authorization code is required');
     }
@@ -230,7 +240,7 @@ export class AuthService {
         name,
         email,
         password: await bcrypt.hash(randomUUID(), 12),
-        role: UserRole.GUARDIAN,
+        role: this.googleSignupRole(state),
       });
       // Do NOT auto-grant LGPD consent here: the user has not seen or
       // accepted the Consent Term yet. The frontend must block usage and
