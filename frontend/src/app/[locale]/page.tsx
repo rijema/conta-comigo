@@ -41,7 +41,7 @@ export default function HomePage() {
             <div className="hidden items-center gap-4 lg:flex">
               <span aria-hidden className={`w-px bg-slate-300 transition-all ${compact ? "h-8" : "h-10"}`} />
               <span className="flex flex-col">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-600">Projeto piloto com</span>
+                <span className="text-[10px] font-semibold text-slate-600">Projeto piloto com</span>
                 <Image src="/assets/logociclo.png" width={1201} height={317} alt="Ciclo – Centro Integrado de Fonoaudiologia" className={`w-auto object-contain transition-all ${compact ? "h-6" : "h-8"}`} />
               </span>
             </div>
@@ -62,7 +62,7 @@ export default function HomePage() {
             <p className="mt-4 text-xl font-extrabold text-violet-700 sm:text-2xl">Matemática que aprende com cada criança.</p>
             <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-slate-600 lg:mx-0">Uma jornada adaptativa, acolhedora e visual para crianças com TEA, acompanhada pela TitiA em cada descoberta.</p>
             <div className="mt-7 flex flex-wrap justify-center gap-3 lg:justify-start">
-              <button onClick={() => setAuth("register")} className="rounded-2xl bg-violet-700 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-600 px-7 py-4 text-lg font-black text-white shadow-xl hover:-translate-y-1 focus:ring-4 focus:ring-violet-200">Começar agora</button>
+              <button onClick={() => setAuth("register")} className="rounded-2xl bg-violet-700 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-600 px-7 py-4 text-lg font-black text-white shadow-xl hover:-translate-y-1 focus:ring-4 focus:ring-violet-500">Começar agora</button>
               <button onClick={() => setShowAbout(true)} className="rounded-2xl border-2 border-violet-200 bg-white/80 px-7 py-4 text-lg font-bold text-violet-800 hover:bg-white">Conheça a TitiA</button>
             </div>
             <ul className="mt-7 flex flex-wrap justify-center gap-2 text-sm font-semibold text-slate-700 lg:justify-start" aria-label="Destaques">
@@ -90,7 +90,7 @@ export default function HomePage() {
         </section>
 
         <section className="mx-auto max-w-5xl px-5 pb-12 text-center sm:px-6">
-          <button type="button" onClick={() => setShowArasaac(true)} aria-expanded={showArasaac} aria-controls="arasaac-library-dialog" className="group inline-flex items-center gap-4 rounded-3xl border-2 border-orange-200 bg-white px-5 py-3 text-left shadow-md hover:border-orange-400 focus:ring-4 focus:ring-orange-100">
+          <button type="button" onClick={() => setShowArasaac(true)} aria-expanded={showArasaac} aria-controls="arasaac-library-dialog" className="group inline-flex items-center gap-4 rounded-3xl border-2 border-orange-200 bg-white px-5 py-3 text-left shadow-md hover:border-orange-400 focus:ring-4 focus:ring-orange-600">
             <Image src="/assets/arasaac.png" width={190} height={45} alt="ARASAAC" className="h-10 w-auto object-contain" />
             <span><strong className="block text-slate-800">Pictogramas que apoiam a compreensão</strong><span className="text-sm text-slate-600">Explore a biblioteca</span></span><span aria-hidden className="text-xl text-orange-700">→</span>
           </button>

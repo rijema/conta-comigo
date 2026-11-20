@@ -41,7 +41,7 @@ export function QuantityBuilderActivity({ activity, onAnswer }: {
       <p className="mb-4 text-center text-xl font-bold">{activity.content?.question ?? activity.content?.instructionsPt}</p>
       {targetNumber !== undefined && (
         <div className="mb-4 flex flex-col items-center gap-1">
-          <span className="text-sm font-semibold uppercase tracking-wide text-gray-600">Monte este número:</span>
+          <span className="text-sm font-semibold text-gray-600">Monte este número:</span>
           <div className="flex h-24 w-24 items-center justify-center rounded-2xl border-4 border-blue-400 bg-white shadow-md">
             <span className="text-6xl font-extrabold text-blue-700">{targetNumber}</span>
           </div>

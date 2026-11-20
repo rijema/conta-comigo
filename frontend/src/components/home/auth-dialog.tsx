@@ -15,7 +15,7 @@ interface Props {
   onClose: () => void;
 }
 
-const fieldClass = "w-full rounded-2xl border-2 border-slate-200 bg-white px-4 py-3 text-base text-slate-900 outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-100";
+const fieldClass = "w-full rounded-2xl border-2 border-slate-500 bg-white px-4 py-3 text-base text-slate-900 outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-500";
 
 const emptyForm = {
   name: "", email: "", password: "", guardianEmail: "",
@@ -133,9 +133,9 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
 
         <div className="relative flex min-h-0 flex-col overflow-hidden p-5 sm:p-8">
           <button ref={closeRef} type="button" onClick={onClose} aria-label="Fechar"
-            className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full text-xl text-slate-700 hover:bg-slate-100 focus:ring-4 focus:ring-violet-200">×</button>
+            className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full text-xl text-slate-700 hover:bg-slate-100 focus:ring-4 focus:ring-violet-500">×</button>
           <div className="mb-6 pr-10">
-            <p className="text-sm font-bold uppercase tracking-widest text-violet-600">Bem-vindo</p>
+            <p className="text-sm font-bold text-violet-600">Bem-vindo</p>
             <h2 id="auth-title" className="text-3xl font-black text-slate-900">
               {view === "login" ? "Entrar no Conta Comigo" : "Criar sua conta"}
             </h2>

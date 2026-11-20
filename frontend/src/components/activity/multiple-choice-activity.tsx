@@ -90,7 +90,7 @@ export function MultipleChoiceActivity({ activity, onAnswer, sensoryProfile }: P
           <img src={activity.content.imageUrl} alt={activity.content.imageAlt || "Imagem da questão"} className="max-h-40 rounded-lg" loading="lazy" />
         </div>
       )}
-      <p className="mb-2 text-center text-sm font-semibold uppercase tracking-wide text-blue-700">
+      <p className="mb-2 text-center text-sm font-semibold text-blue-700">
         <ArasaacPictogram conceptId="activity.touch" showLabel={false} imageClassName="h-6 w-6" />
         <span className="ml-2">Toque na resposta certa</span>
       </p>
@@ -101,7 +101,7 @@ export function MultipleChoiceActivity({ activity, onAnswer, sensoryProfile }: P
           const resolvedConceptId: string | undefined = option.pictogramConceptId
             ?? (option.arasaacId ? `arasaac.${option.arasaacId}` : undefined);
           return <button key={option.id} type="button" onClick={() => select(option)} aria-pressed={active} aria-label={`Opção: ${option.text ?? option.label}`}
-            className={`flex min-h-20 flex-col items-center justify-center gap-1 rounded-2xl border-4 px-3 py-3 text-xl font-bold shadow-sm transition-all duration-150 focus:ring-4 focus:ring-blue-300 hover:scale-[1.025] active:scale-[.97] motion-reduce:transform-none ${active ? "scale-[1.02] border-blue-500 bg-blue-100 text-blue-800 shadow-md" : sensoryProfile?.lowStimulationMode ? "border-gray-200 bg-white text-gray-800" : "border-gray-200 bg-white text-gray-800 hover:border-blue-400 hover:bg-blue-200"}`}>
+            className={`flex min-h-20 flex-col items-center justify-center gap-1 rounded-2xl border-4 px-3 py-3 text-xl font-bold shadow-sm transition-all duration-150 focus:ring-4 focus:ring-blue-500 hover:scale-[1.025] active:scale-[.97] motion-reduce:transform-none ${active ? "scale-[1.02] border-blue-500 bg-blue-100 text-blue-800 shadow-md" : sensoryProfile?.lowStimulationMode ? "border-gray-200 bg-white text-gray-800" : "border-gray-200 bg-white text-gray-800 hover:border-blue-400 hover:bg-blue-200"}`}>
             {resolvedConceptId && <ArasaacPictogram conceptId={resolvedConceptId} showLabel={false} imageClassName="h-14 w-14" />}
             {Array.isArray(option.pictogramConceptIds) && <span className="flex flex-wrap justify-center gap-1">{option.pictogramConceptIds.map((conceptId: string, index: number) => <ArasaacPictogram key={`${conceptId}-${index}`} conceptId={conceptId} showLabel={false} imageClassName="h-10 w-10" />)}</span>}
             {!isShapeActivity && !resolvedConceptId && !option.pictogramConceptIds && option.emoji && <span className="text-4xl">{option.emoji}</span>}
@@ -110,7 +110,7 @@ export function MultipleChoiceActivity({ activity, onAnswer, sensoryProfile }: P
         })}
       </div>
       <button type="button" onClick={handleSubmit} disabled={!selected} aria-label="Confirmar resposta"
-        className="w-full rounded-xl bg-blue-600 py-3 text-lg font-bold text-white transition-all hover:scale-[1.01] hover:bg-blue-700 active:scale-[.98] focus:ring-4 focus:ring-blue-300 motion-reduce:transform-none disabled:cursor-not-allowed disabled:bg-gray-300">
+        className="w-full rounded-xl bg-blue-600 py-3 text-lg font-bold text-white transition-all hover:scale-[1.01] hover:bg-blue-700 active:scale-[.98] focus:ring-4 focus:ring-blue-500 motion-reduce:transform-none disabled:cursor-not-allowed disabled:bg-gray-300">
         <ArasaacPictogram conceptId="activity.complete" showLabel={false} imageClassName="h-7 w-7" />
         <span className="ml-2">Confirmar</span>
       </button>

@@ -223,7 +223,7 @@ export default function EducatorDashboardPage() {
           </div>
           <button
             onClick={logout}
-            className="text-indigo-200 hover:text-white text-sm px-3 py-1.5 rounded-lg hover:bg-white/20"
+            className="text-indigo-200 hover:text-white text-sm px-3 py-1.5 rounded-lg hover:bg-white/20 focus-visible:outline-white"
           >
             ← Sair
           </button>
@@ -262,7 +262,7 @@ export default function EducatorDashboardPage() {
         {/* Learner sidebar */}
         <aside className="w-56 flex-shrink-0 print:hidden">
           <div className="bg-white rounded-2xl shadow-sm p-3">
-            <p className="text-xs font-bold text-slate-600 uppercase mb-2 px-1">Alunos ({learners.length})</p>
+            <p className="text-xs font-bold text-slate-600 mb-2 px-1">Alunos ({learners.length})</p>
             <div className="space-y-1">
               {learners.map((l) => (
                 <button
@@ -775,18 +775,18 @@ function SkillEditor({ profile, onSave, saving, savedMsg }: {
             ['reinforcementPreference', 'Preferência por reforço', [['minimal', 'Discreto'], ['normal', 'Normal'], ['frequent', 'Frequente']]],
           ] as const).map(([key, label, options]) => (
             <label key={key} className="text-sm font-semibold text-slate-700">{label}
-              <select value={uiPrefs[key] ?? options[1]?.[0] ?? options[0][0]} onChange={(event) => setPreference(key, event.target.value)} className="mt-1 block min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3">
+              <select value={uiPrefs[key] ?? options[1]?.[0] ?? options[0][0]} onChange={(event) => setPreference(key, event.target.value)} className="mt-1 block min-h-11 w-full rounded-xl border border-slate-500 bg-white px-3">
                 {options.map(([value, text]) => <option key={value} value={value}>{text}</option>)}
               </select>
             </label>
           ))}
           <label className="text-sm font-semibold text-slate-700">Elementos simultâneos
-            <select value={uiPrefs.maxSimultaneousElements ?? 20} onChange={(event) => setPreference('maxSimultaneousElements', Number(event.target.value))} className="mt-1 block min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3">
+            <select value={uiPrefs.maxSimultaneousElements ?? 20} onChange={(event) => setPreference('maxSimultaneousElements', Number(event.target.value))} className="mt-1 block min-h-11 w-full rounded-xl border border-slate-500 bg-white px-3">
               {[4, 6, 8, 12, 20].map((value) => <option key={value} value={value}>Até {value}</option>)}
             </select>
           </label>
           <label className="text-sm font-semibold text-slate-700">Tempo antes de oferecer ajuda
-            <select value={uiPrefs.helpDelaySeconds ?? 30} onChange={(event) => setPreference('helpDelaySeconds', Number(event.target.value))} className="mt-1 block min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3">
+            <select value={uiPrefs.helpDelaySeconds ?? 30} onChange={(event) => setPreference('helpDelaySeconds', Number(event.target.value))} className="mt-1 block min-h-11 w-full rounded-xl border border-slate-500 bg-white px-3">
               {[15, 30, 45, 60].map((value) => <option key={value} value={value}>{value} segundos</option>)}
             </select>
           </label>
@@ -795,7 +795,7 @@ function SkillEditor({ profile, onSave, saving, savedMsg }: {
         <fieldset><legend className="mb-2 text-sm font-semibold text-slate-700">Tipos de exercício indisponíveis</legend><div className="grid gap-2 sm:grid-cols-2">{ACTIVITY_FORMATS.map(([type, label]) => <label key={type} className="flex min-h-10 items-center gap-2 text-sm"><input type="checkbox" checked={(uiPrefs.disabledActivityTypes ?? []).includes(type)} onChange={() => toggleListPreference('disabledActivityTypes', type)} className="h-5 w-5" />{label}</label>)}</div></fieldset>
         <fieldset><legend className="mb-2 text-sm font-semibold text-slate-700">Habilidades BNCC a priorizar</legend><div className="flex flex-wrap gap-2">{BNCC_OPTIONS.map((code) => <label key={code} className="flex min-h-10 items-center gap-2 rounded-xl border border-slate-200 px-3 text-sm"><input type="checkbox" checked={(uiPrefs.prioritizedBnccSkills ?? []).includes(code)} onChange={() => toggleListPreference('prioritizedBnccSkills', code)} className="h-5 w-5" />{code} · {BNCC_PRIORITY_LABELS[code]}</label>)}</div></fieldset>
         <label className="flex items-center gap-3 text-sm font-semibold text-slate-700"><input type="checkbox" checked={uiPrefs.adaptiveDifficulty !== false} onChange={(event) => setPreference('adaptiveDifficulty', event.target.checked)} className="h-5 w-5" />Dificuldade adaptativa automática</label>
-        {uiPrefs.adaptiveDifficulty === false && <label className="block text-sm font-semibold text-slate-700">Dificuldade manual até voltar ao modo adaptativo<select value={uiPrefs.manualDifficulty ?? 'easy'} onChange={(event) => setPreference('manualDifficulty', event.target.value)} className="mt-1 block min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3">{[['very_easy', 'Muito fácil'], ['easy', 'Fácil'], ['medium', 'Médio'], ['hard', 'Difícil'], ['extreme', 'Extremo']].map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>}
+        {uiPrefs.adaptiveDifficulty === false && <label className="block text-sm font-semibold text-slate-700">Dificuldade manual até voltar ao modo adaptativo<select value={uiPrefs.manualDifficulty ?? 'easy'} onChange={(event) => setPreference('manualDifficulty', event.target.value)} className="mt-1 block min-h-11 w-full rounded-xl border border-slate-500 bg-white px-3">{[['very_easy', 'Muito fácil'], ['easy', 'Fácil'], ['medium', 'Médio'], ['hard', 'Difícil'], ['extreme', 'Extremo']].map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>}
       </div>
 
       <div className="flex items-center gap-3">

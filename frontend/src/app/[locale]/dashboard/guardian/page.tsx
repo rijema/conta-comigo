@@ -286,13 +286,13 @@ export default function GuardianDashboardPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowAddChild(true)}
-              className="px-4 py-2 bg-black/20 hover:bg-black/30 rounded-xl text-sm font-semibold transition-colors"
+              className="px-4 py-2 bg-black/20 hover:bg-black/30 rounded-xl text-sm font-semibold focus-visible:outline-white transition-colors"
             >
               + Adicionar filho
             </button>
             <button
               onClick={logout}
-              className="px-3 py-2 bg-black/20 hover:bg-black/30 rounded-xl text-sm font-semibold transition-colors text-white hover:text-white"
+              className="px-3 py-2 bg-black/20 hover:bg-black/30 rounded-xl text-sm font-semibold focus-visible:outline-white transition-colors text-white hover:text-white"
             >
               Sair
             </button>
@@ -446,8 +446,8 @@ export default function GuardianDashboardPage() {
                       <h3 id="child-access-title" className="font-bold text-slate-800">Dados de acesso da criança</h3>
                       <p className="mt-1 text-sm text-slate-600">O nome é usado para entrar. Para alterar o nome, informe também uma nova senha curta.</p>
                       <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                        <label className="text-sm font-semibold">Nome da criança<input value={accessForm.childName} onChange={(event) => setAccessForm((current) => ({ ...current, childName: event.target.value }))} className="mt-1 min-h-11 w-full rounded-xl border border-slate-300 px-3" /></label>
-                        <label className="text-sm font-semibold">Nova senha da criança<input type="password" minLength={4} value={accessForm.childPassword} onChange={(event) => setAccessForm((current) => ({ ...current, childPassword: event.target.value }))} className="mt-1 min-h-11 w-full rounded-xl border border-slate-300 px-3" /></label>
+                        <label className="text-sm font-semibold">Nome da criança<input value={accessForm.childName} onChange={(event) => setAccessForm((current) => ({ ...current, childName: event.target.value }))} className="mt-1 min-h-11 w-full rounded-xl border border-slate-500 px-3" /></label>
+                        <label className="text-sm font-semibold">Nova senha da criança<input type="password" minLength={4} value={accessForm.childPassword} onChange={(event) => setAccessForm((current) => ({ ...current, childPassword: event.target.value }))} className="mt-1 min-h-11 w-full rounded-xl border border-slate-500 px-3" /></label>
                       </div>
                       <button type="button" onClick={() => void saveChildAccess()} disabled={accessSaving || !accessForm.childName.trim() || accessForm.childPassword.length < 4} className="mt-3 min-h-11 rounded-xl bg-purple-700 px-5 font-bold text-white disabled:opacity-50">{accessSaving ? 'Salvando...' : 'Salvar nome e senha'}</button>
                       {accessMessage && <p role="status" className="mt-2 text-sm text-slate-700">{accessMessage}</p>}
@@ -457,8 +457,8 @@ export default function GuardianDashboardPage() {
                       <h3 id="guardian-password-title" className="font-bold text-slate-800">Minha senha</h3>
                       <p className="mt-1 text-sm text-slate-600">Para trocar sua senha, informe a atual e escolha outra com pelo menos oito caracteres.</p>
                       <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                        <label className="text-sm font-semibold">Senha atual<input type="password" autoComplete="current-password" value={guardianPasswords.currentPassword} onChange={(event) => setGuardianPasswords((current) => ({ ...current, currentPassword: event.target.value }))} className="mt-1 min-h-11 w-full rounded-xl border border-slate-300 px-3" /></label>
-                        <label className="text-sm font-semibold">Nova senha<input type="password" autoComplete="new-password" minLength={8} value={guardianPasswords.newPassword} onChange={(event) => setGuardianPasswords((current) => ({ ...current, newPassword: event.target.value }))} className="mt-1 min-h-11 w-full rounded-xl border border-slate-300 px-3" /></label>
+                        <label className="text-sm font-semibold">Senha atual<input type="password" autoComplete="current-password" value={guardianPasswords.currentPassword} onChange={(event) => setGuardianPasswords((current) => ({ ...current, currentPassword: event.target.value }))} className="mt-1 min-h-11 w-full rounded-xl border border-slate-500 px-3" /></label>
+                        <label className="text-sm font-semibold">Nova senha<input type="password" autoComplete="new-password" minLength={8} value={guardianPasswords.newPassword} onChange={(event) => setGuardianPasswords((current) => ({ ...current, newPassword: event.target.value }))} className="mt-1 min-h-11 w-full rounded-xl border border-slate-500 px-3" /></label>
                       </div>
                       <button type="button" onClick={() => void saveGuardianPassword()} disabled={guardianPasswordSaving || !guardianPasswords.currentPassword || guardianPasswords.newPassword.length < 8} className="mt-3 min-h-11 rounded-xl bg-slate-800 px-5 font-bold text-white disabled:opacity-50">{guardianPasswordSaving ? 'Salvando...' : 'Atualizar minha senha'}</button>
                       {guardianPasswordMessage && <p role="status" className="mt-2 text-sm text-slate-700">{guardianPasswordMessage}</p>}

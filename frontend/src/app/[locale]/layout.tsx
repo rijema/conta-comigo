@@ -8,7 +8,8 @@ import { TouchDragPolyfill } from "@/components/touch-drag-polyfill";
 import Head from "next/head";
 
 export const metadata: Metadata = {
-  title: "Conta Comigo",
+  // Each route sets its own title (WCAG 2.4.2), e.g. "Painel do profissional · Conta Comigo".
+  title: { default: "Conta Comigo", template: "%s · Conta Comigo" },
   description:
     "Plataforma adaptativa de ensino de matemática para crianças com TEA, alinhada à BNCC.",
   authors: [{ name: "Conta Comigo" }],

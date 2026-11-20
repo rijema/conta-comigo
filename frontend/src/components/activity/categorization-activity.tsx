@@ -85,7 +85,7 @@ export function CategorizationActivity({ activity, onAnswer }: {
             <button key={item.id} type="button" onClick={() => selectItem(item)}
               aria-pressed={selected === item.id}
               aria-label={`${item.label}${binLabel ? `, no grupo ${binLabel}` : ""}`}
-              className={`min-h-24 rounded-2xl border-4 p-3 font-bold transition-transform focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-400 active:scale-95 motion-reduce:transform-none ${selected === item.id ? "border-blue-600 bg-blue-100" : "border-yellow-300 bg-white"}`}>
+              className={`min-h-24 rounded-2xl border-4 p-3 font-bold transition-transform focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-500 active:scale-95 motion-reduce:transform-none ${selected === item.id ? "border-blue-600 bg-blue-100" : "border-yellow-300 bg-white"}`}>
               <span className="flex justify-center gap-1" aria-hidden="true">
                 {(item.pictogramConceptIds?.length ? item.pictogramConceptIds : [item.pictogramConceptId]).map((conceptId, index) => (
                   <span key={`${conceptId}-${index}`} className="inline-flex h-20 w-20 items-center justify-center" style={{ transform: `scale(${item.visualScale ?? 1})` }}><ArasaacPictogram conceptId={conceptId} showLabel={false} imageClassName="h-12 w-12" /></span>
@@ -105,7 +105,7 @@ export function CategorizationActivity({ activity, onAnswer }: {
             <button key={bin.id} type="button" onClick={() => assign(bin)}
               aria-disabled={!selected}
               aria-label={`Grupo ${bin.label}: ${count} ${count === 1 ? "item" : "itens"}`}
-              className={`min-h-28 rounded-2xl border-4 bg-blue-50 p-3 font-bold text-slate-900 focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-400 ${selected ? "border-blue-500" : "border-blue-200"}`}>
+              className={`min-h-28 rounded-2xl border-4 bg-blue-50 p-3 font-bold text-slate-900 focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-500 ${selected ? "border-blue-500" : "border-blue-200"}`}>
               <span aria-hidden="true" style={{ transform: `scale(${bin.visualScale ?? 1})` }}><ArasaacPictogram conceptId={bin.pictogramConceptId} showLabel={false} imageClassName="h-12 w-12" /></span>
               <span className="block">{bin.label}</span>
               <span className="block text-sm" aria-hidden="true">{count} item(ns)</span>
@@ -116,7 +116,7 @@ export function CategorizationActivity({ activity, onAnswer }: {
       <p role="status" aria-live="polite" className="sr-only">{status}</p>
       <button type="button" disabled={!allPlaced}
         onClick={handleSubmit}
-        className="w-full rounded-xl bg-blue-600 p-3 font-bold text-white focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-300 disabled:bg-gray-300 disabled:text-gray-700">
+        className="w-full rounded-xl bg-blue-600 p-3 font-bold text-white focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-500 disabled:bg-gray-300 disabled:text-gray-700">
         <ArasaacPictogram conceptId="activity.complete" showLabel={false} imageClassName="h-7 w-7" /> Confirmar
       </button>
     </div>

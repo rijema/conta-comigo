@@ -151,7 +151,7 @@ export default function SettingsPage() {
               Idioma da fala
               <select value={settings.speechLanguage}
                 onChange={(event) => updateSettings({ speechLanguage: event.target.value })}
-                className="block w-full mt-2 rounded-xl border-2 border-border bg-background px-3 py-2">
+                className="block w-full mt-2 rounded-xl border-2 border-slate-500 bg-background px-3 py-2">
                 <option value="pt-BR">Português do Brasil</option>
                 <option value="en-US">English (US)</option>
               </select>
@@ -184,7 +184,7 @@ export default function SettingsPage() {
             <p className="text-xs text-muted-foreground">
               Voz neural Dii por TigreGotico Lda, disponibilizada por OpenVoiceOS sob
               {" "}<a href="https://huggingface.co/OpenVoiceOS/pipertts_pt-BR_dii"
-                target="_blank" rel="noopener noreferrer" className="underline">CC BY-NC-ND 4.0</a>.
+                target="_blank" rel="noopener noreferrer" className="underline">CC BY-NC-ND 4.0 <span aria-hidden="true">↗</span><span className="sr-only"> (abre em nova aba)</span></a>.
             </p>
           </div>
 

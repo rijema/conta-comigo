@@ -8,7 +8,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 test("browser title is concise and points to shared favicon assets", async () => {
   const layout = await readFile(join(root, "src/app/[locale]/layout.tsx"), "utf8");
-  assert.match(layout, /title: "Mestrado - Conta Comigo"/);
+  assert.match(layout, /default: "Conta Comigo", template: "%s · Conta Comigo"/);
   for (const path of ["favicon.ico", "favicon-32x32.png", "apple-touch-icon.png"]) {
     assert.ok(layout.includes(`/${path}`));
   }

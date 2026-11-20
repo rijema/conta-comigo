@@ -179,7 +179,7 @@ export const BlockStackingMinigame: React.FC<BlockStackingMinigameProps> = ({
           animate={{ opacity: 1 }}
           className="bg-blue-50 border-2 border-blue-100 rounded-2xl p-4 mx-auto max-w-xl text-center"
         >
-          <p className="text-xs font-extrabold text-blue-600 uppercase mb-1">Exemplo</p>
+          <p className="text-xs font-extrabold text-blue-600 mb-1">Exemplo</p>
           <p className="text-gray-700 text-sm">{activity.content.example}</p>
         </motion.div>
       )}

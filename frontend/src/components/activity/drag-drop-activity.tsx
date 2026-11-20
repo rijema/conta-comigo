@@ -345,7 +345,7 @@ export function DragDropActivity({ activity, onAnswer }: Props) {
             disabled={!allFilled}
             className="w-full py-3 bg-blue-600 text-white text-lg font-bold rounded-xl
               hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed
-              focus:ring-4 focus:ring-blue-300 transition-colors"
+              focus:ring-4 focus:ring-blue-500 transition-colors"
           >
           <ArasaacPictogram conceptId="activity.complete" showLabel={false} imageClassName="w-7 h-7" />
             <span className="ml-2">Confirmar</span>

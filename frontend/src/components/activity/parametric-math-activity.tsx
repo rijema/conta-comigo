@@ -119,7 +119,7 @@ export function ParametricMathActivity({
             aria-label={option.text}
             data-spoken-label={option.text}
             className={`min-h-20 rounded-2xl border-4 px-4 py-3 font-bold text-lg
-              focus:ring-4 focus:ring-blue-300 transition-all hover:scale-[1.025] active:scale-[.97] motion-reduce:transform-none
+              focus:ring-4 focus:ring-blue-500 transition-all hover:scale-[1.025] active:scale-[.97] motion-reduce:transform-none
               ${active
                 ? "border-blue-500 bg-blue-100 text-blue-900"
                 : lowStimulation
@@ -217,7 +217,7 @@ export function ParametricMathActivity({
           aria-label="Confirmar resposta"
           data-spoken-label="Confirmar resposta"
           className="flex-1 py-3 bg-blue-600 text-white font-bold rounded-xl
-            hover:bg-blue-700 disabled:bg-gray-300 focus:ring-4 focus:ring-blue-300"
+            hover:bg-blue-700 disabled:bg-gray-300 focus:ring-4 focus:ring-blue-500"
         >
           <ArasaacPictogram conceptId="state.confirm" showLabel={false} imageClassName="w-6 h-6" />
           <span className="ml-2">Confirmar</span>

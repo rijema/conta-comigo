@@ -124,7 +124,7 @@ export function ArasaacLibraryDialog({ open, onClose }: { open: boolean; onClose
         {error && <p role="status" className="mb-3 text-sm text-amber-800">O catálogo não respondeu ou não encontrou pictogramas. Tente outra palavra.</p>}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-6">
           {items.map((item) => <button key={item.conceptId} type="button" onClick={() => select(item)}
-            aria-label={`Abrir ${item.label}`} className="flex min-h-36 flex-col items-center justify-center rounded-2xl border-2 border-orange-100 bg-white p-2 hover:border-orange-400 focus:ring-4 focus:ring-orange-200">
+            aria-label={`Abrir ${item.label}`} className="flex min-h-36 flex-col items-center justify-center rounded-2xl border-2 border-orange-100 bg-white p-2 hover:border-orange-400 focus:ring-4 focus:ring-orange-600">
             <ArasaacPictogram conceptId={item.conceptId} alt={`Pictograma: ${item.label}`} showLabel={false} imageClassName="h-20 w-20" />
             <span className="mt-1 text-center text-sm font-bold text-slate-800">{item.label}</span>
           </button>)}

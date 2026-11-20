@@ -81,7 +81,7 @@ export function NumberLineActivity({ activity, onAnswer, sensoryProfile }: Props
       <button
         onClick={handleSubmit}
         className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl 
-                   hover:bg-blue-700 disabled:bg-gray-300 focus:ring-4 focus:ring-blue-300"
+                   hover:bg-blue-700 disabled:bg-gray-300 focus:ring-4 focus:ring-blue-500"
       >
         <ArasaacPictogram conceptId="state.confirm" showLabel={false} imageClassName="w-7 h-7" />
         <span className="ml-2">Confirmar</span>

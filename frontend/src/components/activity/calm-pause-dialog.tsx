@@ -59,7 +59,7 @@ export function CalmPauseDialog({ open, onResume, onSpeak, soundEnabled, musicVo
           {CALM_IDEAS.map((idea) => (
             <li key={idea.conceptId}>
               <button type="button" onClick={() => onSpeak(idea.text)} aria-label={`Ouvir: ${idea.text}`}
-                className="flex h-full w-full flex-col items-center gap-2 rounded-2xl border-2 border-teal-100 bg-white p-3 hover:border-teal-300 focus:outline-none focus:ring-4 focus:ring-teal-200">
+                className="flex h-full w-full flex-col items-center gap-2 rounded-2xl border-2 border-teal-100 bg-white p-3 hover:border-teal-300 focus:outline-none focus:ring-4 focus:ring-teal-600">
                 <ArasaacPictogram conceptId={idea.conceptId} showLabel={false} imageClassName="h-16 w-16" />
                 <span className="text-sm font-bold text-slate-700">{idea.text}</span>
               </button>

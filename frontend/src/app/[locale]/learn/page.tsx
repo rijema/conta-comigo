@@ -815,7 +815,7 @@ function LearnPageInner() {
             </p>
             {activity.content?.example && (
               <div className="bg-blue-50 rounded-2xl p-4 mb-4 border-2 border-blue-100">
-                <p className="text-xs font-extrabold text-blue-600 uppercase mb-1">Exemplo:</p>
+                <p className="text-xs font-extrabold text-blue-600 mb-1">Exemplo:</p>
                 <p className="text-gray-700 text-sm">{activity.content.example}</p>
               </div>
             )}
