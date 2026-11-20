@@ -52,6 +52,11 @@ Causas encontradas:
 | Campo nome sem finalidade | `autocomplete="name"` | 1.3.5 |
 | Texto em caixa-alta com letras espaçadas | Removidos `uppercase` e `tracking-wide*` | GAIA G03 |
 | Links externos sem aviso | Ícone ↗ visível e texto “(abre em nova aba)” para leitor de tela | GAIA G22 |
+| Toque acidental em “Quero outro” descartava o exercício e registrava um pulo | Segurar 0,6 s com barra de progresso; toque curto mostra “Segure o botão um pouquinho”; teclado ativa na hora; o profissional pode desligar | GAIA G28, WCAG 2.1.1 |
+| Toque duplo em “Confirmar” podia registrar duas tentativas | Uma resposta por vez enquanto a anterior é enviada | GAIA G28, G21 |
+| “Encerrar atendimento” com um toque | Confirmação em duas etapas na própria barra | GAIA G20 |
+| Sem personalização da tela pela criança | Engrenagem “Ajustes”: figuras, botões e textos, letra, cores, figura/palavra nos botões, modo leitura | GAIA G05, G06, G08, G17 |
+| Profissional não podia simplificar a tela | Aba “Ajustar tela da criança”: prévia com exercício de exemplo, toque para ocultar e mostrar controles, confirmar | GAIA G07, G10 |
 
 ## Como testamos
 
@@ -65,11 +70,12 @@ A avaliação combina quatro fontes de evidência, porque nenhuma ferramenta aut
    - fronteira dos campos de formulário com pelo menos 3:1 (1.4.11);
    - navegação real por `Tab` em até 60 controles por tela, conferindo contorno ou anel de foco com pelo menos 3:1 (2.4.7, 1.4.11) e foco não encoberto (2.4.11). Os controles desabilitados ficam de fora, como no axe e no WAVE;
    - espaçamento de texto do critério 1.4.12 injetado (altura de linha 1,5; letras 0,12 em; palavras 0,16 em; parágrafo 2 em), reportando o texto que passa a ser cortado;
-   - título específico por rota (2.4.2).
+   - título específico por rota (2.4.2);
+   - nas telas da criança, linhas de até 80 caracteres (GAIA G03).
 3. **WAVE (WebAIM)**, extensão de navegador, aplicada em produção antes e depois das correções. As capturas de tela estão nos anexos.
 4. **Inspeção manual e do código** para os critérios que dependem de julgamento: sentido das imagens, linguagem, consistência, alternativas a gestos, mídia.
 
-Cobertura: 25 telas — página inicial, diálogo de entrada, entrar, cadastro, mapa de ilhas, exercício, menu de ajuda, sugestão de pausa, “Hora da pausa”, um exercício de cada um dos 8 formatos (`drag_drop`, `quiz`, `representation_matching`, `counting`, `contextual_problem_solving`, `missing_number`, `error_detection`, `pattern_completion`), configurações, painel do responsável e as quatro abas do painel do profissional, incluindo o relatório.
+Cobertura: 39 telas — página inicial, diálogo de entrada, entrar, cadastro, mapa de ilhas, exercício, menu de ajuda, sugestão de pausa, “Hora da pausa”, um exercício de cada um dos 8 formatos (`drag_drop`, `quiz`, `representation_matching`, `counting`, `contextual_problem_solving`, `missing_number`, `error_detection`, `pattern_completion`), configurações, painel do responsável e as abas do painel do profissional (incluindo o relatório e “Ajustar tela da criança” com controles ocultados), além das variações da engrenagem: diálogo de ajustes, modo leitura, temas creme, calmo e alto contraste combinados com as letras Atkinson e Lexend e ampliação de 1,5× a 2×, botões só com figura e só com palavra, controles ocultados pelo profissional e o “segurar para trocar” (dica do toque curto e ativação após 0,6 s).
 
 Para reproduzir:
 
@@ -80,11 +86,11 @@ npx next dev -p 3124            # outro terminal
 npm run test:a11y               # código de saída 0 = nenhuma violação
 ```
 
-Resultado em 20/11/2026: **25 de 25 telas sem violações** no axe e nas verificações complementares. As capturas de cada tela ficam em `frontend/e2e/a11y/shots/`, que é ignorado pelo git.
+Resultado em 20/11/2026: **39 de 39 telas sem violações** no axe e nas verificações complementares. As capturas de cada tela ficam em `frontend/e2e/a11y/shots/`, que é ignorado pelo git.
 
 [PARÂMETRO EXPERIMENTAL]
 
-Limiares usados: 4,5:1 para texto normal e 3:1 para texto grande (≥ 24 px, ou ≥ 18,66 px em negrito), para indicadores de foco e para fronteiras de campos; alvo de toque de 44 px (`min-h-11`) nos controles principais; animação decorativa com no máximo 5 s.
+Limiares usados: 4,5:1 para texto normal e 3:1 para texto grande (≥ 24 px, ou ≥ 18,66 px em negrito), para indicadores de foco e para fronteiras de campos; alvo de toque de 44 px (`min-h-11`) nos controles principais; animação decorativa com no máximo 5 s; “segurar para trocar” de 600 ms, cancelado se o dedo se mover mais de 10 px; ampliação de pictogramas em 1×, 1,25×, 1,5× e 2× e de botões e textos em 1×, 1,15× e 1,3×; linhas de até 80 caracteres (GAIA G03).
 
 ## Tabela WCAG 2.2 — níveis A e AA
 
@@ -130,7 +136,7 @@ Legenda do método: **axe** = regra automática do axe-core; **script** = verifi
 | 1.2.5 Audiodescrição (pré-gravado) | AA | Não se aplica | inspeção | Sem vídeo |
 | 1.3.4 Orientação | AA | Atende | inspeção | Layout responsivo sem trava de orientação |
 | 1.3.5 Identificar a finalidade da entrada | AA | Atende | inspeção | `autocomplete` com `name`, `email`, `current-password`, `new-password` |
-| 1.4.3 Contraste (mínimo) | AA | Atende | axe, script (modelo WAVE), WAVE | 0 ocorrências nas 25 telas |
+| 1.4.3 Contraste (mínimo) | AA | Atende | axe, script (modelo WAVE), WAVE | 0 ocorrências nas 39 telas, inclusive nos temas creme, calmo e alto contraste |
 | 1.4.4 Redimensionar texto | AA | Atende | inspeção | Tamanhos em `rem`; zoom não bloqueado no viewport |
 | 1.4.5 Imagens de texto | AA | Atende | inspeção | Só o logotipo, que é exceção |
 | 1.4.10 Refluxo | AA | Atende | E2E | Exercícios em 360 px sem rolagem horizontal (`e2e/progression`) |
@@ -163,12 +169,12 @@ Títulos e exigências conforme as páginas de gaia.wiki.br, lidas em 20/11/2026
 |---|---|---|---|---|
 | G01 | Cores | Vocabulário visual e textual | Atende | Cor nunca é o único sinal; contraste validado (1.4.3, 1.4.11) |
 | G02 | Textos | Vocabulário visual e textual | Atende | Frases curtas e diretas na área da criança. Siglas técnicas (BNCC, BKT, ADE) só no painel do profissional |
-| G03 | Legibilidade | Vocabulário visual e textual | Atende parcialmente | Fonte sem serifa (Inter); sem caixa-alta nem letras espaçadas; textos curtos. O limite de 80 caracteres por linha não foi medido |
+| G03 | Legibilidade | Vocabulário visual e textual | Atende | Fonte sem serifa (Inter, ou Atkinson Hyperlegible e Lexend na engrenagem); sem caixa-alta nem letras espaçadas; linhas de até 80 caracteres medidas automaticamente nas telas da criança |
 | G04 | Compatibilidade com mundo real | Vocabulário visual e textual | Atende | Pictogramas ARASAAC de objetos e ações concretas; toque como gesto natural |
-| G05 | Customização visual | Customização | Atende parcialmente | Alto contraste, tamanho de fonte (pequeno, médio, grande), som, voz, volume e velocidade da fala. Não há troca de família de fonte nem de cor de botões |
-| G06 | Customização informacional | Customização | Atende parcialmente | Informação em texto, pictograma e voz; som e música opcionais. Não há opção “só símbolos” ou “só palavras” |
+| G05 | Customização visual | Customização | Atende | Engrenagem “Ajustes” na tela de exercício: tamanho das figuras, tamanho de botões e textos, letra (padrão, Atkinson Hyperlegible, Lexend) e cores (colorido, creme, calmo, alto contraste); som, voz, volume e velocidade da fala pelo profissional |
+| G06 | Customização informacional | Customização | Atende | Botões com figura e palavra, só figura ou só palavra (o nome acessível não muda); informação em texto, pictograma e voz; som e música opcionais |
 | G07 | Interfaces flexíveis | Customização | Atende | Profissional define quantidade de elementos simultâneos e tipos de exercício indisponíveis; progresso salvo; ilha escolhida livremente |
-| G08 | Modo de leitura | Customização | Atende parcialmente | Modo de baixa estimulação reduz decoração e movimento; relatório do profissional é imprimível. Não há modo de leitura dedicado para a criança |
+| G08 | Modo de leitura | Customização | Atende | “Modo leitura” na engrenagem: só o enunciado e as opções, em letra grande e cores calmas, com botão “Ouvir”; relatório do profissional imprimível |
 | G09 | Eliminar distrações | Engajamento | Atende | Animações desligáveis, `prefers-reduced-motion`, modo de baixa estimulação; animação decorativa com no máximo 5 s |
 | G10 | Interface minimalista | Engajamento | Atende | Um exercício por tela, uma ação por vez |
 | G11 | Organização visual | Engajamento | Atende | Cartões espaçados; elementos relacionados agrupados |
@@ -177,7 +183,7 @@ Títulos e exigências conforme as páginas de gaia.wiki.br, lidas em 20/11/2026
 | G14 | Equivalentes textuais | Representações redundantes | Atende | Pictogramas com rótulo visível e `alt` |
 | G15 | Legendas | Representações redundantes | Atende | TitiA lê instruções e opções em voz alta, sempre com o texto na tela |
 | G16 | Múltiplas mídias | Multimídia | Atende | Avatar TitiA; ícone, palavra e som juntos |
-| G17 | Ampliação de imagens | Multimídia | Atende parcialmente | Zoom do navegador liberado e refluxo validado; pictogramas em alta resolução. Não há ampliação dedicada por toque |
+| G17 | Ampliação de imagens | Multimídia | Atende | Pictogramas ampliáveis até 2× na engrenagem, com refluxo do layout (CSS `zoom`); pictogramas ARASAAC em alta resolução |
 | G18 | Evite sons perturbadores | Multimídia | Atende | Tons curtos e de volume baixo; música calma opcional; efeitos desligáveis |
 | G19 | Instruções de interação | Visibilidade do estado do sistema | Atende | Erros imediatos em linguagem simples; “Confirmar” desabilitado até haver escolha |
 | G20 | Reverter ações | Visibilidade do estado do sistema | Atende | “Sair da atividade?” com confirmação; voltar ao mapa; “Quero outro” |
@@ -188,7 +194,7 @@ Títulos e exigências conforme as páginas de gaia.wiki.br, lidas em 20/11/2026
 | G25 | Navegação simples | Navegabilidade | Atende | Navegação consistente; “Atividade X de Y” e barras de progresso; sair, mapa e ajuda sempre disponíveis |
 | G26 | Evitar redirecionamentos | Navegabilidade | Atende | Sem redirecionamento automático nem limite de tempo nas tarefas |
 | G27 | Confirmação de ações | Resposta às ações | Atende | Feedback imediato em texto, som e imagem, sem imagens de emoção negativa |
-| G28 | Sensibilidade adequada | Interação com tela sensível ao toque | Atende parcialmente | Toque acidental não envia resposta: a escolha só vale após “Confirmar”. Não há pressão longa nem ajuste de sensibilidade |
+| G28 | Sensibilidade adequada | Interação com tela sensível ao toque | Atende | Resposta só vale após “Confirmar”; “Quero outro” exige segurar 0,6 s (configurável pelo profissional; teclado ativa na hora); toque duplo não envia a resposta duas vezes; `touch-action: manipulation`; “Encerrar atendimento” pede confirmação |
 
 ## Referências
 
@@ -212,12 +218,12 @@ As correções foram aplicadas de forma sistemática, e não pontual. Um codemod
 
 ### Limitações
 
-Ferramentas automáticas detectam apenas parte das barreiras de acessibilidade. Os critérios marcados como verificados por inspeção dependem do julgamento do avaliador. A auditoria automatizada usa dados simulados e uma única resolução de desktop (1280 × 900 px); o refluxo foi verificado em 360 px nos testes de exercícios, e não nos 320 px de referência do critério 1.4.10. O conteúdo da TitiA carregado em iframe é uma aplicação separada e não foi avaliado. Quatro recomendações do GAIA (G03, G05, G06, G08) e duas de interação (G17, G28) são atendidas parcialmente, como descrito na tabela. Não houve avaliação com pessoas autistas nem com usuários de leitores de tela.
+Ferramentas automáticas detectam apenas parte das barreiras de acessibilidade. Os critérios marcados como verificados por inspeção dependem do julgamento do avaliador. A auditoria automatizada usa dados simulados e uma única resolução de desktop (1280 × 900 px); o refluxo foi verificado em 360 px nos testes de exercícios, e não nos 320 px de referência do critério 1.4.10. O conteúdo da TitiA carregado em iframe é uma aplicação separada e não foi avaliado. As preferências de exibição escolhidas pela criança na engrenagem ficam salvas no aparelho, e não no perfil; em outro dispositivo elas precisam ser escolhidas de novo. Não houve avaliação com pessoas autistas nem com usuários de leitores de tela.
 
 ### Evidência necessária no experimento
 
 - Capturas do WAVE em produção, depois do deploy, para cada tela da tabela inicial, com erros, erros de contraste, alertas e AIM score.
-- Saída de `npm run test:a11y` com 25 de 25 telas sem violações, anexada com a data e o commit.
+- Saída de `npm run test:a11y` com 39 de 39 telas sem violações, anexada com a data e o commit.
 - Teste com leitor de tela (NVDA ou VoiceOver) e navegação somente por teclado em uma sessão completa de exercício.
 - Observação de uso com crianças autistas e profissionais para os itens do GAIA que dependem de percepção, como G09, G11 e G18.
 

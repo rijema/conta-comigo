@@ -216,7 +216,7 @@ export default function ActivityMenuPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "linear-gradient(155deg,#fef9c3 0%,#fce7f3 40%,#dbeafe 100%)" }}>
+    <div className="cc-child min-h-screen" style={{ background: "linear-gradient(155deg,#fef9c3 0%,#fce7f3 40%,#dbeafe 100%)" }}>
       <ProfessionalAttendanceBar />
 
       {/* ── Header ── */}

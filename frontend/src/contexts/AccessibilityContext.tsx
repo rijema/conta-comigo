@@ -35,7 +35,20 @@ export interface AccessibilitySettings {
   allowChangeActivity: boolean;
   predictability: "standard" | "high";
   reinforcementPreference: "minimal" | "normal" | "frequent";
+  // Child display settings (gear on the exercise screen, GAIA G05/G06/G17).
+  pictogramScale: 1 | 1.25 | 1.5 | 2;
+  itemScale: 1 | 1.15 | 1.3;
+  readingFont: "default" | "atkinson" | "lexend";
+  colorTheme: "default" | "cream" | "calm";
+  buttonLabels: "both" | "text" | "icons";
+  // Set by the professional ("Ajustar tela de interação da criança").
+  holdToChangeActivity: boolean;
+  hiddenControls: ExerciseControlId[];
 }
+
+/** Exercise-screen controls a professional may hide for a given child. */
+export const EXERCISE_CONTROL_IDS = ["map", "progress", "change", "pause", "help", "settings", "guide"] as const;
+export type ExerciseControlId = typeof EXERCISE_CONTROL_IDS[number];
 
 const defaultSettings: AccessibilitySettings = {
   theme: "light",
@@ -61,6 +74,13 @@ const defaultSettings: AccessibilitySettings = {
   allowChangeActivity: true,
   predictability: "standard",
   reinforcementPreference: "normal",
+  pictogramScale: 1,
+  itemScale: 1,
+  readingFont: "default",
+  colorTheme: "default",
+  buttonLabels: "both",
+  holdToChangeActivity: true,
+  hiddenControls: [],
 };
 
 interface AccessibilityContextType {
@@ -136,6 +156,10 @@ export function AccessibilityProvider({
             predictability: preferences.predictability === 'high' ? 'high' : 'standard',
             reinforcementPreference: ['minimal', 'normal', 'frequent'].includes(String(preferences.reinforcementPreference)) ? preferences.reinforcementPreference as AccessibilitySettings['reinforcementPreference'] : defaultSettings.reinforcementPreference,
             ...(typeof preferences.speechRate === 'number' ? { speechRate: preferences.speechRate } : {}),
+            holdToChangeActivity: preferences.holdToChangeActivity !== false,
+            hiddenControls: Array.isArray(preferences.hiddenControls)
+              ? (preferences.hiddenControls as unknown[]).filter((id): id is ExerciseControlId => EXERCISE_CONTROL_IDS.includes(id as ExerciseControlId))
+              : [],
           });
           setProfessionalUserId(user.id);
         }).catch((error: any) => {
@@ -184,6 +208,8 @@ export function AccessibilityProvider({
     allowChangeActivity: settings.allowChangeActivity && appliedPreferences?.allowChangeActivity !== false,
     predictability: appliedPreferences?.predictability ?? settings.predictability,
     reinforcementPreference: appliedPreferences?.reinforcementPreference ?? settings.reinforcementPreference,
+    holdToChangeActivity: appliedPreferences?.holdToChangeActivity ?? settings.holdToChangeActivity,
+    hiddenControls: appliedPreferences?.hiddenControls ?? settings.hiddenControls,
   }), [settings, appliedPreferences]);
   const childPreferencesReady = user?.role !== 'child' || professionalUserId === user.id || preferencesFallbackActive;
 
@@ -217,6 +243,13 @@ export function AccessibilityProvider({
       "--base-font-size",
       fontSizeMap[effectiveSettings.fontSize]
     );
+
+    // Child display settings: pictogram/item zoom, reading font, color theme.
+    root.style.setProperty("--pictogram-scale", String(effectiveSettings.pictogramScale));
+    root.style.setProperty("--item-scale", String(effectiveSettings.itemScale));
+    root.dataset.readingFont = effectiveSettings.readingFont;
+    root.dataset.colorTheme = effectiveSettings.colorTheme;
+    root.dataset.buttonLabels = effectiveSettings.buttonLabels;
 
     localStorage.setItem("a11y_settings", JSON.stringify(settings));
   }, [effectiveSettings, settingsLoaded, professionalPreferences, professionalUserId, user?.id, user?.role, settings]);

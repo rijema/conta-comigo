@@ -6,6 +6,13 @@ import { AccessibilityProvider } from "@/contexts/AccessibilityContext";
 import { ConsentGate } from "@/components/lgpd/consent-gate";
 import { TouchDragPolyfill } from "@/components/touch-drag-polyfill";
 import Head from "next/head";
+import { Atkinson_Hyperlegible, Lexend } from "next/font/google";
+
+// Optional reading fonts the child can pick in the exercise settings (gear).
+// Atkinson Hyperlegible (Braille Institute) maximises letter distinction;
+// Lexend was designed to reduce visual stress while reading.
+const atkinson = Atkinson_Hyperlegible({ subsets: ["latin", "latin-ext"], weight: ["400", "700"], variable: "--font-atkinson", display: "swap" });
+const lexend = Lexend({ subsets: ["latin", "latin-ext"], variable: "--font-lexend", display: "swap" });
 
 export const metadata: Metadata = {
   // Each route sets its own title (WCAG 2.4.2), e.g. "Painel do profissional · Conta Comigo".
@@ -38,7 +45,7 @@ export default async function RootLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale}>
+    <html lang={locale} className={`${atkinson.variable} ${lexend.variable}`}>
       <Head>
         <link rel="preload" as="image" href="/assets/correctanswer.png" />
         <link rel="preload" as="image" href="/assets/tryagain.png" />
