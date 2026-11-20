@@ -98,8 +98,8 @@ describe('activity semantic contract', () => {
     const result = buildActivitySemanticContract({
       title: 'Text-only activity',
       type: 'multiple_choice',
-      // A skill that is still not represented in the ontology (v0.5.0).
-      bnccSkills: ['EF02MA23'],
+      // A skill outside the 1º–5º ano scope, so not represented in the ontology (v0.6.0).
+      bnccSkills: ['EF06MA01'],
       content: { instructionsPt: 'Escolha uma opção' },
     }, null);
 

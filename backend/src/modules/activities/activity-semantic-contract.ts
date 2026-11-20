@@ -236,8 +236,9 @@ const FAMILY_PROFILES: Record<SemanticActivityType, FamilyProfile> = {
 // curriculum intent; it does not prove that a concrete activity is correctly tagged.
 /**
  * Mirrors cc:addressesMathematicalConcept in ontology/contacomigo/contacomigo.owl
- * (kept in sync by activity-semantic-contract.spec.ts). The 1º ano entries are
- * unchanged; the 2º–5º ano entries were added with ontology v0.5.0.
+ * (kept in sync by activity-semantic-contract.spec.ts). The six original 1º ano
+ * entries are unchanged; the 2º–5º ano entries came with ontology v0.5.0 and the
+ * remaining 51 skills of the 1º–5º ano with v0.6.0.
  */
 export const BNCC_CONCEPT_MAPPINGS: Record<string, string[]> = {
   EF01MA01: ['NumberConcept'],
@@ -316,11 +317,66 @@ export const BNCC_CONCEPT_MAPPINGS: Record<string, string[]> = {
   EF05MA19: ['MeasurementConcept'],
   EF05MA20: ['AreaPerimeterConcept'],
   EF05MA24: ['DataInterpretationConcept'],
+  // Remaining 1º–5º ano skills (ontology v0.6.0): mapped as "partial" pending
+  // professional review.
+  EF01MA02: ['CountingConcept'],
+  EF01MA04: ['CountingConcept', 'NumberConcept'],
+  EF01MA05: ['NumberConcept', 'ComparisonConcept'],
+  EF01MA09: ['SequencePatternConcept', 'ComparisonConcept'],
+  EF01MA10: ['SequencePatternConcept'],
+  EF01MA11: ['SpatialLocationConcept'],
+  EF01MA12: ['SpatialLocationConcept'],
+  EF01MA13: ['SpatialFigureConcept'],
+  EF01MA15: ['MeasurementConcept', 'ComparisonConcept'],
+  EF01MA16: ['TimeMeasurementConcept'],
+  EF01MA17: ['TimeMeasurementConcept'],
+  EF01MA18: ['TimeMeasurementConcept'],
+  EF01MA19: ['MoneyConcept'],
+  EF01MA20: ['ProbabilityConcept'],
+  EF01MA21: ['DataInterpretationConcept'],
+  EF01MA22: ['DataInterpretationConcept'],
+  EF02MA02: ['CountingConcept'],
+  EF02MA10: ['SequencePatternConcept'],
+  EF02MA12: ['SpatialLocationConcept'],
+  EF02MA13: ['SpatialLocationConcept'],
+  EF02MA16: ['MeasurementConcept'],
+  EF02MA17: ['MeasurementConcept'],
+  EF02MA19: ['TimeMeasurementConcept'],
+  EF02MA20: ['MoneyConcept'],
+  EF02MA21: ['ProbabilityConcept'],
+  EF02MA22: ['DataInterpretationConcept'],
+  EF02MA23: ['DataInterpretationConcept'],
+  EF03MA05: ['AdditionConcept', 'SubtractionConcept', 'EarlyProblemSolvingConcept'],
+  EF03MA12: ['SpatialLocationConcept'],
+  EF03MA16: ['CongruenceConcept'],
+  EF03MA17: ['MeasurementConcept'],
+  EF03MA19: ['MeasurementConcept'],
+  EF03MA20: ['MeasurementConcept'],
+  EF03MA21: ['AreaPerimeterConcept'],
+  EF03MA25: ['ProbabilityConcept'],
+  EF03MA26: ['DataInterpretationConcept', 'EarlyProblemSolvingConcept'],
+  EF03MA27: ['DataInterpretationConcept'],
+  EF03MA28: ['DataInterpretationConcept'],
+  EF04MA04: ['AdditionConcept', 'SubtractionConcept', 'MultiplicationConcept', 'DivisionConcept'],
+  EF04MA05: ['AdditionConcept', 'MultiplicationConcept'],
+  EF04MA13: ['AdditionConcept', 'SubtractionConcept', 'MultiplicationConcept', 'DivisionConcept'],
+  EF04MA16: ['SpatialLocationConcept'],
+  EF04MA24: ['MeasurementConcept', 'DataInterpretationConcept'],
+  EF04MA26: ['ProbabilityConcept'],
+  EF04MA28: ['DataInterpretationConcept'],
+  EF05MA14: ['CoordinateLocationConcept', 'SpatialLocationConcept'],
+  EF05MA18: ['SimilarityConcept', 'PolygonConcept', 'AngleConcept', 'ProportionalityConcept'],
+  EF05MA21: ['MeasurementConcept', 'SpatialFigureConcept'],
+  EF05MA22: ['ProbabilityConcept'],
+  EF05MA23: ['ProbabilityConcept'],
+  EF05MA25: ['DataInterpretationConcept'],
 };
 
+/** The six 1º ano skills represented since ontology v0.1; their statuses are unchanged. */
+const ORIGINAL_FIRST_YEAR_CODES = new Set(['EF01MA01', 'EF01MA03', 'EF01MA06', 'EF01MA07', 'EF01MA08', 'EF01MA14']);
 const NEEDS_REVIEW_CODES = new Set(['EF01MA03', 'EF01MA07']);
 const PARTIAL_CODES = new Set(['EF01MA01', 'EF01MA06', 'EF01MA14',
-  ...Object.keys(BNCC_CONCEPT_MAPPINGS).filter((code) => !code.startsWith('EF01'))]);
+  ...Object.keys(BNCC_CONCEPT_MAPPINGS).filter((code) => !ORIGINAL_FIRST_YEAR_CODES.has(code))]);
 
 function normalizeActivityType(source: ActivitySemanticSource): SemanticActivityType {
   const type = String(source.type ?? '');

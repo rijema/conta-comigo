@@ -61,8 +61,8 @@ describe('OntologyService', () => {
     expect(service.getStatus()).toEqual(expect.objectContaining({
       loaded: true,
       ontologyIri: 'https://contacomigo.org/ontology',
-      ontologyVersion: '0.5.0',
-      cachedBnccSkills: 75,
+      ontologyVersion: '0.6.0',
+      cachedBnccSkills: 126,
     }));
     expect((service as any).ontology).toBe(firstCache);
   });
@@ -106,6 +106,23 @@ describe('OntologyService', () => {
     }
   });
 
+  it('represents every 1º–5º ano BNCC skill and links the v0.6.0 skills to concepts', () => {
+    const service = new OntologyService(config());
+    service.loadOnce();
+    const perYear = { 1: 22, 2: 23, 3: 28, 4: 28, 5: 25 } as const;
+    for (const [year, total] of Object.entries(perYear)) {
+      const codes = Array.from({ length: total }, (_, index) =>
+        `EF0${year}MA${String(index + 1).padStart(2, '0')}`);
+      const mappings = service.getMathematicalConceptMappings(codes);
+      expect(Object.keys(mappings)).toHaveLength(total);
+      for (const concepts of Object.values(mappings)) expect(concepts.length).toBeGreaterThan(0);
+    }
+    expect(service.getSkillRelations('EF05MA14')).toEqual(expect.arrayContaining([
+      expect.objectContaining({ skillCode: 'EF04MA16', relation: 'prerequisiteSkill',
+        concepts: ['SpatialLocationConcept'], grade: 4 }),
+    ]));
+  });
+
   it('reports the school year of related skills so callers can keep progression direction', () => {
     const service = new OntologyService(config());
     service.loadOnce();
@@ -127,7 +144,7 @@ describe('OntologyService', () => {
     expect(result.excludedCandidateIds).toEqual(['invalid']);
     expect(result.trace.candidateDecisions[1].reasons)
       .toContain('TARGET_SKILL_NOT_DECLARED_BY_ACTIVITY');
-    expect(result.trace.ontologyVersion).toBe('0.5.0');
+    expect(result.trace.ontologyVersion).toBe('0.6.0');
     expect(result.trace.fallbackUsed).toBe(false);
   });
 
@@ -150,9 +167,11 @@ describe('OntologyService', () => {
     const service = new OntologyService(config());
     service.loadOnce();
 
+    // v0.6.0 represents every 1º–5º ano skill, so a 6º ano code stands in for
+    // a skill without formal semantic data.
     const result = service.getValidActivityCandidates({
-      ...facts([activity('legacy', ['EF02MA23'], [])]),
-      targetSkill: 'EF02MA23',
+      ...facts([activity('legacy', ['EF06MA01'], [])]),
+      targetSkill: 'EF06MA01',
     });
 
     expect(result.validCandidateIds).toEqual([]);

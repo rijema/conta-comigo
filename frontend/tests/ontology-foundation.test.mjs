@@ -202,16 +202,25 @@ test('represented BNCC skills are unique, official-source attributed, and concep
   const skills = bnccSkillBlocks(ontology);
   const codes = skills.map(({ code }) => code);
 
-  // v0.5.0 keeps the original six 1º ano skills first and adds 69 skills of
-  // the 2º–5º ano, one for each BNCC code used by a seeded exercise.
+  // v0.6.0 keeps the original six 1º ano skills first, then the other 16 skills
+  // of the 1º ano, then the 2º–5º ano in code order: every BNCC Matemática
+  // skill of the 1º–5º ano (22 + 23 + 28 + 28 + 25 = 126).
   assert.deepEqual(codes.slice(0, 6), ['EF01MA01', 'EF01MA03', 'EF01MA06', 'EF01MA07', 'EF01MA08', 'EF01MA14']);
-  assert.equal(codes.length, 75);
-  assert.ok(codes.slice(6).every((code) => /^EF0[2-5]MA\d{2}$/.test(code)));
+  assert.equal(codes.length, 126);
+  assert.ok(codes.slice(6, 22).every((code) => /^EF01MA\d{2}$/.test(code)));
+  assert.deepEqual(codes.slice(22), [...codes.slice(22)].sort());
+  assert.ok(codes.slice(22).every((code) => /^EF0[2-5]MA\d{2}$/.test(code)));
   assert.equal(new Set(codes).size, codes.length);
+  for (const [year, total] of [[1, 22], [2, 23], [3, 28], [4, 28], [5, 25]]) {
+    assert.equal(codes.filter((code) => code.startsWith(`EF0${year}MA`)).length, total);
+  }
 
   for (const { code, body } of skills) {
     assert.match(body, new RegExp(`<cc:hasCurriculumCode>${code}</cc:hasCurriculumCode>`));
     assert.match(body, /<cc:hasOfficialDescription xml:lang="pt-BR">[^<]+<\/cc:hasOfficialDescription>/);
+    assert.match(body, /<cc:hasKnowledgeObject xml:lang="pt-BR">[^<]+<\/cc:hasKnowledgeObject>/);
+    assert.match(body, /<cc:belongsToGrade rdf:resource="[^"]+#BNCCElementaryYear[1-5]"\/>/);
+    assert.match(body, /<cc:belongsToCurriculumDomain rdf:resource="[^"]+#BNCC\w+Domain"\/>/);
     assert.match(body, /basenacionalcomum\.mec\.gov\.br/);
     assert.ok(
       mappedConcepts(body).length > 0 || body.includes('<cc:conceptMappingStatus>pending_review</cc:conceptMappingStatus>'),
@@ -246,15 +255,25 @@ test('BNCC competency-query fixtures return the expected curriculum answers', as
   assert.deepEqual(
     skills.filter(({ body }) => mappedConcepts(body).includes('AdditionConcept')).map(({ code }) => code),
     ['EF01MA06', 'EF01MA07', 'EF01MA08', 'EF02MA04', 'EF02MA05', 'EF02MA06', 'EF02MA07',
-      'EF03MA03', 'EF03MA04', 'EF03MA06', 'EF04MA03', 'EF05MA07'],
+      'EF03MA03', 'EF03MA04', 'EF03MA05', 'EF03MA06', 'EF04MA03', 'EF04MA04', 'EF04MA05', 'EF04MA13', 'EF05MA07'],
   );
   assert.equal((activitiesSeed.match(/bnccSkills: \['EF01MA06'\]/g) ?? []).length, 6);
-  assert.deepEqual(
-    skills
-      .filter(({ body }) => body.includes('<cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>'))
-      .map(({ code }) => code),
-    [],
-  );
+  // v0.6.0 skills that no seeded exercise declares are explicitly NOT_COVERED.
+  const notCovered = skills
+    .filter(({ body }) => body.includes('<cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>'));
+  assert.deepEqual(notCovered.map(({ code }) => code), [
+    'EF01MA09', 'EF01MA10', 'EF01MA11', 'EF01MA12', 'EF01MA15', 'EF01MA16', 'EF01MA17', 'EF01MA18',
+    'EF01MA19', 'EF01MA20', 'EF01MA21', 'EF01MA22',
+    'EF02MA02', 'EF02MA10', 'EF02MA12', 'EF02MA13', 'EF02MA16', 'EF02MA17', 'EF02MA19', 'EF02MA20',
+    'EF02MA21', 'EF02MA22', 'EF02MA23',
+    'EF03MA05', 'EF03MA12', 'EF03MA16', 'EF03MA17', 'EF03MA19', 'EF03MA20', 'EF03MA21', 'EF03MA25',
+    'EF03MA26', 'EF03MA27', 'EF03MA28',
+    'EF04MA04', 'EF04MA05', 'EF04MA13', 'EF04MA16', 'EF04MA24', 'EF04MA26', 'EF04MA28',
+    'EF05MA14', 'EF05MA18', 'EF05MA21', 'EF05MA22', 'EF05MA23', 'EF05MA25',
+  ]);
+  for (const { code, body } of notCovered) {
+    assert.match(body, /<cc:currentActivityCount [^>]+>0<\/cc:currentActivityCount>/, `${code} must count 0 activities`);
+  }
   assert.deepEqual(
     skills
       .filter(({ body }) => body.includes('<cc:currentActivityCoverageStatus>NEEDS_REVIEW</cc:currentActivityCoverageStatus>'))
@@ -262,13 +281,14 @@ test('BNCC competency-query fixtures return the expected curriculum answers', as
     ['EF01MA03', 'EF01MA07'],
   );
   assert.equal((activitiesSeed.match(/bnccSkills: \['EF01MA15'\]/g) ?? []).length, 0);
-  assert.equal(byCode.has('EF01MA15'), false);
+  assert.equal(byCode.has('EF01MA15'), true);
+  assert.match(byCode.get('EF01MA15').body, /NOT_COVERED/);
   const activitySkillCodes = [
     ...new Set([...activitiesSeed.matchAll(/bnccSkills: \['(EF\d{2}MA\d{2})'\]/g)].map((match) => match[1])),
   ];
   assert.deepEqual(
     activitySkillCodes.filter((code) => !byCode.has(code)).sort(),
-    ['EF01MA13'],
+    [],
   );
 });
 
