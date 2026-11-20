@@ -118,6 +118,97 @@ const SCREENS = [
   { name: 'educator-ade-log', role: 'professional', path: '/pt/educator/ade-log' },
 ];
 
+// Color helpers shared by the in-page checks below.
+const COLOR_HELPERS = `
+  window.__a11y = (() => {
+    const parse = (c) => { const m = (c || '').match(/rgba?\\(([^)]+)\\)/); if (!m) return null; const [r, g, b, a = 1] = m[1].split(/[ ,/]+/).filter(Boolean).map(Number); return { r, g, b, a }; };
+    const blend = (top, under) => ({ r: top.r * top.a + under.r * (1 - top.a), g: top.g * top.a + under.g * (1 - top.a), b: top.b * top.a + under.b * (1 - top.a), a: 1 });
+    const lum = ({ r, g, b }) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
+    const ratio = (x, y) => { const [a, b] = [lum(x), lum(y)].sort((p, q) => q - p); return (a + 0.05) / (b + 0.05); };
+    // Solid background behind an element (ignores gradients, like WAVE).
+    const bgOf = (el) => { const stack = []; let n = el; while (n && n.nodeType === 1) { const bg = parse(getComputedStyle(n).backgroundColor); if (bg && bg.a > 0) { stack.push(bg); if (bg.a >= 1) break; } n = n.parentElement; } let out = { r: 255, g: 255, b: 255, a: 1 }; for (const l of stack.reverse()) out = blend(l, out); return out; };
+    const label = (el) => (el.getAttribute('aria-label') || el.innerText || el.getAttribute('placeholder') || el.name || el.tagName).trim().slice(0, 50);
+    return { parse, blend, ratio, bgOf, label };
+  })();`;
+
+// Checks axe does not automate: 1.4.11 (field borders, focus indicator),
+// 2.4.7 + 2.4.11 (focus visible and not hidden by sticky/fixed bars, walking
+// the page with Tab like a keyboard user), 1.4.12 (text spacing) and 2.4.2
+// (each screen has its own title).
+async function extraChecks(page) {
+  await page.addScriptTag({ content: COLOR_HELPERS });
+  const fields = await page.evaluate(() => {
+    const { parse, blend, ratio, bgOf, label } = window.__a11y;
+    const out = [];
+    for (const el of document.querySelectorAll('input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=range]), textarea, select')) {
+      const r = el.getBoundingClientRect(); const cs = getComputedStyle(el);
+      if (r.width < 2 || cs.visibility === 'hidden' || el.disabled || el.closest('[aria-hidden="true"]')) continue;
+      const outer = bgOf(el.parentElement); const inner = bgOf(el);
+      const border = parse(cs.borderTopColor); const width = parseFloat(cs.borderTopWidth);
+      const edge = width >= 1 && border ? Math.max(ratio(blend(border, inner), outer), ratio(blend(border, inner), inner)) : ratio(inner, outer);
+      if (edge < 3) out.push({ target: `"${label(el)}"`, html: el.className.slice(0, 110), summary: `field boundary ${edge.toFixed(2)}:1, needs 3:1` });
+    }
+    return out;
+  });
+  const focus = [];
+  await page.evaluate(() => { document.activeElement?.blur(); window.scrollTo(0, 0); });
+  const seen = new Set();
+  for (let i = 0; i < 60; i++) {
+    await page.keyboard.press('Tab');
+    await page.waitForTimeout(120); // let focus transitions settle
+    const f = await page.evaluate(() => {
+      const { parse, ratio, bgOf, label } = window.__a11y;
+      const el = document.activeElement;
+      if (!el || el === document.body) return null;
+      const cs = getComputedStyle(el); const bg = bgOf(el.parentElement || el);
+      const outline = parse(cs.outlineColor);
+      const outlineOk = cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) >= 2 && outline && outline.a > 0 && ratio(outline, bg) >= 3;
+      const shadows = (cs.boxShadow.match(/rgba?\([^)]+\)/g) || []).map(parse).filter((c) => c && c.a > 0.5);
+      const shadowOk = shadows.some((c) => ratio(c, bg) >= 3);
+      const r = el.getBoundingClientRect();
+      const pts = [[r.left + r.width / 2, r.top + r.height / 2], [r.left + 3, r.top + 3], [r.right - 3, r.top + 3], [r.left + 3, r.bottom - 3], [r.right - 3, r.bottom - 3]]
+        .filter(([x, y]) => x >= 0 && y >= 0 && x < innerWidth && y < innerHeight);
+      const hitEl = pts.length ? document.elementFromPoint(pts[0][0], pts[0][1]) : null; const hit = hitEl ? hitEl.tagName + '.' + String(hitEl.className?.baseVal ?? hitEl.className).slice(0, 90) : ''; const visible = pts.some(([x, y]) => { const hit = document.elementFromPoint(x, y); return hit && (hit === el || el.contains(hit) || hit.contains(el)); });
+      const key = el.outerHTML.slice(0, 200);
+      return { hit, dbg: [cs.outlineStyle, cs.outlineWidth, cs.outlineColor, bg.r + ',' + bg.g + ',' + bg.b, el.matches(':focus-visible')].join(' '), key, label: label(el), cls: (el.className?.baseVal ?? el.className ?? '').slice(0, 110), indicatorOk: outlineOk || shadowOk, visible, onScreen: pts.length > 0 };
+    });
+    if (!f) continue;
+    if (seen.has(f.key)) break; // wrapped around
+    seen.add(f.key);
+    if (!f.indicatorOk) focus.push({ target: `"${f.label}"`, html: f.cls, summary: 'focus indicator missing or below 3:1 (2.4.7 / 1.4.11) ' + f.dbg });
+    else if (f.onScreen && !f.visible) focus.push({ target: `"${f.label}"`, html: f.cls, summary: 'focused element entirely hidden by other content (2.4.11) ' + f.hit });
+  }
+  const spacing = await page.evaluate(() => {
+    const clipped = () => {
+      const set = new Map();
+      for (const el of document.querySelectorAll('body *')) {
+        if (!el.innerText || !/[\p{L}\p{N}]/u.test(el.innerText) || el.closest('[aria-hidden="true"]')) continue;
+        const cs = getComputedStyle(el);
+        const r = el.getBoundingClientRect();
+        if (r.width < 2 || r.height < 2) continue;
+        const hidesX = /hidden|clip/.test(cs.overflowX); const hidesY = /hidden|clip/.test(cs.overflowY);
+        if ((hidesX && el.scrollWidth > el.clientWidth + 2) || (hidesY && el.scrollHeight > el.clientHeight + 2)) set.set(el, el.innerText.trim().slice(0, 50));
+      }
+      return set;
+    };
+    const before = clipped();
+    const style = document.createElement('style');
+    style.textContent = '* { line-height: 1.5 !important; letter-spacing: 0.12em !important; word-spacing: 0.16em !important; } p { margin-bottom: 2em !important; }';
+    document.head.appendChild(style);
+    const after = clipped();
+    style.remove();
+    return [...after].filter(([el]) => !before.has(el)).map(([el, text]) => ({ target: `"${text}"`, html: (el.className?.baseVal ?? el.className ?? '').slice(0, 110), summary: 'text cut off with WCAG text spacing applied (1.4.12)' }));
+  });
+  const title = await page.title();
+  const titled = [{ target: `"${title}"`, html: '', summary: 'page has no route-specific title (2.4.2)' }].filter(() => title.trim() === '' || title.trim() === 'Conta Comigo' && !/^\/pt\/?(\?.*)?$/.test(new URL(page.url()).pathname + new URL(page.url()).search));
+  return [
+    { id: 'field-boundary-contrast', impact: 'serious', help: 'Form field boundary needs 3:1', tags: ['wcag1411'], nodes: fields },
+    { id: 'keyboard-focus', impact: 'serious', help: 'Visible, unobscured focus indicator (Tab walk)', tags: ['wcag247', 'wcag1411', 'wcag2411'], nodes: focus },
+    { id: 'text-spacing', impact: 'serious', help: 'No loss of content with WCAG text spacing', tags: ['wcag1412'], nodes: spacing },
+    { id: 'page-title', impact: 'serious', help: 'Route-specific page title', tags: ['wcag242'], nodes: titled },
+  ];
+}
+
 (async () => {
   const only = process.argv[2];
   const browser = await chromium.launch();
@@ -210,6 +301,7 @@ const SCREENS = [
     });
     result.violations.push(...(wave.length ? [{ id: 'wave-style-contrast', impact: 'serious', help: 'Text vs. nearest solid background color (how WAVE measures)', tags: ['wcag143'],
       nodes: wave.map((w) => ({ target: `"${w.text}"`, html: w.cls, summary: `ratio ${w.ratio}:1, needs ${w.need}:1` })) }] : []));
+    for (const v of await extraChecks(page)) if (v.nodes.length) result.violations.push(v);
     const count = result.violations.reduce((s, v) => s + v.nodes.length, 0);
     total += count;
     summary.push({ screen: screen.name, url: page.url().replace(BASE, ''), violations: count, needsReview: result.incomplete.reduce((s, v) => s + v.nodes.length, 0) });

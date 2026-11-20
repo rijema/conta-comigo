@@ -137,7 +137,7 @@ function MultipleChoiceActivity({ activity, onAnswer, lowStimulation }: Multiple
           const isSelected = selected === opt.id;
           const isCorrect = opt.id === content.correctOptionId;
           let btnClass =
-            "p-4 rounded-2xl border-2 text-left font-medium transition-all duration-200 focus-visible:ring-4 focus-visible:ring-blue-400 min-h-[64px] flex items-center gap-3 ";
+            "p-4 rounded-2xl border-2 text-left font-medium transition-all duration-200 focus-visible:ring-4 focus-visible:ring-blue-500 min-h-[64px] flex items-center gap-3 ";
 
           if (!revealed) {
             btnClass += lowStimulation
@@ -294,7 +294,7 @@ function NumberInputActivity({ activity, onAnswer }: NumberInputProps) {
           disabled={value === ""}
           className="self-start px-8 py-3 rounded-2xl bg-blue-600 text-white font-bold text-lg
             hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed
-            focus-visible:ring-4 focus-visible:ring-blue-300 transition-all"
+            focus-visible:ring-4 focus-visible:ring-blue-500 transition-all"
         >
           {t("activity.confirm")}
         </button>
@@ -405,7 +405,7 @@ function DragDropActivity({ activity, onAnswer }: DragDropProps) {
         <button
           onClick={handleSubmit}
           className="self-start px-8 py-3 rounded-2xl bg-purple-600 text-white font-bold text-lg
-            hover:bg-purple-700 focus-visible:ring-4 focus-visible:ring-purple-300 transition-all"
+            hover:bg-purple-700 focus-visible:ring-4 focus-visible:ring-purple-500 transition-all"
         >
           {t("activity.checkOrder")}
         </button>
@@ -501,7 +501,7 @@ export function ActivityRenderer({ activity, onComplete, onSkip }: ActivityRende
       {/* Activity metadata */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-medium px-3 py-1 rounded-full bg-blue-100 text-blue-700 uppercase tracking-wide">
+          <span className="text-xs font-medium px-3 py-1 rounded-full bg-blue-100 text-blue-700">
             {t(`activity.type.${activity.type}`, { defaultValue: activity.type })}
           </span>
           <div className="flex gap-1" aria-label={`${t("activity.difficulty")}: ${t(`activity.difficultyLevels.${activity.difficulty}`, { defaultValue: activity.difficulty })}`}>

@@ -114,14 +114,14 @@ export function SessionSummary({ result, onContinue, onHome }: SessionSummaryPro
         <button
           onClick={onHome}
           className="flex-1 py-3 rounded-2xl border-2 border-gray-300 text-gray-700 font-semibold
-            hover:bg-gray-50 focus-visible:ring-4 focus-visible:ring-gray-300 transition-all"
+            hover:bg-gray-50 focus-visible:ring-4 focus-visible:ring-gray-500 transition-all"
         >
           {t("summary.home")}
         </button>
         <button
           onClick={onContinue}
           className="flex-2 flex-grow py-3 rounded-2xl bg-blue-600 text-white font-bold
-            hover:bg-blue-700 focus-visible:ring-4 focus-visible:ring-blue-300 transition-all"
+            hover:bg-blue-700 focus-visible:ring-4 focus-visible:ring-blue-500 transition-all"
         >
           {t("summary.continue")} →
         </button>

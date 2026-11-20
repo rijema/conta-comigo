@@ -58,7 +58,7 @@ export function LearnerProfileCard({ learnerId }: { learnerId: string }) {
       {/* Strengths/Weaknesses from ontology */}
       <div className="mt-4 grid grid-cols-2 gap-3">
         <div>
-          <h3 className="text-xs font-semibold text-gray-600 uppercase mb-2">
+          <h3 className="text-xs font-semibold text-gray-600 mb-2">
             Pontos Fortes
           </h3>
           <div className="flex flex-wrap gap-1">
@@ -73,7 +73,7 @@ export function LearnerProfileCard({ learnerId }: { learnerId: string }) {
           </div>
         </div>
         <div>
-          <h3 className="text-xs font-semibold text-gray-600 uppercase mb-2">
+          <h3 className="text-xs font-semibold text-gray-600 mb-2">
             Áreas de Atenção
           </h3>
           <div className="flex flex-wrap gap-1">

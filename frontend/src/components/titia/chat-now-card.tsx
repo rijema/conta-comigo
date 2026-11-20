@@ -109,7 +109,7 @@ export function ChatNowCard() {
               />
             </div>
            <div>
-              <p className="text-xs font-black uppercase tracking-[0.22em] text-sky-700">
+              <p className="text-xs font-black text-sky-700">
                 TitiA
               </p>
               <h2 className="text-2xl font-black text-slate-900">

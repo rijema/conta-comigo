@@ -612,14 +612,14 @@ export default function ActivityMenuPage() {
                       height={24}
                       className="w-6 h-6"
                     />
-                    <span className="text-xs font-extrabold text-purple-600 uppercase">TitIA respondeu</span>
+                    <span className="text-xs font-extrabold text-purple-600">TitIA respondeu</span>
                   </div>
                   <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{aiAnswer}</p>
                 </div>
               )}
               {!aiAnswer && (
                 <div className="mb-4">
-                  <p className="text-xs font-extrabold text-slate-600 uppercase mb-2.5">Perguntas especiais para você</p>
+                  <p className="text-xs font-extrabold text-slate-600 mb-2.5">Perguntas especiais para você</p>
                   <div className="space-y-2">
                     {AI_QUESTIONS.map((q) => (
                       <button key={q} onClick={() => handleAsk(q)}

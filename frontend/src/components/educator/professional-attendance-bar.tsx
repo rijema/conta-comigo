@@ -47,7 +47,7 @@ export function ProfessionalAttendanceBar() {
         type="button"
         onClick={handleEnd}
         disabled={ending}
-        className="rounded-full bg-black/20 px-4 py-1.5 text-sm font-bold hover:bg-black/30 disabled:opacity-60"
+        className="rounded-full bg-black/20 px-4 py-1.5 text-sm font-bold hover:bg-black/30 focus-visible:outline-white disabled:opacity-60"
       >
         {ending ? "Encerrando…" : "Encerrar atendimento"}
       </button>

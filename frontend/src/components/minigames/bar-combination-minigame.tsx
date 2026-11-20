@@ -148,7 +148,7 @@ export const BarCombinationMinigame: React.FC<BarCombinationMinigameProps> = ({ 
 
       {activity?.content?.example && (
         <div className="bg-purple-50 border-2 border-purple-100 rounded-2xl p-4 mx-auto max-w-xl text-center">
-          <p className="text-xs font-extrabold text-purple-600 uppercase mb-1">Exemplo</p>
+          <p className="text-xs font-extrabold text-purple-600 mb-1">Exemplo</p>
           <p className="text-gray-700 text-sm">{activity.content.example}</p>
         </div>
       )}

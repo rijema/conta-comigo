@@ -44,6 +44,14 @@ export function useModalFocus<T extends HTMLElement>(
 
       const first = focusableElements[0];
       const last = focusableElements[focusableElements.length - 1];
+      // Focus can leave the dialog without a Tab (e.g. a click on the
+      // backdrop puts it on <body>); bring it back instead of letting Tab
+      // reach the page hidden behind the modal (WCAG 2.4.3 / 2.4.11).
+      if (!dialogRef.current?.contains(document.activeElement)) {
+        event.preventDefault();
+        (event.shiftKey ? last : first).focus();
+        return;
+      }
       if (event.shiftKey && document.activeElement === first) {
         event.preventDefault();
         last.focus();

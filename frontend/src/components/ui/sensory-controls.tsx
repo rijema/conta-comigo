@@ -12,7 +12,7 @@ export function SensoryControls() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors 
-                   focus:ring-2 focus:ring-blue-300"
+                   focus:ring-2 focus:ring-blue-500"
         aria-label="Configurações de acessibilidade"
         aria-expanded={isOpen}
       >
