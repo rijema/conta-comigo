@@ -127,7 +127,7 @@ const SCREENS = [
   })),
   { name: 'educator-ade-log', role: 'professional', path: '/pt/educator/ade-log' },
   // Child display settings (gear), reading mode and every color theme.
-  { name: 'learn-display-settings', role: 'child', path: '/pt/learn', open: async (page) => { await page.getByRole('button', { name: /^Ajustes da tela/ }).click(); await page.getByText('Ajustes da tela', { exact: true }).waitFor(); } },
+  { name: 'learn-display-settings', role: 'child', path: '/pt/learn', viewport: { width: 1280, height: 1300 }, open: async (page) => { await page.getByRole('button', { name: /^Ajustes da tela/ }).click(); await page.getByText('Ajustes da tela', { exact: true }).waitFor(); } },
   { name: 'learn-reading-mode', role: 'child', path: '/pt/learn', open: async (page) => { await page.getByRole('button', { name: /^Ajustes da tela/ }).click(); await page.getByRole('button', { name: 'Modo leitura' }).click(); await page.getByText('Voltar ao exercício').waitFor(); } },
   ...[['cream', 'atkinson'], ['calm', 'lexend'], ['default', 'atkinson']].map(([colorTheme, readingFont]) => ({
     name: `learn-theme-${colorTheme}-${readingFont}`, role: 'child', path: '/pt/learn', display: { colorTheme, readingFont, pictogramScale: 1.5, itemScale: 1.3 } })),
@@ -258,7 +258,7 @@ async function extraChecks(page, role) {
   let total = 0;
   const summary = [];
   for (const screen of SCREENS.filter((s) => !only || s.name.includes(only))) {
-    const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: 'pt-BR' });
+    const ctx = await browser.newContext({ viewport: screen.viewport ?? { width: 1280, height: 900 }, locale: 'pt-BR' });
     const unmocked = new Set();
     await ctx.route(/\/api\//, async (route) => {
       const req = route.request();
