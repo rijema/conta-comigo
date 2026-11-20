@@ -175,7 +175,7 @@ export const CategoryMinigame: React.FC<CategoryMinigameProps> = ({
       {/* Header */}
       <div className="text-center">
         <h2 className="text-2xl font-extrabold text-purple-700">🎯 Agrupar por Categoria!</h2>
-        <p className="text-sm text-purple-500">Arraste cada item para a caixa correta</p>
+        <p className="text-sm text-purple-600">Arraste cada item para a caixa correta</p>
       </div>
 
       {/* Progress bar */}
@@ -227,7 +227,7 @@ export const CategoryMinigame: React.FC<CategoryMinigameProps> = ({
       {/* Pending items */}
       <div className="flex flex-wrap justify-center gap-3 rounded-2xl border-2 border-gray-200 bg-white p-4 w-full max-w-xl min-h-20">
         {pending.length === 0 ? (
-          <span className="text-sm text-gray-400 self-center">Todos os itens foram organizados!</span>
+          <span className="text-sm text-gray-600 self-center">Todos os itens foram organizados!</span>
         ) : pending.map((item) => (
           <motion.button
             key={item.id}

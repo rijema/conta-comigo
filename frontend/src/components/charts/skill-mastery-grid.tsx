@@ -17,7 +17,7 @@ export function SkillMasteryGrid({ skills, isLoading }: SkillMasteryGridProps) {
   }
 
   if (skills.length === 0) {
-    return <div className="text-center py-8 text-gray-500">Nenhuma habilidade registrada</div>;
+    return <div className="text-center py-8 text-gray-600">Nenhuma habilidade registrada</div>;
   }
 
   const getMasteryColor = (mastery: number) => {

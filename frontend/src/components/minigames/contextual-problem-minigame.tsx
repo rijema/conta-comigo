@@ -142,7 +142,7 @@ export const ContextualProblemMinigame: React.FC<ContextualProblemMinigameProps>
   }, [onComplete]);
 
   return (
-    <div className="flex flex-col gap-8 p-6 bg-gradient-to-b from-rose-50 to-red-50 rounded-xl">
+    <div className="flex flex-col gap-8 p-6 bg-rose-50 bg-gradient-to-b from-rose-50 to-red-50 rounded-xl">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}

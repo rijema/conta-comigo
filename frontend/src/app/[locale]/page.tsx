@@ -41,7 +41,7 @@ export default function HomePage() {
             <div className="hidden items-center gap-4 lg:flex">
               <span aria-hidden className={`w-px bg-slate-300 transition-all ${compact ? "h-8" : "h-10"}`} />
               <span className="flex flex-col">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Projeto piloto com</span>
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-600">Projeto piloto com</span>
                 <Image src="/assets/logociclo.png" width={1201} height={317} alt="Ciclo – Centro Integrado de Fonoaudiologia" className={`w-auto object-contain transition-all ${compact ? "h-6" : "h-8"}`} />
               </span>
             </div>
@@ -49,7 +49,7 @@ export default function HomePage() {
           <div className="flex items-center gap-2">
             <button onClick={() => setShowArasaac(true)} aria-expanded={showArasaac} aria-controls="arasaac-library-dialog" className="rounded-xl px-3 py-2 text-sm font-bold text-orange-700 hover:bg-orange-50 sm:block">ARASAAC</button>
             <button onClick={() => setAuth("login")} className="rounded-xl border-2 border-violet-200 bg-white px-4 py-2 text-sm font-bold text-violet-700 hover:bg-violet-50">Entrar</button>
-            <button onClick={() => setAuth("register")} className="rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2 text-sm font-black text-white shadow-md hover:-translate-y-0.5">Cadastrar</button>
+            <button onClick={() => setAuth("register")} className="rounded-xl bg-violet-700 bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2 text-sm font-black text-white shadow-md hover:-translate-y-0.5">Cadastrar</button>
           </div>
         </nav>
       </header>
@@ -62,7 +62,7 @@ export default function HomePage() {
             <p className="mt-4 text-xl font-extrabold text-violet-700 sm:text-2xl">Matemática que aprende com cada criança.</p>
             <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-slate-600 lg:mx-0">Uma jornada adaptativa, acolhedora e visual para crianças com TEA, acompanhada pela TitiA em cada descoberta.</p>
             <div className="mt-7 flex flex-wrap justify-center gap-3 lg:justify-start">
-              <button onClick={() => setAuth("register")} className="rounded-2xl bg-gradient-to-r from-violet-600 via-fuchsia-500 to-pink-500 px-7 py-4 text-lg font-black text-white shadow-xl hover:-translate-y-1 focus:ring-4 focus:ring-violet-200">Começar agora</button>
+              <button onClick={() => setAuth("register")} className="rounded-2xl bg-violet-700 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-600 px-7 py-4 text-lg font-black text-white shadow-xl hover:-translate-y-1 focus:ring-4 focus:ring-violet-200">Começar agora</button>
               <button onClick={() => setShowAbout(true)} className="rounded-2xl border-2 border-violet-200 bg-white/80 px-7 py-4 text-lg font-bold text-violet-800 hover:bg-white">Conheça a TitiA</button>
             </div>
             <ul className="mt-7 flex flex-wrap justify-center gap-2 text-sm font-semibold text-slate-700 lg:justify-start" aria-label="Destaques">
@@ -71,7 +71,7 @@ export default function HomePage() {
           </div>
 
           <div className="relative mx-auto h-[48svh] min-h-[360px] w-full max-w-2xl lg:h-[72svh]">
-            <div className="absolute inset-8 rounded-full bg-gradient-to-br from-yellow-200 via-pink-200 to-violet-300 blur-3xl opacity-60" />
+            <div className="absolute inset-8 rounded-full bg-yellow-200 bg-gradient-to-br from-yellow-200 via-pink-200 to-violet-300 blur-3xl opacity-60" />
             <span aria-hidden className="absolute left-[8%] top-[18%] z-20 text-4xl drop-shadow motion-safe:animate-bounce">⭐</span>
             <span aria-hidden className="absolute right-[16%] top-[32%] z-20 text-2xl drop-shadow motion-safe:animate-pulse">✨</span>
             <Image src="/assets/rainbowGiff.gif" width={480} height={480} alt="" unoptimized className="absolute right-0 top-2 z-10 h-28 w-28 opacity-90 motion-safe:animate-pulse sm:h-36 sm:w-36" />
@@ -92,7 +92,7 @@ export default function HomePage() {
         <section className="mx-auto max-w-5xl px-5 pb-12 text-center sm:px-6">
           <button type="button" onClick={() => setShowArasaac(true)} aria-expanded={showArasaac} aria-controls="arasaac-library-dialog" className="group inline-flex items-center gap-4 rounded-3xl border-2 border-orange-200 bg-white px-5 py-3 text-left shadow-md hover:border-orange-400 focus:ring-4 focus:ring-orange-100">
             <Image src="/assets/arasaac.png" width={190} height={45} alt="ARASAAC" className="h-10 w-auto object-contain" />
-            <span><strong className="block text-slate-800">Pictogramas que apoiam a compreensão</strong><span className="text-sm text-slate-500">Explore a biblioteca</span></span><span aria-hidden className="text-xl text-orange-600">→</span>
+            <span><strong className="block text-slate-800">Pictogramas que apoiam a compreensão</strong><span className="text-sm text-slate-600">Explore a biblioteca</span></span><span aria-hidden className="text-xl text-orange-700">→</span>
           </button>
         </section>
       </main>
@@ -120,7 +120,7 @@ export default function HomePage() {
               <Image src="/assets/wildcard.png" alt="TitiA apresentando o Conta Comigo" fill className="object-contain object-bottom" />
             </div>
             <div className="overflow-y-auto p-7">
-              <button ref={aboutCloseRef} type="button" onClick={closeAbout} aria-label="Fechar" className="float-right text-2xl text-slate-500">×</button>
+              <button ref={aboutCloseRef} type="button" onClick={closeAbout} aria-label="Fechar" className="float-right text-2xl text-slate-600">×</button>
               <h2 id="about-title" className="text-3xl font-black text-indigo-950">Prazer, TitiA!</h2>
               <p id="about-description" className="mt-4 leading-relaxed text-slate-600">Sou a companheira de aprendizagem do Conta Comigo. Acolho, oriento, incentivo e celebro cada conquista sem apressar ninguém.</p>
               <ul className="mt-5 space-y-3 text-sm font-semibold text-slate-700"><li>💜 Escuta com empatia</li><li>⭐ Incentiva sem pressionar</li><li>🌱 Respeita o tempo de cada criança</li><li>🧩 Celebra todas as conquistas</li></ul>

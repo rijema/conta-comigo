@@ -52,7 +52,7 @@ export function ConsentGate() {
 
         <ConsentTermContent />
 
-        {error && <p className="mt-4 text-sm font-semibold text-red-600">{error}</p>}
+        {error && <p className="mt-4 text-sm font-semibold text-red-700">{error}</p>}
 
         <div className="mt-6 flex gap-3">
           <button
@@ -65,7 +65,7 @@ export function ConsentGate() {
           <button
             onClick={handleAccept}
             disabled={submitting}
-            className="flex-1 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2 font-bold text-white hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
+            className="flex-1 rounded-xl bg-violet-700 bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2 font-bold text-white hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
           >
             {submitting ? "Confirmando..." : "Li e aceito"}
           </button>

@@ -32,7 +32,7 @@ export function CycleDisplay({
     : 0;
 
   return (
-    <div className="space-y-2 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+    <div className="space-y-2 p-4 bg-blue-50 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
       {/* Cycle Header */}
       <div className="flex justify-between items-start">
         <div>

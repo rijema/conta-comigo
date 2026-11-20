@@ -18,7 +18,7 @@ export function LoadingSpinner({
       <div
         className={`${sizeClass} border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin`}
       />
-      <span className="text-sm text-gray-500">{label}</span>
+      <span className="text-sm text-gray-600">{label}</span>
     </div>
   );
 }

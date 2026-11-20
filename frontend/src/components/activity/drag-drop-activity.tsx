@@ -82,7 +82,7 @@ function DraggableItem({ item, disabled, selected, inSlot = false, onSelect }: {
           ? "border-blue-600 bg-blue-100 text-blue-900 ring-4 ring-blue-200 shadow-lg"
           : inSlot
             ? "border-transparent bg-transparent text-blue-800"
-            : "border-yellow-300 bg-white text-gray-800 hover:border-blue-300 hover:bg-blue-50"
+            : "border-yellow-300 bg-white text-gray-800 hover:border-blue-300 hover:bg-blue-200"
         }
         ${isDragging ? "opacity-0" : "opacity-100"}`}
     >
@@ -159,7 +159,7 @@ function AvailableTray({ children, empty }: { children: React.ReactNode; empty: 
         }`}
     >
       {empty ? (
-        <span className="text-gray-400 text-sm self-center">
+        <span className="text-gray-600 text-sm self-center">
           Arraste uma peça para cá para removê-la
         </span>
       ) : children}
@@ -302,7 +302,7 @@ export function DragDropActivity({ activity, onAnswer }: Props) {
         </p>
         <p className="text-sm font-semibold text-blue-700 mb-3 text-center">
           Arraste cada item para sua posição
-          <span className="block text-xs text-gray-500 mt-1">
+          <span className="block text-xs text-gray-600 mt-1">
             Você também pode tocar no item e depois na posição.
           </span>
         </p>

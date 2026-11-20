@@ -80,7 +80,7 @@ export const CountingCollectionMinigame: React.FC<CountingCollectionMinigameProp
   }, [onComplete]);
 
   return (
-    <div className="flex flex-col gap-8 p-6 bg-gradient-to-b from-lime-50 to-green-50 rounded-xl">
+    <div className="flex flex-col gap-8 p-6 bg-lime-50 bg-gradient-to-b from-lime-50 to-green-50 rounded-xl">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -137,7 +137,7 @@ export const CountingCollectionMinigame: React.FC<CountingCollectionMinigameProp
           <button
             onClick={handleAddGroup}
             disabled={submitted || counted + maxPerGroup > totalObjects}
-            className="px-4 py-3 bg-lime-600 text-white rounded-lg font-bold disabled:opacity-50"
+            className="px-4 py-3 bg-lime-700 text-white rounded-lg font-bold disabled:opacity-50"
           >
             + Grupo de 10
           </button>
@@ -146,7 +146,7 @@ export const CountingCollectionMinigame: React.FC<CountingCollectionMinigameProp
             <button
               onClick={handleAddRemaining}
               disabled={submitted || counted + remainder !== totalObjects}
-              className="px-4 py-3 bg-green-600 text-white rounded-lg font-bold disabled:opacity-50"
+              className="px-4 py-3 bg-green-700 text-white rounded-lg font-bold disabled:opacity-50"
             >
               + Restante ({remainder})
             </button>

@@ -32,7 +32,7 @@ export function ConsentManager() {
       <h2 className="text-lg font-semibold text-gray-800 mb-2">
         🔒 Privacidade dos Dados (LGPD)
       </h2>
-      <p className="text-sm text-gray-500 mb-4">
+      <p className="text-sm text-gray-600 mb-4">
         Seus dados são protegidos conforme a Lei Geral de Proteção de Dados
         (LGPD). Gerencie suas preferências abaixo.
       </p>
@@ -63,7 +63,7 @@ export function ConsentManager() {
               <div className="text-sm font-medium text-gray-700">
                 {item.label}
               </div>
-              <div className="text-xs text-gray-400">{item.desc}</div>
+              <div className="text-xs text-gray-600">{item.desc}</div>
             </div>
             <button
               onClick={() => updateConsent(item.key, !consent?.[item.key])}
@@ -84,7 +84,7 @@ export function ConsentManager() {
         ))}
       </div>
 
-      <div className="mt-4 text-xs text-gray-400">
+      <div className="mt-4 text-xs text-gray-600">
         Para exportar ou excluir seus dados, entre em contato:{" "}
         <a href="mailto:privacidade@contacomigo.com" className="underline">
           privacidade@contacomigo.com

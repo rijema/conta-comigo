@@ -75,7 +75,7 @@ export function NumberLineActivity({ activity, onAnswer, sensoryProfile }: Props
       {/* Current value display */}
       <div className="text-center mb-6">
         <div className="text-5xl font-bold text-blue-700">{value}</div>
-        <p className="text-gray-500 mt-1">Número selecionado</p>
+        <p className="text-gray-600 mt-1">Número selecionado</p>
       </div>
 
       <button

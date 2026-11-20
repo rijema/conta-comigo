@@ -148,7 +148,7 @@ export const TwoGroupSplitMinigame: React.FC<TwoGroupSplitMinigameProps> = ({
   );
 
   return (
-    <div className="flex flex-col gap-6 p-6 bg-gradient-to-b from-blue-50 to-green-50 rounded-xl">
+    <div className="flex flex-col gap-6 p-6 bg-blue-50 bg-gradient-to-b from-blue-50 to-green-50 rounded-xl">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-center">
         <div className="flex items-center justify-center gap-2 mb-2">
           <ArasaacPictogram conceptId="math.part" showLabel={false} imageClassName="h-10 w-10" />
@@ -174,8 +174,8 @@ export const TwoGroupSplitMinigame: React.FC<TwoGroupSplitMinigameProps> = ({
 
       <div className="bg-white rounded-2xl p-4 shadow text-center">
         <p className="text-3xl font-extrabold text-blue-900">
-          {groupAIds.length}<span className="mx-2 text-gray-400">+</span>{groupBIds.length}
-          <span className="mx-2 text-gray-400">=</span>{items.length}
+          {groupAIds.length}<span className="mx-2 text-gray-600">+</span>{groupBIds.length}
+          <span className="mx-2 text-gray-600">=</span>{items.length}
         </p>
       </div>
 
@@ -235,7 +235,7 @@ export const TwoGroupSplitMinigame: React.FC<TwoGroupSplitMinigameProps> = ({
         {isComplete && (
           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="text-center">
             <div className="text-4xl mb-2">🎉</div>
-            <p className="text-xl font-bold text-green-600">Parabéns!</p>
+            <p className="text-xl font-bold text-green-700">Parabéns!</p>
           </motion.div>
         )}
         {wasWrong && !isComplete && (

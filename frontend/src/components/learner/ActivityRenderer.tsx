@@ -168,10 +168,10 @@ function MultipleChoiceActivity({ activity, onAnswer, lowStimulation }: Multiple
               )}
               <span>{opt.text}</span>
               {revealed && isCorrect && (
-                <CheckCircle size={20} className="ml-auto text-green-600" aria-hidden />
+                <CheckCircle size={20} className="ml-auto text-green-700" aria-hidden />
               )}
               {revealed && isSelected && !isCorrect && (
-                <XCircle size={20} className="ml-auto text-red-500" aria-hidden />
+                <XCircle size={20} className="ml-auto text-red-700" aria-hidden />
               )}
             </motion.button>
           );
@@ -179,7 +179,7 @@ function MultipleChoiceActivity({ activity, onAnswer, lowStimulation }: Multiple
       </div>
 
       {content.hint && !revealed && (
-        <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
+        <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
           <HelpCircle size={16} aria-hidden />
           <span>{content.hint}</span>
         </div>
@@ -275,11 +275,11 @@ function NumberInputActivity({ activity, onAnswer }: NumberInputProps) {
           <span className="text-2xl text-gray-600 font-medium">{content.unit}</span>
         )}
         {submitted && isCorrect && (
-          <CheckCircle size={32} className="text-green-600" aria-label={t("activity.correct")} />
+          <CheckCircle size={32} className="text-green-700" aria-label={t("activity.correct")} />
         )}
         {submitted && !isCorrect && (
           <div className="flex items-center gap-2">
-            <XCircle size={32} className="text-red-500" aria-label={t("activity.incorrect")} />
+            <XCircle size={32} className="text-red-700" aria-label={t("activity.incorrect")} />
             <span className="text-sm text-gray-600">
               {t("activity.correctWas")}: {content.correctAnswer}
               {content.unit}
@@ -394,7 +394,7 @@ function DragDropActivity({ activity, onAnswer }: DragDropProps) {
               ${dragIndex === idx ? "opacity-50 scale-95" : ""}
             `}
           >
-            <span className="text-gray-400 font-bold text-lg w-6">{idx + 1}</span>
+            <span className="text-gray-600 font-bold text-lg w-6">{idx + 1}</span>
             {item.emoji && <span className="text-2xl">{item.emoji}</span>}
             <span className="font-medium text-lg">{item.label}</span>
           </div>
@@ -486,7 +486,7 @@ export function ActivityRenderer({ activity, onComplete, onSkip }: ActivityRende
         return <DragDropActivity activity={activity} onAnswer={handleAnswer} />;
       default:
         return (
-          <div className="text-center text-gray-500 py-8">
+          <div className="text-center text-gray-600 py-8">
             <HelpCircle size={48} className="mx-auto mb-3 opacity-40" />
             <p>{t("activity.unsupportedType")}</p>
           </div>
@@ -509,7 +509,7 @@ export function ActivityRenderer({ activity, onComplete, onSkip }: ActivityRende
               <Star
                 key={star}
                 size={14}
-                className={star <= difficultyStars ? "text-yellow-400 fill-yellow-400" : "text-gray-200 fill-gray-200"}
+                className={star <= difficultyStars ? "text-yellow-700 fill-yellow-400" : "text-gray-200 fill-gray-200"}
                 aria-hidden
               />
             ))}
@@ -518,7 +518,7 @@ export function ActivityRenderer({ activity, onComplete, onSkip }: ActivityRende
         {onSkip && (
           <button
             onClick={onSkip}
-            className="text-sm text-gray-400 hover:text-gray-600 underline transition-colors"
+            className="text-sm text-gray-600 hover:text-gray-600 underline transition-colors"
             aria-label={t("activity.skip")}
           >
             {t("activity.skip")}
@@ -572,7 +572,7 @@ export function ActivityRenderer({ activity, onComplete, onSkip }: ActivityRende
                   animate={{ rotate: [0, -10, 10, -10, 10, 0], scale: [1, 1.3, 1] }}
                   transition={{ duration: 0.6 }}
                 >
-                  <CheckCircle size={72} className="text-green-500" aria-hidden />
+                  <CheckCircle size={72} className="text-green-700" aria-hidden />
                 </motion.div>
                 <p className="text-2xl font-bold text-green-700">{t("activity.excellent")}</p>
                 <div className="flex gap-1">
@@ -592,9 +592,9 @@ export function ActivityRenderer({ activity, onComplete, onSkip }: ActivityRende
               </>
             ) : (
               <>
-                <XCircle size={64} className="text-orange-400" aria-hidden />
+                <XCircle size={64} className="text-orange-700" aria-hidden />
                 <p className="text-xl font-semibold text-orange-700">{t("activity.tryAgain")}</p>
-                <p className="text-sm text-gray-500">{t("activity.keepGoing")}</p>
+                <p className="text-sm text-gray-600">{t("activity.keepGoing")}</p>
               </>
             )}
           </motion.div>

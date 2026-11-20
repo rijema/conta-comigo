@@ -77,7 +77,7 @@ export const TenFrameMinigame: React.FC<TenFrameMinigameProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-8 p-6 bg-gradient-to-b from-orange-50 to-yellow-50 rounded-xl items-center justify-center">
+    <div className="flex flex-col gap-8 p-6 bg-orange-50 bg-gradient-to-b from-orange-50 to-yellow-50 rounded-xl items-center justify-center">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -90,7 +90,7 @@ export const TenFrameMinigame: React.FC<TenFrameMinigameProps> = ({
       <div className="bg-white rounded-lg p-8 shadow-lg">
         <div className="mb-6 text-center">
           <p className="text-sm text-gray-600 mb-2">Você precisa de mais:</p>
-          <p className="text-4xl font-bold text-orange-600">{needed}</p>
+          <p className="text-4xl font-bold text-orange-700">{needed}</p>
         </div>
 
         <div className="grid grid-cols-5 gap-3 mb-8">
@@ -142,7 +142,7 @@ export const TenFrameMinigame: React.FC<TenFrameMinigameProps> = ({
             className="text-center"
           >
             <div className="text-6xl mb-4">🎉</div>
-            <p className="text-2xl font-bold text-orange-600">
+            <p className="text-2xl font-bold text-orange-700">
               Perfeito! {startCount} + {needed} = {target}!
             </p>
           </motion.div>

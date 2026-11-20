@@ -92,7 +92,7 @@ export function TitiaModal({
                   type="button"
                   aria-label="Voltar ao painel do Conta Comigo"
                   onClick={onClose}
-                  className="mt-6 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-black text-white transition hover:bg-slate-700"
+                  className="mt-6 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-black text-white transition hover:bg-slate-950"
                 >
                   Voltar ao painel
                 </button>

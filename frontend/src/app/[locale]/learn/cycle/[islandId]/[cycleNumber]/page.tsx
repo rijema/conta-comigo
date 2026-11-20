@@ -26,8 +26,8 @@ export default function CycleLearningPageRedirect() {
   }, [router, locale]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-blue-50 to-teal-50">
-      <p className="text-gray-500">Levando você para o mapa de ilhas...</p>
+    <div className="min-h-screen flex items-center justify-center bg-purple-50 bg-gradient-to-br from-purple-50 via-blue-50 to-teal-50">
+      <p className="text-gray-600">Levando você para o mapa de ilhas...</p>
     </div>
   );
 }

@@ -62,13 +62,13 @@ export default function ProgressPage() {
   if (loading || !data) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-gray-400 text-lg animate-pulse">{t("common.loading")}</div>
+        <div className="text-gray-600 text-lg animate-pulse">{t("common.loading")}</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+    <div className="min-h-screen bg-green-50 bg-gradient-to-b from-green-50 to-white">
       <header className="sticky top-0 bg-white/90 backdrop-blur border-b border-gray-100 px-4 py-4 z-30">
         <div className="max-w-2xl mx-auto flex items-center gap-3">
           <button
@@ -88,12 +88,12 @@ export default function ProgressPage() {
           {[
             { icon: <BookOpen size={20} aria-hidden />, value: data.totalSessions, label: t("progress.sessions"), color: "text-blue-600" },
             { icon: <Clock size={20} aria-hidden />, value: `${data.totalMinutes}m`, label: t("progress.minutes"), color: "text-purple-600" },
-            { icon: <TrendingUp size={20} aria-hidden />, value: `Nv.${data.currentLevel}`, label: t("progress.level"), color: "text-green-600" },
+            { icon: <TrendingUp size={20} aria-hidden />, value: `Nv.${data.currentLevel}`, label: t("progress.level"), color: "text-green-700" },
           ].map((card) => (
             <div key={card.label} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 text-center">
               <div className={`flex justify-center mb-1 ${card.color}`}>{card.icon}</div>
               <p className={`text-2xl font-bold ${card.color}`}>{card.value}</p>
-              <p className="text-xs text-gray-500 mt-0.5">{card.label}</p>
+              <p className="text-xs text-gray-600 mt-0.5">{card.label}</p>
             </div>
           ))}
         </div>

@@ -94,7 +94,7 @@ export function ArasaacLibraryDialog({ open, onClose }: { open: boolean; onClose
   >
     <section id="arasaac-library-dialog" ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="arasaac-library-title" tabIndex={-1}
       className="flex max-h-[95dvh] w-full max-w-5xl flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:max-h-[90dvh] sm:rounded-3xl">
-      <header className="flex items-center gap-3 bg-gradient-to-r from-orange-500 to-amber-400 px-4 py-3 text-white sm:px-6">
+      <header className="flex items-center gap-3 bg-orange-700 bg-gradient-to-r from-orange-700 to-amber-700 px-4 py-3 text-white sm:px-6">
         <ArasaacPictogram conceptId="library.learn" showLabel={false} imageClassName="h-10 w-10" />
         <div className="flex-1"><h2 id="arasaac-library-title" className="text-xl font-black">Aprender com a TitiA</h2><p className="text-sm">Biblioteca ARASAAC com palavra escrita e descrição</p></div>
         <button ref={closeRef} type="button" onClick={onClose} aria-label="Fechar biblioteca" className="rounded-xl bg-white/20 px-3 py-2 text-xl font-bold">×</button>
@@ -111,7 +111,7 @@ export function ArasaacLibraryDialog({ open, onClose }: { open: boolean; onClose
           <label htmlFor="arasaac-search" className="sr-only">Buscar pictogramas</label>
           <input id="arasaac-search" value={query} onChange={(event) => setQuery(event.target.value)} maxLength={50}
             placeholder="Buscar palavra no ARASAAC" className="min-w-0 flex-1 rounded-xl border-2 border-orange-200 px-3 py-2" />
-          <button type="submit" className="rounded-xl bg-orange-500 px-4 py-2 font-bold text-white">Buscar</button>
+          <button type="submit" className="rounded-xl bg-orange-700 px-4 py-2 font-bold text-white">Buscar</button>
         </form>
         {selected && <div className="mb-4 flex items-center gap-4 rounded-2xl border-2 border-purple-200 bg-purple-50 p-3">
           <ArasaacPictogram conceptId={selected.conceptId} alt={`Pictograma: ${selected.label}`} showLabel={false} imageClassName="h-20 w-20" />

@@ -55,7 +55,7 @@ export default function GuardianPage() {
         <h1 className="text-2xl font-bold text-gray-800">
           Portal do Responsável
         </h1>
-        <p className="text-gray-500 text-sm">
+        <p className="text-gray-600 text-sm">
           Acompanhe o progresso do seu filho
         </p>
       </header>
@@ -156,7 +156,7 @@ function StatCard({
     <div className="bg-white rounded-xl shadow p-4 text-center">
       <div className="text-3xl mb-2">{icon}</div>
       <div className="text-2xl font-bold text-gray-800">{value}</div>
-      <div className="text-xs text-gray-500 mt-1">{label}</div>
+      <div className="text-xs text-gray-600 mt-1">{label}</div>
     </div>
   );
 }

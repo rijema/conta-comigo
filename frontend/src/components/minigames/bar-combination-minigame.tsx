@@ -135,7 +135,7 @@ export const BarCombinationMinigame: React.FC<BarCombinationMinigameProps> = ({ 
   const sumState = currentSum > targetValue ? 'over' : currentSum === targetValue ? 'exact' : 'under';
 
   return (
-    <div className="flex flex-col gap-6 p-6 bg-gradient-to-b from-purple-50 to-pink-50 rounded-xl">
+    <div className="flex flex-col gap-6 p-6 bg-purple-50 bg-gradient-to-b from-purple-50 to-pink-50 rounded-xl">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-center">
         <div className="flex items-center justify-center gap-2 mb-2">
           <ArasaacPictogram conceptId="mathematics.addition" showLabel={false} imageClassName="h-10 w-10" />
@@ -191,7 +191,7 @@ export const BarCombinationMinigame: React.FC<BarCombinationMinigameProps> = ({ 
               <Bar key={bar.id} bar={bar} draggable={false} onAction={() => setPlacedIds((prev) => prev.filter((id) => id !== bar.id))} />
             ))}
           </AnimatePresence>
-          {placedBars.length === 0 && <p className="text-gray-400 w-full text-center">Arraste barras aqui</p>}
+          {placedBars.length === 0 && <p className="text-gray-600 w-full text-center">Arraste barras aqui</p>}
         </div>
         {sumState === 'over' && (
           <p className="text-amber-700 text-sm font-bold mt-2 text-center">Passou um pouco! Toque numa barra para tirá-la.</p>
@@ -202,7 +202,7 @@ export const BarCombinationMinigame: React.FC<BarCombinationMinigameProps> = ({ 
         {isComplete && (
           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="text-center">
             <div className="text-4xl mb-2">🎉</div>
-            <p className="text-xl font-bold text-green-600">Parabéns!</p>
+            <p className="text-xl font-bold text-green-700">Parabéns!</p>
           </motion.div>
         )}
       </AnimatePresence>

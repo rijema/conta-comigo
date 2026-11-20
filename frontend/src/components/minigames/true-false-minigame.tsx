@@ -80,7 +80,7 @@ export const TrueFalseMinigame: React.FC<TrueFalseMinigameProps> = ({
   }, [onComplete]);
 
   return (
-    <div className="flex flex-col gap-8 p-6 bg-gradient-to-b from-amber-50 to-orange-50 rounded-xl">
+    <div className="flex flex-col gap-8 p-6 bg-amber-50 bg-gradient-to-b from-amber-50 to-orange-50 rounded-xl">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -142,7 +142,7 @@ export const TrueFalseMinigame: React.FC<TrueFalseMinigameProps> = ({
           disabled={submitted || !selected}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="w-full mt-8 px-8 py-3 bg-amber-600 text-white rounded-lg font-bold text-lg disabled:opacity-50 shadow-lg"
+          className="w-full mt-8 px-8 py-3 bg-amber-700 text-white rounded-lg font-bold text-lg disabled:opacity-50 shadow-lg"
         >
           Verificar Resposta
         </motion.button>
@@ -166,7 +166,7 @@ export const TrueFalseMinigame: React.FC<TrueFalseMinigameProps> = ({
               onClick={handleTryAgain}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="mt-4 px-8 py-3 bg-amber-600 text-white rounded-lg font-bold text-lg shadow-lg"
+              className="mt-4 px-8 py-3 bg-amber-700 text-white rounded-lg font-bold text-lg shadow-lg"
             >
               Tentar Novamente
             </motion.button>

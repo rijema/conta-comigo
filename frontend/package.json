@@ -13,7 +13,8 @@
     "lint:a11y:fix": "eslint 'src/**/*.{tsx,jsx}' --plugin jsx-a11y --fix || true",
     "validate:html-a11y": "bash scripts/validate-html-a11y.sh",
     "audit:a11y": "npm run lint:a11y && npm run build && npm run validate:html-a11y",
-    "test:e2e:progression": "node e2e/progression/verify.js"
+    "test:e2e:progression": "node e2e/progression/verify.js",
+    "test:a11y": "node e2e/a11y/audit.js"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

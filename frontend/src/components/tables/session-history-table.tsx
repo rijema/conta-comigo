@@ -22,7 +22,7 @@ export function SessionHistoryTable({ sessions, isLoading }: SessionHistoryTable
   }
 
   if (sessions.length === 0) {
-    return <div className="text-center py-8 text-gray-500">Nenhuma sessão registrada</div>;
+    return <div className="text-center py-8 text-gray-600">Nenhuma sessão registrada</div>;
   }
 
   return (
@@ -45,7 +45,7 @@ export function SessionHistoryTable({ sessions, isLoading }: SessionHistoryTable
               <TableCell>{session.skillCode}</TableCell>
               <TableCell>{(session.accuracy * 100).toFixed(0)}%</TableCell>
               <TableCell>
-                <span className={session.status === "completed" ? "text-green-600" : "text-yellow-600"}>
+                <span className={session.status === "completed" ? "text-green-700" : "text-yellow-700"}>
                   {session.status === "completed" ? "Concluída" : "Abandonada"}
                 </span>
               </TableCell>

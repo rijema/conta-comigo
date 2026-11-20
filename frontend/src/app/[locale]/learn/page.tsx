@@ -441,8 +441,8 @@ function LearnPageInner() {
           {sessionError ? (
             <>
               <div className="text-7xl mb-4" aria-hidden="true">😔</div>
-              <p className="text-xl text-red-600 font-bold">Ops! Não consegui carregar a atividade.</p>
-              <p className="text-gray-500 mt-2 text-sm">{sessionError}</p>
+              <p className="text-xl text-red-700 font-bold">Ops! Não consegui carregar a atividade.</p>
+              <p className="text-gray-600 mt-2 text-sm">{sessionError}</p>
               <button onClick={() => window.location.reload()}
                 className="mt-4 px-6 py-3 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700">
                 <ArasaacPictogram conceptId="navigation.try_again" showLabel={false} imageClassName="w-7 h-7" />
@@ -464,10 +464,10 @@ function LearnPageInner() {
                 )}
               </div>
               <p className="text-2xl text-blue-700 font-extrabold">Preparando sua aventura...</p>
-              <p className="text-gray-500 mt-2 text-sm">A TitIA está escolhendo a melhor atividade para você!</p>
+              <p className="text-gray-600 mt-2 text-sm">A TitIA está escolhendo a melhor atividade para você!</p>
               {loadingTakingLong && (
                 <div className="mt-5">
-                  <p className="text-amber-600 font-semibold text-sm">
+                  <p className="text-amber-700 font-semibold text-sm">
                     Isso está demorando mais que o normal. A internet pode estar lenta.
                   </p>
                   <button
@@ -580,7 +580,7 @@ function LearnPageInner() {
                 Continuar jogando
               </button>
               <button ref={pauseSuggestionAcceptRef} type="button" onClick={() => handleStartPause("suggested")}
-                className="min-h-14 flex-1 rounded-2xl bg-teal-600 px-4 py-3 text-base font-bold text-white hover:bg-teal-700">
+                className="min-h-14 flex-1 rounded-2xl bg-teal-700 px-4 py-3 text-base font-bold text-white hover:bg-teal-800">
                 Sim, quero pausar
               </button>
             </div>
@@ -604,7 +604,7 @@ function LearnPageInner() {
                 Tentar de novo
               </button>
               <button type="button" onClick={() => void handleSkipAfterReveal()}
-                className="min-h-14 flex-1 rounded-2xl bg-sky-600 px-4 py-3 text-base font-bold text-white hover:bg-sky-700">
+                className="min-h-14 flex-1 rounded-2xl bg-sky-700 px-4 py-3 text-base font-bold text-white hover:bg-sky-800">
                 Ir para a próxima
               </button>
             </div>
@@ -633,7 +633,7 @@ function LearnPageInner() {
           <button
             onClick={handleGoToMenu}
             aria-label="Voltar ao mapa (sair da atividade)"
-            className="justify-self-start flex items-center gap-1.5 rounded-full border-2 border-purple-200 bg-gradient-to-r from-purple-100 to-pink-100 px-4 py-2 text-sm font-extrabold text-purple-700 shadow-sm transition-all hover:scale-[1.04] hover:border-purple-400 hover:shadow-md active:scale-[.96] motion-reduce:transform-none"
+            className="justify-self-start flex items-center gap-1.5 rounded-full border-2 border-purple-200 bg-purple-100 bg-gradient-to-r from-purple-100 to-pink-100 px-4 py-2 text-sm font-extrabold text-purple-700 shadow-sm transition-all hover:scale-[1.04] hover:border-purple-400 hover:shadow-md active:scale-[.96] motion-reduce:transform-none"
           >
             <ArasaacPictogram conceptId="navigation.home" showLabel={false} imageClassName="w-5 h-5" />
             <span>Mapa</span>
@@ -667,7 +667,7 @@ function LearnPageInner() {
                 );
               })}
             </div>
-            <p className="mt-0.5 text-center text-xs font-bold text-slate-500">
+            <p className="mt-0.5 text-center text-xs font-bold text-slate-600">
               Atividade {Math.min(Math.floor(progress / 10) + 1, 10)} de 10
             </p>
           </div>
@@ -681,7 +681,7 @@ function LearnPageInner() {
           onClick={handleChangeActivity}
           disabled={isChangingActivity || !settings.allowChangeActivity}
           aria-label="Quero outro exercício"
-          className="inline-flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl border-2 border-teal-400 bg-gradient-to-r from-teal-500 to-emerald-500 px-2 py-2 text-xs font-extrabold text-white shadow-md motion-safe:transition-all motion-safe:hover:scale-[1.04] hover:shadow-lg motion-safe:active:scale-[.96] disabled:opacity-60 sm:flex-row sm:gap-2 sm:px-4 sm:text-sm"
+          className="inline-flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl border-2 border-teal-400 bg-teal-700 bg-gradient-to-r from-teal-700 to-emerald-700 px-2 py-2 text-xs font-extrabold text-white shadow-md motion-safe:transition-all motion-safe:hover:scale-[1.04] hover:shadow-lg motion-safe:active:scale-[.96] disabled:opacity-60 sm:flex-row sm:gap-2 sm:px-4 sm:text-sm"
         >
           <ArasaacPictogram
             conceptId="navigation.repeat"
@@ -692,7 +692,7 @@ function LearnPageInner() {
           <span>{!settings.allowChangeActivity ? "Outra atividade indisponível" : isChangingActivity ? "Escolhendo..." : "Quero outro"}</span>
         </button>
         <button type="button" data-pause-ui onClick={() => handleStartPause("child")} disabled={isPaused}
-          className="inline-flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl border-2 border-teal-300 bg-gradient-to-r from-teal-50 to-cyan-100 px-2 py-2 text-xs font-extrabold text-teal-800 shadow-md motion-safe:transition-all motion-safe:hover:scale-[1.04] hover:shadow-lg motion-safe:active:scale-[.96] disabled:opacity-60 sm:flex-row sm:gap-2 sm:px-4 sm:text-sm"
+          className="inline-flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl border-2 border-teal-300 bg-teal-50 bg-gradient-to-r from-teal-50 to-cyan-100 px-2 py-2 text-xs font-extrabold text-teal-800 shadow-md motion-safe:transition-all motion-safe:hover:scale-[1.04] hover:shadow-lg motion-safe:active:scale-[.96] disabled:opacity-60 sm:flex-row sm:gap-2 sm:px-4 sm:text-sm"
           aria-label="Quero fazer uma pausa">
           <ArasaacPictogram conceptId="navigation.pause" showLabel={false} imageClassName="h-7 w-7" />
           <span>Quero uma pausa</span>
@@ -701,7 +701,7 @@ function LearnPageInner() {
           <button type="button" onClick={handleOpenHelpMenu}
             aria-haspopup="dialog" aria-expanded={showHelpMenu}
             aria-label="Ajuda: como jogar e falar com a TitiA"
-            className={`inline-flex min-h-14 w-full flex-col items-center justify-center gap-1 rounded-2xl border-2 border-sky-300 bg-gradient-to-r from-sky-100 to-blue-100 px-2 py-2 text-xs font-extrabold text-sky-800 shadow-md motion-safe:transition-all motion-safe:hover:scale-[1.04] hover:shadow-lg motion-safe:active:scale-[.96] sm:flex-row sm:gap-2 sm:px-4 sm:text-sm
+            className={`inline-flex min-h-14 w-full flex-col items-center justify-center gap-1 rounded-2xl border-2 border-sky-300 bg-sky-100 bg-gradient-to-r from-sky-100 to-blue-100 px-2 py-2 text-xs font-extrabold text-sky-800 shadow-md motion-safe:transition-all motion-safe:hover:scale-[1.04] hover:shadow-lg motion-safe:active:scale-[.96] sm:flex-row sm:gap-2 sm:px-4 sm:text-sm
               ${showHelpIntro || showAutoHint ? "ring-4 ring-sky-300 motion-safe:animate-pulse" : ""}`}>
             {/* Mini preview of what is inside, so the hidden options stay discoverable */}
             <span className="flex items-center -space-x-2" aria-hidden="true">
@@ -729,17 +729,17 @@ function LearnPageInner() {
             <div className="mb-4 flex items-center justify-between">
               <h2 id="help-menu-title" className="text-xl font-black text-sky-800">Ajuda</h2>
               <button type="button" onClick={closeHelpMenu} aria-label="Fechar ajuda"
-                className="h-11 w-11 rounded-full text-2xl font-bold text-slate-400 hover:bg-slate-100 hover:text-slate-600">×</button>
+                className="h-11 w-11 rounded-full text-2xl font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-600">×</button>
             </div>
             <div className="grid gap-3">
               <button type="button" onClick={handleOpenTutorial}
                 aria-label="Abrir ajuda visual sobre como jogar"
-                className="flex min-h-16 items-center gap-3 rounded-2xl border-2 border-orange-300 bg-gradient-to-r from-orange-100 to-yellow-100 px-4 py-3 text-left text-lg font-extrabold text-orange-800 shadow-sm hover:shadow-md">
+                className="flex min-h-16 items-center gap-3 rounded-2xl border-2 border-orange-300 bg-orange-100 bg-gradient-to-r from-orange-100 to-yellow-100 px-4 py-3 text-left text-lg font-extrabold text-orange-800 shadow-sm hover:shadow-md">
                 <ArasaacPictogram conceptId="navigation.help" showLabel={false} imageClassName="h-10 w-10" />
                 <span>Como jogar</span>
               </button>
               <button type="button" onClick={handleOpenChat}
-                className="flex min-h-16 items-center gap-3 rounded-2xl border-2 border-sky-300 bg-gradient-to-r from-sky-100 to-blue-100 px-4 py-3 text-left text-lg font-extrabold text-sky-800 shadow-sm hover:shadow-md">
+                className="flex min-h-16 items-center gap-3 rounded-2xl border-2 border-sky-300 bg-sky-100 bg-gradient-to-r from-sky-100 to-blue-100 px-4 py-3 text-left text-lg font-extrabold text-sky-800 shadow-sm hover:shadow-md">
                 <ArasaacPictogram conceptId="communication.help_me" showLabel={false} imageClassName="h-10 w-10" />
                 <span>Falar com a TitiA</span>
               </button>
@@ -775,7 +775,7 @@ function LearnPageInner() {
         >
           <section role="dialog" aria-modal="true" aria-labelledby="titia-chat-title"
             className="w-full max-w-lg overflow-hidden rounded-[2rem] bg-white shadow-2xl">
-            <header className="flex items-center gap-3 bg-gradient-to-r from-sky-500 via-blue-500 to-purple-500 p-4 text-white">
+            <header className="flex items-center gap-3 bg-sky-700 bg-gradient-to-r from-sky-700 via-blue-600 to-purple-600 p-4 text-white">
               <Image src="/assets/wildcard.png" width={88} height={72} alt="TitiA" className="h-16 w-20 object-contain" />
               <div className="flex-1"><h2 id="titia-chat-title" className="text-xl font-extrabold">Falar com a TitiA</h2><p className="text-sm text-white/90">Escreva ou use sua voz para fazer uma pergunta.</p></div>
               <button type="button" onClick={() => setShowChat(false)} aria-label="Fechar conversa" className="h-10 w-10 rounded-full bg-white/20 text-xl font-bold hover:bg-white/30">×</button>
@@ -789,7 +789,7 @@ function LearnPageInner() {
               <div className="flex flex-wrap gap-3">
                 {voice.enabled && settings.voiceEnabled && <PushToTalkButton state={voice.state} onStart={voice.start} onStop={voice.stop} onReset={voice.reset} idleLabel="Fazer pergunta por voz" />}
                 <button type="button" disabled={!chatQuestion.trim() || chatLoading} onClick={() => { void askTitia(); }}
-                  className="min-h-11 flex-1 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 px-5 font-extrabold text-white shadow-md transition-transform hover:scale-[1.02] active:scale-[.98] disabled:opacity-50">
+                  className="min-h-11 flex-1 rounded-full bg-purple-700 bg-gradient-to-r from-purple-600 to-pink-600 px-5 font-extrabold text-white shadow-md transition-transform hover:scale-[1.02] active:scale-[.98] disabled:opacity-50">
                   {chatLoading ? "TitiA está pensando..." : "Enviar para a TitiA"}
                 </button>
               </div>
@@ -804,7 +804,7 @@ function LearnPageInner() {
           <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-extrabold text-blue-700">Como jogar</h2>
-              <button onClick={() => setShowTutorial(false)} className="text-2xl text-gray-400 hover:text-gray-600">×</button>
+              <button onClick={() => setShowTutorial(false)} className="text-2xl text-gray-600 hover:text-gray-600">×</button>
             </div>
             <div className="flex justify-center">
               <Image src="/assets/wildcard.png" width={180} height={135}
@@ -839,7 +839,7 @@ function LearnPageInner() {
                 setShowTutorial(false);
                 if (settings.soundEnabled && settings.soundEffectsEnabled) playStart(effectVolume);
               }}
-              className="w-full py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-extrabold rounded-2xl hover:opacity-90 transition-opacity text-base shadow-lg"
+              className="w-full py-4 bg-purple-700 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-extrabold rounded-2xl hover:opacity-90 transition-opacity text-base shadow-lg"
             >
               <ArasaacPictogram conceptId="navigation.start" showLabel={false} imageClassName="w-7 h-7" />
               <span className="ml-2">Entendi! Vamos jogar!</span>
