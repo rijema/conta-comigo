@@ -72,7 +72,7 @@ function BarChart({ data }: { data: { label: string; value: number; color?: stri
 
 /* ── SVG Line Chart ─────────────────────────────────────────────── */
 function LineChart({ data }: { data: { label: string; value: number }[] }) {
-  if (data.length < 2) return <p className="text-xs text-slate-400 text-center py-4">Dados insuficientes</p>;
+  if (data.length < 2) return <p className="text-xs text-slate-600 text-center py-4">Dados insuficientes</p>;
   const W = 300; const H = 100; const pad = 16;
   const max = Math.max(...data.map((d) => d.value), 1);
   const pts = data.map((d, i) => {
@@ -268,16 +268,16 @@ export default function GuardianDashboardPage() {
       <div className="min-h-screen flex items-center justify-center bg-purple-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4" />
-          <p className="text-slate-500">Carregando...</p>
+          <p className="text-slate-600">Carregando...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
+    <div className="min-h-screen bg-purple-50 bg-gradient-to-b from-purple-50 to-white">
       {/* Header */}
-      <header className="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-5 text-white">
+      <header className="bg-purple-700 bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-5 text-white">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold">👪 Painel do Responsável</h1>
@@ -286,13 +286,13 @@ export default function GuardianDashboardPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowAddChild(true)}
-              className="px-4 py-2 bg-white/30 hover:bg-white/40 rounded-xl text-sm font-semibold transition-colors"
+              className="px-4 py-2 bg-black/20 hover:bg-black/30 rounded-xl text-sm font-semibold transition-colors"
             >
               + Adicionar filho
             </button>
             <button
               onClick={logout}
-              className="px-3 py-2 bg-white/30 hover:bg-white/40 rounded-xl text-sm font-semibold transition-colors text-white hover:text-white"
+              className="px-3 py-2 bg-black/20 hover:bg-black/30 rounded-xl text-sm font-semibold transition-colors text-white hover:text-white"
             >
               Sair
             </button>
@@ -325,7 +325,7 @@ export default function GuardianDashboardPage() {
         {children.length === 0 && !showAddChild && (
           <div className="bg-white rounded-3xl shadow-sm p-12 text-center border border-dashed border-purple-200">
             <div className="text-5xl mb-3">👶</div>
-            <p className="text-slate-500 mb-4">Nenhuma criança vinculada ainda</p>
+            <p className="text-slate-600 mb-4">Nenhuma criança vinculada ainda</p>
             <button
               onClick={() => setShowAddChild(true)}
               className="px-6 py-3 bg-purple-600 text-white font-bold rounded-2xl hover:bg-purple-700"
@@ -342,14 +342,14 @@ export default function GuardianDashboardPage() {
               <div className="flex items-start gap-4 mb-4">
                 {/* Avatar */}
                 <div className="flex-shrink-0">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-200 to-indigo-300 flex items-center justify-center text-3xl font-bold text-white shadow-sm">
+                  <div className="w-16 h-16 rounded-2xl bg-purple-700 bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-3xl font-bold text-white shadow-sm">
                     {selected.name?.[0]?.toUpperCase() ?? "?"}
                   </div>
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline gap-2 flex-wrap">
                     <h2 className="text-xl font-bold text-slate-800">{selected.name}</h2>
-                    <span className="text-sm text-slate-400 font-normal">filho(a) de</span>
+                    <span className="text-sm text-slate-600 font-normal">filho(a) de</span>
                     <span className="text-sm font-semibold text-purple-700">{user?.name?.split(" ")[0]}</span>
                   </div>
                   <div className="flex flex-wrap gap-2 mt-1">
@@ -408,7 +408,7 @@ export default function GuardianDashboardPage() {
                         <div key={s.label} className="bg-white rounded-2xl shadow-sm p-4 text-center border border-slate-100">
                           <div className="text-3xl mb-1">{s.icon}</div>
                           <div className="text-2xl font-bold text-slate-800">{s.value}</div>
-                          <div className="text-xs text-slate-500">{s.label}</div>
+                          <div className="text-xs text-slate-600">{s.label}</div>
                         </div>
                       ))}
                     </div>
@@ -423,21 +423,21 @@ export default function GuardianDashboardPage() {
                       </div>
                       <h4 className="mt-5 font-bold text-slate-700">🌱 Está aprendendo e praticando</h4>
                       <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                        {(detail.practicedSkills ?? []).length === 0 && <p className="text-sm text-slate-500">Ainda não há atividades suficientes para este resumo.</p>}
+                        {(detail.practicedSkills ?? []).length === 0 && <p className="text-sm text-slate-600">Ainda não há atividades suficientes para este resumo.</p>}
                         {(detail.practicedSkills ?? []).map(({ code, count }: { code: string; count: number }) => (
                           <p key={code} className="rounded-xl border border-slate-200 p-3 text-sm"><strong className="block text-slate-800">{BNCC_AREAS[code]?.label ?? 'Matemática'}</strong>Praticou em {count} {count === 1 ? 'atividade' : 'atividades'}.</p>
                         ))}
                       </div>
                       <h4 className="mt-5 font-bold text-slate-700">Já conseguiu em atividades recentes</h4>
                       <p className="mt-1 text-sm text-slate-600">Acertos observados, sem concluir que a habilidade foi dominada.</p>
-                      <div className="mt-2 flex flex-wrap gap-2">{(detail.recentlySuccessfulSkills ?? []).length ? detail.recentlySuccessfulSkills.map(({ code, count }: { code: string; count: number }) => <span key={code} className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-900">{BNCC_AREAS[code]?.label ?? 'Matemática'} · {count} {count === 1 ? 'acerto' : 'acertos'}</span>) : <span className="text-sm text-slate-500">Ainda não há acertos registrados nesta amostra.</span>}</div>
+                      <div className="mt-2 flex flex-wrap gap-2">{(detail.recentlySuccessfulSkills ?? []).length ? detail.recentlySuccessfulSkills.map(({ code, count }: { code: string; count: number }) => <span key={code} className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-900">{BNCC_AREAS[code]?.label ?? 'Matemática'} · {count} {count === 1 ? 'acerto' : 'acertos'}</span>) : <span className="text-sm text-slate-600">Ainda não há acertos registrados nesta amostra.</span>}</div>
                       <h4 className="mt-5 font-bold text-slate-700">🎮 Formatos mais usados</h4>
                       <p className="mt-1 text-sm text-slate-600">{(detail.favoriteFormats ?? []).length ? detail.favoriteFormats.map(({ type, count }: { type: string; count: number }) => `${ACTIVITY_TYPES[type]?.label ?? type} (${count})`).join(' · ') : 'Ainda sem atividades concluídas.'}</p>
                       <h4 className="mt-5 font-bold text-slate-700">🕘 Atividades recentes</h4>
                       <ul className="mt-2 space-y-2">{(detail.recentActivities ?? []).map((activity: any) => (
                         <li key={activity.id} className="rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700"><strong>{activity.title}</strong> · {new Date(activity.date).toLocaleDateString('pt-BR')} · {activity.correct ? 'Concluída com acerto' : 'Em prática'}</li>
                       ))}</ul>
-                      {(detail.recentActivities ?? []).length === 0 && <p className="text-sm text-slate-500">Nenhuma atividade registrada ainda.</p>}
+                      {(detail.recentActivities ?? []).length === 0 && <p className="text-sm text-slate-600">Nenhuma atividade registrada ainda.</p>}
                       <h4 className="mt-5 font-bold text-slate-700">🏠 Ideia para praticar juntos</h4>
                       <p className="mt-1 rounded-xl bg-sky-50 p-3 text-sm text-slate-700">{HOME_IDEAS[detail.practicedSkills?.[0]?.code] ?? 'Escolham objetos da casa para contar e comparar juntos, no ritmo da criança.'}</p>
                     </section>
@@ -472,7 +472,7 @@ export default function GuardianDashboardPage() {
                     )}
 
                     {/* Contextual guidance for parents */}
-                    <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-2xl p-4">
+                    <div className="bg-purple-50 bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-2xl p-4">
                       <h3 className="font-bold text-purple-800 mb-2 text-sm">O que esses dados significam?</h3>
                       <ul className="space-y-1.5 text-xs text-slate-600">
                         <li>🎯 <strong>Precisão observada</strong>: percentual de respostas corretas nas atividades registradas; não prova melhora isoladamente.</li>
@@ -485,7 +485,7 @@ export default function GuardianDashboardPage() {
                     {/* Skill profile bars */}
                     <div className="bg-white rounded-2xl shadow-sm p-5 border border-slate-100">
                       <h3 className="font-bold text-slate-700 mb-1">Perfil de Habilidades</h3>
-                      <p className="text-xs text-slate-500 mb-3">Identificado pela IA com base nas atividades realizadas</p>
+                      <p className="text-xs text-slate-600 mb-3">Identificado pela IA com base nas atividades realizadas</p>
                       <div className="space-y-3">
                         {Object.keys(SKILL_LABELS).map((skill) => {
                           const isStrength = detail.strengths?.[skill];
@@ -501,7 +501,7 @@ export default function GuardianDashboardPage() {
                                 }`} />
                               </div>
                               <span className={`text-xs font-semibold w-16 text-right ${
-                                isStrength ? "text-green-600" : isWeakness ? "text-red-500" : "text-slate-400"
+                                isStrength ? "text-green-700" : isWeakness ? "text-red-700" : "text-slate-600"
                               }`}>
                                 {isStrength ? "Força" : isWeakness ? "Fraqueza" : "Neutro"}
                               </span>
@@ -535,17 +535,17 @@ export default function GuardianDashboardPage() {
                       {/* Line: precision over time */}
                       <div className="bg-white rounded-2xl shadow-sm p-5 border border-slate-100">
                         <h3 className="font-bold text-slate-700 mb-1">📈 Precisão observada por sessão</h3>
-                        <p className="text-xs text-slate-400 mb-3">Últimas {progData.length} sessões registradas</p>
+                        <p className="text-xs text-slate-600 mb-3">Últimas {progData.length} sessões registradas</p>
                         <LineChart data={progData} />
-                        <p className="text-xs text-slate-400 text-center mt-1">% de acertos por dia</p>
-                        <p className="text-xs text-slate-400 text-center mt-1">Esta linha, isoladamente, não demonstra melhora.</p>
+                        <p className="text-xs text-slate-600 text-center mt-1">% de acertos por dia</p>
+                        <p className="text-xs text-slate-600 text-center mt-1">Esta linha, isoladamente, não demonstra melhora.</p>
                       </div>
 
                       <div className="bg-white rounded-2xl shadow-sm p-5 border border-slate-100">
                         <h3 className="font-bold text-slate-700 mb-1">📚 Habilidades praticadas</h3>
-                        <p className="text-xs text-slate-400 mb-3">Resumo simples das habilidades presentes nas atividades registradas.</p>
+                        <p className="text-xs text-slate-600 mb-3">Resumo simples das habilidades presentes nas atividades registradas.</p>
                         {(longitudinal?.learningProgress?.skillsPracticed ?? []).length === 0 ? (
-                          <p className="text-sm text-slate-400">Dados ainda insuficientes.</p>
+                          <p className="text-sm text-slate-600">Dados ainda insuficientes.</p>
                         ) : (
                           <div className="flex flex-wrap gap-2">{longitudinal.learningProgress.skillsPracticed.map((skill: string) => <span key={skill} className="text-xs bg-purple-50 text-purple-700 rounded-full px-3 py-1">{skill}</span>)}</div>
                         )}
@@ -555,7 +555,7 @@ export default function GuardianDashboardPage() {
                       {bnccBarData.length > 0 && (
                         <div className="bg-white rounded-2xl shadow-sm p-5 border border-slate-100">
                           <h3 className="font-bold text-slate-700 mb-1">📚 Atividades por Habilidade BNCC</h3>
-                          <p className="text-xs text-slate-400 mb-3">Quantidade de tentativas por código BNCC</p>
+                          <p className="text-xs text-slate-600 mb-3">Quantidade de tentativas por código BNCC</p>
                           <BarChart data={bnccBarData} />
                           <ul className="mt-3 space-y-1 text-sm text-slate-600">{bnccEntries.slice(0, 8).map(([skill, data]: [string, any]) => <li key={skill}>{BNCC_AREAS[skill]?.emoji ?? '🔢'} {BNCC_AREAS[skill]?.label ?? 'Matemática'}: {data.attempted ?? 0} tentativas</li>)}</ul>
                         </div>
@@ -564,7 +564,7 @@ export default function GuardianDashboardPage() {
                       {/* Activity type distribution */}
                       <div className="bg-white rounded-2xl shadow-sm p-5 border border-slate-100">
                         <h3 className="font-bold text-slate-700 mb-1">🎮 Formatos praticados</h3>
-                        <p className="text-xs text-slate-400 mb-3">Formatos observados nas atividades concluídas por {detail.name}</p>
+                        <p className="text-xs text-slate-600 mb-3">Formatos observados nas atividades concluídas por {detail.name}</p>
                         <div className="grid grid-cols-2 gap-2">
                           {(longitudinal?.observedData?.activityFormats ?? []).map(({ type, count }: any) => {
                             const info = ACTIVITY_TYPES[type] ?? { label: type, emoji: "🎮" };
@@ -573,11 +573,11 @@ export default function GuardianDashboardPage() {
                               <span className="text-2xl">{info.emoji}</span>
                               <div>
                                 <p className="text-xs font-bold text-slate-700">{info.label}</p>
-                                <p className="text-xs text-slate-400">{count} atividade(s) concluída(s)</p>
+                                <p className="text-xs text-slate-600">{count} atividade(s) concluída(s)</p>
                               </div>
                             </div>
                           )})}
-                          {(longitudinal?.observedData?.activityFormats ?? []).length === 0 && <p className="text-sm text-slate-400">Dados ainda insuficientes.</p>}
+                          {(longitudinal?.observedData?.activityFormats ?? []).length === 0 && <p className="text-sm text-slate-600">Dados ainda insuficientes.</p>}
                         </div>
                       </div>
                     </div>
@@ -588,16 +588,16 @@ export default function GuardianDashboardPage() {
                 {activeTab === "bncc" && (
                   <div className="bg-white rounded-2xl shadow-sm p-5 border border-slate-100">
                     <h3 className="font-bold text-slate-700 mb-2">📚 Habilidades praticadas</h3>
-                    <p className="text-xs text-slate-500 mb-4">Habilidades presentes nas atividades registradas. Este resumo não classifica domínio.</p>
+                    <p className="text-xs text-slate-600 mb-4">Habilidades presentes nas atividades registradas. Este resumo não classifica domínio.</p>
                     {(longitudinal?.learningProgress?.skillsInDevelopment ?? []).length === 0 && (
-                      <p className="text-slate-400 text-sm text-center py-6">Dados ainda insuficientes.</p>
+                      <p className="text-slate-600 text-sm text-center py-6">Dados ainda insuficientes.</p>
                     )}
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                       {(longitudinal?.learningProgress?.skillsInDevelopment ?? []).map((item: any) => (
                         <div key={item.skillCode} className="p-3 rounded-2xl border-2 text-center bg-slate-50 border-slate-200">
                           <p className="font-bold text-sm text-slate-700">{BNCC_AREAS[item.skillCode]?.label ?? 'Matemática'}</p>
                           <p className="text-xl mt-1">📖</p>
-                          <p className="text-xs text-slate-500 mt-1">{item.state}</p>
+                          <p className="text-xs text-slate-600 mt-1">{item.state}</p>
                         </div>
                       ))}
                     </div>
@@ -608,18 +608,18 @@ export default function GuardianDashboardPage() {
                 {activeTab === "ade" && (
                   <div className="bg-white rounded-2xl shadow-sm p-5 border border-slate-100">
                     <h3 className="font-bold text-slate-700 mb-1">🤖 Decisões da IA Adaptativa</h3>
-                    <p className="text-xs text-slate-500 mb-4">
+                    <p className="text-xs text-slate-600 mb-4">
                       O sistema de IA escolhe atividades personalizadas para {detail.name} com base no perfil de aprendizagem.
                     </p>
                     {detail.recentAdeDecisions?.length === 0 && (
-                      <p className="text-slate-400 text-sm text-center py-6">Nenhuma decisão registrada ainda</p>
+                      <p className="text-slate-600 text-sm text-center py-6">Nenhuma decisão registrada ainda</p>
                     )}
                     <div className="space-y-3">
                       {detail.recentAdeDecisions?.map((dec: any) => (
                         <div key={dec.id} className="border border-slate-200 rounded-2xl p-4">
                           <div className="flex items-start justify-between gap-2 mb-2 flex-wrap">
                             <strong className="text-sm text-slate-700">{BNCC_AREAS[dec.recommendedBnccSkill]?.label ?? 'Atividade de matemática'}</strong>
-                            <span className="text-xs text-slate-400">
+                            <span className="text-xs text-slate-600">
                               {new Date(dec.createdAt).toLocaleString("pt-BR")}
                             </span>
                           </div>
@@ -638,14 +638,14 @@ export default function GuardianDashboardPage() {
                 {activeTab === "cycles" && (
                   <div className="bg-white rounded-2xl shadow-sm p-5 border border-slate-100">
                     <h3 className="font-bold text-slate-700 mb-1">🏝️ Caminho de Aprendizado</h3>
-                    <p className="text-xs text-slate-500 mb-4">
+                    <p className="text-xs text-slate-600 mb-4">
                       Cada ilha é um ciclo de 10 exercícios focado em um grupo de habilidades. {detail.name} só avança para a próxima ilha depois de concluir todos os exercícios da ilha atual — um caminho claro, sem atalhos que confundam.
                     </p>
                     {cyclesLoading && (
-                      <p className="text-slate-400 text-sm text-center py-6">Carregando ciclos...</p>
+                      <p className="text-slate-600 text-sm text-center py-6">Carregando ciclos...</p>
                     )}
                     {!cyclesLoading && (cycles?.cycles?.length ?? 0) === 0 && (
-                      <p className="text-slate-400 text-sm text-center py-6">Nenhum ciclo disponível ainda.</p>
+                      <p className="text-slate-600 text-sm text-center py-6">Nenhum ciclo disponível ainda.</p>
                     )}
                     {!cyclesLoading && (cycles?.cycles?.length ?? 0) > 0 && (
                       <div className="space-y-3">
@@ -664,12 +664,12 @@ export default function GuardianDashboardPage() {
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between gap-2 flex-wrap">
                                 <p className="font-bold text-sm text-slate-700">Ciclo {index + 1}: {cycle.name}</p>
-                                <span className="text-xs font-semibold text-slate-500">
+                                <span className="text-xs font-semibold text-slate-600">
                                   {cycle.completedExercises}/{cycle.totalExercises} exercícios
                                 </span>
                               </div>
                               {cycle.bnccSkills?.length > 0 && (
-                                <p className="text-xs text-slate-500 mt-0.5">BNCC: {cycle.bnccSkills.join(', ')}</p>
+                                <p className="text-xs text-slate-600 mt-0.5">BNCC: {cycle.bnccSkills.join(', ')}</p>
                               )}
                               <div className="h-2 bg-slate-200 rounded-full overflow-hidden mt-2">
                                 <div
@@ -696,7 +696,7 @@ export default function GuardianDashboardPage() {
           <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-bold text-slate-800 text-lg">👶 Adicionar filho</h2>
-              <button onClick={() => setShowAddChild(false)} className="text-slate-400 hover:text-slate-600 text-xl">✕</button>
+              <button onClick={() => setShowAddChild(false)} className="text-slate-600 hover:text-slate-600 text-xl">✕</button>
             </div>
             <form onSubmit={handleAddChild} className="space-y-3">
               <div>
@@ -735,9 +735,9 @@ export default function GuardianDashboardPage() {
                   required
                   className="w-full mt-1 px-4 py-3 rounded-2xl border-2 border-slate-200 outline-none focus:border-purple-400 text-sm"
                 />
-                <p className="text-xs text-slate-400 mt-1">A criança usará essa senha para entrar</p>
+                <p className="text-xs text-slate-600 mt-1">A criança usará essa senha para entrar</p>
               </div>
-              {addError && <p className="text-red-500 text-sm">{addError}</p>}
+              {addError && <p className="text-red-700 text-sm">{addError}</p>}
               <div className="flex gap-2 pt-1">
                 <button
                   type="button"

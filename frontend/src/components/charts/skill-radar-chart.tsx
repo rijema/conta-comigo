@@ -22,7 +22,7 @@ interface Props {
 export function SkillRadarChart({ data }: Props) {
   if (!data || data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-32 text-gray-400 text-sm">
+      <div className="flex items-center justify-center h-32 text-gray-600 text-sm">
         Dados de habilidades não disponíveis
       </div>
     );

@@ -41,7 +41,7 @@ export function QuantityBuilderActivity({ activity, onAnswer }: {
       <p className="mb-4 text-center text-xl font-bold">{activity.content?.question ?? activity.content?.instructionsPt}</p>
       {targetNumber !== undefined && (
         <div className="mb-4 flex flex-col items-center gap-1">
-          <span className="text-sm font-semibold uppercase tracking-wide text-gray-500">Monte este número:</span>
+          <span className="text-sm font-semibold uppercase tracking-wide text-gray-600">Monte este número:</span>
           <div className="flex h-24 w-24 items-center justify-center rounded-2xl border-4 border-blue-400 bg-white shadow-md">
             <span className="text-6xl font-extrabold text-blue-700">{targetNumber}</span>
           </div>
@@ -52,7 +52,7 @@ export function QuantityBuilderActivity({ activity, onAnswer }: {
         {Array.from({ length: count }, (_, index) => (
           <ArasaacPictogram key={index} conceptId={conceptId} showLabel={false} imageClassName="h-12 w-12" />
         ))}
-        {count === 0 && <span className="text-gray-500">Toque em adicionar para começar</span>}
+        {count === 0 && <span className="text-gray-600">Toque em adicionar para começar</span>}
       </div>
       <p className="mb-3 text-center text-4xl font-bold text-blue-700">{count}</p>
       <div className="mb-4 flex gap-3">
@@ -66,7 +66,7 @@ export function QuantityBuilderActivity({ activity, onAnswer }: {
         </button>
       </div>
       <button type="button" onClick={handleSubmit}
-        className="w-full rounded-xl bg-green-600 p-3 font-bold text-white">
+        className="w-full rounded-xl bg-green-700 p-3 font-bold text-white">
         <ArasaacPictogram conceptId="activity.complete" showLabel={false} imageClassName="h-7 w-7" /> Confirmar
       </button>
     </div>

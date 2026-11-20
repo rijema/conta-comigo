@@ -140,7 +140,7 @@ export const CategorizationMinigame: React.FC<CategorizationMinigameProps> = ({
   const lesserItems = items.filter(item => categorized.lesser.includes(item.id));
 
   return (
-    <div className="flex flex-col gap-6 p-6 bg-gradient-to-b from-purple-50 to-pink-50 rounded-xl">
+    <div className="flex flex-col gap-6 p-6 bg-purple-50 bg-gradient-to-b from-purple-50 to-pink-50 rounded-xl">
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -220,7 +220,7 @@ export const CategorizationMinigame: React.FC<CategorizationMinigameProps> = ({
                 ))}
               </AnimatePresence>
             </div>
-            {greaterItems.length === 0 && <p className="text-gray-400">Arraste aqui</p>}
+            {greaterItems.length === 0 && <p className="text-gray-600">Arraste aqui</p>}
           </motion.div>
 
           <motion.div
@@ -249,7 +249,7 @@ export const CategorizationMinigame: React.FC<CategorizationMinigameProps> = ({
                 ))}
               </AnimatePresence>
             </div>
-            {lesserItems.length === 0 && <p className="text-gray-400">Arraste aqui</p>}
+            {lesserItems.length === 0 && <p className="text-gray-600">Arraste aqui</p>}
           </motion.div>
         </div>
       </div>

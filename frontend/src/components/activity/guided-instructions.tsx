@@ -55,7 +55,7 @@ export function GuidedInstructions({ activity }: { activity: Activity }) {
   if (instruction.steps.length === 0) return null;
 
   return (
-    <section className="mb-3 overflow-hidden rounded-3xl border-2 border-purple-200 bg-gradient-to-r from-purple-50 via-pink-50 to-orange-50 shadow-sm"
+    <section className="mb-3 overflow-hidden rounded-3xl border-2 border-purple-200 bg-purple-50 bg-gradient-to-r from-purple-50 via-pink-50 to-orange-50 shadow-sm"
       aria-labelledby={`guided-instructions-${activity.id}`}>
       <button
         type="button"
@@ -71,9 +71,9 @@ export function GuidedInstructions({ activity }: { activity: Activity }) {
           alt="TitiA pronta para explicar a atividade"
           className="h-10 w-12 flex-none object-contain object-top"
         />
-        <h3 id={`guided-instructions-${activity.id}`} className="min-w-0 flex-1 truncate font-extrabold text-purple-800">
+        <h2 id={`guided-instructions-${activity.id}`} className="min-w-0 flex-1 truncate font-extrabold text-purple-800">
           TitiA explica para você
-        </h3>
+        </h2>
         <ArasaacPictogram
           conceptId={isExpanded ? "navigation.pause" : "navigation.help"}
           showLabel={false}

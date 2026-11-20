@@ -123,11 +123,11 @@ export function ChatNowCard() {
               type="button"
               onClick={openTitia}
               disabled={isLoading}
-              className="rounded-2xl bg-gradient-to-r from-sky-500 via-indigo-500 to-fuchsia-500 px-6 py-3 text-base font-black text-white shadow-lg transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70"
+              className="rounded-2xl bg-sky-700 bg-gradient-to-r from-sky-700 via-indigo-600 to-fuchsia-600 px-6 py-3 text-base font-black text-white shadow-lg transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isLoading ? "Abrindo..." : "Conversar"}
             </button>
-            {error && <p className="text-sm font-semibold text-rose-600">{error}</p>}
+            {error && <p className="text-sm font-semibold text-rose-700">{error}</p>}
           </div>
         </div>
       </section>

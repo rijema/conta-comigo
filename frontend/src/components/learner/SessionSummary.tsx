@@ -27,22 +27,22 @@ export function SessionSummary({ result, onContinue, onHome }: SessionSummaryPro
 
   const stats = [
     {
-      icon: <CheckCircle size={22} className="text-green-500" aria-hidden />,
+      icon: <CheckCircle size={22} className="text-green-700" aria-hidden />,
       label: t("summary.accuracy"),
       value: `${accuracy}%`,
     },
     {
-      icon: <Target size={22} className="text-blue-500" aria-hidden />,
+      icon: <Target size={22} className="text-blue-600" aria-hidden />,
       label: t("summary.completed"),
       value: result.totalAttempts,
     },
     {
-      icon: <Clock size={22} className="text-purple-500" aria-hidden />,
+      icon: <Clock size={22} className="text-purple-600" aria-hidden />,
       label: t("summary.avgTime"),
       value: `${avgTime}s`,
     },
     {
-      icon: <TrendingUp size={22} className="text-orange-500" aria-hidden />,
+      icon: <TrendingUp size={22} className="text-orange-700" aria-hidden />,
       label: t("summary.xpEarned"),
       value: `+${result.xpEarned ?? 0}`,
     },
@@ -72,7 +72,7 @@ export function SessionSummary({ result, onContinue, onHome }: SessionSummaryPro
             : t("summary.keepPracticing")}
         </h2>
         {result.streakDays && result.streakDays > 1 && (
-          <p className="text-sm text-orange-600 mt-1 font-medium">
+          <p className="text-sm text-orange-700 mt-1 font-medium">
             {t("summary.streak", { days: result.streakDays })} 🔥
           </p>
         )}
@@ -96,7 +96,7 @@ export function SessionSummary({ result, onContinue, onHome }: SessionSummaryPro
           >
             {stat.icon}
             <span className="text-2xl font-bold text-gray-800">{stat.value}</span>
-            <span className="text-xs text-gray-500 text-center">{stat.label}</span>
+            <span className="text-xs text-gray-600 text-center">{stat.label}</span>
           </div>
         ))}
       </div>

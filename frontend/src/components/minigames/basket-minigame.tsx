@@ -149,7 +149,7 @@ export const BasketMinigame: React.FC<BasketMinigameProps> = ({
       {/* Instruction */}
       <p className="text-center text-lg font-bold text-slate-700">{question}</p>
       {isTEAMode && (
-        <p className="text-center text-sm text-slate-500 italic">Sem pressa! Arraste devagar. Você tem todo o tempo.</p>
+        <p className="text-center text-sm text-slate-600 italic">Sem pressa! Arraste devagar. Você tem todo o tempo.</p>
       )}
 
       {/* Progress bar */}
@@ -167,7 +167,7 @@ export const BasketMinigame: React.FC<BasketMinigameProps> = ({
       <div className="flex gap-4">
         {/* Remaining items to drag */}
         <div className="flex-1 rounded-2xl border-2 border-slate-200 bg-slate-50 p-3">
-          <p className="mb-2 text-center text-sm font-bold text-slate-500">Itens</p>
+          <p className="mb-2 text-center text-sm font-bold text-slate-600">Itens</p>
           <div className="flex flex-wrap justify-center gap-3 min-h-24">
             {remainingItems.map((item) => (
               <motion.div
@@ -191,7 +191,7 @@ export const BasketMinigame: React.FC<BasketMinigameProps> = ({
               </motion.div>
             ))}
             {remainingItems.length === 0 && (
-              <p className="text-sm font-bold text-emerald-600">✅ Todos coletados!</p>
+              <p className="text-sm font-bold text-emerald-700">✅ Todos coletados!</p>
             )}
           </div>
         </div>

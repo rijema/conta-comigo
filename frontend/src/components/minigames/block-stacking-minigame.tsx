@@ -158,7 +158,7 @@ export const BlockStackingMinigame: React.FC<BlockStackingMinigameProps> = ({
   const availableBlocks = blocks.filter(b => !stackedBlockIds.includes(b.id));
 
   return (
-    <div className="flex flex-col gap-6 p-6 bg-gradient-to-b from-blue-50 to-green-50 rounded-xl">
+    <div className="flex flex-col gap-6 p-6 bg-blue-50 bg-gradient-to-b from-blue-50 to-green-50 rounded-xl">
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -236,7 +236,7 @@ export const BlockStackingMinigame: React.FC<BlockStackingMinigameProps> = ({
                       <motion.div
                         initial={{ opacity: 0, scale: 0.5 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center font-bold text-lg shadow-lg"
+                        className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center font-bold text-lg shadow-lg"
                         aria-label="Não era este bloco"
                       >
                         ✕
@@ -296,7 +296,7 @@ export const BlockStackingMinigame: React.FC<BlockStackingMinigameProps> = ({
             </AnimatePresence>
 
             {stackedBlockIds.length === 0 && (
-              <p className="text-gray-400 text-center">Arraste blocos aqui</p>
+              <p className="text-gray-600 text-center">Arraste blocos aqui</p>
             )}
           </motion.div>
 
@@ -309,7 +309,7 @@ export const BlockStackingMinigame: React.FC<BlockStackingMinigameProps> = ({
                 className="mt-6 text-center"
               >
                 <div className="text-4xl mb-2">🎉</div>
-                <p className="text-xl font-bold text-green-600">Parabéns!</p>
+                <p className="text-xl font-bold text-green-700">Parabéns!</p>
               </motion.div>
             )}
           </AnimatePresence>

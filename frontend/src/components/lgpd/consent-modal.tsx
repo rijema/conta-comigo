@@ -208,10 +208,10 @@ export function ConsentTermContent() {
 
           {/* VALIDADE */}
           <section>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-600">
               <strong>Última atualização:</strong> Outubro de 2026
             </p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-600">
               Este termo pode ser atualizado periodicamente. Notificaremos sobre mudanças significativas 
               enviando um aviso para seu e-mail registrado.
             </p>
@@ -233,7 +233,7 @@ export function ConsentModal({ isOpen, onClose }: Props) {
       <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white p-8 shadow-2xl">
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 text-2xl text-slate-500 hover:text-slate-700"
+          className="absolute right-4 top-4 text-2xl text-slate-600 hover:text-slate-700"
           aria-label="Fechar"
         >
           ×
@@ -254,7 +254,7 @@ export function ConsentModal({ isOpen, onClose }: Props) {
           </button>
           <button
             onClick={onClose}
-            className="flex-1 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2 font-bold text-white hover:-translate-y-0.5"
+            className="flex-1 rounded-xl bg-violet-700 bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2 font-bold text-white hover:-translate-y-0.5"
           >
             Aceitar e Continuar
           </button>

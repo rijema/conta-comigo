@@ -153,7 +153,7 @@ export const ComparisonMinigame: React.FC<ComparisonMinigameProps> = ({
                   : 'border-blue-200 bg-white hover:border-blue-400 cursor-pointer'
                 }`}
             >
-              <span className="mb-2 text-sm font-bold text-gray-500">{item.label}</span>
+              <span className="mb-2 text-sm font-bold text-gray-600">{item.label}</span>
               <div className="flex flex-wrap justify-center gap-1 mb-2" style={{ maxWidth: 120 }}>
                 {Array.from({ length: item.count }).map((_, i) => (
                   <span key={i} className="text-3xl">{item.emoji}</span>

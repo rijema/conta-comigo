@@ -206,7 +206,7 @@ export default function EducatorDashboardPage() {
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4" />
-          <p className="text-slate-500">Carregando painel...</p>
+          <p className="text-slate-600">Carregando painel...</p>
         </div>
       </div>
     );
@@ -242,7 +242,7 @@ export default function EducatorDashboardPage() {
                 <button
                   onClick={() => handleStartAttendance(item.learnerId)}
                   disabled={startingAttendance === item.learnerId}
-                  className="rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-2 text-sm font-bold text-white shadow hover:-translate-y-0.5 transition disabled:opacity-60"
+                  className="rounded-xl bg-violet-700 bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-2 text-sm font-bold text-white shadow hover:-translate-y-0.5 transition disabled:opacity-60"
                 >
                   {startingAttendance === item.learnerId ? "Entrando…" : "▶️ Continuar atendimento"}
                 </button>
@@ -262,7 +262,7 @@ export default function EducatorDashboardPage() {
         {/* Learner sidebar */}
         <aside className="w-56 flex-shrink-0 print:hidden">
           <div className="bg-white rounded-2xl shadow-sm p-3">
-            <p className="text-xs font-bold text-slate-500 uppercase mb-2 px-1">Alunos ({learners.length})</p>
+            <p className="text-xs font-bold text-slate-600 uppercase mb-2 px-1">Alunos ({learners.length})</p>
             <div className="space-y-1">
               {learners.map((l) => (
                 <button
@@ -275,11 +275,11 @@ export default function EducatorDashboardPage() {
                   }`}
                 >
                   <div className="font-medium truncate">{l.name}</div>
-                  <div className="text-xs text-slate-400 capitalize">{l.asdSupportLevel}</div>
+                  <div className="text-xs text-slate-600 capitalize">{l.asdSupportLevel}</div>
                 </button>
               ))}
               {learners.length === 0 && (
-                <p className="text-xs text-slate-400 px-2 py-4 text-center">Nenhum aluno cadastrado</p>
+                <p className="text-xs text-slate-600 px-2 py-4 text-center">Nenhum aluno cadastrado</p>
               )}
             </div>
           </div>
@@ -294,7 +294,7 @@ export default function EducatorDashboardPage() {
           {!selected && (
             <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
               <div className="text-5xl mb-3">👈</div>
-              <p className="text-slate-500">Selecione um aluno para ver os dados</p>
+              <p className="text-slate-600">Selecione um aluno para ver os dados</p>
             </div>
           )}
 
@@ -305,7 +305,7 @@ export default function EducatorDashboardPage() {
                 <div className="flex items-center justify-between flex-wrap gap-3">
                   <div>
                     <h2 className="text-xl font-bold text-slate-800">{selected.name}</h2>
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-slate-600">
                       Idade: {selected.age ?? "—"} | Nível de suporte:{" "}
                       <span className="font-semibold capitalize">{selected.asdSupportLevel}</span>
                     </p>
@@ -314,7 +314,7 @@ export default function EducatorDashboardPage() {
                     <button
                       onClick={() => handleStartAttendance(selected.id)}
                       disabled={startingAttendance === selected.id}
-                      className="px-4 py-2 bg-gradient-to-r from-pink-500 via-fuchsia-500 to-violet-600 text-white rounded-xl text-sm font-black shadow-lg hover:-translate-y-0.5 transition disabled:opacity-60 print:hidden"
+                      className="px-4 py-2 bg-pink-700 bg-gradient-to-r from-pink-600 via-fuchsia-600 to-violet-600 text-white rounded-xl text-sm font-black shadow-lg hover:-translate-y-0.5 transition disabled:opacity-60 print:hidden"
                     >
                       {startingAttendance === selected.id ? "🚀 Entrando…" : "🎈 Iniciar atendimento"}
                     </button>
@@ -327,7 +327,7 @@ export default function EducatorDashboardPage() {
                     {report && (
                       <button
                         onClick={handlePrint}
-                        className="px-4 py-2 bg-green-600 text-white rounded-xl text-sm font-semibold hover:bg-green-700 transition-colors print:hidden"
+                        className="px-4 py-2 bg-green-700 text-white rounded-xl text-sm font-semibold hover:bg-green-800 transition-colors print:hidden"
                       >
                         🖨️ Imprimir
                       </button>
@@ -370,16 +370,16 @@ export default function EducatorDashboardPage() {
                           <span className="text-xs font-semibold rounded-full bg-indigo-50 text-indigo-700 px-2 py-1">Estimativas do modelo BKT</span>
                         </div>
                         {!longitudinal || longitudinal.evidenceState?.status === "INSUFFICIENT_DATA" ? (
-                          <p className="text-sm text-slate-500">Dados ainda insuficientes para uma visão longitudinal.</p>
+                          <p className="text-sm text-slate-600">Dados ainda insuficientes para uma visão longitudinal.</p>
                         ) : (
                           <>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                              <div><p className="text-slate-500">Respostas observadas</p><p className="font-bold">{longitudinal.observedData.answers}</p></div>
-                              <div><p className="text-slate-500">Precisão observada</p><p className="font-bold">{longitudinal.observedData.accuracy == null ? "Dados insuficientes" : `${Math.round(longitudinal.observedData.accuracy * 100)}%`}</p></div>
-                              <div><p className="text-slate-500">Atividades concluídas</p><p className="font-bold">{longitudinal.observedData.activitiesCompleted}</p></div>
-                              <div><p className="text-slate-500">Pedidos de ajuda</p><p className="font-bold">{longitudinal.observedData.hints}</p></div>
+                              <div><p className="text-slate-600">Respostas observadas</p><p className="font-bold">{longitudinal.observedData.answers}</p></div>
+                              <div><p className="text-slate-600">Precisão observada</p><p className="font-bold">{longitudinal.observedData.accuracy == null ? "Dados insuficientes" : `${Math.round(longitudinal.observedData.accuracy * 100)}%`}</p></div>
+                              <div><p className="text-slate-600">Atividades concluídas</p><p className="font-bold">{longitudinal.observedData.activitiesCompleted}</p></div>
+                              <div><p className="text-slate-600">Pedidos de ajuda</p><p className="font-bold">{longitudinal.observedData.hints}</p></div>
                             </div>
-                            <p className="text-xs text-slate-400 mt-3">{longitudinal.longitudinal.trendMessage}</p>
+                            <p className="text-xs text-slate-600 mt-3">{longitudinal.longitudinal.trendMessage}</p>
                             <div className="mt-4 pt-3 border-t border-slate-100">
                               <p className="text-xs font-semibold text-indigo-700 mb-2">Estimativas do modelo por habilidade BNCC</p>
                               <div className="flex flex-wrap gap-2">
@@ -404,7 +404,7 @@ export default function EducatorDashboardPage() {
                           <div key={s.label} className="bg-white rounded-2xl shadow-sm p-4 text-center">
                             <div className="text-3xl mb-1">{s.icon}</div>
                             <div className="text-2xl font-bold text-slate-800">{s.value}</div>
-                            <div className="text-xs text-slate-500">{s.label}</div>
+                            <div className="text-xs text-slate-600">{s.label}</div>
                           </div>
                         ))}
                       </div>
@@ -421,7 +421,7 @@ export default function EducatorDashboardPage() {
                                   <p>Precisão: {session.accuracy == null ? "dados insuficientes" : `${Math.round(session.accuracy * 100)}%`} · Tempo médio: {session.averageResponseTimeMs == null ? "dados insuficientes" : `${Math.round(session.averageResponseTimeMs)} ms`}</p>
                                 </div>
                               ))}
-                              {longitudinal.longitudinal.sessions.length === 0 && <p className="text-sm text-slate-400">Dados ainda insuficientes.</p>}
+                              {longitudinal.longitudinal.sessions.length === 0 && <p className="text-sm text-slate-600">Dados ainda insuficientes.</p>}
                             </div>
                           </div>
                           <div className="bg-white rounded-2xl shadow-sm p-5">
@@ -436,20 +436,20 @@ export default function EducatorDashboardPage() {
                             </div>
                             <div className="mt-3 pt-3 border-t border-slate-100">
                               <p className="text-xs font-semibold text-slate-600">Formatos concluídos</p>
-                              <p className="text-xs text-slate-500 mb-2">{longitudinal.observedData.activityFormats.map((item: any) => `${item.type}: ${item.count}`).join(" · ") || "Dados ainda insuficientes."}</p>
+                              <p className="text-xs text-slate-600 mb-2">{longitudinal.observedData.activityFormats.map((item: any) => `${item.type}: ${item.count}`).join(" · ") || "Dados ainda insuficientes."}</p>
                               <p className="text-xs font-semibold text-slate-600">Histórico de avaliação profissional</p>
                               {(longitudinal.professionalFeedback ?? []).map((item: any) => (
-                                <p key={item.rating} className="text-xs text-slate-500">{item.rating}: {item.count} · {item.reasonCodes.join(", ") || "sem motivo codificado"}</p>
+                                <p key={item.rating} className="text-xs text-slate-600">{item.rating}: {item.count} · {item.reasonCodes.join(", ") || "sem motivo codificado"}</p>
                               ))}
-                              {(longitudinal.professionalFeedback ?? []).length === 0 && <p className="text-xs text-slate-400">Nenhuma avaliação profissional registrada.</p>}
+                              {(longitudinal.professionalFeedback ?? []).length === 0 && <p className="text-xs text-slate-600">Nenhuma avaliação profissional registrada.</p>}
                             </div>
-                            <p className="text-xs text-slate-400 mt-3">Sinais observacionais; não constituem diagnóstico nem explicam, sozinhos, o motivo da interação.</p>
+                            <p className="text-xs text-slate-600 mt-3">Sinais observacionais; não constituem diagnóstico nem explicam, sozinhos, o motivo da interação.</p>
                           </div>
                         </div>
                         <div className="bg-white rounded-2xl shadow-sm p-5 mt-4">
                           <h3 className="font-bold text-slate-700 mb-1">Histórico de interação e suporte</h3>
-                          <p className="text-xs text-slate-400 mb-3">Indicadores observacionais; não constituem interpretação clínica.</p>
-                          {longitudinal.interactionHistory.status === "INSUFFICIENT_DATA" ? <p className="text-sm text-slate-400">{longitudinal.interactionHistory.message}</p> : (
+                          <p className="text-xs text-slate-600 mb-3">Indicadores observacionais; não constituem interpretação clínica.</p>
+                          {longitudinal.interactionHistory.status === "INSUFFICIENT_DATA" ? <p className="text-sm text-slate-600">{longitudinal.interactionHistory.message}</p> : (
                             <div className="space-y-1">{longitudinal.interactionHistory.items.slice(0, 8).map((item: any, index: number) => (
                               <p key={index} className="text-xs text-slate-600">Representação: {JSON.stringify(item.representation)} · interação: {JSON.stringify(item.interactionType)} · demanda motora: {item.motorDemand ?? "não informada"} · sensorial: {item.sensoryLoad ?? "não informada"} · {item.count} registro(s)</p>
                             ))}</div>
@@ -461,24 +461,24 @@ export default function EducatorDashboardPage() {
                       {reviewEvidence && reviewEvidence.length > 0 && (
                         <div className="bg-white rounded-2xl shadow-sm p-5 mt-4">
                           <h3 className="font-bold text-slate-700 mb-3">Evolução observada entre sessões</h3>
-                          <p className="text-xs text-slate-400 mb-4">Evidência observacional de revisão de habilidades. Não constitui diagnóstico.</p>
+                          <p className="text-xs text-slate-600 mb-4">Evidência observacional de revisão de habilidades. Não constitui diagnóstico.</p>
                           <div className="space-y-4">
                             {reviewEvidence.map((evidence: any, idx: number) => (
                               <div key={idx} className="border-l-4 border-indigo-300 pl-4 py-2">
                                 <div className="flex justify-between items-start mb-2">
                                   <div>
                                     <p className="font-semibold text-slate-700">{evidence.bnccCode} — {evidence.skillDescription}</p>
-                                    <p className="text-xs text-slate-500">Ilha: {evidence.islandId} · Ciclo: {evidence.cycleNumber}</p>
+                                    <p className="text-xs text-slate-600">Ilha: {evidence.islandId} · Ciclo: {evidence.cycleNumber}</p>
                                   </div>
                                   <span className="text-xs font-semibold rounded-full bg-indigo-100 text-indigo-700 px-2 py-1">
                                     {evidence.longitudinalClassification}
                                   </span>
                                 </div>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs mb-2">
-                                  <div><p className="text-slate-500">Precisão</p><p className="font-bold">{evidence.baselineAccuracy ? `${Math.round(evidence.baselineAccuracy * 100)}%` : "Não disponível"} → {evidence.reviewAccuracy ? `${Math.round(evidence.reviewAccuracy * 100)}%` : "Não disponível"}</p></div>
-                                  <div><p className="text-slate-500">Tentativas</p><p className="font-bold">{evidence.baselineAttempts ?? "—"} → {evidence.reviewAttempts ?? "—"}</p></div>
-                                  <div><p className="text-slate-500">Ajudas</p><p className="font-bold">{evidence.baselineHints ?? "—"} → {evidence.reviewHints ?? "—"}</p></div>
-                                  <div><p className="text-slate-500">Domínio</p><p className="font-bold">{evidence.masteryBefore ? `${Math.round(evidence.masteryBefore * 100)}%` : "—"} → {evidence.masteryAfter ? `${Math.round(evidence.masteryAfter * 100)}%` : "—"}</p></div>
+                                  <div><p className="text-slate-600">Precisão</p><p className="font-bold">{evidence.baselineAccuracy ? `${Math.round(evidence.baselineAccuracy * 100)}%` : "Não disponível"} → {evidence.reviewAccuracy ? `${Math.round(evidence.reviewAccuracy * 100)}%` : "Não disponível"}</p></div>
+                                  <div><p className="text-slate-600">Tentativas</p><p className="font-bold">{evidence.baselineAttempts ?? "—"} → {evidence.reviewAttempts ?? "—"}</p></div>
+                                  <div><p className="text-slate-600">Ajudas</p><p className="font-bold">{evidence.baselineHints ?? "—"} → {evidence.reviewHints ?? "—"}</p></div>
+                                  <div><p className="text-slate-600">Domínio</p><p className="font-bold">{evidence.masteryBefore ? `${Math.round(evidence.masteryBefore * 100)}%` : "—"} → {evidence.masteryAfter ? `${Math.round(evidence.masteryAfter * 100)}%` : "—"}</p></div>
                                 </div>
                                 <p className="text-xs text-slate-600">Tipo: {evidence.reviewType} · Dados: {evidence.evidenceSufficiency}</p>
                               </div>
@@ -505,7 +505,7 @@ export default function EducatorDashboardPage() {
                                   />
                                 </div>
                                 <span className={`text-xs font-semibold w-16 text-right ${
-                                  isStrength ? "text-green-600" : isWeakness ? "text-red-500" : "text-slate-400"
+                                  isStrength ? "text-green-700" : isWeakness ? "text-red-700" : "text-slate-600"
                                 }`}>
                                   {isStrength ? "Força" : isWeakness ? "Fraqueza" : "Neutro"}
                                 </span>
@@ -528,7 +528,7 @@ export default function EducatorDashboardPage() {
                                 }`}
                               >
                                 <p className="text-xs font-bold text-slate-700">{skill}</p>
-                                <p className="text-xs text-slate-500 mt-0.5">
+                                <p className="text-xs text-slate-600 mt-0.5">
                                   {data.attempted} tentativas{data.mastered ? " ✅" : ""}
                                 </p>
                               </div>
@@ -554,7 +554,7 @@ export default function EducatorDashboardPage() {
                     <div className="bg-white rounded-2xl shadow-sm p-5">
                       <div className="mb-6 border-b border-slate-200 pb-5">
                         <h3 className="font-bold text-slate-700 mb-2">🔄 Adaptações para revisão pós-sessão</h3>
-                        <p className="text-xs text-slate-500 mb-3">A avaliação é opcional e não altera domínio, ontologia ou pesos.</p>
+                        <p className="text-xs text-slate-600 mb-3">A avaliação é opcional e não altera domínio, ontologia ou pesos.</p>
                         <div className="space-y-3">
                           {adaptations.filter((item) => !skippedEvaluations.has(item.id)).map((item) => (
                             <div key={item.id} className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm">
@@ -562,7 +562,7 @@ export default function EducatorDashboardPage() {
                               <p className="mt-1 text-xs text-slate-600">
                                 {item.previousActivity?.title ?? "Atividade anterior"} → {item.replacementActivity?.title ?? "Substituição pendente"}
                               </p>
-                              <p className="mt-1 text-xs text-slate-500">
+                              <p className="mt-1 text-xs text-slate-600">
                                 Resultado anterior: {item.previousOutcome?.status ?? "não registrado"}; substituição: {item.replacementOutcome?.status ?? "não registrada"}
                               </p>
                               {!item.feedback && (
@@ -578,7 +578,7 @@ export default function EducatorDashboardPage() {
                                     </button>
                                   ))}
                                   <button onClick={() => setSkippedEvaluations((current) => new Set(current).add(item.id))}
-                                    className="rounded-lg px-3 py-1.5 text-xs text-slate-500">
+                                    className="rounded-lg px-3 py-1.5 text-xs text-slate-600">
                                     Pular avaliação
                                   </button>
                                 </div>
@@ -586,14 +586,14 @@ export default function EducatorDashboardPage() {
                               {item.feedback && <p className="mt-2 text-xs font-semibold text-green-700">Avaliação registrada: {item.feedback.rating}</p>}
                             </div>
                           ))}
-                          {adaptations.length === 0 && <p className="text-xs text-slate-400">Nenhuma adaptação registrada.</p>}
+                          {adaptations.length === 0 && <p className="text-xs text-slate-600">Nenhuma adaptação registrada.</p>}
                         </div>
                       </div>
                       <h3 className="font-bold text-slate-700 mb-4">
                         🤖 Histórico de Decisões ADE — IA Adaptativa
                       </h3>
                       {adeHistory.length === 0 && (
-                        <p className="text-slate-400 text-sm text-center py-8">Nenhuma decisão registrada ainda</p>
+                        <p className="text-slate-600 text-sm text-center py-8">Nenhuma decisão registrada ainda</p>
                       )}
                       <div className="space-y-3">
                         {adeHistory.map((dec: any) => (
@@ -610,7 +610,7 @@ export default function EducatorDashboardPage() {
                                   {dec.recommendedBnccSkill}
                                 </span>
                               </div>
-                              <span className="text-xs text-slate-400">
+                              <span className="text-xs text-slate-600">
                                 {new Date(dec.createdAt).toLocaleString("pt-BR")}
                               </span>
                             </div>
@@ -650,7 +650,7 @@ export default function EducatorDashboardPage() {
                   {activeTab === "report" && !report && (
                     <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
                       <div className="text-5xl mb-3">📄</div>
-                      <p className="text-slate-500 mb-4">Clique em &quot;Gerar Relatório&quot; para criar o relatório completo</p>
+                      <p className="text-slate-600 mb-4">Clique em &quot;Gerar Relatório&quot; para criar o relatório completo</p>
                       <button
                         onClick={handleLoadReport}
                         className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700"
@@ -698,7 +698,7 @@ function SkillEditor({ profile, onSave, saving, savedMsg }: {
     <div className="space-y-4">
       <div className="bg-white rounded-2xl shadow-sm p-5">
         <h3 className="font-bold text-slate-700 mb-1">🧠 Nível de Suporte TEA</h3>
-        <p className="text-xs text-slate-500 mb-3">Influencia a dificuldade e ritmo das atividades escolhidas pela IA</p>
+        <p className="text-xs text-slate-600 mb-3">Influencia a dificuldade e ritmo das atividades escolhidas pela IA</p>
         <div className="flex gap-2">
           {SUPPORT_LEVELS.map((level) => (
             <button
@@ -716,7 +716,7 @@ function SkillEditor({ profile, onSave, saving, savedMsg }: {
 
       <div className="bg-white rounded-2xl shadow-sm p-5">
         <h3 className="font-bold text-slate-700 mb-1">⚡ Forças e Dificuldades</h3>
-        <p className="text-xs text-slate-500 mb-4">Observações do profissional sobre a experiência da criança; não definem um grupo sensorial fixo.</p>
+        <p className="text-xs text-slate-600 mb-4">Observações do profissional sobre a experiência da criança; não definem um grupo sensorial fixo.</p>
         <div className="space-y-3">
           {SKILLS.map((skill) => (
             <div key={skill} className="flex items-center gap-3">
@@ -807,7 +807,7 @@ function SkillEditor({ profile, onSave, saving, savedMsg }: {
           {saving ? "Salvando..." : "💾 Salvar Configurações"}
         </button>
         {savedMsg && (
-          <span className="text-green-600 font-semibold text-sm animate-pulse">✅ Salvo!</span>
+          <span className="text-green-700 font-semibold text-sm animate-pulse">✅ Salvo!</span>
         )}
       </div>
     </div>
@@ -821,7 +821,7 @@ function ReportView({ report, onPrint }: { report: any; onPrint: () => void }) {
       <div className="bg-white rounded-2xl shadow-sm p-6 print:shadow-none print:border print:rounded-none">
         <div className="flex items-start justify-between print:hidden mb-4">
           <h3 className="font-bold text-slate-700 text-lg">📄 Relatório Completo</h3>
-          <button onClick={onPrint} className="px-4 py-2 bg-green-600 text-white text-sm rounded-xl font-semibold hover:bg-green-700">
+          <button onClick={onPrint} className="px-4 py-2 bg-green-700 text-white text-sm rounded-xl font-semibold hover:bg-green-800">
             🖨️ Imprimir
           </button>
         </div>
@@ -829,16 +829,16 @@ function ReportView({ report, onPrint }: { report: any; onPrint: () => void }) {
         {/* Print header */}
         <div className="hidden print:block mb-6 text-center border-b pb-4">
           <h1 className="text-2xl font-bold">Conta Comigo — Relatório de Aprendizagem</h1>
-          <p className="text-slate-500 text-sm">Gerado em: {new Date(report.generatedAt).toLocaleString("pt-BR")}</p>
+          <p className="text-slate-600 text-sm">Gerado em: {new Date(report.generatedAt).toLocaleString("pt-BR")}</p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-          <div><p className="text-xs text-slate-500">Aluno</p><p className="font-bold">{learner.name}</p></div>
-          <div><p className="text-xs text-slate-500">Idade</p><p className="font-bold">{learner.age ?? "—"}</p></div>
-          <div><p className="text-xs text-slate-500">Nível TEA</p><p className="font-bold capitalize">{learner.asdSupportLevel}</p></div>
-          <div><p className="text-xs text-slate-500">Total Atividades</p><p className="font-bold">{report.totalAttempts}</p></div>
-          <div><p className="text-xs text-slate-500">Precisão</p><p className="font-bold">{learner.stats?.accuracy ?? 0}%</p></div>
-          <div><p className="text-xs text-slate-500">Engajamento</p><p className="font-bold">{Math.round((learner.stats?.engagementIndex ?? 0) * 100)}%</p></div>
+          <div><p className="text-xs text-slate-600">Aluno</p><p className="font-bold">{learner.name}</p></div>
+          <div><p className="text-xs text-slate-600">Idade</p><p className="font-bold">{learner.age ?? "—"}</p></div>
+          <div><p className="text-xs text-slate-600">Nível TEA</p><p className="font-bold capitalize">{learner.asdSupportLevel}</p></div>
+          <div><p className="text-xs text-slate-600">Total Atividades</p><p className="font-bold">{report.totalAttempts}</p></div>
+          <div><p className="text-xs text-slate-600">Precisão</p><p className="font-bold">{learner.stats?.accuracy ?? 0}%</p></div>
+          <div><p className="text-xs text-slate-600">Engajamento</p><p className="font-bold">{Math.round((learner.stats?.engagementIndex ?? 0) * 100)}%</p></div>
         </div>
 
         {/* BNCC Chart (simple bar) */}
@@ -851,13 +851,13 @@ function ReportView({ report, onPrint }: { report: any; onPrint: () => void }) {
                   <span className="w-24 text-xs text-slate-600 truncate">{item.skill}</span>
                   <div className="flex-1 h-5 bg-slate-100 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full flex items-center justify-end pr-2 transition-all duration-700"
+                      className="h-full bg-indigo-700 bg-gradient-to-r from-indigo-600 to-purple-700 rounded-full flex items-center justify-end pr-2 transition-all duration-700"
                       style={{ width: `${item.accuracy}%` }}
                     >
                       <span className="text-white text-xs font-bold">{item.accuracy}%</span>
                     </div>
                   </div>
-                  <span className="text-xs text-slate-400 w-16 text-right">{item.attempts} tent.</span>
+                  <span className="text-xs text-slate-600 w-16 text-right">{item.attempts} tent.</span>
                 </div>
               ))}
             </div>
@@ -903,7 +903,7 @@ function ReportView({ report, onPrint }: { report: any; onPrint: () => void }) {
           </div>
         )}
 
-        <p className="text-xs text-slate-400 mt-6 text-center print:block hidden">
+        <p className="text-xs text-slate-600 mt-6 text-center print:block hidden">
           Conta Comigo — Sistema Adaptativo para Ensino de Matemática com TEA | Relatório gerado automaticamente
         </p>
       </div>

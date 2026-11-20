@@ -16,7 +16,7 @@ export function ProgressBar({
   return (
     <div>
       {label && (
-        <div className="flex justify-between text-xs text-gray-500 mb-1">
+        <div className="flex justify-between text-xs text-gray-600 mb-1">
           <span>{label}</span>
           <span>{percentage}%</span>
         </div>

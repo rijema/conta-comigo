@@ -15,27 +15,28 @@ import { SESSION_STORAGE_KEY } from "@/hooks/use-session";
 
 /* ── Island themes — mapped to pictogram concepts with semantic meanings ── */
 const ISLAND_THEMES = [
-  { grad: "from-yellow-300 to-orange-300",  headerGrad: "from-orange-400 to-amber-400",  border: "border-orange-300",  pictogramId: "library.star", label: "Ilha do Sol",     sub: "Contagem" },
-  { grad: "from-blue-300 to-cyan-300",      headerGrad: "from-blue-500 to-cyan-400",     border: "border-blue-300",    pictogramId: "arasaac.16590", label: "Ilha do Mar",     sub: "Adição" },
-  { grad: "from-green-300 to-emerald-300",  headerGrad: "from-green-500 to-emerald-400", border: "border-green-300",   pictogramId: "arasaac.16165", label: "Ilha da Floresta", sub: "Subtração" },
-  { grad: "from-purple-300 to-fuchsia-300", headerGrad: "from-purple-500 to-pink-400",   border: "border-purple-300",  pictogramId: "arasaac.17784", label: "Ilha das Flores",  sub: "Comparação" },
-  { grad: "from-red-300 to-rose-300",       headerGrad: "from-red-500 to-rose-400",      border: "border-red-300",     pictogramId: "arasaac.15195", label: "Ilha das Maçãs",  sub: "Formas" },
-  { grad: "from-teal-300 to-sky-300",       headerGrad: "from-teal-500 to-sky-400",      border: "border-teal-300",    pictogramId: "arasaac.20951", label: "Ilha dos Animais", sub: "Medidas" },
-  { grad: "from-indigo-300 to-violet-300",  headerGrad: "from-indigo-500 to-violet-400", border: "border-indigo-300",  pictogramId: "arasaac.17331", label: "Ilha Mágica",     sub: "Sequências" },
-  { grad: "from-pink-300 to-rose-200",      headerGrad: "from-pink-500 to-rose-400",     border: "border-pink-300",    pictogramId: "arasaac.15971", label: "Ilha do Amor",    sub: "Ordenação" },
+  { grad: "from-yellow-300 to-orange-300",  headerGrad: "bg-orange-700 from-orange-700 to-amber-700",  border: "border-orange-300",  pictogramId: "library.star", label: "Ilha do Sol",     sub: "Contagem" },
+  { grad: "from-blue-300 to-cyan-300",      headerGrad: "bg-blue-700 from-blue-700 to-cyan-700",     border: "border-blue-300",    pictogramId: "arasaac.16590", label: "Ilha do Mar",     sub: "Adição" },
+  { grad: "from-green-300 to-emerald-300",  headerGrad: "bg-green-700 from-green-700 to-emerald-700", border: "border-green-300",   pictogramId: "arasaac.16165", label: "Ilha da Floresta", sub: "Subtração" },
+  { grad: "from-purple-300 to-fuchsia-300", headerGrad: "bg-purple-700 from-purple-700 to-pink-700",   border: "border-purple-300",  pictogramId: "arasaac.17784", label: "Ilha das Flores",  sub: "Comparação" },
+  { grad: "from-red-300 to-rose-300",       headerGrad: "bg-red-700 from-red-700 to-rose-700",      border: "border-red-300",     pictogramId: "arasaac.15195", label: "Ilha das Maçãs",  sub: "Formas" },
+  { grad: "from-teal-300 to-sky-300",       headerGrad: "bg-teal-700 from-teal-700 to-sky-700",      border: "border-teal-300",    pictogramId: "arasaac.20951", label: "Ilha dos Animais", sub: "Medidas" },
+  { grad: "from-indigo-300 to-violet-300",  headerGrad: "bg-indigo-700 from-indigo-700 to-violet-700", border: "border-indigo-300",  pictogramId: "arasaac.17331", label: "Ilha Mágica",     sub: "Sequências" },
+  { grad: "from-pink-300 to-rose-200",      headerGrad: "bg-pink-700 from-pink-700 to-rose-700",     border: "border-pink-300",    pictogramId: "arasaac.15971", label: "Ilha do Amor",    sub: "Ordenação" },
 ];
 
 // Map island themes by islandId
 const getIslandTheme = (islandId: string, index: number) => {
   // Header colours use the 700 shades so white text keeps >= 4.5:1 contrast
-  // (WCAG 1.4.3). Pictograms were checked on static.arasaac.org (out/2026).
+  // (WCAG 1.4.3); the bg-* entry is the solid fallback behind the gradient,
+  // which is also what contrast checkers such as WAVE measure. Pictograms were checked on static.arasaac.org (out/2026).
   const themeMap: Record<string, typeof ISLAND_THEMES[0] & { pictograms: string[] }> = {
-    'island-numbers': { grad: "from-yellow-300 to-orange-300",  headerGrad: "from-orange-700 to-amber-700",  border: "border-orange-300",  pictogramId: "library.star", pictograms: ["library.star", "mathematics.numbers"], label: "Ilha das Estrelinhas", sub: "Vamos contar!" },
-    'island-beach':   { grad: "from-blue-300 to-cyan-300",      headerGrad: "from-blue-700 to-cyan-700",     border: "border-blue-300",    pictogramId: "library.elephant", pictograms: ["library.elephant", "library.ant", "library.ruler"], label: "Ilha dos Gigantes e Formiguinhas", sub: "Quem tem mais?" },
-    'island-body':    { grad: "from-green-300 to-emerald-300",  headerGrad: "from-green-700 to-emerald-700", border: "border-green-300",   pictogramId: "library.tree", pictograms: ["library.tree", "object.apple", "library.strawberry"], label: "Ilha do Pomar", sub: "Junta tudo na cesta!" },
-    'island-home':    { grad: "from-amber-200 to-orange-200",   headerGrad: "from-amber-700 to-orange-700",  border: "border-amber-300",   pictogramId: "library.cookie", pictograms: ["library.cookie", "library.plate", "library.pizza"], label: "Ilha dos Biscoitos", sub: "Quanto sobrou?" },
-    'island-colors':  { grad: "from-purple-300 to-fuchsia-300", headerGrad: "from-purple-700 to-fuchsia-700", border: "border-purple-300", pictogramId: "library.rainbow", pictograms: ["library.rainbow", "mathematics.sequence"], label: "Ilha do Arco-Íris", sub: "Cores e padrões" },
-    'island-nature':  { grad: "from-indigo-300 to-violet-300",  headerGrad: "from-indigo-700 to-violet-700", border: "border-indigo-300",  pictogramId: "library.castle", pictograms: ["library.castle", "library.triangle", "library.cube"], label: "Ilha do Castelo das Formas", sub: "Que forma é essa?" },
+    'island-numbers': { grad: "from-yellow-300 to-orange-300",  headerGrad: "bg-orange-700 from-orange-700 to-amber-700",  border: "border-orange-300",  pictogramId: "library.star", pictograms: ["library.star", "mathematics.numbers"], label: "Ilha das Estrelinhas", sub: "Vamos contar!" },
+    'island-beach':   { grad: "from-blue-300 to-cyan-300",      headerGrad: "bg-blue-700 from-blue-700 to-cyan-700",     border: "border-blue-300",    pictogramId: "library.elephant", pictograms: ["library.elephant", "library.ant", "library.ruler"], label: "Ilha dos Gigantes e Formiguinhas", sub: "Quem tem mais?" },
+    'island-body':    { grad: "from-green-300 to-emerald-300",  headerGrad: "bg-green-700 from-green-700 to-emerald-700", border: "border-green-300",   pictogramId: "library.tree", pictograms: ["library.tree", "object.apple", "library.strawberry"], label: "Ilha do Pomar", sub: "Junta tudo na cesta!" },
+    'island-home':    { grad: "from-amber-200 to-orange-200",   headerGrad: "bg-amber-700 from-amber-700 to-orange-700",  border: "border-amber-300",   pictogramId: "library.cookie", pictograms: ["library.cookie", "library.plate", "library.pizza"], label: "Ilha dos Biscoitos", sub: "Quanto sobrou?" },
+    'island-colors':  { grad: "from-purple-300 to-fuchsia-300", headerGrad: "bg-purple-700 from-purple-700 to-fuchsia-700", border: "border-purple-300", pictogramId: "library.rainbow", pictograms: ["library.rainbow", "mathematics.sequence"], label: "Ilha do Arco-Íris", sub: "Cores e padrões" },
+    'island-nature':  { grad: "from-indigo-300 to-violet-300",  headerGrad: "bg-indigo-700 from-indigo-700 to-violet-700", border: "border-indigo-300",  pictogramId: "library.castle", pictograms: ["library.castle", "library.triangle", "library.cube"], label: "Ilha do Castelo das Formas", sub: "Que forma é essa?" },
   };
   return themeMap[islandId] || { ...ISLAND_THEMES[index % ISLAND_THEMES.length], pictograms: [] as string[] };
 };
@@ -195,7 +196,7 @@ export default function ActivityMenuPage() {
         <div className="text-center" role="status" aria-live="polite">
           <div className="text-8xl mb-4">🗺️</div>
           <p className="text-2xl font-extrabold text-blue-700">Preparando o mapa...</p>
-          <p className="text-gray-500 mt-1 text-sm">As aventuras chegam em instantes!</p>
+          <p className="text-gray-600 mt-1 text-sm">As aventuras chegam em instantes!</p>
         </div>
       </div>
     );
@@ -231,32 +232,32 @@ export default function ActivityMenuPage() {
             </button>
             <div>
               <h1 className="text-base font-extrabold text-blue-700 leading-tight">🗺️ Meu Mapa de Aventuras</h1>
-              <p className="text-xs text-gray-500">Olá, <strong>{firstName}</strong>! Escolha uma ilha!</p>
+              <p className="text-xs text-gray-600">Olá, <strong>{firstName}</strong>! Escolha uma ilha!</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-sm font-bold text-blue-600 whitespace-nowrap">{totalDone}/{totalAll}</span>
             <button
               onClick={openVisualLibrary}
-              className="hidden sm:flex min-h-10 rounded-2xl bg-gradient-to-br from-orange-400 to-yellow-400 items-center gap-1 px-2 shadow-sm hover:scale-105 transition-transform"
+              className="hidden sm:flex min-h-10 rounded-2xl bg-orange-700 bg-gradient-to-br from-orange-700 to-amber-700 items-center gap-1 px-2 shadow-sm hover:scale-105 transition-transform"
             >
               <ArasaacPictogram conceptId="library.learn" showLabel={false} imageClassName="w-6 h-6" />
               <span className="text-xs font-bold text-white">Figuras</span>
             </button>
             <button
               onClick={() => { setShowAI(true); setAiAnswer(null); setAiQuestion(""); }}
-              className="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center shadow-sm hover:scale-105 transition-transform overflow-hidden"
+              className="w-10 h-10 rounded-2xl bg-purple-200 bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center shadow-sm hover:scale-105 transition-transform overflow-hidden"
               title="Perguntar à TitIA"
             >
               <Image
                 src="/assets/mainiconfirstpage.png"
-                alt="TitIA"
+                alt="Perguntar à TitIA"
                 width={32}
                 height={32}
                 className="w-full h-full object-contain"
               />
             </button>
-            <button onClick={logout} className="text-xs text-gray-400 hover:text-red-500 px-2 py-1 rounded-lg">Sair</button>
+            <button onClick={logout} className="text-xs text-gray-600 hover:text-red-500 px-2 py-1 rounded-lg">Sair</button>
           </div>
         </div>
         <div className="max-w-5xl mx-auto mt-2 h-3 bg-gray-100 rounded-full overflow-hidden">
@@ -270,12 +271,12 @@ export default function ActivityMenuPage() {
         onClick={() => { setShowAI(true); setAiAnswer(null); setAiQuestion(""); }}
         className="w-full text-left block"
       >
-        <div className="relative overflow-hidden" style={{ background: "linear-gradient(90deg,#7c3aed,#a855f7,#ec4899,#f43f5e,#f97316,#eab308,#22c55e,#06b6d4,#3b82f6,#7c3aed)", backgroundSize: "300% 100%", animation: "rainbowBg 6s linear infinite" }}>
+        <div className="titia-rainbow relative overflow-hidden" style={{ backgroundColor: "#6d28d9", backgroundImage: "linear-gradient(90deg,#6d28d9,#7e22ce,#be185d,#be123c,#c2410c,#a16207,#15803d,#0e7490,#1d4ed8,#6d28d9)", backgroundSize: "300% 100%", animation: "rainbowBg 5s linear 1" }}>
           <div className="relative flex items-center gap-4 px-6 py-3 max-w-5xl mx-auto">
             <div className="w-12 h-12 rounded-2xl bg-white/25 flex items-center justify-center flex-shrink-0 shadow-inner overflow-hidden">
               <Image
                 src="/assets/mainiconfirstpage.png"
-                alt="TitIA"
+                alt=""
                 width={48}
                 height={48}
                 className="w-full h-full object-contain"
@@ -284,7 +285,7 @@ export default function ActivityMenuPage() {
             <div className="flex-1 min-w-0">
              <p className="font-extrabold text-white text-sm md:text-base">Sua jornada foi personalizada com carinho pela TitIA!</p>
             </div>
-            <div className="flex-shrink-0 bg-white/25 text-white text-xs font-bold px-3 py-1.5 rounded-full whitespace-nowrap">
+            <div className="flex-shrink-0 bg-black/30 text-white text-xs font-bold px-3 py-1.5 rounded-full whitespace-nowrap">
              Fazer uma pergunta
             </div>
           </div>
@@ -292,6 +293,8 @@ export default function ActivityMenuPage() {
       </button>
 
       <style>{`
+        /* Runs once (5 s) so it needs no pause button (WCAG 2.2.2). */
+        @media (prefers-reduced-motion: reduce) { .titia-rainbow { animation: none !important; } }
         @keyframes rainbowBg {
           0%   { background-position: 0% 50%; }
           100% { background-position: 300% 50%; }
@@ -302,7 +305,7 @@ export default function ActivityMenuPage() {
       <div className="max-w-5xl mx-auto px-4 mt-4">
         <button
           onClick={openVisualLibrary}
-          className="w-full bg-gradient-to-r from-orange-100 to-yellow-100 border-2 border-orange-200 rounded-3xl px-5 py-3 flex items-center gap-4 hover:shadow-md transition-shadow"
+          className="w-full bg-orange-100 bg-gradient-to-r from-orange-100 to-yellow-100 border-2 border-orange-200 rounded-3xl px-5 py-3 flex items-center gap-4 hover:shadow-md transition-shadow"
         >
           <div className="flex gap-1.5 flex-shrink-0">
             {[1, 2, 3, 4, 5].map((value) => (
@@ -313,9 +316,9 @@ export default function ActivityMenuPage() {
           </div>
           <div className="flex-1 text-left min-w-0">
             <p className="font-extrabold text-orange-700 text-sm">Aprender com a TitiA</p>
-            <p className="text-orange-500 text-xs hidden sm:block">Toque para ver os números e símbolos matemáticos</p>
+            <p className="text-orange-700 text-xs hidden sm:block">Toque para ver os números e símbolos matemáticos</p>
           </div>
-          <span className="text-orange-500 text-lg flex-shrink-0">→</span>
+          <span className="text-orange-700 text-lg flex-shrink-0">→</span>
         </button>
       </div>
 
@@ -437,17 +440,17 @@ export default function ActivityMenuPage() {
                               <div key={act.id}
                                 className={`relative rounded-2xl border-2 p-3 bg-white/85 shadow-sm transition-all ${
                                   isExLocked ? "opacity-50 border-gray-200 grayscale" :
-                                  act.completed ? "opacity-60 border-gray-200" :
+                                  act.completed ? "border-green-300" :
                                   isRec ? "border-purple-300 ring-2 ring-purple-200" : "border-white/70"
                                 }`}
                               >
                                 {isRec && !isExLocked && (
-                                  <span className="absolute -top-2.5 left-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-extrabold px-2 py-0.5 rounded-full shadow">
+                                  <span className="absolute -top-2.5 left-2 bg-purple-700 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-extrabold px-2 py-0.5 rounded-full shadow">
                                     TitIA recomenda!
                                   </span>
                                 )}
                                 {act.completed && (
-                                  <span className="absolute -top-2.5 right-2 bg-green-500 text-white text-xs font-extrabold px-2 py-0.5 rounded-full shadow">
+                                  <span className="absolute -top-2.5 right-2 bg-green-700 text-white text-xs font-extrabold px-2 py-0.5 rounded-full shadow">
                                     Concluído
                                   </span>
                                 )}
@@ -479,7 +482,7 @@ export default function ActivityMenuPage() {
                                       onClick={() => router.push(`/${locale}/learn?${new URLSearchParams({ activityId: act.id, islandId: group.skill }).toString()}`)}
                                       aria-label={`Começar: ${act.title}`}
                                       className={`flex-shrink-0 min-h-11 rounded-2xl flex items-center gap-1 px-2 text-white text-sm font-bold shadow-md active:scale-95 transition-transform ${
-                                        isRec ? "bg-gradient-to-br from-purple-500 to-pink-500" : "bg-gradient-to-br from-blue-400 to-blue-600"
+                                        isRec ? "bg-purple-700 bg-gradient-to-br from-purple-600 to-pink-600" : "bg-blue-700 bg-gradient-to-br from-blue-600 to-blue-700"
                                       }`}
                                     >
                                       <ArasaacPictogram conceptId="navigation.start" showLabel={false} imageClassName="w-5 h-5" />
@@ -518,7 +521,7 @@ export default function ActivityMenuPage() {
             <div className="inline-flex flex-col items-center gap-2 bg-white/70 rounded-3xl px-10 py-6 shadow-md border-2 border-yellow-200">
               <span className="text-5xl">🏆</span>
               <p className="font-extrabold text-yellow-700">Fim do mapa!</p>
-              <p className="text-xs text-slate-500">Complete todas as ilhas para ganhar o troféu!</p>
+              <p className="text-xs text-slate-600">Complete todas as ilhas para ganhar o troféu!</p>
             </div>
           </div>
         )}
@@ -535,7 +538,7 @@ export default function ActivityMenuPage() {
             {reviewMessage}
             <button
               onClick={() => setReviewMessage(null)}
-              className="block mt-1 text-xs font-bold text-sky-500 underline"
+              className="block mt-1 text-xs font-bold text-sky-700 underline"
             >
               Ok, entendi
             </button>
@@ -544,7 +547,7 @@ export default function ActivityMenuPage() {
         <button
           onClick={handleRequestReview}
           disabled={reviewLoading}
-          className="w-16 h-16 rounded-full bg-gradient-to-br from-sky-500 to-emerald-500 text-white text-3xl flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-transform disabled:opacity-60"
+          className="w-16 h-16 rounded-full bg-sky-700 bg-gradient-to-br from-sky-700 to-emerald-700 text-white text-3xl flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-transform disabled:opacity-60"
           title="Praticar o que já aprendi (Revisão)"
           aria-label="Praticar o que já aprendi (Revisão)"
         >
@@ -559,12 +562,12 @@ export default function ActivityMenuPage() {
       {/* ── TitIA floating button ── */}
       <button
         onClick={() => { setShowAI(true); setAiAnswer(null); setAiQuestion(""); }}
-        className="fixed bottom-6 right-6 z-30 w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white text-3xl flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-transform"
+        className="fixed bottom-6 right-6 z-30 w-16 h-16 rounded-full bg-purple-700 bg-gradient-to-br from-purple-600 to-pink-600 text-white text-3xl flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-transform"
         title="Perguntar à TitIA"
       >
         <Image 
           src="/assets/mainiconfirstpage.png" 
-          alt="TitIA"
+          alt="Perguntar à TitIA"
           width={56}
           height={56}
           className="rounded-full"
@@ -582,11 +585,11 @@ export default function ActivityMenuPage() {
           aria-label="Fechar chat"
         >
           <div className="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden" style={{ maxHeight: "90vh" }}>
-            <div className="bg-gradient-to-r from-purple-500 to-pink-500 px-5 py-4 flex items-center gap-3">
+            <div className="bg-purple-700 bg-gradient-to-r from-purple-700 to-pink-700 px-5 py-4 flex items-center gap-3">
               <div className="w-12 h-12 rounded-2xl bg-white/25 flex items-center justify-center flex-shrink-0 overflow-hidden">
                 <Image 
                   src="/assets/mainiconfirstpage.png" 
-                  alt="TitIA"
+                  alt=""
                   width={48}
                   height={48}
                   className="w-full h-full object-contain"
@@ -594,17 +597,17 @@ export default function ActivityMenuPage() {
               </div>
               <div className="flex-1">
                 <p className="font-extrabold text-white text-base">TitIA</p>
-                <p className="text-white/80 text-xs">Pergunte qualquer coisa sobre aprender!</p>
+                <p className="text-white text-xs">Pergunte qualquer coisa sobre aprender!</p>
               </div>
-              <button onClick={() => setShowAI(false)} className="w-9 h-9 bg-white/30 hover:bg-white/40 rounded-xl flex items-center justify-center text-white text-lg">×</button>
+              <button onClick={() => setShowAI(false)} aria-label="Fechar" className="w-9 h-9 bg-black/20 hover:bg-black/30 rounded-xl flex items-center justify-center text-white text-lg">×</button>
             </div>
             <div className="p-5 overflow-y-auto" style={{ maxHeight: "calc(90vh - 80px)" }}>
               {aiAnswer && (
-                <div className="mb-4 bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-2xl p-4">
+                <div className="mb-4 bg-purple-50 bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-2xl p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Image 
                       src="/assets/mainiconfirstpage.png" 
-                      alt="TitIA"
+                      alt=""
                       width={24}
                       height={24}
                       className="w-6 h-6"
@@ -616,18 +619,18 @@ export default function ActivityMenuPage() {
               )}
               {!aiAnswer && (
                 <div className="mb-4">
-                  <p className="text-xs font-extrabold text-slate-400 uppercase mb-2.5">Perguntas especiais para você</p>
+                  <p className="text-xs font-extrabold text-slate-600 uppercase mb-2.5">Perguntas especiais para você</p>
                   <div className="space-y-2">
                     {AI_QUESTIONS.map((q) => (
                       <button key={q} onClick={() => handleAsk(q)}
-                        className="w-full text-left text-sm px-4 py-3 rounded-2xl bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-100 text-purple-700 hover:border-purple-300 transition-colors font-semibold">
+                        className="w-full text-left text-sm px-4 py-3 rounded-2xl bg-purple-50 bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-100 text-purple-700 hover:border-purple-300 transition-colors font-semibold">
                         {q}
                       </button>
                     ))}
                   </div>
                 </div>
               )}
-              {aiError && <div className="mb-3 bg-red-50 border border-red-200 rounded-2xl px-4 py-2 text-xs text-red-600">{aiError}</div>}
+              {aiError && <div className="mb-3 bg-red-50 border border-red-200 rounded-2xl px-4 py-2 text-xs text-red-700">{aiError}</div>}
               <div className="space-y-2">
                 <textarea value={aiQuestion} onChange={(e) => setAiQuestion(e.target.value)}
                   placeholder="Escreva sua pergunta aqui..." rows={2}
@@ -641,7 +644,7 @@ export default function ActivityMenuPage() {
                     </button>
                   )}
                   <button onClick={() => handleAsk()} disabled={aiLoading || !aiQuestion.trim()}
-                    className="flex-[2] py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-extrabold rounded-2xl hover:opacity-90 disabled:opacity-40 text-sm flex items-center justify-center gap-2 shadow-md">
+                    className="flex-[2] py-3 bg-purple-700 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-extrabold rounded-2xl hover:opacity-90 disabled:opacity-40 text-sm flex items-center justify-center gap-2 shadow-md">
                     {aiLoading ? <><span aria-hidden="true">Pensando...</span></> : <>
                       <ArasaacPictogram conceptId="activity.listen" showLabel={false} imageClassName="w-4 h-4" />
                       <span>Perguntar à TitIA</span>

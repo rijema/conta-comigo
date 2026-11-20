@@ -119,7 +119,7 @@ export const MemoryMinigame: React.FC<MemoryMinigameProps> = ({
       {/* Header */}
       <div className="text-center">
         <h2 className="text-2xl font-extrabold text-blue-700">🎮 Jogo da Memória</h2>
-        <p className="text-sm text-blue-500">Encontre os pares iguais!</p>
+        <p className="text-sm text-blue-600">Encontre os pares iguais!</p>
       </div>
 
       {/* Progress bar */}

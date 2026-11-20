@@ -94,7 +94,7 @@ export function CountingActivity({ activity, onAnswer }: Props) {
       {/* Target number hint */}
       {targetCount > 0 && (
         <div className="flex items-center gap-2 rounded-xl border-2 border-blue-200 bg-blue-50 px-4 py-2">
-          <span className="text-sm font-semibold text-gray-500">Conte até:</span>
+          <span className="text-sm font-semibold text-gray-600">Conte até:</span>
           <span className="text-4xl font-extrabold text-blue-700">{targetCount}</span>
           <ArasaacPictogram conceptId={`number.${targetCount}`} showLabel={false} imageClassName="h-10 w-10" />
         </div>
@@ -109,7 +109,7 @@ export function CountingActivity({ activity, onAnswer }: Props) {
         {items.length > 0 ? (
           items.map((item, i) => renderItem(item, i))
         ) : (
-          <span className="text-gray-400">Nenhum item para contar.</span>
+          <span className="text-gray-600">Nenhum item para contar.</span>
         )}
       </div>
 
@@ -122,7 +122,7 @@ export function CountingActivity({ activity, onAnswer }: Props) {
         transition={{ type: "spring", stiffness: 400, damping: 15 }}
       >
         <span className="text-7xl font-extrabold text-blue-700">{count}</span>
-        <span className="text-sm text-gray-500">contado(s)</span>
+        <span className="text-sm text-gray-600">contado(s)</span>
       </motion.div>
 
       {/* Controls */}
@@ -149,7 +149,7 @@ export function CountingActivity({ activity, onAnswer }: Props) {
         type="button"
         onClick={handleSubmit}
         disabled={count === 0}
-        className="w-full max-w-xs rounded-xl bg-green-600 py-3 font-bold text-white disabled:bg-gray-300"
+        className="w-full max-w-xs rounded-xl bg-green-700 py-3 font-bold text-white disabled:bg-gray-300"
       >
         <ArasaacPictogram conceptId="activity.complete" showLabel={false} imageClassName="h-7 w-7" />
         <span className="ml-2">Confirmar</span>

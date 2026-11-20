@@ -11,7 +11,7 @@ const variantClasses = {
   primary: "bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500",
   secondary: "bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-400",
   ghost: "bg-transparent text-gray-600 hover:bg-gray-100 focus:ring-gray-400",
-  danger: "bg-red-500 text-white hover:bg-red-600 focus:ring-red-400",
+  danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-400",
 };
 
 const sizeClasses = {

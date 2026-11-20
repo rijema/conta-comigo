@@ -18,7 +18,7 @@ interface Props {
 export function ProgressChart({ data }: Props) {
   if (data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-32 text-gray-400 text-sm">
+      <div className="flex items-center justify-center h-32 text-gray-600 text-sm">
         Ainda não há dados de progresso
       </div>
     );

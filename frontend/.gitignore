@@ -3,3 +3,7 @@
 public/__progression-preview.json
 e2e/progression/shots/
 .preview-tmp/
+# Accessibility audit (e2e/a11y)
+e2e/a11y/.islands-map.json
+e2e/a11y/.activity-samples.json
+e2e/a11y/shots/

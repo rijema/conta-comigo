@@ -39,26 +39,26 @@ export function LearnerProfileCard({ learnerId }: { learnerId: string }) {
           <div className="text-2xl font-bold text-blue-700">
             {profile.masteryLevel}%
           </div>
-          <div className="text-xs text-gray-500">Domínio BKT</div>
+          <div className="text-xs text-gray-600">Domínio BKT</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-purple-700">
             {profile.engagementScore}
           </div>
-          <div className="text-xs text-gray-500">Engajamento</div>
+          <div className="text-xs text-gray-600">Engajamento</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-green-700">
             {profile.totalSessions}
           </div>
-          <div className="text-xs text-gray-500">Sessões</div>
+          <div className="text-xs text-gray-600">Sessões</div>
         </div>
       </div>
 
       {/* Strengths/Weaknesses from ontology */}
       <div className="mt-4 grid grid-cols-2 gap-3">
         <div>
-          <h3 className="text-xs font-semibold text-gray-500 uppercase mb-2">
+          <h3 className="text-xs font-semibold text-gray-600 uppercase mb-2">
             Pontos Fortes
           </h3>
           <div className="flex flex-wrap gap-1">
@@ -73,7 +73,7 @@ export function LearnerProfileCard({ learnerId }: { learnerId: string }) {
           </div>
         </div>
         <div>
-          <h3 className="text-xs font-semibold text-gray-500 uppercase mb-2">
+          <h3 className="text-xs font-semibold text-gray-600 uppercase mb-2">
             Áreas de Atenção
           </h3>
           <div className="flex flex-wrap gap-1">

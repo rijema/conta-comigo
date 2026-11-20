@@ -44,7 +44,7 @@ export function ExerciseCelebration({ correctAnswers, starsEarned, practiceLabel
           <p className="rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 text-lg font-bold sm:col-span-2">✨ Você ganhou {starsEarned} estrelas!</p>
         </div>
         <p className="mt-5 text-base font-semibold text-slate-600" role="status">Voltando para o mapa em {secondsLeft} {secondsLeft === 1 ? "segundo" : "segundos"}...</p>
-        <button type="button" onClick={onReturnToMap} className="mt-4 min-h-14 w-full rounded-2xl bg-emerald-600 px-6 py-3 text-lg font-extrabold text-white shadow-md focus-visible:outline focus-visible:outline-4 focus-visible:outline-emerald-800">
+        <button type="button" onClick={onReturnToMap} className="mt-4 min-h-14 w-full rounded-2xl bg-emerald-700 px-6 py-3 text-lg font-extrabold text-white shadow-md focus-visible:outline focus-visible:outline-4 focus-visible:outline-emerald-800">
           Voltar para o mapa agora
         </button>
       </section>

@@ -123,7 +123,7 @@ export function LongitudinalReviewEvidence({ learnerId }: { learnerId: string })
               </p>
             </div>
             {outcome.metadata.daysSinceBaseline !== null && (
-              <div className="text-xs text-slate-500">
+              <div className="text-xs text-slate-600">
                 {outcome.metadata.daysSinceBaseline} dias após
               </div>
             )}
@@ -236,7 +236,7 @@ export function LongitudinalReviewEvidence({ learnerId }: { learnerId: string })
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="text-slate-500">Carregando dados...</div>
+        <div className="text-slate-600">Carregando dados...</div>
       </div>
     );
   }

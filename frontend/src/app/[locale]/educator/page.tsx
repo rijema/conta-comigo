@@ -48,7 +48,7 @@ export default function EducatorPage() {
         <h1 className="text-2xl font-bold text-slate-800">
           Painel do Educador
         </h1>
-        <p className="text-slate-500 text-sm">
+        <p className="text-slate-600 text-sm">
           Analytics e decisões adaptativas
         </p>
       </header>
@@ -74,7 +74,7 @@ export default function EducatorPage() {
                     <div className="font-medium text-slate-800">
                       {learner.name}
                     </div>
-                    <div className="text-xs text-slate-400">
+                    <div className="text-xs text-slate-600">
                       Nível {learner.supportLevel}
                     </div>
                   </button>
@@ -117,7 +117,7 @@ export default function EducatorPage() {
                 <div className="bg-white rounded-xl shadow p-5">
                   <h3 className="font-semibold text-slate-700 mb-3">
                     Log de Decisões ADE{" "}
-                    <span className="text-xs text-slate-400 font-normal">
+                    <span className="text-xs text-slate-600 font-normal">
                       (XAI)
                     </span>
                   </h3>

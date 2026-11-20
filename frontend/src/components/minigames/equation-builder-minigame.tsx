@@ -88,7 +88,7 @@ export const EquationBuilderMinigame: React.FC<EquationBuilderMinigameProps> = (
   }, [onComplete]);
 
   return (
-    <div className="flex flex-col gap-8 p-6 bg-gradient-to-b from-green-50 to-emerald-50 rounded-xl">
+    <div className="flex flex-col gap-8 p-6 bg-green-50 bg-gradient-to-b from-green-50 to-emerald-50 rounded-xl">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -106,8 +106,8 @@ export const EquationBuilderMinigame: React.FC<EquationBuilderMinigameProps> = (
         >
           <div className="flex justify-center items-center gap-6 flex-wrap">
             <div className="text-4xl font-bold text-green-900">{equation.left}</div>
-            <div className="text-4xl font-bold text-green-600">{equation.operator}</div>
-            <div className="text-4xl font-bold text-yellow-500 bg-yellow-100 px-6 py-2 rounded-lg border-4 border-yellow-400">
+            <div className="text-4xl font-bold text-green-700">{equation.operator}</div>
+            <div className="text-4xl font-bold text-yellow-700 bg-yellow-100 px-6 py-2 rounded-lg border-4 border-yellow-400">
               ?
             </div>
             <div className="text-4xl font-bold text-green-900">=</div>
@@ -143,7 +143,7 @@ export const EquationBuilderMinigame: React.FC<EquationBuilderMinigameProps> = (
           disabled={submitted || !selected}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="w-full px-8 py-3 bg-green-600 text-white rounded-lg font-bold text-lg disabled:opacity-50 shadow-lg"
+          className="w-full px-8 py-3 bg-green-700 text-white rounded-lg font-bold text-lg disabled:opacity-50 shadow-lg"
         >
           Verificar Resposta
         </motion.button>
@@ -169,7 +169,7 @@ export const EquationBuilderMinigame: React.FC<EquationBuilderMinigameProps> = (
               onClick={handleTryAgain}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="mt-4 px-8 py-3 bg-green-600 text-white rounded-lg font-bold text-lg shadow-lg"
+              className="mt-4 px-8 py-3 bg-green-700 text-white rounded-lg font-bold text-lg shadow-lg"
             >
               Tentar Novamente
             </motion.button>

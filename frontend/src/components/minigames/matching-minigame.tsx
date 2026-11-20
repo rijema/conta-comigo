@@ -241,7 +241,7 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
   const allPlaced = Object.keys(matches).length === pairs.length;
 
   return (
-    <div className="flex flex-col gap-6 p-6 bg-gradient-to-b from-sky-50 to-cyan-50 rounded-xl">
+    <div className="flex flex-col gap-6 p-6 bg-sky-50 bg-gradient-to-b from-sky-50 to-cyan-50 rounded-xl">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -432,7 +432,7 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
               disabled={!allPlaced}
               whileHover={allPlaced ? { scale: 1.05 } : {}}
               whileTap={allPlaced ? { scale: 0.95 } : {}}
-              className="px-10 py-3 bg-sky-600 text-white rounded-lg font-bold text-lg shadow-lg disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-10 py-3 bg-sky-700 text-white rounded-lg font-bold text-lg shadow-lg disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Confirmar
             </motion.button>
@@ -449,7 +449,7 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
             className="text-center"
           >
             <div className="text-6xl mb-4">🎉</div>
-            <p className="text-2xl font-bold text-sky-600">Perfeito! Todas as conexões certas!</p>
+            <p className="text-2xl font-bold text-sky-700">Perfeito! Todas as conexões certas!</p>
           </motion.div>
         )}
         {submitted && !isComplete && (
@@ -470,7 +470,7 @@ export const MatchingMinigame: React.FC<MatchingMinigameProps> = ({
               onClick={handleTryAgain}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-8 py-3 bg-sky-600 text-white rounded-lg font-bold text-lg shadow-lg"
+              className="px-8 py-3 bg-sky-700 text-white rounded-lg font-bold text-lg shadow-lg"
             >
               Tentar Novamente
             </motion.button>

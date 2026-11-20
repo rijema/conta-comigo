@@ -54,9 +54,9 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {settings.theme === "light" ? (
-                  <Sun className="w-6 h-6 text-yellow-500" />
+                  <Sun className="w-6 h-6 text-yellow-700" />
                 ) : (
-                  <Moon className="w-6 h-6 text-blue-400" />
+                  <Moon className="w-6 h-6 text-blue-600" />
                 )}
                 <div>
                   <p className="font-semibold">{t("settings.theme")}</p>
@@ -88,7 +88,7 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {settings.soundEnabled ? (
-                  <Volume2 className="w-6 h-6 text-green-500" />
+                  <Volume2 className="w-6 h-6 text-green-700" />
                 ) : (
                   <VolumeX className="w-6 h-6 text-muted-foreground" />
                 )}
@@ -122,7 +122,7 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 {settings.voiceEnabled ? (
-                  <Volume2 className="w-6 h-6 text-purple-500" />
+                  <Volume2 className="w-6 h-6 text-purple-600" />
                 ) : (
                   <VolumeX className="w-6 h-6 text-muted-foreground" />
                 )}
@@ -221,7 +221,7 @@ export default function SettingsPage() {
           {/* Font Size */}
           <div className="bg-card rounded-2xl p-5 border border-border">
             <div className="flex items-center gap-3 mb-4">
-              <Type className="w-6 h-6 text-blue-500" />
+              <Type className="w-6 h-6 text-blue-600" />
               <p className="font-semibold">{t("settings.fontSize")}</p>
             </div>
             <div className="flex gap-3">
@@ -252,7 +252,7 @@ export default function SettingsPage() {
           {/* Language */}
           <div className="bg-card rounded-2xl p-5 border border-border">
             <div className="flex items-center gap-3 mb-4">
-              <Globe className="w-6 h-6 text-indigo-500" />
+              <Globe className="w-6 h-6 text-indigo-600" />
               <p className="font-semibold">{t("settings.language")}</p>
             </div>
             <div className="flex gap-3">

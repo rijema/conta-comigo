@@ -21,7 +21,7 @@ const DEFAULT_COLORS = ["#6366f1", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
 export function EngagementBarChart({ data, title }: Props) {
   if (!data || data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-32 text-gray-400 text-sm">
+      <div className="flex items-center justify-center h-32 text-gray-600 text-sm">
         Sem dados de engajamento
       </div>
     );
@@ -30,7 +30,7 @@ export function EngagementBarChart({ data, title }: Props) {
   return (
     <div>
       {title && (
-        <p className="text-xs font-medium text-gray-500 mb-2">{title}</p>
+        <p className="text-xs font-medium text-gray-600 mb-2">{title}</p>
       )}
       <ResponsiveContainer width="100%" height={160}>
         <BarChart data={data} margin={{ top: 4, right: 8, left: -20, bottom: 4 }}>

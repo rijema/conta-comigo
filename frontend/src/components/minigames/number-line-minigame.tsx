@@ -119,7 +119,7 @@ export const NumberLineMinigame: React.FC<NumberLineMinigameProps> = ({
   }));
 
   return (
-    <div className="flex flex-col gap-8 p-8 bg-gradient-to-b from-purple-50 to-blue-50 rounded-xl justify-center">
+    <div className="flex flex-col gap-8 p-8 bg-purple-50 bg-gradient-to-b from-purple-50 to-blue-50 rounded-xl justify-center">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -144,7 +144,7 @@ export const NumberLineMinigame: React.FC<NumberLineMinigameProps> = ({
           <motion.div
             ref={lineRef}
             onClick={handleLineClick}
-            className={`relative h-24 bg-gradient-to-r from-purple-200 via-blue-200 to-green-200 rounded-xl p-8 cursor-pointer transition ${
+            className={`relative h-24 bg-purple-200 bg-gradient-to-r from-purple-200 via-blue-200 to-green-200 rounded-xl p-8 cursor-pointer transition ${
               feedback === 'correct' ? 'ring-4 ring-green-400' :
               feedback === 'incorrect' ? 'ring-4 ring-red-400' :
               'ring-2 ring-gray-300'
@@ -184,7 +184,7 @@ export const NumberLineMinigame: React.FC<NumberLineMinigameProps> = ({
 
             {isAnswered && (
               <motion.div
-                className="absolute top-1/2 transform -translate-y-1/2 -translate-x-1/2 text-green-600"
+                className="absolute top-1/2 transform -translate-y-1/2 -translate-x-1/2 text-green-700"
                 style={{ left: `${problem.correctPosition}%` }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}

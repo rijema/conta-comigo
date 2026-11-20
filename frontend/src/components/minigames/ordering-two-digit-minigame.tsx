@@ -128,7 +128,7 @@ export const OrderingTwoDigitMinigame: React.FC<OrderingTwoDigitMinigameProps> =
   const orderedItems = ordered.map(id => items.find(item => item.id === id)!);
 
   return (
-    <div className="flex flex-col gap-8 p-6 bg-gradient-to-b from-fuchsia-50 to-pink-50 rounded-xl">
+    <div className="flex flex-col gap-8 p-6 bg-fuchsia-50 bg-gradient-to-b from-fuchsia-50 to-pink-50 rounded-xl">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -164,7 +164,7 @@ export const OrderingTwoDigitMinigame: React.FC<OrderingTwoDigitMinigameProps> =
                   <motion.div
                     whileHover={{ scale: 1.05 }}
                     whileDrag={{ scale: 0.9, opacity: 0.7 }}
-                    className="bg-gradient-to-br from-fuchsia-400 to-pink-400 text-white rounded-lg p-6 text-center font-bold text-2xl shadow-lg"
+                    className="bg-fuchsia-700 bg-gradient-to-br from-fuchsia-600 to-pink-600 text-white rounded-lg p-6 text-center font-bold text-2xl shadow-lg"
                   >
                     {item.label}
                   </motion.div>
@@ -195,12 +195,12 @@ export const OrderingTwoDigitMinigame: React.FC<OrderingTwoDigitMinigameProps> =
                     onDragStart={() => handleDragStart(orderedItems[idx].id)}
                     className="cursor-move"
                   >
-                    <div className="bg-fuchsia-500 text-white rounded-lg px-6 py-2 font-bold text-xl">
+                    <div className="bg-fuchsia-600 text-white rounded-lg px-6 py-2 font-bold text-xl">
                       {orderedItems[idx].label}
                     </div>
                   </motion.div>
                 ) : (
-                  <span className="text-gray-400 text-sm">Posição {idx + 1}</span>
+                  <span className="text-gray-600 text-sm">Posição {idx + 1}</span>
                 )}
               </motion.div>
             ))}

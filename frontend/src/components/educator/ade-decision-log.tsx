@@ -20,7 +20,7 @@ interface Props {
 
 export function ADEDecisionLog({ decisions }: Props) {
   if (decisions.length === 0) {
-    return <p className="text-sm text-gray-400">Nenhuma decisão registrada ainda.</p>;
+    return <p className="text-sm text-gray-600">Nenhuma decisão registrada ainda.</p>;
   }
 
   return (
@@ -28,7 +28,7 @@ export function ADEDecisionLog({ decisions }: Props) {
       {decisions.map((decision) => (
         <article key={decision.id} className="rounded-lg border p-4">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-            <span className="text-xs font-mono text-gray-400">
+            <span className="text-xs font-mono text-gray-600">
               {new Date(decision.createdAt).toLocaleString("pt-BR")}
             </span>
             <span className="rounded bg-blue-50 px-2 py-1 text-xs text-blue-700">
