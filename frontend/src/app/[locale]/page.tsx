@@ -1,6 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
+import { ArasaacAttribution } from "@/components/arasaac/arasaac-attribution";
 import { useLocale } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AuthDialog, type AuthView } from "@/components/home/auth-dialog";
@@ -97,7 +99,13 @@ export default function HomePage() {
         </section>
       </main>
 
-      <footer className="border-t border-white/80 bg-indigo-950 px-5 py-6 text-center text-sm text-indigo-100"><strong className="text-white">Conta Comigo</strong> · Matemática que aprende com cada criança. · Pesquisa acadêmica · Projeto piloto com Ciclo – Centro Integrado de Fonoaudiologia</footer>
+      <footer className="border-t border-white/80 bg-indigo-950 px-5 py-6 text-center text-sm text-indigo-100">
+        <p><strong className="text-white">Conta Comigo</strong> · Matemática que aprende com cada criança. · Pesquisa acadêmica · Projeto piloto com Ciclo – Centro Integrado de Fonoaudiologia</p>
+        <ArasaacAttribution className="mx-auto mt-3 max-w-3xl text-indigo-100" />
+        <Link href={`/${locale}/creditos`} className="mt-3 inline-block rounded-lg px-3 py-2 font-semibold text-white underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+          Créditos e licenças
+        </Link>
+      </footer>
 
       {showAbout && (
         <div

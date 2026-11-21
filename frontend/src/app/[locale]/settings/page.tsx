@@ -1,6 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useLocale } from "next-intl";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, Sun, Moon, Volume2, VolumeX, Type, Globe } from "lucide-react";
 import { useAccessibility } from "@/contexts/AccessibilityContext";
@@ -9,6 +11,7 @@ import { useTitiaSpeech } from "@/hooks/use-titia-speech";
 export default function SettingsPage() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
+  const locale = useLocale();
   const { settings, updateSettings } = useAccessibility();
   const { setVoiceEnabled, speakFeedback, stopSpeech } = useTitiaSpeech();
 
@@ -277,6 +280,15 @@ export default function SettingsPage() {
                 🇺🇸 English
               </button>
             </div>
+          </div>
+          <div className="mt-5 rounded-2xl border border-border bg-card p-5">
+            <h2 className="mb-2 text-base font-semibold">Créditos e licenças</h2>
+            <p className="mb-3 text-sm text-muted-foreground">
+              Conheça os créditos dos pictogramas e de outros recursos utilizados pelo Conta Comigo.
+            </p>
+            <Link href={`/${locale}/creditos`} className="inline-flex min-h-11 items-center rounded-lg px-3 py-2 font-semibold text-primary underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
+              Ver créditos e licenças
+            </Link>
           </div>
         </div>
       </div>

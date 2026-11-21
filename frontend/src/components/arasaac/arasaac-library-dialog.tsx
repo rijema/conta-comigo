@@ -131,6 +131,7 @@ export function ArasaacLibraryDialog({ open, onClose }: { open: boolean; onClose
         </div>
         {user?.role === 'child' && <div className="mt-5 rounded-2xl bg-blue-50 p-3 text-sm font-semibold text-blue-900">Continue com estes conceitos nas <Link href={`/${locale}/learn/menu`} onClick={onClose} className="underline">ilhas de atividades</Link>.</div>}
         <ArasaacAttribution className="mt-5 text-slate-600" />
+        <Link href={`/${locale}/creditos`} onClick={onClose} className="mt-3 inline-flex min-h-11 items-center rounded-lg px-3 py-2 text-sm font-bold text-orange-800 underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-700">Ver créditos e condições de uso</Link>
       </div>
     </section>
   </div>;
