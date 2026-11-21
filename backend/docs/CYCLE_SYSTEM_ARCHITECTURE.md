@@ -3,7 +3,7 @@
 
 **Status:** ✅ Phase 1 Complete (Hybrid Ranking Integration)  
 **Last Updated:** 2026-10-01  
-**Authors:** Copilot + Ricardo (Science Validation)
+**Author:** Richard Jeremias
 
 ---
 

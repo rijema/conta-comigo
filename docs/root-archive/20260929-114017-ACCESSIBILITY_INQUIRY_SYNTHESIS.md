@@ -60,7 +60,7 @@ Quem participou desse mapeamento, quais critérios orientaram as associações e
 **Resposta em 60 segundos:**
 
 **Participantes:**
-- ✅ Engenheiro de Acessibilidade (Copilot): Análise técnica WCAG, fixação de código
+- ✅ Engenheiro de Acessibilidade: Análise técnica WCAG, fixação de código
 - ✅ Pesquisador Principal (Ricardo Jeremias): Validação contexto TEA, aprovação técnica
 - ⏳ Orientadores Acadêmicos: Supervisão metodológica (revisão)
 
@@ -290,7 +290,6 @@ COMEÇAMOS COM:                   TERMINAMOS COM:
 ---
 
 **Documento preparado para: Orientadores Acadêmicos do programa de mestrado**  
-**Autor: Ricardo Jeremias**  
-**Assistido por: GitHub Copilot CLI**  
+**Autor: Richard Jeremias**  
 **Data: 2026-09-20**  
 **Status: Pronto para revisão**

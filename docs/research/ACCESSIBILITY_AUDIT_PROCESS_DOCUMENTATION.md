@@ -141,7 +141,7 @@ AXE DevTools (Manual)
 
 #### **Papel 1: Engenheiro de Acessibilidade** ✓
 - **Responsabilidade**: Análise técnica, categorização WCAG, decisões de implementação
-- **Participante**: Copilot (GitHub Copilot CLI)
+- **Participante**: Richard Jeremias
 - **Qualificações**: 
   - Conhecimento de WCAG 2.1 AA standards
   - Expertise em React/Next.js accessibility patterns

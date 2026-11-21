@@ -175,7 +175,7 @@ WCAG Color Contrast Analyzer
 
 | Papel | Pessoa | Qualificação | Responsabilidade |
 |-------|--------|--------------|------------------|
-| **Engenheiro de Acessibilidade** | Copilot (GitHub CLI) | WCAG 2.1 AA, React/Next.js a11y patterns, jsx-a11y, html-validate | Análise técnica, categorização, decisões de código |
+| **Engenheiro de Acessibilidade** | Richard Jeremias | WCAG 2.1 AA, React/Next.js a11y patterns, jsx-a11y, html-validate | Análise técnica, categorização, decisões de código |
 | **Pesquisador Principal** | Ricardo Jeremias | Mestrado em Inteligência Computacional, foco Learning Analytics para TEA | Validação contexto TEA, aprovação decisões, contexto científico |
 | **Orientadores Acadêmicos** | Orientadores do programa de mestrado | Supervisão metodológica, garantia de rigor | Revisão (planejada) |
 
@@ -543,7 +543,7 @@ Cada achado passou por cadeia de 5 transformações: (1) Descoberta AXE, (2) An�
 
 ### P2: Participantes e Critérios
 **Resposta Curta:**  
-Processo envolveu Engenheiro de Acessibilidade (Copilot) + Pesquisador Principal (Ricardo). Avaliação sob 4 critérios: (1) Conformidade WCAG AA, (2) Impacto TEA-específico, (3) Verificabilidade técnica, (4) Trade-offs de engenharia. Divergências resolvidas documentando trade-offs e racional.
+Processo conduzido pelo pesquisador principal (Richard Jeremias). Avaliação sob 4 critérios: (1) Conformidade WCAG AA, (2) Impacto TEA-específico, (3) Verificabilidade técnica, (4) Trade-offs de engenharia. Divergências resolvidas documentando trade-offs e racional.
 
 ### P3: Artefatos Disponibilizados
 **Resposta Curta:**  
