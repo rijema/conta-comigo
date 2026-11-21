@@ -1069,7 +1069,10 @@ describe('ReviewCandidateGenerationService', () => {
       const candidates1 = await service.generateReviewCandidates(studentId);
       const breakdown1 = candidates1[0].scoringBreakdown;
 
-      // 30 days since exposure - RETENTION type, same mastery
+      // 29 days since exposure - RETENTION type, same mastery. Not exactly 30:
+      // the default lookback window is 30 days and the service computes its
+      // cutoff a few ms after this timestamp, so an event at exactly 30 days
+      // falls outside the window on a slow runner (flaky in CI).
       mockSkillStateRepository.find.mockResolvedValue([
         { studentId, skillId, masteryProbability: 0.8, observations: 5 },
       ]);
@@ -1080,7 +1083,7 @@ describe('ReviewCandidateGenerationService', () => {
           correct: true,
           responseTimeMs: 5000,
           hintsUsed: 0,
-          timestamp: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+          timestamp: new Date(Date.now() - 29 * 24 * 60 * 60 * 1000),
         },
       ]);
 
