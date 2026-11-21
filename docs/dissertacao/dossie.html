@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Dossiê Conta Comigo — acessibilidade, interação e ontologia (nov/2026)</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm; }
+  :root { --ink:#0f172a; --muted:#475569; --accent:#4338ca; --line:#cbd5e1; }
+  body { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; color: var(--ink); font-size: 10.5pt; line-height: 1.5; }
+  h1, h2, h3, h4, .kicker, table, figcaption, .box-title { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; }
+  h1 { font-size: 24pt; line-height: 1.15; margin: 0 0 6pt; color: var(--accent); }
+  h2 { font-size: 15pt; margin: 22pt 0 6pt; padding-bottom: 3pt; border-bottom: 2px solid var(--accent); break-after: avoid; }
+  h3 { font-size: 12pt; margin: 14pt 0 4pt; color: #1e293b; break-after: avoid; }
+  h4 { font-size: 10.5pt; margin: 10pt 0 2pt; break-after: avoid; }
+  p { margin: 0 0 7pt; text-align: justify; hyphens: auto; }
+  code { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 0.92em; background: #f1f5f9; padding: 0 2px; border-radius: 3px; }
+  a { color: var(--accent); text-decoration: none; }
+  table { width: 100%; border-collapse: collapse; margin: 6pt 0 10pt; font-size: 8.4pt; line-height: 1.32; }
+  th, td { border: 1px solid var(--line); padding: 3pt 4pt; vertical-align: top; text-align: left; }
+  th { background: #e0e7ff; }
+  tr { break-inside: avoid; }
+  table.tiny { font-size: 7.2pt; }
+  .cover { height: 245mm; display: flex; flex-direction: column; justify-content: space-between; break-after: page; }
+  .kicker { text-transform: none; letter-spacing: 0; color: var(--muted); font-size: 10pt; font-weight: 600; }
+  .lead { font-size: 12.5pt; color: #1e293b; }
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8pt; margin: 14pt 0; }
+  .metric { border: 1px solid var(--line); border-radius: 8pt; padding: 8pt; font-family: -apple-system, Helvetica, Arial, sans-serif; }
+  .metric b { display: block; font-size: 18pt; color: var(--accent); }
+  .metric span { font-size: 8.5pt; color: var(--muted); }
+  .box { border-left: 4px solid var(--accent); background: #f5f7ff; padding: 8pt 10pt; margin: 8pt 0 12pt; break-inside: avoid; }
+  .box.warn { border-color: #b45309; background: #fffbeb; }
+  .box.ok { border-color: #047857; background: #f0fdf4; }
+  .box-title { font-weight: 700; font-size: 9.5pt; margin-bottom: 3pt; }
+  .box p:last-child, .box ul:last-child { margin-bottom: 0; }
+  figure { margin: 8pt 0 12pt; break-inside: avoid; }
+  figure img { border: 1px solid var(--line); border-radius: 6pt; display: block; margin: 0 auto; }
+  figcaption { font-size: 8.5pt; color: var(--muted); margin-top: 3pt; text-align: center; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10pt; }
+  .diagram { width: 100%; height: auto; font-family: -apple-system, Helvetica, Arial, sans-serif; break-inside: avoid; }
+  ul, ol { margin: 0 0 8pt 16pt; padding: 0; } li { margin-bottom: 2pt; }
+  .page-break { break-before: page; }
+  .toc li { margin-bottom: 1pt; }
+  .tag { font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 7.5pt; font-weight: 700; border-radius: 3pt; padding: 0 3pt; background: #e2e8f0; }
+</style></head><body>
+
+<section class="cover">
+  <div>
+    <p class="kicker">Mestrado · Conta Comigo · dossiê técnico · 20/11/2026</p>
+    <h1>Acessibilidade, interação segura e ontologia curricular no Conta Comigo</h1>
+    <p class="lead">Registro do que foi feito, como foi verificado e o que pode entrar na dissertação: conformidade WCAG 2.2 AA, as 28 recomendações do GAIA, personalização da tela pela criança e pelo profissional, e a ontologia v0.6.0 com as 126 habilidades de Matemática da BNCC do 1º ao 5º ano.</p>
+    <div class="metrics">
+      <div class="metric"><b>47/56</b><span>critérios WCAG 2.2 A/AA atendidos (8 não se aplicam; 4.1.1 é obsoleto)</span></div>
+      <div class="metric"><b>28/28</b><span>recomendações GAIA atendidas</span></div>
+      <div class="metric"><b>39/39</b><span>telas sem violações (axe-core + checagens próprias)</span></div>
+      <div class="metric"><b>126/126</b><span>habilidades BNCC 1º–5º na ontologia (eram 75)</span></div>
+    </div>
+  </div>
+  <div class="box">
+    <div class="box-title">Para o modelo que vai usar este documento</div>
+    <p>Este dossiê é material-fonte para redigir trechos de uma dissertação de mestrado sobre o Conta Comigo, uma plataforma adaptativa de ensino de matemática para crianças autistas, alinhada à BNCC. Use-o assim:</p>
+    <ul>
+      <li>As seções 2 a 5 descrevem <strong>o que foi feito</strong>. Cada uma termina com um quadro “Para a dissertação” que indica <strong>em que capítulo</strong> o conteúdo cabe e um texto-base.</li>
+      <li>As afirmações estão classificadas como no repositório: <span class="tag">[LITERATURA]</span>, <span class="tag">[PROPOSTA CONTA COMIGO]</span>, <span class="tag">[DECISÃO DE ENGENHARIA]</span>, <span class="tag">[PARÂMETRO EXPERIMENTAL]</span> e <span class="tag">[HIPÓTESE A VALIDAR]</span>. Não transforme hipótese em resultado.</li>
+      <li>Resultados <strong>verificados</strong> (testes automatizados executados) aparecem em quadros verdes; <strong>pendências</strong> (dependem de deploy, especialista ou usuários), em quadros amarelos. Não declare como concluído o que está pendente.</li>
+      <li>As tabelas completas foram extraídas dos documentos <code>docs/research/BATCH_17</code> e <code>BATCH_18</code> do repositório, que são a fonte primária.</li>
+    </ul>
+  </div>
+</section>
+
+<h2>Sumário</h2>
+<ol class="toc">
+  <li>Contexto e ponto de partida</li>
+  <li>Acessibilidade: WCAG 2.2 A/AA — problemas, correções e método de teste</li>
+  <li>GAIA: as 28 recomendações para interfaces com foco no autismo</li>
+  <li>Personalização e interação segura (criança e profissional)</li>
+  <li>Ontologia v0.6.0: BNCC completa e alinhamentos OntoMathEdu/LASDONT</li>
+  <li>Outras correções (login com Google)</li>
+  <li>Limitações e evidências pendentes</li>
+  <li>Sugestão de encaixe na dissertação</li>
+  <li>Rastreabilidade (commits e arquivos) e referências</li>
+  <li>Apêndices: tabelas completas WCAG, GAIA e habilidades BNCC</li>
+</ol>
+
+<h2>1. Contexto e ponto de partida</h2>
+<p>Um comentário de professor sobre o trabalho questionou a acessibilidade da interface. A primeira rodada da ferramenta WAVE (WebAIM), em produção, encontrou dezenas de erros de contraste no mapa de ilhas e no painel do profissional (AIM score 7,6 e 5,5). As telas de exercício já estavam próximas do ideal (9,7–10). O objetivo do trabalho foi (a) eliminar os erros, (b) <strong>demonstrar</strong> conformidade com um método reproduzível, e não só com capturas de tela, e (c) cobrir as recomendações específicas para autismo do GAIA. Em paralelo, a ontologia curricular foi completada para todas as habilidades de Matemática dos anos iniciais.</p>
+<table class=""><thead><tr><th>Tela</th><th>Erros</th><th>Erros de contraste</th><th>Alertas</th><th>AIM score</th></tr></thead><tbody>
+<tr><td>Exercício (quiz)</td><td>0</td><td>0</td><td>1 (nível de título pulado)</td><td>10</td></tr>
+<tr><td>Exercício com sugestão de pausa</td><td>0</td><td>1</td><td>0</td><td>9,7</td></tr>
+<tr><td>Exercício com “Hora da pausa”</td><td>0</td><td>1</td><td>0</td><td>9,7</td></tr>
+<tr><td>Mapa de ilhas (<code>/learn/menu</code>)</td><td>0</td><td>13</td><td>2</td><td>7,6</td></tr>
+<tr><td>Painel do profissional</td><td>0</td><td>18</td><td>1</td><td>5,5</td></tr>
+<tr><td>Painel do profissional com a TitiA aberta</td><td>0</td><td>18</td><td>1</td><td>5,5</td></tr>
+</tbody></table>
+<div class="grid2"><figure><img src="img/wave-antes-mapa.png" style="width:100%" alt="Figura 1 — WAVE antes: mapa de ilhas, 13 erros de contraste (AIM 7,6)."><figcaption>Figura 1 — WAVE antes: mapa de ilhas, 13 erros de contraste (AIM 7,6).</figcaption></figure><figure><img src="img/wave-antes-painel.png" style="width:100%" alt="Figura 2 — WAVE antes: painel do profissional, 18 erros (AIM 5,5)."><figcaption>Figura 2 — WAVE antes: painel do profissional, 18 erros (AIM 5,5).</figcaption></figure></div>
+
+<h2>2. Acessibilidade: WCAG 2.2 A/AA</h2>
+<h3>2.1 Causas encontradas e correções</h3>
+<p>As causas eram <strong>sistêmicas</strong>, e não pontuais: tons claros da paleta (<code>slate-400</code>, 2,56:1); botões com gradiente e texto branco sem cor de fundo sólida de reserva, que o WAVE mede contra o branco e que a WCAG exige; cartões esmaecidos com opacidade; indicadores de foco claros; bordas de campos quase invisíveis; e foco que escapava dos modais. Por isso, a correção também foi sistemática: um <em>codemod</em> elevou cada classe de cor ao primeiro tom da paleta que atinge a razão exigida, e todo gradiente ganhou uma cor sólida de reserva.</p>
+<table class="dense"><thead><tr><th>Problema</th><th>Correção</th><th>Critério</th></tr></thead><tbody>
+<tr><td>Texto com contraste abaixo de 4,5:1</td><td>Codemod que sobe cada classe de cor ao primeiro tom da paleta Tailwind com pelo menos 4,5:1 sobre <code>slate-100</code>, por exemplo <code>slate-400</code> → <code>slate-600</code></td><td>1.4.3</td></tr>
+<tr><td>Texto branco sobre gradiente</td><td>Toda classe <code>bg-gradient-*</code> ganhou cor sólida de reserva (<code>bg-*</code>); paradas de gradiente sob texto branco usam tons com pelo menos 4,5:1</td><td>1.4.3</td></tr>
+<tr><td>Indicador de foco</td><td>Anéis <code>ring-*-200/300</code> passaram ao primeiro tom com pelo menos 3:1; contorno branco em botões sobre cabeçalhos escuros</td><td>2.4.7, 1.4.11</td></tr>
+<tr><td>Borda de campos de formulário</td><td><code>slate-200/300</code> → <code>slate-500</code></td><td>1.4.11</td></tr>
+<tr><td>Foco escapando de modal</td><td><code>useModalFocus</code> devolve o foco ao diálogo quando ele está fora (por exemplo, depois de um clique no fundo)</td><td>2.4.3, 2.4.11</td></tr>
+<tr><td>Fundo do login como <code>role="button"</code> envolvendo o formulário</td><td>Fundo sem papel interativo; Escape fecha a partir de qualquer controle do diálogo</td><td>4.1.2, 2.1.2</td></tr>
+<tr><td>Mesmo título “Conta Comigo” em todas as páginas</td><td>Título por rota, como “Painel do profissional · Conta Comigo”</td><td>2.4.2</td></tr>
+<tr><td>Faixa animada sem fim no mapa</td><td>Uma única passada de 5 s, desligada com <code>prefers-reduced-motion</code></td><td>2.2.2</td></tr>
+<tr><td><code>h3</code> sem <code>h2</code></td><td>“TitiA explica para você” passou a <code>h2</code></td><td>1.3.1</td></tr>
+<tr><td>Campo nome sem finalidade</td><td><code>autocomplete="name"</code></td><td>1.3.5</td></tr>
+<tr><td>Texto em caixa-alta com letras espaçadas</td><td>Removidos <code>uppercase</code> e <code>tracking-wide*</code></td><td>GAIA G03</td></tr>
+<tr><td>Links externos sem aviso</td><td>Ícone ↗ visível e texto “(abre em nova aba)” para leitor de tela</td><td>GAIA G22</td></tr>
+<tr><td>Toque acidental em “Quero outro” descartava o exercício e registrava um pulo</td><td>Segurar 0,6 s com barra de progresso; toque curto mostra “Segure o botão um pouquinho”; teclado ativa na hora; o profissional pode desligar</td><td>GAIA G28, WCAG 2.1.1</td></tr>
+<tr><td>Toque duplo em “Confirmar” podia registrar duas tentativas</td><td>Uma resposta por vez enquanto a anterior é enviada</td><td>GAIA G28, G21</td></tr>
+<tr><td>“Encerrar atendimento” com um toque</td><td>Confirmação em duas etapas na própria barra</td><td>GAIA G20</td></tr>
+<tr><td>Sem personalização da tela pela criança</td><td>Engrenagem “Ajustes”: figuras, botões e textos, letra, cores, figura/palavra nos botões, modo leitura</td><td>GAIA G05, G06, G08, G17</td></tr>
+<tr><td>Profissional não podia simplificar a tela</td><td>Aba “Ajustar tela da criança”: prévia com exercício de exemplo, toque para ocultar e mostrar controles, confirmar</td><td>GAIA G07, G10</td></tr>
+</tbody></table>
+
+<h3>2.2 Como testamos</h3>
+<p>Nenhuma ferramenta automática cobre todos os critérios WCAG. A estimativa usual é que elas detectem só uma parte das barreiras. Por isso, a avaliação combinou quatro fontes de evidência:</p>
+
+<svg viewBox="0 0 760 150" role="img" aria-label="Fluxo de avaliação de acessibilidade" class="diagram">
+  <defs><marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker></defs>
+  <g font-size="12" text-anchor="middle">
+    <rect x="5" y="30" width="140" height="80" rx="10" fill="#eef2ff" stroke="#4338ca"/><text x="75" y="58" font-weight="700">Seeds do backend</text><text x="75" y="78" font-size="11">ilhas + 8 formatos</text><text x="75" y="94" font-size="11">generate-data.sh</text>
+    <rect x="160" y="30" width="140" height="80" rx="10" fill="#eef2ff" stroke="#4338ca"/><text x="230" y="58" font-weight="700">Playwright</text><text x="230" y="78" font-size="11">API simulada</text><text x="230" y="94" font-size="11">39 telas, 3 perfis</text>
+    <rect x="315" y="10" width="140" height="56" rx="10" fill="#ecfdf5" stroke="#047857"/><text x="385" y="34" font-weight="700">axe-core 4.12</text><text x="385" y="52" font-size="11">WCAG 2.0–2.2 A/AA</text>
+    <rect x="315" y="76" width="140" height="64" rx="10" fill="#ecfdf5" stroke="#047857"/><text x="385" y="98" font-weight="700">Checagens extras</text><text x="385" y="114" font-size="10">contraste WAVE · Tab · foco</text><text x="385" y="128" font-size="10">1.4.12 · títulos · G03</text>
+    <rect x="470" y="30" width="130" height="80" rx="10" fill="#fff7ed" stroke="#c2410c"/><text x="535" y="58" font-weight="700">WAVE</text><text x="535" y="78" font-size="11">produção</text><text x="535" y="94" font-size="11">antes / depois</text>
+    <rect x="615" y="30" width="140" height="80" rx="10" fill="#f8fafc" stroke="#475569"/><text x="685" y="58" font-weight="700">Inspeção manual</text><text x="685" y="78" font-size="11">critérios de</text><text x="685" y="94" font-size="11">julgamento</text>
+  </g>
+  <g stroke="#475569" stroke-width="1.6" marker-end="url(#b)"><path d="M145 70 L158 70"/><path d="M300 60 L313 40"/><path d="M300 80 L313 105"/><path d="M455 40 L468 60"/><path d="M455 105 L468 85"/><path d="M600 70 L613 70"/></g>
+</svg>
+<ol>
+  <li><strong>axe-core 4.12 (Deque) via Playwright 1.58.</strong> Um script (<code>frontend/e2e/a11y/audit.js</code>) abre 39 telas no Chromium, com a API simulada por dados derivados das próprias seeds do sistema. Assim, telas autenticadas de criança, responsável e profissional renderizam sem banco de dados. O axe roda com as regras <code>wcag2a</code>, <code>wcag2aa</code>, <code>wcag21a</code>, <code>wcag21aa</code> e <code>wcag22aa</code>.</li>
+  <li><strong>Checagens próprias</strong> no mesmo script, para critérios que o axe não automatiza:
+    <ul>
+      <li>contraste no modelo do WAVE, isto é, contra a cor sólida de fundo, ignorando gradientes;</li>
+      <li>fronteira de campos com pelo menos 3:1 (1.4.11);</li>
+      <li><strong>navegação real com Tab</strong>, medindo o contraste do indicador de foco e se o elemento focado fica encoberto (2.4.7, 2.4.11);</li>
+      <li>espaçamento de texto do 1.4.12 injetado, detectando texto cortado;</li>
+      <li>título por página (2.4.2);</li>
+      <li>linhas de até 80 caracteres nas telas da criança (GAIA G03).</li>
+    </ul></li>
+  <li><strong>WAVE</strong> em produção, antes e depois (capturas anexadas pelo autor).</li>
+  <li><strong>Inspeção manual e de código</strong> para critérios de julgamento: sentido das imagens, linguagem, mídia, alternativas a gestos.</li>
+</ol>
+<p>As 39 telas cobrem: página inicial e diálogos de entrada e cadastro; mapa de ilhas; exercício; menu de ajuda; os dois modais de pausa; um exercício de cada um dos 8 formatos; configurações; painel do responsável; todas as abas do painel do profissional; e as variações de personalização (temas, letras, ampliação, botões só com figura ou só com palavra, controles ocultos, “segurar para trocar”).</p>
+<div class="box ok"><div class="box-title">Verificado (20/11/2026)</div><p><code>npm run test:a11y</code>: <strong>39 de 39 telas sem violações</strong>, código de saída 0. Typecheck sem erros. A suíte de testes do frontend não ganhou nenhuma falha nova em relação ao <code>main</code>.</p></div>
+<div class="box warn"><div class="box-title">Pendente</div><p>Nova rodada do WAVE em produção após o deploy, com as capturas por tela (o autor vai anexar). A meta é AIM ≥ 9,1 em todas as páginas, com 0 erros e 0 erros de contraste.</p></div>
+<p>A tabela completa dos 56 critérios A e AA está no Apêndice A: situação, método de verificação e evidência no sistema. Resumo: <strong>47 atendem</strong>, <strong>8 não se aplicam</strong> (não há mídia gravada, só português, sem sensores de movimento, sem atalhos de uma tecla) e o 4.1.1 é obsoleto na versão 2.2.</p>
+<div class="box"><div class="box-title">Para a dissertação — capítulo de Metodologia/Avaliação</div><p>A acessibilidade do Conta Comigo foi avaliada em relação aos critérios de nível A e AA das WCAG 2.2 (W3C, 2023) e às 28 recomendações do GAIA. A avaliação combinou quatro fontes de evidência. A primeira foi a execução automatizada do axe-core 4.12 por meio do Playwright em 25 telas da aplicação, cobrindo os perfis criança, responsável e profissional, os modais e os oito formatos de exercício, com dados simulados derivados das seeds do sistema. A segunda foram verificações complementares implementadas no mesmo script para critérios que o axe não automatiza: contraste no modelo do WAVE, fronteira de campos, indicador e visibilidade do foco por navegação real com Tab, espaçamento de texto e título por página. A terceira foi a extensão WAVE da WebAIM, aplicada em produção antes e depois das correções. A quarta foi a inspeção manual para critérios que dependem de julgamento.</p></div>
+
+<h2 class="page-break">3. GAIA: 28 recomendações para interfaces com foco no autismo</h2>
+<p>O GAIA (gaia.wiki.br) organiza 28 recomendações em 10 categorias: vocabulário visual e textual, customização, engajamento, representações redundantes, multimídia, visibilidade do estado do sistema, reconhecimento e previsibilidade, navegabilidade, resposta às ações e interação com tela sensível ao toque. Ao contrário da WCAG, as recomendações são qualitativas; só duas trazem números: linhas de até 80 caracteres (G03) e até 5 tentativas antes de mostrar a resposta (G21). Na primeira avaliação, 6 recomendações eram atendidas só em parte (G03, G05, G06, G08, G17, G28). Elas foram fechadas com as funcionalidades da seção 4. Situação atual: <strong>28 de 28 atendidas</strong>. A tabela completa está no Apêndice B.</p>
+<div class="box"><div class="box-title">Destaque para o texto</div><p>Duas recomendações do GAIA já estavam implementadas no núcleo pedagógico, com citação explícita no código. A G21 revela a resposta a partir da 5ª tentativa errada, com a opção de tentar de novo. A G20 pede confirmação para sair de uma atividade. As novas funcionalidades tornaram verificáveis as recomendações de customização, que dependiam de opções visíveis à criança.</p></div>
+
+<h2>4. Personalização e interação segura</h2>
+<h3>4.1 Engrenagem “Ajustes” na tela de exercício (criança)</h3>
+<p>Um botão de engrenagem (pictograma ARASAAC 39466, “botão de configuração”) abre um diálogo com escolhas grandes, conduzidas por pictogramas e com prévia ao vivo. As escolhas ficam salvas no dispositivo:</p>
+<ul>
+  <li><strong>Tamanho das figuras</strong> (1×, 1,25×, 1,5×, 2×) e <strong>tamanho de botões e textos</strong> (1×, 1,15×, 1,3×), com CSS <code>zoom</code>, de modo que o layout reflui em vez de sobrepor. Atende G17 e G05.</li>
+  <li><strong>Letra</strong>: padrão, Atkinson Hyperlegible (Braille Institute, foco na distinção entre letras) ou Lexend (projetada para reduzir a carga visual na leitura). Atende G05 e G03.</li>
+  <li><strong>Cores</strong>: colorido, creme (fundo creme e texto escuro, recomendado para leitura), calmo (baixa saturação) e alto contraste. Todos foram auditados com contraste AA e se aplicam só às telas da criança. Atende G05.</li>
+  <li><strong>Botões</strong> com figura e palavra, só figura ou só palavra. O nome acessível lido pelo leitor de tela não muda. Atende G06.</li>
+  <li><strong>Modo leitura</strong>: mostra só o enunciado e as opções, em letra grande e cores calmas, com botão “Ouvir”. Atende G08.</li>
+</ul>
+<div class="grid2"><figure><img src="img/ajustes.png" style="width:100%" alt="Figura 3 — Diálogo “Ajustes da tela”."><figcaption>Figura 3 — Diálogo “Ajustes da tela”.</figcaption></figure><figure><img src="img/modo-leitura.png" style="width:100%" alt="Figura 4 — Modo leitura (GAIA G08)."><figcaption>Figura 4 — Modo leitura (GAIA G08).</figcaption></figure></div>
+<div class="grid2"><figure><img src="img/tema-creme.png" style="width:100%" alt="Figura 5 — Tema creme, letra Atkinson Hyperlegible, figuras 1,5× e itens 1,3×."><figcaption>Figura 5 — Tema creme, letra Atkinson Hyperlegible, figuras 1,5× e itens 1,3×.</figcaption></figure><figure><img src="img/so-figura.png" style="width:100%" alt="Figura 6 — Botões só com figura (GAIA G06)."><figcaption>Figura 6 — Botões só com figura (GAIA G06).</figcaption></figure></div>
+
+<h3>4.2 “Ajustar tela da criança” (profissional)</h3>
+<p>Uma nova aba do painel do profissional mostra uma <strong>réplica da tela de exercício</strong> com um exercício de exemplo sorteado. O profissional toca nos próprios botões da prévia para ocultá-los ou mostrá-los para aquela criança: Mapa, Progresso, Ajustes, “Quero outro”, “Quero uma pausa”, Ajuda e “TitiA explica”. Depois, ele confirma. As respostas e o botão Confirmar nunca podem ser ocultados. Ao ocultar o Mapa, um aviso explica que a criança não conseguirá sair da atividade sozinha. As escolhas ficam no perfil da criança (<code>uiPreferences.hiddenControls</code>) e valem em qualquer dispositivo. Atende G07 (interfaces flexíveis) e G10 (interface minimalista).</p>
+<div class="grid2"><figure><img src="img/editor-profissional.png" style="width:100%" alt="Figura 7 — Editor do profissional: “Mapa” e “Quero outro” ocultos."><figcaption>Figura 7 — Editor do profissional: “Mapa” e “Quero outro” ocultos.</figcaption></figure><figure><img src="img/controles-ocultos.png" style="width:100%" alt="Figura 8 — Tela da criança com controles ocultados pelo profissional."><figcaption>Figura 8 — Tela da criança com controles ocultados pelo profissional.</figcaption></figure></div>
+
+<h3>4.3 Interação segura ao toque (GAIA G28)</h3>
+<p>O GAIA sugere pressão longa para evitar ativações acidentais. Aplicá-la às respostas, porém, aumentaria o esforço motor, que é justamente o que a mesma recomendação pede para evitar. A solução foi aplicar a proteção <strong>só onde um toque acidental tem consequência</strong>:</p>
+<ul>
+  <li><strong>“Quero outro”</strong> descarta o exercício e registra um pulo, que alimenta o recomendador e a regra de sugestão de pausa. Agora ele exige segurar por 600 ms, com barra de progresso. Mover o dedo mais de 10 px cancela. Um toque curto mostra “Segure o botão um pouquinho”. Pelo teclado, a ativação continua imediata (WCAG 2.1.1). O profissional pode desligar a exigência por criança.</li>
+  <li><strong>Respostas</strong>: a escolha só vale depois de “Confirmar”, e um toque duplo não registra duas tentativas, o que distorceria a regra das 5 tentativas (G21).</li>
+  <li><strong>Controles</strong> com <code>touch-action: manipulation</code>, sem zoom por toque duplo nem atraso de 300 ms.</li>
+  <li><strong>“Encerrar atendimento”</strong> (profissional) pede confirmação em duas etapas.</li>
+</ul>
+<figure><img src="img/segure-para-trocar.png" style="width:70%" alt="Figura 9 — Toque curto em “Quero outro”: a TitiA orienta a segurar o botão."><figcaption>Figura 9 — Toque curto em “Quero outro”: a TitiA orienta a segurar o botão.</figcaption></figure>
+<div class="box"><div class="box-title">Para a dissertação — capítulo de Desenvolvimento/Proposta</div><p>Sugestão: apresentar a personalização em dois níveis, autonomia da criança (engrenagem) e mediação do profissional (editor da tela), como resposta direta às categorias de Customização e Engajamento do GAIA. A interação segura ilustra uma decisão de projeto: a recomendação foi aplicada de forma seletiva, ponderando G28 (evitar toques acidentais) contra o esforço motor e a WCAG 2.1.1 (teclado).</p></div>
+<div class="box warn"><div class="box-title">Hipótese a validar</div><p>Que as personalizações reduzam trocas acidentais de exercício e a sobrecarga sensorial. Medir a taxa de “Quero outro” por sessão antes e depois da exigência de segurar, e o uso de cada opção da engrenagem, em observação com crianças e profissionais.</p></div>
+
+<h2 class="page-break">5. Ontologia v0.6.0: BNCC completa e alinhamentos</h2>
+<p>A ontologia ContaComigo (<code>ontology/contacomigo/contacomigo.owl</code>) é o núcleo semântico consultado pelo motor de seleção de exercícios. A versão 0.5.0 representava 75 das 126 habilidades de Matemática do 1º ao 5º ano. A versão 0.6.0 representa todas. Os textos oficiais e os objetos de conhecimento foram extraídos dos quadros do PDF oficial da BNCC e conferidos automaticamente: 126 de 126 descrições idênticas. Cada habilidade foi ligada a ano, unidade temática e conceitos matemáticos. A nova propriedade <code>cc:hasKnowledgeObject</code> registra o objeto de conhecimento.</p>
+<table class=""><thead><tr><th>Ano</th><th>Habilidades BNCC de Matemática</th><th>Na ontologia v0.5.0</th><th>Na ontologia v0.6.0</th><th>Adicionadas</th></tr></thead><tbody>
+<tr><td>1º ano</td><td>22</td><td>6</td><td>22</td><td>16</td></tr>
+<tr><td>2º ano</td><td>23</td><td>12</td><td>23</td><td>11</td></tr>
+<tr><td>3º ano</td><td>28</td><td>17</td><td>28</td><td>11</td></tr>
+<tr><td>4º ano</td><td>28</td><td>21</td><td>28</td><td>7</td></tr>
+<tr><td>5º ano</td><td>25</td><td>19</td><td>25</td><td>6</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>126</strong></td><td><strong>75 (59,5%)</strong></td><td><strong>126 (100%)</strong></td><td><strong>51</strong></td></tr>
+</tbody></table>
+<div class="box ok"><div class="box-title">Verificado</div><p>Parser RDF (rdflib): 4.460 triplas, nenhuma IRI não declarada. Testes do backend dos módulos de ontologia, ADE e atividades: 274/274 (eram 273, mais 1 teste novo). Suíte completa: 485 testes. Testes da fundação ontológica no frontend: 14/14. As 126 descrições do OWL foram conferidas de forma independente contra o arquivo oficial do repositório: 126 idênticas.</p></div>
+<h3>5.1 Conceitos e pré-requisitos novos</h3>
+<table class="dense"><thead><tr><th>Conceito novo</th><th>Superclasse</th><th>Habilidades</th><th>Alinhamento externo</th></tr></thead><tbody>
+<tr><td><code>SpatialLocationConcept</code> (localização e movimentação no espaço)</td><td><code>BasicGeometryConcept</code></td><td>EF01MA11, EF01MA12, EF02MA12, EF02MA13, EF03MA12, EF04MA16, EF05MA14</td><td>nenhum (conceito local)</td></tr>
+<tr><td><code>ProbabilityConcept</code> (acaso e probabilidade)</td><td><code>MathematicalConcept</code></td><td>EF01MA20, EF02MA21, EF03MA25, EF04MA26, EF05MA22, EF05MA23</td><td>nenhum (a OntoMathEdu distribuída cobre geometria plana)</td></tr>
+<tr><td><code>CongruenceConcept</code> (congruência de figuras planas)</td><td><code>BasicGeometryConcept</code></td><td>EF03MA16</td><td><code>related</code> a OntoMathEdu "Congruent geometric figures"</td></tr>
+<tr><td><code>SimilarityConcept</code> (ampliação e redução)</td><td><code>BasicGeometryConcept</code></td><td>EF05MA18</td><td><code>related</code> a OntoMathEdu "Similar figures"</td></tr>
+</tbody></table>
+<table class="dense"><thead><tr><th>Relação</th><th>Situação</th><th>Trecho da BNCC</th></tr></thead><tbody>
+<tr><td><code>SpatialLocationConcept → CoordinateLocationConcept</code></td><td><code>grounded_in_bncc_text</code></td><td>"diferentes representações para a localização de objetos no plano [...] a fim de desenvolver as primeiras noções de coordenadas cartesianas" (EF05MA14), depois de localização "por meio de malhas quadriculadas e representações como desenhos, mapas, planta baixa e croquis" (EF04MA16)</td></tr>
+<tr><td><code>ProportionalityConcept → SimilarityConcept</code></td><td><code>grounded_in_bncc_text</code></td><td>"a proporcionalidade entre os lados correspondentes de figuras poligonais em situações de ampliação e de redução" (EF05MA18)</td></tr>
+<tr><td><code>CongruenceConcept → SimilarityConcept</code></td><td><code>needs_professional_review</code></td><td>"Reconhecer figuras congruentes" (EF03MA16) e "a congruência dos ângulos" em ampliações e reduções (EF05MA18). Congruência de figuras e congruência de ângulos não são a mesma noção, por isso a relação depende de revisão profissional</td></tr>
+</tbody></table>
+<h3>5.2 Melhorias de consistência</h3>
+<table class="dense"><thead><tr><th>Problema encontrado na v0.5.0</th><th>Correção na v0.6.0</th></tr></thead><tbody>
+<tr><td>39 classes, 32 propriedades de objeto, 28 de dados, 11 de anotação e 47 indivíduos sem rótulo <code>pt-BR</code>; 24 indivíduos sem nenhum rótulo (famílias de atividade, perfis de dificuldade e relações de pré-requisito)</td><td>Toda entidade tem rótulo <code>pt-BR</code>; os 24 indivíduos ganharam rótulos <code>en</code> e <code>pt-BR</code></td></tr>
+<tr><td>40 classes sem <code>cc:conceptOrigin</code> (camadas de conhecimento e conceitos matemáticos)</td><td>Todas as 98 classes têm origem: 17 <em>aligned ontology concept</em>, 41 <em>literature-grounded ContaComigo concept</em>, 32 <em>engineering concept</em> e 8 <em>experimental construct</em></td></tr>
+<tr><td><code>cc:isAddressedByActivity</code> tinha alcance <code>LearningActivity</code>, mas é o inverso de <code>cc:addressesCurriculumSkill</code>, cujo domínio é <code>Activity</code>. Um raciocinador classificaria qualquer <code>ActivityFamilyProfile</code> ligado a uma habilidade como <code>LearningActivity</code></td><td>Alcance corrigido para <code>cc:Activity</code></td></tr>
+<tr><td>A relação <code>Prerequisite_MultiplicationToDivision</code> citava EF04MA04 e EF04MA13, que não existiam como indivíduos</td><td>As duas habilidades agora existem</td></tr>
+<tr><td>Conceitos geométricos locais com classe correspondente confirmada na OntoMathEdu, mas sem alinhamento</td><td><code>PolygonConcept</code>, <code>SymmetryConcept</code> e <code>CoordinateLocationConcept</code> ganharam alinhamento <code>related</code> (seção 7)</td></tr>
+</tbody></table>
+<h3>5.3 Como OntoMathEdu, LASDONT e ContaComigo se unem</h3>
+<p>A decisão central para o artigo é que a ontologia ContaComigo é o <strong>núcleo executável</strong>, e as demais <strong>não são importadas</strong>: não há <code>owl:imports</code> nem <code>owl:equivalentClass</code>. Elas aparecem como <strong>pontes anotadas</strong>, com as quais cada entidade local declara de onde vem e com que força se relaciona com a fonte. Os valores são <em>adapted</em>, <em>related</em>, <em>narrower</em> e, no caso da LASDONT, <em>adapted from</em>, <em>narrower than</em> e <em>related to</em>. Isso evita afirmar equivalência lógica onde há apenas inspiração ou proximidade conceitual.</p>
+
+<svg viewBox="0 0 760 330" role="img" aria-label="Diagrama das pontes entre OntoMathEdu, ContaComigo, LASDONT, PROV-O e BNCC" class="diagram">
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker></defs>
+  <rect x="250" y="20" width="260" height="290" rx="14" fill="#eef2ff" stroke="#4338ca" stroke-width="2"/>
+  <text x="380" y="44" text-anchor="middle" font-weight="700" fill="#312e81">Ontologia ContaComigo v0.6.0</text>
+  <text x="380" y="62" text-anchor="middle" font-size="11" fill="#334155">único arquivo carregado pelo backend</text>
+  <g font-size="12" fill="#0f172a">
+    <rect x="270" y="76" width="220" height="30" rx="6" fill="#fff" stroke="#6366f1"/><text x="380" y="96" text-anchor="middle">MathematicalConcept (+4 novos)</text>
+    <rect x="270" y="114" width="220" height="30" rx="6" fill="#fff" stroke="#6366f1"/><text x="380" y="134" text-anchor="middle">PrerequisiteRelation (14)</text>
+    <rect x="270" y="152" width="220" height="30" rx="6" fill="#fff" stroke="#6366f1"/><text x="380" y="172" text-anchor="middle">BNCCSkill × 126 · CurriculumLevel</text>
+    <rect x="270" y="190" width="220" height="30" rx="6" fill="#fff" stroke="#6366f1"/><text x="380" y="210" text-anchor="middle">Activity · ActivityType</text>
+    <rect x="270" y="228" width="220" height="30" rx="6" fill="#fff" stroke="#6366f1"/><text x="380" y="248" text-anchor="middle">Modelo do aprendiz contextual</text>
+    <rect x="270" y="266" width="220" height="30" rx="6" fill="#fff" stroke="#6366f1"/><text x="380" y="286" text-anchor="middle">Evidência · Sessão · Estado BKT</text>
+  </g>
+  <rect x="10" y="60" width="200" height="120" rx="12" fill="#ecfdf5" stroke="#047857" stroke-width="2"/>
+  <text x="110" y="84" text-anchor="middle" font-weight="700" fill="#065f46">OntoMathEdu</text>
+  <text x="110" y="102" text-anchor="middle" font-size="11" fill="#334155">referência, não importada</text>
+  <text x="110" y="124" text-anchor="middle" font-size="11" fill="#0f172a">hasPrerequisite · EducationalLevel</text>
+  <text x="110" y="142" text-anchor="middle" font-size="11" fill="#0f172a">Point · Angle · Square · Rectangle</text>
+  <text x="110" y="160" text-anchor="middle" font-size="11" fill="#0f172a">Polygon · Symmetry · Coordinates…</text>
+  <rect x="550" y="60" width="200" height="120" rx="12" fill="#fff7ed" stroke="#c2410c" stroke-width="2"/>
+  <text x="650" y="84" text-anchor="middle" font-weight="700" fill="#9a3412">LASDONT 1.0</text>
+  <text x="650" y="102" text-anchor="middle" font-size="11" fill="#334155">histórica, não importada</text>
+  <text x="650" y="124" text-anchor="middle" font-size="11" fill="#0f172a">Strength / Weakness (5 tipos)</text>
+  <text x="650" y="142" text-anchor="middle" font-size="11" fill="#0f172a">Treatments · Quizzes · Puzzles</text>
+  <text x="650" y="160" text-anchor="middle" font-size="11" fill="#0f172a">Easy / Mid / Hard_Content</text>
+  <rect x="10" y="220" width="200" height="70" rx="12" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
+  <text x="110" y="248" text-anchor="middle" font-weight="700" fill="#1e293b">BNCC (MEC, 2018)</text>
+  <text x="110" y="268" text-anchor="middle" font-size="11" fill="#334155">texto oficial · objeto de conhecimento</text>
+  <rect x="550" y="220" width="200" height="70" rx="12" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
+  <text x="650" y="248" text-anchor="middle" font-weight="700" fill="#1e293b">PROV-O (W3C)</text>
+  <text x="650" y="268" text-anchor="middle" font-size="11" fill="#334155">prov:Entity · prov:Activity</text>
+  <g stroke="#475569" stroke-width="1.6" fill="none" stroke-dasharray="5 4" marker-end="url(#a)">
+    <path d="M270 91 L212 105"/><path d="M270 129 L212 125"/><path d="M270 167 L212 150"/>
+    <path d="M490 243 L548 130"/><path d="M490 205 L548 150"/>
+    <path d="M270 167 L212 245"/><path d="M490 281 L548 260"/>
+  </g>
+  <g font-size="10" fill="#334155">
+    <text x="216" y="88">adapted</text><text x="214" y="140">adapted</text><text x="214" y="168">related</text>
+    <text x="650" y="196" text-anchor="middle">adapted from · narrower than · related to</text>
+    <text x="214" y="214">texto oficial</text><text x="650" y="306" text-anchor="middle">subClassOf (narrower)</text>
+  </g>
+</svg>
+<p style="text-align:center;font-size:8.5pt;color:#475569">Figura 10 — Pontes de procedência. Linhas tracejadas são anotações, não importação.</p>
+<table class="dense"><thead><tr><th>Fonte</th><th>Mecanismo de ponte</th><th>Valores usados</th></tr></thead><tbody>
+<tr><td>OntoMathEdu</td><td><code>cc:sourceOntology</code>, <code>cc:sourceIRI</code>, <code>cc:alignmentRelation</code>, <code>cc:alignmentNote</code></td><td><code>adapted</code> (estrutura reinterpretada) ou <code>related</code> (conceito próximo, sem equivalência)</td></tr>
+<tr><td>LASDONT</td><td><code>cc:historicalSourceOntology</code>, <code>cc:historicalSourceConcept</code>, <code>cc:historicalMappingType</code></td><td><code>adapted from</code>, <code>narrower than</code>, <code>related to</code></td></tr>
+<tr><td>PROV-O</td><td><code>rdfs:subClassOf</code> / <code>rdfs:subPropertyOf</code> + <code>cc:alignmentRelation</code></td><td><code>narrower</code></td></tr>
+<tr><td>BNCC</td><td><code>cc:sourceOntology</code> em <code>BNCCSkill</code> + <code>dcterms:source</code> e texto oficial em cada habilidade</td><td>—</td></tr>
+<tr><td>Própria</td><td><code>cc:conceptOrigin</code></td><td><em>literature-grounded ContaComigo concept</em>, <em>engineering concept</em>, <em>experimental construct</em></td></tr>
+</tbody></table>
+<h4>O que vem da OntoMathEdu</h4>
+<table class="dense"><thead><tr><th>Entidade ContaComigo</th><th>Tipo</th><th>Relação</th><th>Entidade OntoMathEdu</th></tr></thead><tbody>
+<tr><td><code>MathematicalConcept</code></td><td>classe</td><td>adapted</td><td>princípio da camada de domínio (sem classe homônima no artefato)</td></tr>
+<tr><td><code>DidacticRelation</code></td><td>classe</td><td>adapted</td><td><code>hasPrerequisite</code> (propriedade de anotação no artefato)</td></tr>
+<tr><td><code>PrerequisiteRelation</code></td><td>classe</td><td>adapted</td><td><code>hasPrerequisite</code></td></tr>
+<tr><td><code>prerequisiteConcept</code></td><td>propriedade de objeto</td><td>adapted</td><td><code>hasPrerequisite</code></td></tr>
+<tr><td><code>CurriculumLevel</code></td><td>classe</td><td>adapted</td><td><code>EducationalLevel</code></td></tr>
+<tr><td><code>PointConcept</code></td><td>classe</td><td>related</td><td><code>R71GKMyesTQoOWWvX1M74EE</code> — Point</td></tr>
+<tr><td><code>AngleConcept</code></td><td>classe</td><td>related</td><td><code>R9lMyAYbMeEYN0OdD7cbwZ6</code> — Angle</td></tr>
+<tr><td><code>SquareConcept</code></td><td>classe</td><td>related</td><td><code>R81puoDaG8DotyXihsGWNY6</code> — Square</td></tr>
+<tr><td><code>RectangleConcept</code></td><td>classe</td><td>related</td><td><code>R9x3QFCyHrHe0SoE3ZCZr94</code> — Rectangle</td></tr>
+<tr><td><code>PolygonConcept</code> (v0.6.0)</td><td>classe</td><td>related</td><td><code>RDv25ipiTlBE1U108mKAvEj</code> — Polygon</td></tr>
+<tr><td><code>SymmetryConcept</code> (v0.6.0)</td><td>classe</td><td>related</td><td><code>RBZTpicxNM7cbhnJJ1IRNyX</code> — Axial symmetry</td></tr>
+<tr><td><code>CoordinateLocationConcept</code> (v0.6.0)</td><td>classe</td><td>related</td><td><code>R7YD3X6bHdrVh0Vfk3nEWoM</code> — Cartesian coordinate system</td></tr>
+<tr><td><code>CongruenceConcept</code> (nova)</td><td>classe</td><td>related</td><td><code>RLfTx5EJyjoizZm1ABPOwY</code> — Congruent geometric figures</td></tr>
+<tr><td><code>SimilarityConcept</code> (nova)</td><td>classe</td><td>related</td><td><code>RvAZM1LoovPjUxYGZ0pWvs</code> — Similar figures</td></tr>
+</tbody></table>
+<h4>O que vem da LASDONT (rastreabilidade histórica)</h4>
+<table class="dense"><thead><tr><th>Entidade ContaComigo</th><th>Tipo</th><th>Conceito LASDONT</th><th>Mapeamento</th></tr></thead><tbody>
+<tr><td><code>ObservedVisualStrength</code></td><td>classe</td><td><code>Visual_Strength</code></td><td>adapted from</td></tr>
+<tr><td><code>ObservedVisualPreference</code></td><td>classe</td><td><code>Visual_Strength</code></td><td>related to</td></tr>
+<tr><td><code>ObservedAuditoryStrength</code></td><td>classe</td><td><code>Auditive_Strength</code></td><td>adapted from</td></tr>
+<tr><td><code>ObservedAuditoryPreference</code></td><td>classe</td><td><code>Auditive_Strength</code></td><td>related to</td></tr>
+<tr><td><code>ObservedLogicalReasoningStrength</code></td><td>classe</td><td><code>Logical_Strength</code></td><td>narrower than</td></tr>
+<tr><td><code>ReasoningSupportNeed</code></td><td>classe</td><td><code>Logical_Weakness</code></td><td>adapted from</td></tr>
+<tr><td><code>MotorInteractionPreference</code></td><td>classe</td><td><code>Motor_Strength</code></td><td>related to</td></tr>
+<tr><td><code>MotorSupportNeed</code></td><td>classe</td><td><code>Motor_Weakness</code></td><td>adapted from</td></tr>
+<tr><td><code>MotorDemandCompatibility</code></td><td>classe</td><td><code>Motor_Weakness</code></td><td>narrower than</td></tr>
+<tr><td><code>SensoryLoadTolerance</code></td><td>classe</td><td><code>Sensory_Strength</code></td><td>adapted from</td></tr>
+<tr><td><code>SensorySupportNeed</code></td><td>classe</td><td><code>Sensory_Weakness</code></td><td>adapted from</td></tr>
+<tr><td><code>Activity</code> (v0.6.0)</td><td>classe</td><td><code>Treatments_Class</code></td><td>related to</td></tr>
+<tr><td><code>QuizActivityType</code> (v0.6.0)</td><td>indivíduo</td><td><code>Quizzes</code></td><td>adapted from</td></tr>
+<tr><td><code>VisualPuzzleActivityType</code> (v0.6.0)</td><td>indivíduo</td><td><code>Visual_Puzzles</code></td><td>adapted from</td></tr>
+<tr><td><code>VideoQuestionActivityType</code> (v0.6.0)</td><td>indivíduo</td><td><code>Question_Videos</code></td><td>related to</td></tr>
+<tr><td><code>YesNoActivityType</code> (v0.6.0)</td><td>indivíduo</td><td><code>Yes_No_Videos</code></td><td>related to</td></tr>
+<tr><td><code>legacyDifficultyLabel</code> (v0.6.0)</td><td>propriedade de dados</td><td><code>Easy_Content</code>, <code>Mid_Content</code>, <code>Hard_Content</code></td><td>related to</td></tr>
+</tbody></table>
+<p><strong>Por que não dividir em módulos.</strong> A separação em núcleo + módulo OntoMathEdu + módulo LASDONT foi avaliada e descartada. O backend carrega um único arquivo e não resolve importações. Um teste do projeto exige que não haja <code>owl:imports</code>, decisão anterior de não importar as ontologias externas. As pontes são anotações sobre entidades locais, então um módulo separado não teria valor lógico próprio. O inventário pode ser regerado por consulta SPARQL sobre <code>cc:sourceOntology</code> e <code>cc:historicalSourceOntology</code>, o que dá ao artigo a mesma visão modular sem custo de manutenção.</p>
+<div class="box"><div class="box-title">Para a dissertação — capítulo de Modelagem/Ontologia</div><p>A camada curricular da ontologia foi completada com as 126 habilidades de Matemática do 1º ao 5º ano da BNCC. Os textos das habilidades e os objetos de conhecimento foram extraídos dos quadros do documento oficial e conferidos automaticamente: as 126 descrições coincidem com o PDF. Cada habilidade foi ligada a um ano, a uma unidade temática, a um ou mais objetos de conhecimento e a conceitos matemáticos locais. Cada ligação habilidade–conceito foi anotada como análise semântica do projeto, e cada relação de pré-requisito entre conceitos cita o trecho da BNCC que a sustenta. A procedência de cada entidade foi registrada por anotações: alinhamentos <code>adapted</code> ou <code>related</code> com classes confirmadas da OntoMathEdu, rastreabilidade histórica com a LASDONT e subclasses de PROV-O. O arquivo foi validado com um parser RDF e com os testes automatizados do sistema.</p><p>A ontologia ContaComigo foi mantida como um único arquivo executável, sem importar a OntoMathEdu, a LASDONT ou o PROV-O. A relação com essas fontes é feita por anotações de procedência nas entidades locais, que distinguem adaptação, proximidade conceitual e predecessão histórica sem afirmar equivalência lógica. Conceitos novos só foram criados quando um conceito amplo já existente produziria relações de pré-requisito falsas no motor de seleção, e os mapeamentos das habilidades originais do 1º ano não foram alterados.</p></div>
+<div class="box warn"><div class="box-title">Pendente</div><p>Os mapeamentos habilidade–conceito das 51 habilidades novas e duas das catorze relações de pré-requisito ainda não foram revisados por especialistas. Os conceitos locais de aritmética, medidas, dados e probabilidade não têm correspondente na release distribuída da OntoMathEdu, que cobre geometria plana. A BNCC associa objetos de conhecimento a linhas da tabela, e não a habilidades individuais, de modo que o objeto registrado para uma habilidade pode ser mais amplo que ela. A cobertura por exercícios continua baixa: 47 das 51 habilidades novas não têm exercício semeado.</p></div>
+
+<h2>6. Outras correções: login com Google</h2>
+<p>Dois problemas impediam o cadastro de profissionais com Google:</p>
+<ol>
+  <li><strong>Configuração.</strong> A URL de retorno apontava para um domínio do Railway que não existe mais, e sem o prefixo <code>/api</code>. A correção é de ambiente: <code>GOOGLE_REDIRECT_URI = https://&lt;domínio atual&gt;/api/auth/google/callback</code>, também cadastrada no Google Cloud. <em>Pendente, a cargo do autor.</em></li>
+  <li><strong>Código.</strong> O cadastro sempre criava a conta como responsável. Agora o papel escolhido no diálogo viaja pelo parâmetro <code>state</code> do OAuth. Só “responsável” e “profissional” podem ser escolhidos.</li>
+</ol>
+
+<h2>7. Limitações e evidências pendentes</h2>
+<ul>
+  <li>Ferramentas automáticas detectam só parte das barreiras. Critérios marcados como “inspeção” dependem do julgamento do avaliador.</li>
+  <li>A auditoria usa dados simulados e resolução de desktop (1280 × 900). O refluxo foi verificado em 360 px nos testes de exercícios, e não nos 320 px de referência.</li>
+  <li>O conteúdo da TitiA carregado em iframe é uma aplicação separada e não foi auditado.</li>
+  <li>As preferências da engrenagem ficam salvas no dispositivo, e não no perfil da criança.</li>
+  <li>Não houve avaliação com crianças autistas nem com usuários de leitores de tela. Os mapeamentos habilidade–conceito das 51 habilidades novas e duas relações de pré-requisito aguardam revisão por especialistas.</li>
+  <li>A cobertura por exercícios continua baixa: 47 das 51 habilidades novas não têm exercício semeado.</li>
+</ul>
+<div class="box warn"><div class="box-title">Evidências a coletar</div><ul><li>Capturas do WAVE em produção, depois do deploy, para cada tela da tabela inicial, com erros, erros de contraste, alertas e AIM score.</li><li>Saída de <code>npm run test:a11y</code> com 39 de 39 telas sem violações, anexada com a data e o commit.</li><li>Teste com leitor de tela (NVDA ou VoiceOver) e navegação somente por teclado em uma sessão completa de exercício.</li><li>Observação de uso com crianças autistas e profissionais para os itens do GAIA que dependem de percepção, como G09, G11 e G18.</li></ul><p><p>Registrar, por habilidade, quantas decisões do motor usaram o filtro semântico formal e quantas caíram no fallback legado, antes e depois da v0.6.0. Submeter os 51 mapeamentos novos e as relações marcadas como <code>needs_professional_review</code> a pelo menos dois especialistas em educação matemática e calcular a concordância entre eles. À medida que exercícios forem criados para as habilidades <code>NOT_COVERED</code>, verificar se as relações de pré-requisito derivadas da ontologia predizem a ordem em que as crianças atingem o domínio estimado pelo BKT.</p></p></div>
+
+<h2>8. Sugestão de encaixe na dissertação</h2>
+<table>
+<thead><tr><th>Capítulo</th><th>Conteúdo deste dossiê</th><th>Observação</th></tr></thead>
+<tbody>
+<tr><td>Fundamentação teórica</td><td>WCAG 2.2 (níveis, critérios), GAIA (10 categorias, 28 recomendações), OntoMathEdu, LASDONT, PROV-O, BNCC</td><td>Citar as fontes primárias (seção 9)</td></tr>
+<tr><td>Proposta / Desenvolvimento</td><td>Seções 4 (personalização em dois níveis, interação segura) e 5 (ontologia v0.6.0, pontes anotadas, Figura 10)</td><td>Destacar as decisões de projeto e seus motivos</td></tr>
+<tr><td>Metodologia de avaliação</td><td>Seção 2.2 (quatro fontes de evidência, 39 telas, Figura de fluxo)</td><td>Descrever o script como instrumento reproduzível</td></tr>
+<tr><td>Resultados</td><td>Tabela WAVE antes/depois; 39/39 telas; 47/56 WCAG; 28/28 GAIA; 126/126 BNCC</td><td>Incluir as capturas WAVE pós-deploy quando existirem</td></tr>
+<tr><td>Limitações e trabalhos futuros</td><td>Seção 7</td><td>Avaliação com usuários e revisão por especialistas</td></tr>
+<tr><td>Apêndices</td><td>Tabelas completas (Apêndices A, B e C)</td><td>Podem ir integralmente</td></tr>
+</tbody></table>
+
+<h2>9. Rastreabilidade e referências</h2>
+<h3>Commits (branch <code>fix/a11y-wcag-aa-google-signup</code>)</h3>
+<table><thead><tr><th>Commit</th><th>Conteúdo</th></tr></thead><tbody>
+<tr><td><code>710fd86</code></td><td>Login com Google respeita o papel escolhido; diálogo de login sem controles aninhados</td></tr>
+<tr><td><code>6830d3e</code></td><td>Contraste WCAG AA em todas as telas; script de auditoria com axe-core</td></tr>
+<tr><td><code>4bca66a</code></td><td>Critérios AA restantes (títulos, foco, bordas, espaçamento) e lacunas GAIA; documento BATCH_17</td></tr>
+<tr><td><code>3d64c35</code></td><td>Engrenagem de ajustes, modo leitura, editor do profissional, interação segura (G28)</td></tr>
+<tr><td><code>d197d33</code></td><td>Ontologia v0.6.0 (126 habilidades BNCC); documento BATCH_18</td></tr>
+</tbody></table>
+<h3>Arquivos principais</h3>
+<ul>
+  <li><code>frontend/e2e/a11y/audit.js</code> e <code>generate-data.sh</code>: instrumento de auditoria (<code>npm run test:a11y</code>).</li>
+  <li><code>frontend/src/components/learner/child-display-settings.tsx</code>: engrenagem e modo leitura.</li>
+  <li><code>frontend/src/components/educator/child-screen-editor.tsx</code>: editor do profissional.</li>
+  <li><code>frontend/src/hooks/use-hold-to-activate.ts</code>: segurar para ativar (G28).</li>
+  <li><code>ontology/contacomigo/contacomigo.owl</code>: ontologia v0.6.0.</li>
+  <li><code>docs/research/BATCH_17_ACESSIBILIDADE_WCAG_GAIA_PT.md</code> e <code>BATCH_18_ONTOLOGIA_V06_BNCC_E_ALINHAMENTOS_PT.md</code>: registros completos.</li>
+</ul>
+<h3>Referências</h3>
+<ul>
+  <li>BRASIL. Ministério da Educação. <em>Base Nacional Comum Curricular</em>. Brasília: MEC, 2018.</li>
+  <li>W3C. <em>Web Content Accessibility Guidelines (WCAG) 2.2</em>. W3C Recommendation, 2023. https://www.w3.org/TR/WCAG22/</li>
+  <li>PAGANI, T. <em>GAIA: Guia de Acessibilidade de Interfaces Web com foco em aspectos do Autismo</em>. https://gaia.wiki.br/ (acesso em 20 nov. 2026; conferir ano e dados da dissertação de origem).</li>
+  <li>DEQUE SYSTEMS. <em>axe-core</em> 4.12. https://github.com/dequelabs/axe-core</li>
+  <li>WEBAIM. <em>WAVE Web Accessibility Evaluation Tools</em>. https://wave.webaim.org/</li>
+  <li>KIRILLOVICH, A. et al. OntoMathEdu: towards an educational mathematical ontology. CEUR-WS, v. 2634, 2020. — Prerequisite relationships of the OntoMathEdu educational mathematical ontology. CEUR-WS, v. 2784, 2020. (Conferir os dados bibliográficos antes de citar.)</li>
+  <li>W3C. <em>PROV-O: The PROV Ontology</em>. W3C Recommendation, 2013.</li>
+  <li>ARASAAC. Pictogramas de Sergio Palao, Governo de Aragão, licença CC BY-NC-SA. https://arasaac.org</li>
+</ul>
+
+<h2 class="page-break">Apêndice A — WCAG 2.2, níveis A e AA</h2>
+<p>Método: <strong>axe</strong> = regra automática do axe-core; <strong>script</strong> = checagem própria de <code>audit.js</code>; <strong>WAVE</strong> = extensão WebAIM; <strong>inspeção</strong> = revisão manual ou de código.</p>
+<table class="dense"><thead><tr><th>Critério</th><th>Nível</th><th>Situação</th><th>Método</th><th>Evidência no Conta Comigo</th></tr></thead><tbody>
+<tr><td>1.1.1 Conteúdo não textual</td><td>A</td><td>Atende</td><td>axe, WAVE, inspeção</td><td>Pictogramas ARASAAC com <code>alt</code>; imagens decorativas com <code>alt=""</code>; ícones com <code>aria-hidden</code></td></tr>
+<tr><td>1.2.1 Somente áudio e somente vídeo (pré-gravado)</td><td>A</td><td>Não se aplica</td><td>inspeção</td><td>Não há áudio ou vídeo pré-gravado; a fala da TitiA lê texto já exibido</td></tr>
+<tr><td>1.2.2 Legendas (pré-gravado)</td><td>A</td><td>Não se aplica</td><td>inspeção</td><td>Sem vídeo</td></tr>
+<tr><td>1.2.3 Audiodescrição ou mídia alternativa</td><td>A</td><td>Não se aplica</td><td>inspeção</td><td>Sem vídeo</td></tr>
+<tr><td>1.3.1 Informações e relações</td><td>A</td><td>Atende</td><td>axe, WAVE</td><td>Landmarks <code>header</code>/<code>main</code>/<code>aside</code>, hierarquia de títulos, <code>fieldset</code>/<code>legend</code>, <code>role="group"</code>, rótulos associados</td></tr>
+<tr><td>1.3.2 Sequência com significado</td><td>A</td><td>Atende</td><td>inspeção, script (Tab)</td><td>Ordem do DOM igual à ordem visual</td></tr>
+<tr><td>1.3.3 Características sensoriais</td><td>A</td><td>Atende</td><td>inspeção</td><td>Instruções em texto, pictograma e voz; nada depende só de forma ou posição</td></tr>
+<tr><td>1.4.1 Uso de cor</td><td>A</td><td>Atende</td><td>inspeção</td><td>“Concluído” com texto e ícone; seleção com <code>aria-pressed</code> e borda</td></tr>
+<tr><td>1.4.2 Controle de áudio</td><td>A</td><td>Atende</td><td>inspeção</td><td>Botão “Desligar música” na pausa; som, efeitos e voz configuráveis</td></tr>
+<tr><td>2.1.1 Teclado</td><td>A</td><td>Atende</td><td>script (Tab), inspeção</td><td>Controles são <code>&lt;button&gt;</code>; arrastar tem alternativa por toque ou clique</td></tr>
+<tr><td>2.1.2 Sem armadilha de teclado</td><td>A</td><td>Atende</td><td>script (Tab)</td><td>Modais prendem o foco, mas fecham com Escape ou botão</td></tr>
+<tr><td>2.1.4 Atalhos de teclado por caractere</td><td>A</td><td>Não se aplica</td><td>inspeção (código)</td><td>Não há atalhos de uma tecla; só Enter e Espaço no controle focado</td></tr>
+<tr><td>2.2.1 Tempo ajustável</td><td>A</td><td>Atende</td><td>inspeção</td><td>Sem limite de tempo; atraso da ajuda configurável pelo profissional</td></tr>
+<tr><td>2.2.2 Pausar, parar, ocultar</td><td>A</td><td>Atende</td><td>inspeção</td><td>Animação decorativa com no máximo 5 s; respeita <code>prefers-reduced-motion</code> e o modo de baixa estimulação</td></tr>
+<tr><td>2.3.1 Três flashes ou abaixo do limite</td><td>A</td><td>Atende</td><td>inspeção</td><td>Sem conteúdo piscante</td></tr>
+<tr><td>2.4.1 Ignorar blocos</td><td>A</td><td>Atende</td><td>axe</td><td>Landmark <code>main</code> em todas as telas; link “Pular para o conteúdo” na página inicial</td></tr>
+<tr><td>2.4.2 Página com título</td><td>A</td><td>Atende</td><td>axe, script</td><td>Título por rota, como “Meu mapa de aventuras · Conta Comigo”</td></tr>
+<tr><td>2.4.3 Ordem do foco</td><td>A</td><td>Atende</td><td>script (Tab)</td><td>Foco gerenciado em modais e devolvido ao fechar</td></tr>
+<tr><td>2.4.4 Finalidade do link (em contexto)</td><td>A</td><td>Atende</td><td>axe, inspeção</td><td>Nomes como “Começar: &lt;título do exercício&gt;”</td></tr>
+<tr><td>2.5.1 Gestos de ponteiro</td><td>A</td><td>Atende</td><td>inspeção, E2E</td><td>Toque simples substitui o arrastar (<code>e2e/progression</code>)</td></tr>
+<tr><td>2.5.2 Cancelamento de ponteiro</td><td>A</td><td>Atende</td><td>inspeção</td><td>Ações em <code>click</code>, ao soltar o ponteiro</td></tr>
+<tr><td>2.5.3 Rótulo no nome acessível</td><td>A</td><td>Atende</td><td>axe, inspeção</td><td>O nome acessível contém o texto visível, como “Confirmar resposta”</td></tr>
+<tr><td>2.5.4 Atuação por movimento</td><td>A</td><td>Não se aplica</td><td>inspeção</td><td>Não usa sensores de movimento</td></tr>
+<tr><td>3.1.1 Idioma da página</td><td>A</td><td>Atende</td><td>axe</td><td><code>&lt;html lang="pt"&gt;</code></td></tr>
+<tr><td>3.2.1 Em foco</td><td>A</td><td>Atende</td><td>script (Tab)</td><td>Receber foco não muda o contexto</td></tr>
+<tr><td>3.2.2 Em entrada</td><td>A</td><td>Atende</td><td>inspeção</td><td>Escolher uma opção só seleciona; envio com “Confirmar”</td></tr>
+<tr><td>3.2.6 Ajuda consistente</td><td>A</td><td>Atende</td><td>inspeção</td><td>Botões “Ajuda” e TitiA sempre na mesma posição</td></tr>
+<tr><td>3.3.1 Identificação de erro</td><td>A</td><td>Atende</td><td>inspeção</td><td>Mensagens em <code>role="alert"</code></td></tr>
+<tr><td>3.3.2 Rótulos ou instruções</td><td>A</td><td>Atende</td><td>axe</td><td>Todos os campos têm rótulo</td></tr>
+<tr><td>3.3.7 Entrada redundante</td><td>A</td><td>Atende</td><td>inspeção</td><td>Cadastro em duas etapas mantém os dados já digitados</td></tr>
+<tr><td>4.1.1 Análise</td><td>A</td><td>Obsoleto na 2.2</td><td>—</td><td>Sempre satisfeito (W3C, 2023)</td></tr>
+<tr><td>4.1.2 Nome, função, valor</td><td>A</td><td>Atende</td><td>axe, WAVE</td><td><code>aria-pressed</code>, <code>aria-modal</code>, <code>aria-labelledby</code>; aninhamento interativo corrigido</td></tr>
+<tr><td>1.2.4 Legendas (ao vivo)</td><td>AA</td><td>Não se aplica</td><td>inspeção</td><td>Sem mídia ao vivo</td></tr>
+<tr><td>1.2.5 Audiodescrição (pré-gravado)</td><td>AA</td><td>Não se aplica</td><td>inspeção</td><td>Sem vídeo</td></tr>
+<tr><td>1.3.4 Orientação</td><td>AA</td><td>Atende</td><td>inspeção</td><td>Layout responsivo sem trava de orientação</td></tr>
+<tr><td>1.3.5 Identificar a finalidade da entrada</td><td>AA</td><td>Atende</td><td>inspeção</td><td><code>autocomplete</code> com <code>name</code>, <code>email</code>, <code>current-password</code>, <code>new-password</code></td></tr>
+<tr><td>1.4.3 Contraste (mínimo)</td><td>AA</td><td>Atende</td><td>axe, script (modelo WAVE), WAVE</td><td>0 ocorrências nas 39 telas, inclusive nos temas creme, calmo e alto contraste</td></tr>
+<tr><td>1.4.4 Redimensionar texto</td><td>AA</td><td>Atende</td><td>inspeção</td><td>Tamanhos em <code>rem</code>; zoom não bloqueado no viewport</td></tr>
+<tr><td>1.4.5 Imagens de texto</td><td>AA</td><td>Atende</td><td>inspeção</td><td>Só o logotipo, que é exceção</td></tr>
+<tr><td>1.4.10 Refluxo</td><td>AA</td><td>Atende</td><td>E2E</td><td>Exercícios em 360 px sem rolagem horizontal (<code>e2e/progression</code>)</td></tr>
+<tr><td>1.4.11 Contraste não textual</td><td>AA</td><td>Atende</td><td>script</td><td>Fronteira de campos e indicador de foco com pelo menos 3:1</td></tr>
+<tr><td>1.4.12 Espaçamento de texto</td><td>AA</td><td>Atende</td><td>script</td><td>Nenhum texto cortado com o espaçamento do critério</td></tr>
+<tr><td>1.4.13 Conteúdo em foco ou passagem do cursor</td><td>AA</td><td>Atende</td><td>inspeção</td><td>Só <code>title</code> nativo, sem conteúdo adicional</td></tr>
+<tr><td>2.4.5 Várias formas</td><td>AA</td><td>Atende</td><td>inspeção</td><td>Criança: mapa com todas as ilhas e exercícios, botão “Jogar” (próximo recomendado) e TitiA. Profissional: lista de alunos e abas</td></tr>
+<tr><td>2.4.6 Cabeçalhos e rótulos</td><td>AA</td><td>Atende</td><td>axe, inspeção</td><td>Títulos descrevem cada seção</td></tr>
+<tr><td>2.4.7 Foco visível</td><td>AA</td><td>Atende</td><td>script (Tab)</td><td>Contorno de 3 px com pelo menos 3:1 em todos os controles percorridos</td></tr>
+<tr><td>2.4.11 Foco não encoberto (mínimo)</td><td>AA</td><td>Atende</td><td>script (Tab)</td><td>Nenhum controle focado fica totalmente coberto</td></tr>
+<tr><td>2.5.7 Movimentos de arrastar</td><td>AA</td><td>Atende</td><td>E2E</td><td>Arrastar → tocar a peça e tocar o destino</td></tr>
+<tr><td>2.5.8 Tamanho do alvo (mínimo)</td><td>AA</td><td>Atende</td><td>inspeção</td><td>Controles principais com 44 px (<code>min-h-11</code>) ou mais</td></tr>
+<tr><td>3.1.2 Idioma das partes</td><td>AA</td><td>Não se aplica</td><td>inspeção</td><td>Conteúdo só em português</td></tr>
+<tr><td>3.2.3 Navegação consistente</td><td>AA</td><td>Atende</td><td>inspeção</td><td>Mesmo cabeçalho e controles em todas as telas do perfil</td></tr>
+<tr><td>3.2.4 Identificação consistente</td><td>AA</td><td>Atende</td><td>inspeção</td><td>Mesmo pictograma e nome para a mesma função</td></tr>
+<tr><td>3.3.3 Sugestão de erro</td><td>AA</td><td>Atende</td><td>inspeção</td><td>“N caracteres faltam”; conta já existente orienta a entrar</td></tr>
+<tr><td>3.3.4 Prevenção de erros (legais, financeiros, dados)</td><td>AA</td><td>Atende</td><td>inspeção</td><td>Termo LGPD confirmado explicitamente; “Sair da atividade?” pede confirmação</td></tr>
+<tr><td>3.3.8 Autenticação acessível (mínimo)</td><td>AA</td><td>Atende</td><td>inspeção</td><td>Gerenciador de senhas liberado (<code>autocomplete</code>), “Mostrar senha”, login com Google</td></tr>
+<tr><td>4.1.3 Mensagens de status</td><td>AA</td><td>Atende</td><td>inspeção</td><td><code>role="status"</code> e <code>aria-live="polite"</code> nas mensagens</td></tr>
+</tbody></table>
+
+<h2 class="page-break">Apêndice B — GAIA G01–G28</h2>
+<table class="dense"><thead><tr><th>ID</th><th>Recomendação</th><th>Categoria</th><th>Situação</th><th>Evidência no Conta Comigo</th></tr></thead><tbody>
+<tr><td>G01</td><td>Cores</td><td>Vocabulário visual e textual</td><td>Atende</td><td>Cor nunca é o único sinal; contraste validado (1.4.3, 1.4.11)</td></tr>
+<tr><td>G02</td><td>Textos</td><td>Vocabulário visual e textual</td><td>Atende</td><td>Frases curtas e diretas na área da criança. Siglas técnicas (BNCC, BKT, ADE) só no painel do profissional</td></tr>
+<tr><td>G03</td><td>Legibilidade</td><td>Vocabulário visual e textual</td><td>Atende</td><td>Fonte sem serifa (Inter, ou Atkinson Hyperlegible e Lexend na engrenagem); sem caixa-alta nem letras espaçadas; linhas de até 80 caracteres medidas automaticamente nas telas da criança</td></tr>
+<tr><td>G04</td><td>Compatibilidade com mundo real</td><td>Vocabulário visual e textual</td><td>Atende</td><td>Pictogramas ARASAAC de objetos e ações concretas; toque como gesto natural</td></tr>
+<tr><td>G05</td><td>Customização visual</td><td>Customização</td><td>Atende</td><td>Engrenagem “Ajustes” na tela de exercício: tamanho das figuras, tamanho de botões e textos, letra (padrão, Atkinson Hyperlegible, Lexend) e cores (colorido, creme, calmo, alto contraste); som, voz, volume e velocidade da fala pelo profissional</td></tr>
+<tr><td>G06</td><td>Customização informacional</td><td>Customização</td><td>Atende</td><td>Botões com figura e palavra, só figura ou só palavra (o nome acessível não muda); informação em texto, pictograma e voz; som e música opcionais</td></tr>
+<tr><td>G07</td><td>Interfaces flexíveis</td><td>Customização</td><td>Atende</td><td>Profissional define quantidade de elementos simultâneos e tipos de exercício indisponíveis; progresso salvo; ilha escolhida livremente</td></tr>
+<tr><td>G08</td><td>Modo de leitura</td><td>Customização</td><td>Atende</td><td>“Modo leitura” na engrenagem: só o enunciado e as opções, em letra grande e cores calmas, com botão “Ouvir”; relatório do profissional imprimível</td></tr>
+<tr><td>G09</td><td>Eliminar distrações</td><td>Engajamento</td><td>Atende</td><td>Animações desligáveis, <code>prefers-reduced-motion</code>, modo de baixa estimulação; animação decorativa com no máximo 5 s</td></tr>
+<tr><td>G10</td><td>Interface minimalista</td><td>Engajamento</td><td>Atende</td><td>Um exercício por tela, uma ação por vez</td></tr>
+<tr><td>G11</td><td>Organização visual</td><td>Engajamento</td><td>Atende</td><td>Cartões espaçados; elementos relacionados agrupados</td></tr>
+<tr><td>G12</td><td>Forneça instruções</td><td>Engajamento</td><td>Atende</td><td>“TitiA explica para você” em cada exercício; menu “Ajuda / Como jogar”</td></tr>
+<tr><td>G13</td><td>Múltiplos formatos</td><td>Representações redundantes</td><td>Atende</td><td>Enunciado em texto, pictograma e voz</td></tr>
+<tr><td>G14</td><td>Equivalentes textuais</td><td>Representações redundantes</td><td>Atende</td><td>Pictogramas com rótulo visível e <code>alt</code></td></tr>
+<tr><td>G15</td><td>Legendas</td><td>Representações redundantes</td><td>Atende</td><td>TitiA lê instruções e opções em voz alta, sempre com o texto na tela</td></tr>
+<tr><td>G16</td><td>Múltiplas mídias</td><td>Multimídia</td><td>Atende</td><td>Avatar TitiA; ícone, palavra e som juntos</td></tr>
+<tr><td>G17</td><td>Ampliação de imagens</td><td>Multimídia</td><td>Atende</td><td>Pictogramas ampliáveis até 2× na engrenagem, com refluxo do layout (CSS <code>zoom</code>); pictogramas ARASAAC em alta resolução</td></tr>
+<tr><td>G18</td><td>Evite sons perturbadores</td><td>Multimídia</td><td>Atende</td><td>Tons curtos e de volume baixo; música calma opcional; efeitos desligáveis</td></tr>
+<tr><td>G19</td><td>Instruções de interação</td><td>Visibilidade do estado do sistema</td><td>Atende</td><td>Erros imediatos em linguagem simples; “Confirmar” desabilitado até haver escolha</td></tr>
+<tr><td>G20</td><td>Reverter ações</td><td>Visibilidade do estado do sistema</td><td>Atende</td><td>“Sair da atividade?” com confirmação; voltar ao mapa; “Quero outro”</td></tr>
+<tr><td>G21</td><td>Número de tentativas</td><td>Visibilidade do estado do sistema</td><td>Atende</td><td>Resposta revelada a partir da 5ª tentativa errada, com opção de tentar de novo (<code>activities.service.ts</code>)</td></tr>
+<tr><td>G22</td><td>Consistência</td><td>Reconhecimento e previsibilidade</td><td>Atende</td><td>Mesmos controles e comportamentos em todas as telas; links para nova aba sinalizados</td></tr>
+<tr><td>G23</td><td>Aparência clicável</td><td>Reconhecimento e previsibilidade</td><td>Atende</td><td>Botões grandes (44 px ou mais) com borda ou sombra</td></tr>
+<tr><td>G24</td><td>Feedback de interação</td><td>Reconhecimento e previsibilidade</td><td>Atende</td><td>Feedback imediato ao lado do elemento; estado <code>disabled</code> visível</td></tr>
+<tr><td>G25</td><td>Navegação simples</td><td>Navegabilidade</td><td>Atende</td><td>Navegação consistente; “Atividade X de Y” e barras de progresso; sair, mapa e ajuda sempre disponíveis</td></tr>
+<tr><td>G26</td><td>Evitar redirecionamentos</td><td>Navegabilidade</td><td>Atende</td><td>Sem redirecionamento automático nem limite de tempo nas tarefas</td></tr>
+<tr><td>G27</td><td>Confirmação de ações</td><td>Resposta às ações</td><td>Atende</td><td>Feedback imediato em texto, som e imagem, sem imagens de emoção negativa</td></tr>
+<tr><td>G28</td><td>Sensibilidade adequada</td><td>Interação com tela sensível ao toque</td><td>Atende</td><td>Resposta só vale após “Confirmar”; “Quero outro” exige segurar 0,6 s (configurável pelo profissional; teclado ativa na hora); toque duplo não envia a resposta duas vezes; <code>touch-action: manipulation</code>; “Encerrar atendimento” pede confirmação</td></tr>
+</tbody></table>
+
+<h2 class="page-break">Apêndice C — As 51 habilidades BNCC adicionadas na ontologia v0.6.0</h2>
+<table class="dense tiny"><thead><tr><th>Código</th><th>Unidade temática</th><th>Objeto(s) de conhecimento (texto oficial)</th><th>Conceitos (<code>addressesMathematicalConcept</code>)</th><th>Cobertura atual</th></tr></thead><tbody>
+<tr><td>EF01MA02</td><td>Números</td><td>Quantificação de elementos de uma coleção: estimativas, contagem um a um, pareamento ou outros agrupamentos e comparação</td><td><code>CountingConcept</code></td><td>PARTIALLY_COVERED</td></tr>
+<tr><td>EF01MA04</td><td>Números</td><td>Leitura, escrita e comparação de números naturais (até 100) · Reta numérica</td><td><code>CountingConcept</code>, <code>NumberConcept</code></td><td>PARTIALLY_COVERED</td></tr>
+<tr><td>EF01MA05</td><td>Números</td><td>Leitura, escrita e comparação de números naturais (até 100) · Reta numérica</td><td><code>NumberConcept</code>, <code>ComparisonConcept</code></td><td>PARTIALLY_COVERED</td></tr>
+<tr><td>EF01MA09</td><td>Álgebra</td><td>Padrões figurais e numéricos: investigação de regularidades ou padrões em sequências</td><td><code>SequencePatternConcept</code>, <code>ComparisonConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF01MA10</td><td>Álgebra</td><td>Sequências recursivas: observação de regras usadas utilizadas em seriações numéricas (mais 1, mais 2, menos 1, menos 2, por exemplo)</td><td><code>SequencePatternConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF01MA11</td><td>Geometria</td><td>Localização de objetos e de pessoas no espaço, utilizando diversos pontos de referência e vocabulário apropriado</td><td><code>SpatialLocationConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF01MA12</td><td>Geometria</td><td>Localização de objetos e de pessoas no espaço, utilizando diversos pontos de referência e vocabulário apropriado</td><td><code>SpatialLocationConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF01MA13</td><td>Geometria</td><td>Figuras geométricas espaciais: reconhecimento e relações com objetos familiares do mundo físico</td><td><code>SpatialFigureConcept</code></td><td>PARTIALLY_COVERED</td></tr>
+<tr><td>EF01MA15</td><td>Grandezas e medidas</td><td>Medidas de comprimento, massa e capacidade: comparações e unidades de medida não convencionais</td><td><code>MeasurementConcept</code>, <code>ComparisonConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF01MA16</td><td>Grandezas e medidas</td><td>Medidas de tempo: unidades de medida de tempo, suas relações e o uso do calendário</td><td><code>TimeMeasurementConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF01MA17</td><td>Grandezas e medidas</td><td>Medidas de tempo: unidades de medida de tempo, suas relações e o uso do calendário</td><td><code>TimeMeasurementConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF01MA18</td><td>Grandezas e medidas</td><td>Medidas de tempo: unidades de medida de tempo, suas relações e o uso do calendário</td><td><code>TimeMeasurementConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF01MA19</td><td>Grandezas e medidas</td><td>Sistema monetário brasileiro: reconhecimento de cédulas e moedas</td><td><code>MoneyConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF01MA20</td><td>Probabilidade e estatística</td><td>Noção de acaso</td><td><code>ProbabilityConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF01MA21</td><td>Probabilidade e estatística</td><td>Leitura de tabelas e de gráficos de colunas simples</td><td><code>DataInterpretationConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF01MA22</td><td>Probabilidade e estatística</td><td>Coleta e organização de informações · Registros pessoais para comunicação de informações coletadas</td><td><code>DataInterpretationConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF02MA02</td><td>Números</td><td>Leitura, escrita, comparação e ordenação de números de até três ordens pela compreensão de características do sistema de numeração decimal (valor posicional e papel do zero)</td><td><code>CountingConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF02MA10</td><td>Álgebra</td><td>Identificação de regularidade de sequências e determinação de elementos ausentes na sequência</td><td><code>SequencePatternConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF02MA12</td><td>Geometria</td><td>Localização e movimentação de pessoas e objetos no espaço, segundo pontos de referência, e indicação de mudanças de direção e sentido</td><td><code>SpatialLocationConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF02MA13</td><td>Geometria</td><td>Esboço de roteiros e de plantas simples</td><td><code>SpatialLocationConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF02MA16</td><td>Grandezas e medidas</td><td>Medida de comprimento: unidades não padronizadas e padronizadas (metro, centímetro e milímetro)</td><td><code>MeasurementConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF02MA17</td><td>Grandezas e medidas</td><td>Medida de capacidade e de massa: unidades de medida não convencionais e convencionais (litro, mililitro, cm³, grama e quilograma)</td><td><code>MeasurementConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF02MA19</td><td>Grandezas e medidas</td><td>Medidas de tempo: intervalo de tempo, uso do calendário, leitura de horas em relógios digitais e ordenação de datas</td><td><code>TimeMeasurementConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF02MA20</td><td>Grandezas e medidas</td><td>Sistema monetário brasileiro: reconhecimento de cédulas e moedas e equivalência de valores</td><td><code>MoneyConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF02MA21</td><td>Probabilidade e estatística</td><td>Análise da ideia de aleatório em situações do cotidiano</td><td><code>ProbabilityConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF02MA22</td><td>Probabilidade e estatística</td><td>Coleta, classificação e representação de dados em tabelas simples e de dupla entrada e em gráficos de colunas</td><td><code>DataInterpretationConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF02MA23</td><td>Probabilidade e estatística</td><td>Coleta, classificação e representação de dados em tabelas simples e de dupla entrada e em gráficos de colunas</td><td><code>DataInterpretationConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF03MA05</td><td>Números</td><td>Procedimentos de cálculo (mental e escrito) com números naturais: adição e subtração</td><td><code>AdditionConcept</code>, <code>SubtractionConcept</code>, <code>EarlyProblemSolvingConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF03MA12</td><td>Geometria</td><td>Localização e movimentação: representação de objetos e pontos de referência</td><td><code>SpatialLocationConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF03MA16</td><td>Geometria</td><td>Congruência de figuras geométricas planas</td><td><code>CongruenceConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF03MA17</td><td>Grandezas e medidas</td><td>Significado de medida e de unidade de medida</td><td><code>MeasurementConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF03MA19</td><td>Grandezas e medidas</td><td>Medidas de comprimento (unidades não convencionais e convencionais): registro, instrumentos de medida, estimativas e comparações</td><td><code>MeasurementConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF03MA20</td><td>Grandezas e medidas</td><td>Medidas de capacidade e de massa (unidades não convencionais e convencionais): registro, estimativas e comparações</td><td><code>MeasurementConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF03MA21</td><td>Grandezas e medidas</td><td>Comparação de áreas por superposição</td><td><code>AreaPerimeterConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF03MA25</td><td>Probabilidade e estatística</td><td>Análise da ideia de acaso em situações do cotidiano: espaço amostral</td><td><code>ProbabilityConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF03MA26</td><td>Probabilidade e estatística</td><td>Leitura, interpretação e representação de dados em tabelas de dupla entrada e gráficos de barras</td><td><code>DataInterpretationConcept</code>, <code>EarlyProblemSolvingConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF03MA27</td><td>Probabilidade e estatística</td><td>Leitura, interpretação e representação de dados em tabelas de dupla entrada e gráficos de barras</td><td><code>DataInterpretationConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF03MA28</td><td>Probabilidade e estatística</td><td>Coleta, classificação e representação de dados referentes a variáveis categóricas, por meio de tabelas e gráficos</td><td><code>DataInterpretationConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF04MA04</td><td>Números</td><td>Propriedades das operações para o desenvolvimento de diferentes estratégias de cálculo com números naturais</td><td><code>AdditionConcept</code>, <code>SubtractionConcept</code>, <code>MultiplicationConcept</code>, <code>DivisionConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF04MA05</td><td>Números</td><td>Propriedades das operações para o desenvolvimento de diferentes estratégias de cálculo com números naturais</td><td><code>AdditionConcept</code>, <code>MultiplicationConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF04MA13</td><td>Álgebra</td><td>Relações entre adição e subtração e entre multiplicação e divisão</td><td><code>AdditionConcept</code>, <code>SubtractionConcept</code>, <code>MultiplicationConcept</code>, <code>DivisionConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF04MA16</td><td>Geometria</td><td>Localização e movimentação: pontos de referência, direção e sentido · Paralelismo e perpendicularismo</td><td><code>SpatialLocationConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF04MA24</td><td>Grandezas e medidas</td><td>Medidas de temperatura em grau Celsius: construção de gráficos para indicar a variação da temperatura (mínima e máxima) medida em um dado dia ou em uma semana</td><td><code>MeasurementConcept</code>, <code>DataInterpretationConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF04MA26</td><td>Probabilidade e estatística</td><td>Análise de chances de eventos aleatórios</td><td><code>ProbabilityConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF04MA28</td><td>Probabilidade e estatística</td><td>Diferenciação entre variáveis categóricas e variáveis numéricas · Coleta, classificação e representação de dados de pesquisa realizada</td><td><code>DataInterpretationConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF05MA14</td><td>Geometria</td><td>Plano cartesiano: coordenadas cartesianas (1º quadrante) e representação de deslocamentos no plano cartesiano</td><td><code>CoordinateLocationConcept</code>, <code>SpatialLocationConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF05MA18</td><td>Geometria</td><td>Ampliação e redução de figuras poligonais em malhas quadriculadas: reconhecimento da congruência dos ângulos e da proporcionalidade dos lados correspondentes</td><td><code>SimilarityConcept</code>, <code>PolygonConcept</code>, <code>AngleConcept</code>, <code>ProportionalityConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF05MA21</td><td>Grandezas e medidas</td><td>Noção de volume</td><td><code>MeasurementConcept</code>, <code>SpatialFigureConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF05MA22</td><td>Probabilidade e estatística</td><td>Espaço amostral: análise de chances de eventos aleatórios</td><td><code>ProbabilityConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF05MA23</td><td>Probabilidade e estatística</td><td>Cálculo de probabilidade de eventos equiprováveis</td><td><code>ProbabilityConcept</code></td><td>NOT_COVERED</td></tr>
+<tr><td>EF05MA25</td><td>Probabilidade e estatística</td><td>Leitura, coleta, classificação interpretação e representação de dados em tabelas de dupla entrada, gráfico de colunas agrupadas, gráficos pictóricos e gráfico de linhas</td><td><code>DataInterpretationConcept</code></td><td>NOT_COVERED</td></tr>
+</tbody></table>
+</body></html>
