@@ -1,0 +1,13 @@
+# CQ08 Em que trecho da BNCC se apoia cada relação direta de pré-requisito entre conceitos?
+PREFIX cc: <https://contacomigo.org/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?anterior ?dependente ?fundamentacao WHERE {
+  ?r a cc:PrerequisiteRelation ;
+     cc:prerequisiteConcept ?a ; cc:dependentConcept ?d ;
+     rdfs:comment ?fundamentacao .
+  FILTER(langMatches(lang(?fundamentacao), "pt-BR"))
+  ?a rdfs:label ?anterior . FILTER(langMatches(lang(?anterior), "pt-BR"))
+  ?d rdfs:label ?dependente . FILTER(langMatches(lang(?dependente), "pt-BR"))
+} ORDER BY ?anterior ?dependente

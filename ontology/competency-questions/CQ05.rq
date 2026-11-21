@@ -1,0 +1,11 @@
+# CQ05 Quais habilidades do 4º e do 5º ano mobilizam conceitos que dependem, direta ou indiretamente, da multiplicação?
+PREFIX cc: <https://contacomigo.org/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?codigo (GROUP_CONCAT(DISTINCT ?conceito; separator=", ") AS ?conceitosDependentes) WHERE {
+  cc:MultiplicationConcept cc:isPrerequisiteOf ?c .
+  ?h cc:addressesMathematicalConcept ?c ; cc:hasCurriculumCode ?codigo .
+  { ?h a cc:BNCCYear4Skill } UNION { ?h a cc:BNCCYear5Skill }
+  ?c rdfs:label ?conceito . FILTER(langMatches(lang(?conceito), "pt-BR"))
+} GROUP BY ?codigo ORDER BY ?codigo

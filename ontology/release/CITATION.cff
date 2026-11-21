@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "Se usar esta ontologia, cite-a conforme os metadados abaixo."
+type: dataset
+title: "Ontologia ContaComigo"
+version: "0.7.0"
+date-released: "2026-11-21"
+license: CC-BY-4.0
+authors:
+  - family-names: "Jeremias"
+    given-names: "Richard"
+keywords:
+  - ontologia
+  - OWL
+  - BNCC
+  - matemática
+  - anos iniciais
+  - Transtorno do Espectro Autista
+  - sistemas tutores inteligentes
+abstract: >-
+  Ontologia de domínio OWL 2 DL para o ensino de matemática do 1º ao 5º ano
+  a crianças com Transtorno do Espectro Autista. Representa as 126 habilidades
+  de Matemática da BNCC dessa etapa, conceitos matemáticos, relações de
+  pré-requisito fundamentadas na BNCC e características de atividades.

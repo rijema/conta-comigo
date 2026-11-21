@@ -1,0 +1,11 @@
+# CQ03 Quais conceitos matemáticos a habilidade EF03MA07 mobiliza, e qual o estado desse mapeamento?
+PREFIX cc: <https://contacomigo.org/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?conceito ?estadoMapeamento WHERE {
+  ?h cc:hasCurriculumCode "EF03MA07" ;
+     cc:addressesMathematicalConcept ?c ;
+     cc:conceptMappingStatus ?estadoMapeamento .
+  ?c rdfs:label ?conceito . FILTER(langMatches(lang(?conceito), "pt-BR"))
+} ORDER BY ?conceito

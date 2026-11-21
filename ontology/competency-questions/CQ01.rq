@@ -1,0 +1,10 @@
+# CQ01 Quais habilidades do 3º ano pertencem à unidade temática Números? (classes definidas; pertença inferida pelo raciocinador)
+PREFIX cc: <https://contacomigo.org/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?codigo ?descricao WHERE {
+  ?h a cc:BNCCYear3Skill , cc:BNCCNumbersSkill ;
+     cc:hasCurriculumCode ?codigo ;
+     cc:hasOfficialDescription ?descricao .
+} ORDER BY ?codigo

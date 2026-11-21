@@ -1,0 +1,10 @@
+# CQ02 Quantas habilidades há em cada ano e em cada unidade temática? (classes definidas)
+PREFIX cc: <https://contacomigo.org/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?ano ?unidade (COUNT(DISTINCT ?h) AS ?habilidades) WHERE {
+  ?h a cc:BNCCSkill ; cc:belongsToGrade ?g ; cc:belongsToCurriculumDomain ?d .
+  ?g rdfs:label ?ano . FILTER(langMatches(lang(?ano), "pt-BR"))
+  ?d rdfs:label ?unidade . FILTER(langMatches(lang(?unidade), "pt-BR"))
+} GROUP BY ?ano ?unidade ORDER BY ?ano ?unidade

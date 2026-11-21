@@ -1,0 +1,10 @@
+# CQ04 Quais conceitos são pré-requisitos, diretos ou indiretos, do conceito de porcentagem? (propriedade transitiva inferida)
+PREFIX cc: <https://contacomigo.org/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?preRequisito ?direto WHERE {
+  ?c cc:isPrerequisiteOf cc:PercentageConcept .
+  ?c rdfs:label ?preRequisito . FILTER(langMatches(lang(?preRequisito), "pt-BR"))
+  BIND(EXISTS { ?r cc:prerequisiteConcept ?c ; cc:dependentConcept cc:PercentageConcept } AS ?direto)
+} ORDER BY DESC(?direto) ?preRequisito

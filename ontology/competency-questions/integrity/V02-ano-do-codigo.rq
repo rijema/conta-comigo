@@ -1,0 +1,9 @@
+# V02 Habilidade cujo ano no código (EF0nMA..) difere do ano declarado (deve retornar zero linhas)
+PREFIX cc: <https://contacomigo.org/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?codigo ?g WHERE {
+  ?h a cc:BNCCSkill ; cc:hasCurriculumCode ?codigo ; cc:belongsToGrade ?g .
+  FILTER(STRAFTER(STR(?g), "BNCCElementaryYear") != SUBSTR(?codigo, 4, 1))
+}

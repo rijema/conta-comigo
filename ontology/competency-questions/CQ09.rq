@@ -1,0 +1,11 @@
+# CQ09 Quais famílias de atividade abordam habilidades do 1º ano, e com que representações?
+PREFIX cc: <https://contacomigo.org/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?familia (GROUP_CONCAT(DISTINCT ?codigo; separator=", ") AS ?habilidades) (GROUP_CONCAT(DISTINCT ?rep; separator=", ") AS ?representacoes) WHERE {
+  ?f a cc:ActivityFamilyProfile ; cc:addressesBNCCSkill ?h .
+  ?h a cc:BNCCYear1Skill ; cc:hasCurriculumCode ?codigo .
+  OPTIONAL { ?f cc:hasRepresentation ?r . ?r rdfs:label ?rep . FILTER(langMatches(lang(?rep), "pt-BR")) }
+  ?f rdfs:label ?familia . FILTER(langMatches(lang(?familia), "pt-BR"))
+} GROUP BY ?familia ORDER BY ?familia

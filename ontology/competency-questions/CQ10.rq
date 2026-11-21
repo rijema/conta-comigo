@@ -1,0 +1,12 @@
+# CQ10 Quais famílias de atividade dispensam arrastar e oferecem alternativa por teclado? (WCAG 2.2, critério 2.5.7)
+PREFIX cc: <https://contacomigo.org/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?familia ?usaPictogramas WHERE {
+  ?f a cc:ActivityFamilyProfile ;
+     cc:requiresDragging false ;
+     cc:hasActivityAffordance cc:KeyboardAlternativeAffordance .
+  OPTIONAL { ?f cc:usesPictograms ?usaPictogramas }
+  ?f rdfs:label ?familia . FILTER(langMatches(lang(?familia), "pt-BR"))
+} ORDER BY ?familia

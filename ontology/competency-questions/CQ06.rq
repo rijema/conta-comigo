@@ -1,0 +1,9 @@
+# CQ06 Quantas habilidades de cada ano ainda não têm atividade no sistema? (retrato de cobertura; não é axioma)
+PREFIX cc: <https://contacomigo.org/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?ano (COUNT(?h) AS ?semAtividade) WHERE {
+  ?h a cc:BNCCSkill ; cc:currentActivityCoverageStatus "NOT_COVERED" ; cc:belongsToGrade ?g .
+  ?g rdfs:label ?ano . FILTER(langMatches(lang(?ano), "pt-BR"))
+} GROUP BY ?ano ORDER BY ?ano

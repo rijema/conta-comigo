@@ -1,0 +1,11 @@
+# CQ07 Quais conceitos locais foram alinhados à OntoMathEdu, e com que relação?
+PREFIX cc: <https://contacomigo.org/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?conceitoLocal ?relacao ?iriOntoMathEdu WHERE {
+  ?c cc:sourceOntology <http://ontomathpro.org/ontomathedu#> ;
+     cc:alignmentRelation ?relacao .
+  OPTIONAL { ?c cc:sourceIRI ?iriOntoMathEdu }
+  ?c rdfs:label ?conceitoLocal . FILTER(langMatches(lang(?conceitoLocal), "pt-BR"))
+} ORDER BY ?relacao ?conceitoLocal

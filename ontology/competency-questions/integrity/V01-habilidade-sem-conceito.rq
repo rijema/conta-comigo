@@ -1,0 +1,6 @@
+# V01 Habilidade BNCC sem conceito matemático (deve retornar zero linhas)
+PREFIX cc: <https://contacomigo.org/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?h WHERE { ?h a cc:BNCCSkill . FILTER NOT EXISTS { ?h cc:addressesMathematicalConcept ?c } }
