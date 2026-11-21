@@ -1,6 +1,7 @@
 {
   "name": "conta-comigo-frontend",
   "version": "1.0.0",
+  "license": "UNLICENSED",
   "private": true,
   "packageManager": "npm@10.8.2",
   "scripts": {

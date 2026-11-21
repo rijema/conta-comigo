@@ -2,6 +2,7 @@
   "name": "conta-comigo",
   "version": "1.0.0",
   "description": "Conta Comigo - Adaptive Learning Platform for ASD",
+  "license": "UNLICENSED",
   "private": true,
   "packageManager": "npm@10.8.2",
   "scripts": {

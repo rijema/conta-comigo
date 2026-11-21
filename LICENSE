@@ -1,0 +1,46 @@
+ContaComigo — Licença de Software Proprietário
+
+Copyright (c) 2026 Richard Jeremias. Todos os direitos reservados.
+
+Programa de computador registrado no Instituto Nacional da Propriedade
+Industrial (INPI) sob o nº [NÚMERO DO REGISTRO], nos termos da Lei nº 9.609/1998.
+
+1. Titularidade. Este software, incluindo código-fonte, código-objeto,
+   documentação, esquemas de banco de dados e demais arquivos deste
+   repositório, é de titularidade exclusiva do autor acima indicado,
+   ressalvados os componentes de terceiros descritos no item 4 e a ontologia
+   descrita no item 6.
+
+2. Restrições. Salvo autorização prévia e por escrito do titular, é vedado:
+   (a) usar, copiar, reproduzir ou executar este software, no todo ou em parte;
+   (b) modificar, adaptar, traduzir ou criar obras derivadas;
+   (c) distribuir, sublicenciar, vender, alugar, ceder ou disponibilizar a
+       terceiros, inclusive como serviço (SaaS);
+   (d) remover ou alterar avisos de direitos autorais ou de licença.
+
+3. Avaliação acadêmica. A avaliação do sistema por bancas examinadoras,
+   orientadores e revisores da pesquisa de mestrado a que ele se vincula é
+   feita pela instância hospedada pelo titular. A esses avaliadores fica
+   permitido apenas consultar (ler) o código-fonte, as consultas SQL e os
+   scripts de análise deste repositório, exclusivamente para verificar os
+   resultados da pesquisa, sem direito de cópia, execução, redistribuição ou
+   uso para outros fins.
+
+4. Componentes de terceiros. Pictogramas, marcas, bibliotecas e demais
+   materiais de terceiros não são abrangidos por esta licença e permanecem
+   sob as licenças de seus respectivos titulares, conforme descrito em
+   THIRD_PARTY_NOTICES.md.
+
+5. Ausência de garantia. Este software é fornecido "no estado em que se
+   encontra", sem garantias de qualquer natureza, expressas ou implícitas.
+   Em nenhuma hipótese o titular será responsável por danos decorrentes do
+   uso ou da impossibilidade de uso do software.
+
+6. Ontologia. A ontologia ContaComigo (diretório ontology/contacomigo/) e os
+   scripts de verificação em ontology/reasoning/ são do mesmo autor, mas são
+   distribuídos sob a licença Creative Commons Atribuição 4.0 Internacional
+   (CC BY 4.0), https://creativecommons.org/licenses/by/4.0/, conforme
+   declarado no próprio arquivo OWL (dcterms:license). Essa licença não se
+   estende ao restante do repositório.
+
+Pedidos de autorização devem ser dirigidos ao titular.

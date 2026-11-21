@@ -2,6 +2,7 @@
   "name": "conta-comigo-backend",
   "version": "1.0.0",
   "description": "Conta Comigo Backend — NestJS adaptive learning platform",
+  "license": "UNLICENSED",
   "packageManager": "npm@10.8.2",
   "scripts": {
     "build": "nest build",
