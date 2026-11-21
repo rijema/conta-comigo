@@ -1,0 +1,777 @@
+{
+ "title": "Relatório de verificação da Ontologia ContaComigo",
+ "version": "0.7.0",
+ "versionIRI": "https://contacomigo.org/ontology/0.7.0",
+ "date": "2026-11-21",
+ "sha256": "9eff31811199248c12a84e43ae6ee0f986846f621c1ac4f800c07d236e54f2f9",
+ "license": "CC BY 4.0",
+ "tools": {
+  "ROBOT": "1.9.8",
+  "OWL API": "4.5.29",
+  "HermiT": "1.4.5.456",
+  "JFact": "4.0.4",
+  "Java": "OpenJDK 27"
+ },
+ "metrics": {
+  "axioms": 3634,
+  "logicalAxioms": 1941,
+  "classes": 110,
+  "objectProperties": 35,
+  "dataProperties": 29,
+  "individuals": 220,
+  "owl2dl": true
+ },
+ "consistent": {
+  "HermiT": true,
+  "JFact": true
+ },
+ "unsatisfiable": {
+  "HermiT": 0,
+  "JFact": 0
+ },
+ "classification": {
+  "1º ano": 22,
+  "2º ano": 23,
+  "3º ano": 28,
+  "4º ano": 28,
+  "5º ano": 25,
+  "Números": 44,
+  "Álgebra": 16,
+  "Geometria": 22,
+  "Grandezas e medidas": 27,
+  "Probabilidade e estatística": 17
+ },
+ "prerequisites": [
+  {
+   "from": "Conceito de adição",
+   "to": "Conceito de ampliação e redução de figuras (semelhança)",
+   "direct": false
+  },
+  {
+   "from": "Conceito de adição",
+   "to": "Conceito de divisão",
+   "direct": false
+  },
+  {
+   "from": "Conceito de adição",
+   "to": "Conceito de fração",
+   "direct": false
+  },
+  {
+   "from": "Conceito de adição",
+   "to": "Conceito de igualdade e equivalência",
+   "direct": true
+  },
+  {
+   "from": "Conceito de adição",
+   "to": "Conceito de multiplicação",
+   "direct": true
+  },
+  {
+   "from": "Conceito de adição",
+   "to": "Conceito de porcentagem",
+   "direct": false
+  },
+  {
+   "from": "Conceito de adição",
+   "to": "Conceito de princípio multiplicativo de contagem",
+   "direct": false
+  },
+  {
+   "from": "Conceito de adição",
+   "to": "Conceito de proporcionalidade",
+   "direct": false
+  },
+  {
+   "from": "Conceito de congruência de figuras planas",
+   "to": "Conceito de ampliação e redução de figuras (semelhança)",
+   "direct": true
+  },
+  {
+   "from": "Conceito de divisão",
+   "to": "Conceito de fração",
+   "direct": true
+  },
+  {
+   "from": "Conceito de divisão",
+   "to": "Conceito de porcentagem",
+   "direct": false
+  },
+  {
+   "from": "Conceito de fração",
+   "to": "Conceito de porcentagem",
+   "direct": true
+  },
+  {
+   "from": "Conceito de geometria básica",
+   "to": "Conceito de polígono (lados e vértices)",
+   "direct": true
+  },
+  {
+   "from": "Conceito de grandezas e medidas",
+   "to": "Conceito de área e perímetro",
+   "direct": true
+  },
+  {
+   "from": "Conceito de localização e movimentação no espaço",
+   "to": "Conceito de localização por coordenadas",
+   "direct": true
+  },
+  {
+   "from": "Conceito de multiplicação",
+   "to": "Conceito de ampliação e redução de figuras (semelhança)",
+   "direct": false
+  },
+  {
+   "from": "Conceito de multiplicação",
+   "to": "Conceito de divisão",
+   "direct": true
+  },
+  {
+   "from": "Conceito de multiplicação",
+   "to": "Conceito de fração",
+   "direct": false
+  },
+  {
+   "from": "Conceito de multiplicação",
+   "to": "Conceito de porcentagem",
+   "direct": false
+  },
+  {
+   "from": "Conceito de multiplicação",
+   "to": "Conceito de princípio multiplicativo de contagem",
+   "direct": true
+  },
+  {
+   "from": "Conceito de multiplicação",
+   "to": "Conceito de proporcionalidade",
+   "direct": true
+  },
+  {
+   "from": "Conceito de número",
+   "to": "Conceito de número decimal",
+   "direct": false
+  },
+  {
+   "from": "Conceito de número",
+   "to": "Conceito de valor posicional (sistema de numeração decimal)",
+   "direct": true
+  },
+  {
+   "from": "Conceito de proporcionalidade",
+   "to": "Conceito de ampliação e redução de figuras (semelhança)",
+   "direct": true
+  },
+  {
+   "from": "Conceito de valor posicional (sistema de numeração decimal)",
+   "to": "Conceito de número decimal",
+   "direct": true
+  }
+ ],
+ "mutations": [
+  {
+   "code": "M1",
+   "error": "Habilidade associada a dois anos",
+   "detected": true
+  },
+  {
+   "code": "M2",
+   "error": "Habilidade associada a duas unidades temáticas",
+   "detected": true
+  },
+  {
+   "code": "M3",
+   "error": "Habilidade declarada também como atividade",
+   "detected": true
+  },
+  {
+   "code": "M4",
+   "error": "Ano de uma habilidade apontando para outra habilidade",
+   "detected": true
+  },
+  {
+   "code": "M5",
+   "error": "Alcance incorreto na propriedade isAddressedByActivity",
+   "detected": true
+  },
+  {
+   "code": "M6",
+   "error": "Dimensão de atividade declarada como subclasse de outra dimensão",
+   "detected": true
+  }
+ ],
+ "integrity": [
+  {
+   "code": "V01",
+   "check": "Habilidade BNCC sem conceito matemático",
+   "rows": 0
+  },
+  {
+   "code": "V02",
+   "check": "Habilidade cujo ano no código (EF0nMA..) difere do ano declarado",
+   "rows": 0
+  },
+  {
+   "code": "V03",
+   "check": "Ciclo na relação de pré-requisito inferida",
+   "rows": 0
+  },
+  {
+   "code": "V04",
+   "check": "Habilidade sem texto oficial ou sem objeto de conhecimento",
+   "rows": 0
+  }
+ ],
+ "competencyQuestions": [
+  {
+   "code": "CQ01",
+   "question": "Quais habilidades do 3º ano pertencem à unidade temática Números?",
+   "sparql": "SELECT ?codigo ?descricao WHERE {\n  ?h a cc:BNCCYear3Skill , cc:BNCCNumbersSkill ;\n     cc:hasCurriculumCode ?codigo ;\n     cc:hasOfficialDescription ?descricao .\n} ORDER BY ?codigo",
+   "columns": [
+    "Código",
+    "Descrição oficial"
+   ],
+   "rows": [
+    [
+     "EF03MA01",
+     "Ler, escrever e comparar números naturais de até a ordem de unidade de milhar, estabelecendo relações entre os registros numéricos e em língua materna."
+    ],
+    [
+     "EF03MA02",
+     "Identificar características do sistema de numeração decimal, utilizando a composição e a decomposição de número natural de até quatro ordens."
+    ],
+    [
+     "EF03MA03",
+     "Construir e utilizar fatos básicos da adição e da multiplicação para o cálculo mental ou escrito."
+    ],
+    [
+     "EF03MA04",
+     "Estabelecer a relação entre números naturais e pontos da reta numérica para utilizá-la na ordenação dos números naturais e também na construção de fatos da adição e da subtração, relacionando-os com deslocamentos para a direita ou para a esquerda."
+    ],
+    [
+     "EF03MA05",
+     "Utilizar diferentes procedimentos de cálculo mental e escrito, inclusive os convencionais, para resolver problemas significativos envolvendo adição e subtração com números naturais."
+    ],
+    [
+     "EF03MA06",
+     "Resolver e elaborar problemas de adição e subtração com os significados de juntar, acrescentar, separar, retirar, comparar e completar quantidades, utilizando diferentes estratégias de cálculo exato ou aproximado, incluindo cálculo mental."
+    ],
+    [
+     "EF03MA07",
+     "Resolver e elaborar problemas de multiplicação (por 2, 3, 4, 5 e 10) com os significados de adição de parcelas iguais e elementos apresentados em disposição retangular, utilizando diferentes estratégias de cálculo e registros."
+    ],
+    [
+     "EF03MA08",
+     "Resolver e elaborar problemas de divisão de um número natural por outro (até 10), com resto zero e com resto diferente de zero, com os significados de repartição equitativa e de medida, por meio de estratégias e registros pessoais."
+    ],
+    [
+     "EF03MA09",
+     "Associar o quociente de uma divisão com resto zero de um número natural por 2, 3, 4, 5 e 10 às ideias de metade, terça, quarta, quinta e décima partes."
+    ]
+   ]
+  },
+  {
+   "code": "CQ02",
+   "question": "Quantas habilidades há em cada ano e em cada unidade temática?",
+   "sparql": "SELECT ?ano ?unidade (COUNT(DISTINCT ?h) AS ?habilidades) WHERE {\n  ?h a cc:BNCCSkill ; cc:belongsToGrade ?g ; cc:belongsToCurriculumDomain ?d .\n  ?g rdfs:label ?ano . FILTER(langMatches(lang(?ano), \"pt-BR\"))\n  ?d rdfs:label ?unidade . FILTER(langMatches(lang(?unidade), \"pt-BR\"))\n} GROUP BY ?ano ?unidade ORDER BY ?ano ?unidade",
+   "columns": [
+    "Ano",
+    "unidade",
+    "Habilidades"
+   ],
+   "rows": [
+    [
+     "1º ano",
+     "Geometria",
+     "4"
+    ],
+    [
+     "1º ano",
+     "Grandezas e medidas",
+     "5"
+    ],
+    [
+     "1º ano",
+     "Números",
+     "8"
+    ],
+    [
+     "1º ano",
+     "Probabilidade e estatística",
+     "3"
+    ],
+    [
+     "1º ano",
+     "Álgebra",
+     "2"
+    ],
+    [
+     "2º ano",
+     "Geometria",
+     "4"
+    ],
+    [
+     "2º ano",
+     "Grandezas e medidas",
+     "5"
+    ],
+    [
+     "2º ano",
+     "Números",
+     "8"
+    ],
+    [
+     "2º ano",
+     "Probabilidade e estatística",
+     "3"
+    ],
+    [
+     "2º ano",
+     "Álgebra",
+     "3"
+    ],
+    [
+     "3º ano",
+     "Geometria",
+     "5"
+    ],
+    [
+     "3º ano",
+     "Grandezas e medidas",
+     "8"
+    ],
+    [
+     "3º ano",
+     "Números",
+     "9"
+    ],
+    [
+     "3º ano",
+     "Probabilidade e estatística",
+     "4"
+    ],
+    [
+     "3º ano",
+     "Álgebra",
+     "2"
+    ],
+    [
+     "4º ano",
+     "Geometria",
+     "4"
+    ],
+    [
+     "4º ano",
+     "Grandezas e medidas",
+     "6"
+    ],
+    [
+     "4º ano",
+     "Números",
+     "10"
+    ],
+    [
+     "4º ano",
+     "Probabilidade e estatística",
+     "3"
+    ],
+    [
+     "4º ano",
+     "Álgebra",
+     "5"
+    ],
+    [
+     "5º ano",
+     "Geometria",
+     "5"
+    ],
+    [
+     "5º ano",
+     "Grandezas e medidas",
+     "3"
+    ],
+    [
+     "5º ano",
+     "Números",
+     "9"
+    ],
+    [
+     "5º ano",
+     "Probabilidade e estatística",
+     "4"
+    ],
+    [
+     "5º ano",
+     "Álgebra",
+     "4"
+    ]
+   ]
+  },
+  {
+   "code": "CQ03",
+   "question": "Quais conceitos matemáticos a habilidade EF03MA07 mobiliza, e qual o estado desse mapeamento?",
+   "sparql": "SELECT ?conceito ?estadoMapeamento WHERE {\n  ?h cc:hasCurriculumCode \"EF03MA07\" ;\n     cc:addressesMathematicalConcept ?c ;\n     cc:conceptMappingStatus ?estadoMapeamento .\n  ?c rdfs:label ?conceito . FILTER(langMatches(lang(?conceito), \"pt-BR\"))\n} ORDER BY ?conceito",
+   "columns": [
+    "Conceito",
+    "Mapeamento"
+   ],
+   "rows": [
+    [
+     "Conceito de multiplicação",
+     "parcial"
+    ]
+   ]
+  },
+  {
+   "code": "CQ04",
+   "question": "Quais conceitos são pré-requisitos, diretos ou indiretos, do conceito de porcentagem?",
+   "sparql": "SELECT ?preRequisito ?direto WHERE {\n  ?c cc:isPrerequisiteOf cc:PercentageConcept .\n  ?c rdfs:label ?preRequisito . FILTER(langMatches(lang(?preRequisito), \"pt-BR\"))\n  BIND(EXISTS { ?r cc:prerequisiteConcept ?c ; cc:dependentConcept cc:PercentageConcept } AS ?direto)\n} ORDER BY DESC(?direto) ?preRequisito",
+   "columns": [
+    "Pré-requisito",
+    "Relação"
+   ],
+   "rows": [
+    [
+     "Conceito de fração",
+     "direta"
+    ],
+    [
+     "Conceito de adição",
+     "indireta"
+    ],
+    [
+     "Conceito de divisão",
+     "indireta"
+    ],
+    [
+     "Conceito de multiplicação",
+     "indireta"
+    ]
+   ]
+  },
+  {
+   "code": "CQ05",
+   "question": "Quais habilidades do 4º e do 5º ano mobilizam conceitos que dependem, direta ou indiretamente, da multiplicação?",
+   "sparql": "SELECT ?codigo (GROUP_CONCAT(DISTINCT ?conceito; separator=\", \") AS ?conceitosDependentes) WHERE {\n  cc:MultiplicationConcept cc:isPrerequisiteOf ?c .\n  ?h cc:addressesMathematicalConcept ?c ; cc:hasCurriculumCode ?codigo .\n  { ?h a cc:BNCCYear4Skill } UNION { ?h a cc:BNCCYear5Skill }\n  ?c rdfs:label ?conceito . FILTER(langMatches(lang(?conceito), \"pt-BR\"))\n} GROUP BY ?codigo ORDER BY ?codigo",
+   "columns": [
+    "Código",
+    "Conceitos dependentes"
+   ],
+   "rows": [
+    [
+     "EF04MA04",
+     "Conceito de divisão"
+    ],
+    [
+     "EF04MA07",
+     "Conceito de divisão"
+    ],
+    [
+     "EF04MA08",
+     "Conceito de princípio multiplicativo de contagem"
+    ],
+    [
+     "EF04MA09",
+     "Conceito de fração"
+    ],
+    [
+     "EF04MA12",
+     "Conceito de divisão"
+    ],
+    [
+     "EF04MA13",
+     "Conceito de divisão"
+    ],
+    [
+     "EF05MA03",
+     "Conceito de divisão, Conceito de fração"
+    ],
+    [
+     "EF05MA04",
+     "Conceito de fração"
+    ],
+    [
+     "EF05MA05",
+     "Conceito de fração"
+    ],
+    [
+     "EF05MA06",
+     "Conceito de porcentagem"
+    ],
+    [
+     "EF05MA08",
+     "Conceito de divisão"
+    ],
+    [
+     "EF05MA09",
+     "Conceito de princípio multiplicativo de contagem"
+    ],
+    [
+     "EF05MA12",
+     "Conceito de proporcionalidade"
+    ],
+    [
+     "EF05MA13",
+     "Conceito de proporcionalidade"
+    ],
+    [
+     "EF05MA18",
+     "Conceito de ampliação e redução de figuras (semelhança), Conceito de proporcionalidade"
+    ]
+   ]
+  },
+  {
+   "code": "CQ06",
+   "question": "Quantas habilidades de cada ano ainda não têm atividade no sistema?",
+   "sparql": "SELECT ?ano (COUNT(?h) AS ?semAtividade) WHERE {\n  ?h a cc:BNCCSkill ; cc:currentActivityCoverageStatus \"NOT_COVERED\" ; cc:belongsToGrade ?g .\n  ?g rdfs:label ?ano . FILTER(langMatches(lang(?ano), \"pt-BR\"))\n} GROUP BY ?ano ORDER BY ?ano",
+   "columns": [
+    "Ano",
+    "Habilidades"
+   ],
+   "rows": [
+    [
+     "1º ano",
+     "12"
+    ],
+    [
+     "2º ano",
+     "11"
+    ],
+    [
+     "3º ano",
+     "11"
+    ],
+    [
+     "4º ano",
+     "7"
+    ],
+    [
+     "5º ano",
+     "6"
+    ]
+   ]
+  },
+  {
+   "code": "CQ07",
+   "question": "Quais conceitos locais foram alinhados à OntoMathEdu, e com que relação?",
+   "sparql": "SELECT ?conceitoLocal ?relacao ?iriOntoMathEdu WHERE {\n  ?c cc:sourceOntology <http://ontomathpro.org/ontomathedu#> ;\n     cc:alignmentRelation ?relacao .\n  OPTIONAL { ?c cc:sourceIRI ?iriOntoMathEdu }\n  ?c rdfs:label ?conceitoLocal . FILTER(langMatches(lang(?conceitoLocal), \"pt-BR\"))\n} ORDER BY ?relacao ?conceitoLocal",
+   "columns": [
+    "Conceito local",
+    "Relação",
+    "IRI na OntoMathEdu"
+   ],
+   "rows": [
+    [
+     "Conceito matemático",
+     "adaptado",
+     "http://ontomathpro.org/ontomathedu#"
+    ],
+    [
+     "Etapa ou ano curricular",
+     "adaptado",
+     "http://ontomathpro.org/ontomathedu#EducationalLevel"
+    ],
+    [
+     "Relação de pré-requisito",
+     "adaptado",
+     "http://ontomathpro.org/ontomathedu#hasPrerequisite"
+    ],
+    [
+     "Relação didática",
+     "adaptado",
+     "http://ontomathpro.org/ontomathedu#hasPrerequisite"
+    ],
+    [
+     "conceito pré-requisito",
+     "adaptado",
+     "http://ontomathpro.org/ontomathedu#hasPrerequisite"
+    ],
+    [
+     "Conceito de ampliação e redução de figuras (semelhança)",
+     "relacionado",
+     "http://ontomathpro.org/ontomathedu#RvAZM1LoovPjUxYGZ0pWvs"
+    ],
+    [
+     "Conceito de congruência de figuras planas",
+     "relacionado",
+     "http://ontomathpro.org/ontomathedu#RLfTx5EJyjoizZm1ABPOwY"
+    ],
+    [
+     "Conceito de localização por coordenadas",
+     "relacionado",
+     "http://ontomathpro.org/ontomathedu#R7YD3X6bHdrVh0Vfk3nEWoM"
+    ],
+    [
+     "Conceito de polígono (lados e vértices)",
+     "relacionado",
+     "http://ontomathpro.org/ontomathedu#RDv25ipiTlBE1U108mKAvEj"
+    ],
+    [
+     "Conceito de ponto",
+     "relacionado",
+     "http://ontomathpro.org/ontomathedu#R71GKMyesTQoOWWvX1M74EE"
+    ],
+    [
+     "Conceito de quadrado",
+     "relacionado",
+     "http://ontomathpro.org/ontomathedu#R81puoDaG8DotyXihsGWNY6"
+    ],
+    [
+     "Conceito de retângulo",
+     "relacionado",
+     "http://ontomathpro.org/ontomathedu#R9x3QFCyHrHe0SoE3ZCZr94"
+    ],
+    [
+     "Conceito de simetria de reflexão",
+     "relacionado",
+     "http://ontomathpro.org/ontomathedu#RBZTpicxNM7cbhnJJ1IRNyX"
+    ],
+    [
+     "Conceito de ângulo",
+     "relacionado",
+     "http://ontomathpro.org/ontomathedu#R9lMyAYbMeEYN0OdD7cbwZ6"
+    ]
+   ]
+  },
+  {
+   "code": "CQ08",
+   "question": "Em que trecho da BNCC se apoia cada relação direta de pré-requisito entre conceitos?",
+   "sparql": "SELECT ?anterior ?dependente ?fundamentacao WHERE {\n  ?r a cc:PrerequisiteRelation ;\n     cc:prerequisiteConcept ?a ; cc:dependentConcept ?d ;\n     rdfs:comment ?fundamentacao .\n  FILTER(langMatches(lang(?fundamentacao), \"pt-BR\"))\n  ?a rdfs:label ?anterior . FILTER(langMatches(lang(?anterior), \"pt-BR\"))\n  ?d rdfs:label ?dependente . FILTER(langMatches(lang(?dependente), \"pt-BR\"))\n} ORDER BY ?anterior ?dependente",
+   "columns": [
+    "Conceito anterior",
+    "Conceito dependente",
+    "Fundamentação na BNCC"
+   ],
+   "rows": [
+    [
+     "Conceito de adição",
+     "Conceito de igualdade e equivalência",
+     "A BNCC constrói a ideia de igualdade com \"diferentes sentenças de adições ou de subtrações [...] que resultem na mesma soma ou diferença\" (EF03MA11)."
+    ],
+    [
+     "Conceito de adição",
+     "Conceito de multiplicação",
+     "A BNCC apresenta a multiplicação \"com a ideia de adição de parcelas iguais\" (EF02MA07) e \"com os significados de adição de parcelas iguais\" (EF03MA07)."
+    ],
+    [
+     "Conceito de congruência de figuras planas",
+     "Conceito de ampliação e redução de figuras (semelhança)",
+     "A BNCC pede \"Reconhecer figuras congruentes\" (EF03MA16) e, no 5º ano, \"a congruência dos ângulos\" em ampliações e reduções (EF05MA18). A congruência de figuras e a de ângulos não são a mesma noção; a relação foi confirmada em revisão profissional."
+    ],
+    [
+     "Conceito de divisão",
+     "Conceito de fração",
+     "A BNCC associa \"o quociente de uma divisão [...] às ideias de metade, terça, quarta, quinta e décima partes\" (EF03MA09) e frações \"ao resultado de uma divisão\" (EF05MA03)."
+    ],
+    [
+     "Conceito de fração",
+     "Conceito de porcentagem",
+     "A BNCC associa 10%, 25%, 50%, 75% e 100% \"à décima parte, quarta parte, metade, três quartos e um inteiro\" (EF05MA06)."
+    ],
+    [
+     "Conceito de geometria básica",
+     "Conceito de polígono (lados e vértices)",
+     "A BNCC progride de identificar figuras planas (EF01MA14) e reconhecer características comuns (EF02MA15) para classificá-las por lados e vértices (EF03MA15)."
+    ],
+    [
+     "Conceito de grandezas e medidas",
+     "Conceito de área e perímetro",
+     "A BNCC trata perímetro como medida de comprimento (EF04MA20) antes de comparar áreas em malha (EF04MA21)."
+    ],
+    [
+     "Conceito de localização e movimentação no espaço",
+     "Conceito de localização por coordenadas",
+     "A BNCC pede \"diferentes representações para a localização de objetos no plano, como mapas, células em planilhas eletrônicas e coordenadas geográficas, a fim de desenvolver as primeiras noções de coordenadas cartesianas\" (EF05MA14), depois de descrever localização \"por meio de malhas quadriculadas e representações como desenhos, mapas, planta baixa e croquis\" (EF04MA16)."
+    ],
+    [
+     "Conceito de multiplicação",
+     "Conceito de divisão",
+     "A BNCC pede \"as relações inversas entre as operações [...] de multiplicação e de divisão\" (EF04MA13). No 2º e 3º ano a divisão por repartição aparece junto com a multiplicação; a relação foi confirmada em revisão profissional."
+    ],
+    [
+     "Conceito de multiplicação",
+     "Conceito de princípio multiplicativo de contagem",
+     "A BNCC trata a contagem de agrupamentos pelo \"princípio multiplicativo\" (EF05MA09), combinando cada elemento de uma coleção com todos os de outra (EF04MA08)."
+    ],
+    [
+     "Conceito de multiplicação",
+     "Conceito de proporcionalidade",
+     "A BNCC lista a proporcionalidade entre os \"significados da multiplicação\" (EF04MA06) antes dos problemas de proporcionalidade direta (EF05MA12)."
+    ],
+    [
+     "Conceito de número",
+     "Conceito de valor posicional (sistema de numeração decimal)",
+     "A BNCC usa compor e decompor números \"contribuindo para a compreensão de características do sistema de numeração decimal\" (EF01MA07), ampliando para três ordens no 2º ano (EF02MA04)."
+    ],
+    [
+     "Conceito de proporcionalidade",
+     "Conceito de ampliação e redução de figuras (semelhança)",
+     "A BNCC caracteriza ampliação e redução pela \"proporcionalidade entre os lados correspondentes de figuras poligonais\" (EF05MA18)."
+    ],
+    [
+     "Conceito de valor posicional (sistema de numeração decimal)",
+     "Conceito de número decimal",
+     "A BNCC pede reconhecer \"que as regras do sistema de numeração decimal podem ser estendidas para a representação decimal\" (EF04MA10)."
+    ]
+   ]
+  },
+  {
+   "code": "CQ09",
+   "question": "Quais famílias de atividade abordam habilidades do 1º ano, e com que representações?",
+   "sparql": "SELECT ?familia (GROUP_CONCAT(DISTINCT ?codigo; separator=\", \") AS ?habilidades) (GROUP_CONCAT(DISTINCT ?rep; separator=\", \") AS ?representacoes) WHERE {\n  ?f a cc:ActivityFamilyProfile ; cc:addressesBNCCSkill ?h .\n  ?h a cc:BNCCYear1Skill ; cc:hasCurriculumCode ?codigo .\n  OPTIONAL { ?f cc:hasRepresentation ?r . ?r rdfs:label ?rep . FILTER(langMatches(lang(?rep), \"pt-BR\")) }\n  ?f rdfs:label ?familia . FILTER(langMatches(lang(?familia), \"pt-BR\"))\n} GROUP BY ?familia ORDER BY ?familia",
+   "columns": [
+    "Família de atividades",
+    "Habilidades",
+    "Representações"
+   ],
+   "rows": [
+    [
+     "Família de atividades de arrastar e soltar",
+     "EF01MA06, EF01MA01, EF01MA03",
+     "Representação pictórica, Representação simbólica"
+    ],
+    [
+     "Família de atividades de contagem",
+     "EF01MA01, EF01MA06",
+     "Representação pictórica, Representação simbólica"
+    ],
+    [
+     "Família de atividades de questionário",
+     "EF01MA06, EF01MA03, EF01MA07",
+     "Representação textual, Representação simbólica, Representação pictórica"
+    ]
+   ]
+  },
+  {
+   "code": "CQ10",
+   "question": "Quais famílias de atividade dispensam arrastar e oferecem alternativa por teclado?",
+   "sparql": "SELECT ?familia ?usaPictogramas WHERE {\n  ?f a cc:ActivityFamilyProfile ;\n     cc:requiresDragging false ;\n     cc:hasActivityAffordance cc:KeyboardAlternativeAffordance .\n  OPTIONAL { ?f cc:usesPictograms ?usaPictogramas }\n  ?f rdfs:label ?familia . FILTER(langMatches(lang(?familia), \"pt-BR\"))\n} ORDER BY ?familia",
+   "columns": [
+    "Família de atividades",
+    "Usa pictogramas"
+   ],
+   "rows": [
+    [
+     "Família de atividades de arrastar e soltar",
+     "sim"
+    ],
+    [
+     "Família de atividades de contagem",
+     "sim"
+    ],
+    [
+     "Família de atividades de múltipla escolha",
+     "sim"
+    ],
+    [
+     "Família de atividades de questionário",
+     "sim"
+    ],
+    [
+     "Família de atividades de reta numérica",
+     "não"
+    ]
+   ]
+  }
+ ]
+}

@@ -13,6 +13,15 @@ const nextConfig = {
   async headers() {
     return [
       {
+        // Hidden sandbox and the ontology files it publishes stay out of search engines.
+        source: "/:path*/dev/:rest*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
+      {
+        source: "/dev/:rest*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
+      {
         source: "/(.*)",
         headers: [
           {

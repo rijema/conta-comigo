@@ -202,6 +202,9 @@ export function ActivitySandbox() {
         <p className="text-xl font-bold text-red-600">Erro ao carregar exercícios</p>
         <pre className="rounded-xl bg-red-50 p-4 text-sm text-red-800">{error}</pre>
         <p className="text-slate-500 text-sm">Verifique se o backend está rodando em <code>{API_BASE}</code></p>
+        <a href="?view=ontologia" className="rounded-xl border border-purple-300 px-3 py-1 text-sm font-bold text-purple-800 hover:bg-purple-50">
+          Ontologia
+        </a>
       </div>
     );
   }
@@ -248,6 +251,9 @@ export function ActivitySandbox() {
             <span className="text-sm text-slate-500 font-mono">
               {index + 1} / {filtered.length}
             </span>
+            <a href="?view=ontologia" className="rounded-xl border border-purple-300 px-3 py-1 text-xs font-bold text-purple-800 hover:bg-purple-50">
+              Ontologia
+            </a>
           </div>
 
           {/* Filters */}
