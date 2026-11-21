@@ -15,7 +15,15 @@
   <owl:Ontology rdf:about="https://contacomigo.org/ontology">
     <rdfs:label xml:lang="pt-BR">Ontologia ContaComigo</rdfs:label>
     <rdfs:comment xml:lang="pt-BR">Fundação semântica educacional para matemática inicial. Esta versão não importa nem executa a OntoMathEdu.</rdfs:comment>
-    <owl:versionInfo>0.6.0</owl:versionInfo>
+    <owl:versionIRI rdf:resource="https://contacomigo.org/ontology/0.7.0"/>
+    <owl:priorVersion rdf:resource="https://contacomigo.org/ontology/0.6.0"/>
+    <owl:versionInfo>0.7.0</owl:versionInfo>
+    <dcterms:title xml:lang="pt-BR">Ontologia ContaComigo</dcterms:title>
+    <dcterms:title xml:lang="en">ContaComigo Ontology</dcterms:title>
+    <dcterms:description xml:lang="pt-BR">Ontologia de domínio para o ensino de matemática nos anos iniciais (1º ao 5º ano) a crianças com Transtorno do Espectro Autista. Representa as 126 habilidades de Matemática da BNCC para essa etapa, os conceitos matemáticos que elas mobilizam, relações de pré-requisito fundamentadas no texto da BNCC, as características das atividades do sistema ContaComigo e o vocabulário de evidências de interação. Não contém dados de estudantes.</dcterms:description>
+    <dcterms:creator>Richard Jeremias</dcterms:creator>
+    <dcterms:license rdf:resource="https://creativecommons.org/licenses/by/4.0/"/>
+    <skos:changeNote xml:lang="pt-BR">v0.7.0: formalização lógica prevista no BATCH_02 (OntoMathEdu) após a validação por questões de competência. (1) Disjunção entre as cinco camadas de conhecimento, entre os elementos da estrutura curricular, entre atividade e característica de atividade, entre as dimensões de caracterização de atividades e entre conceito matemático e relação didática; (2) propriedades funcionais para ano, unidade temática, currículo, código curricular e para os extremos de cada relação de pré-requisito, com indivíduos de ano e de unidade temática declarados distintos; (3) restrições existenciais necessárias para habilidade BNCC e relação de pré-requisito; (4) propriedade transitiva cc:isPrerequisiteOf, derivada das relações reificadas por cadeia de propriedades; (5) dez classes definidas pela organização da BNCC (cinco anos e cinco unidades temáticas), classificadas pelo raciocinador; (6) declaração dos termos externos (Dublin Core, SKOS e PROV-O) usados sem importação, deixando o arquivo em OWL 2 DL; (7) metadados de título, descrição, autoria, licença e IRI de versão; (8) as relações de pré-requisito e os mapeamentos habilidade-conceito passam a constar como revisados por profissional. As decisões sobre o aprendiz (BATCH_02, modelo do aprendiz) foram mantidas: nenhum axioma de diagnóstico, limiar numérico ou disjunção entre força e necessidade de apoio. Nenhuma IRI existente foi removida ou renomeada.</skos:changeNote>
     <skos:changeNote xml:lang="pt-BR">v0.6.0: (1) as 126 habilidades de Matemática do 1º ao 5º ano da BNCC passam a ter indivíduo próprio (51 novas: 16 do 1º ano, 11 do 2º, 11 do 3º, 7 do 4º e 6 do 5º), com texto oficial, unidade temática, ano, objeto de conhecimento e conceitos matemáticos; (2) nova propriedade cc:hasKnowledgeObject preenchida para as 126 habilidades a partir dos quadros oficiais; (3) novos conceitos locais SpatialLocationConcept, ProbabilityConcept, CongruenceConcept e SimilarityConcept; (4) três novas relações de pré-requisito fundamentadas no texto da BNCC; (5) alinhamentos related com classes confirmadas da OntoMathEdu para polígono, simetria axial, sistema de coordenadas cartesianas, figuras congruentes e figuras semelhantes; (6) rastreabilidade LASDONT para Activity, tipos de atividade e rótulo legado de dificuldade; (7) rótulos pt-BR para todas as entidades, cc:conceptOrigin em todas as classes e correção do alcance de cc:isAddressedByActivity para cc:Activity (coerente com o inverso cc:addressesCurriculumSkill). Nenhuma IRI existente foi removida ou renomeada.</skos:changeNote>
     <dcterms:source rdf:resource="http://ontomathpro.org/ontomathedu#"/>
     <dcterms:source rdf:resource="https://github.com/CLLKazan/OntoMathEdu"/>
@@ -79,7 +87,7 @@
   <owl:AnnotationProperty rdf:about="https://contacomigo.org/ontology#relationReviewStatus">
     <rdfs:label xml:lang="en">relation review status</rdfs:label>
     <rdfs:label xml:lang="pt-BR">situação de revisão da relação</rdfs:label>
-    <rdfs:comment xml:lang="en">Provenance of a didactic relation: grounded_in_bncc_text, or needs_professional_review when the BNCC text supports it only partially.</rdfs:comment>
+    <rdfs:comment xml:lang="en">Provenance of a didactic relation: grounded_in_bncc_text, or reviewed_by_professional when the BNCC text supports it only partially and a professional confirmed it.</rdfs:comment>
   </owl:AnnotationProperty>
   <owl:AnnotationProperty rdf:about="https://contacomigo.org/ontology#analyticsSourceEventType">
     <rdfs:label xml:lang="en">analytics source event type</rdfs:label>
@@ -1611,7 +1619,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <rdfs:comment xml:lang="pt-BR">Há exercícios semeados que declaram esta habilidade por meio de geradores paramétricos (activity-pools, interactive-formats ou exercises-77-breaking-cycle); a contagem não é materializada porque depende da expansão dos geradores.</rdfs:comment>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF01MA04">
@@ -1629,7 +1637,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <rdfs:comment xml:lang="pt-BR">Há exercícios semeados que declaram esta habilidade por meio de geradores paramétricos (activity-pools, interactive-formats ou exercises-77-breaking-cycle); a contagem não é materializada porque depende da expansão dos geradores.</rdfs:comment>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF01MA05">
@@ -1647,7 +1655,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <rdfs:comment xml:lang="pt-BR">Há exercícios semeados que declaram esta habilidade por meio de geradores paramétricos (activity-pools, interactive-formats ou exercises-77-breaking-cycle); a contagem não é materializada porque depende da expansão dos geradores.</rdfs:comment>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF01MA09">
@@ -1664,7 +1672,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF01MA10">
@@ -1680,7 +1688,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF01MA11">
@@ -1696,7 +1704,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF01MA12">
@@ -1712,7 +1720,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF01MA13">
@@ -1728,7 +1736,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF01MA15">
@@ -1745,7 +1753,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF01MA16">
@@ -1761,7 +1769,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF01MA17">
@@ -1777,7 +1785,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF01MA18">
@@ -1793,7 +1801,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF01MA19">
@@ -1809,7 +1817,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF01MA20">
@@ -1825,7 +1833,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF01MA21">
@@ -1841,7 +1849,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF01MA22">
@@ -1858,7 +1866,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
 
@@ -1876,7 +1884,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">3</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA02">
@@ -1892,7 +1900,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA03">
@@ -1909,7 +1917,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA04">
@@ -1926,7 +1934,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA05">
@@ -1943,7 +1951,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA06">
@@ -1961,7 +1969,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA07">
@@ -1978,7 +1986,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA08">
@@ -1995,7 +2003,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA09">
@@ -2011,7 +2019,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA10">
@@ -2027,7 +2035,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA11">
@@ -2043,7 +2051,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA12">
@@ -2059,7 +2067,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA13">
@@ -2075,7 +2083,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA14">
@@ -2091,7 +2099,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA15">
@@ -2107,7 +2115,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA16">
@@ -2123,7 +2131,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA17">
@@ -2139,7 +2147,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA18">
@@ -2155,7 +2163,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA19">
@@ -2171,7 +2179,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA20">
@@ -2187,7 +2195,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA21">
@@ -2203,7 +2211,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA22">
@@ -2219,7 +2227,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF02MA23">
@@ -2235,7 +2243,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA01">
@@ -2252,7 +2260,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">3</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA02">
@@ -2268,7 +2276,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA03">
@@ -2286,7 +2294,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA04">
@@ -2305,7 +2313,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA05">
@@ -2323,7 +2331,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA06">
@@ -2341,7 +2349,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA07">
@@ -2357,7 +2365,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">4</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA08">
@@ -2373,7 +2381,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">3</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA09">
@@ -2390,7 +2398,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA10">
@@ -2406,7 +2414,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA11">
@@ -2422,7 +2430,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA12">
@@ -2438,7 +2446,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA13">
@@ -2454,7 +2462,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA14">
@@ -2470,7 +2478,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA15">
@@ -2486,7 +2494,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">7</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA16">
@@ -2502,7 +2510,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA17">
@@ -2518,7 +2526,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA18">
@@ -2534,7 +2542,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA19">
@@ -2550,7 +2558,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA20">
@@ -2566,7 +2574,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA21">
@@ -2582,7 +2590,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA22">
@@ -2598,7 +2606,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA23">
@@ -2614,7 +2622,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA24">
@@ -2630,7 +2638,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA25">
@@ -2646,7 +2654,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA26">
@@ -2663,7 +2671,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA27">
@@ -2679,7 +2687,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF03MA28">
@@ -2695,7 +2703,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA01">
@@ -2712,7 +2720,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">3</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA02">
@@ -2728,7 +2736,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA03">
@@ -2746,7 +2754,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA04">
@@ -2765,7 +2773,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA05">
@@ -2782,7 +2790,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA06">
@@ -2798,7 +2806,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">3</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA07">
@@ -2814,7 +2822,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA08">
@@ -2830,7 +2838,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA09">
@@ -2846,7 +2854,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">3</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA10">
@@ -2863,7 +2871,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA11">
@@ -2880,7 +2888,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA12">
@@ -2897,7 +2905,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA13">
@@ -2916,7 +2924,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA14">
@@ -2932,7 +2940,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA15">
@@ -2948,7 +2956,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA16">
@@ -2965,7 +2973,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA17">
@@ -2981,7 +2989,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA18">
@@ -2997,7 +3005,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA19">
@@ -3013,7 +3021,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA20">
@@ -3029,7 +3037,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA21">
@@ -3045,7 +3053,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA22">
@@ -3061,7 +3069,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA23">
@@ -3077,7 +3085,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA24">
@@ -3094,7 +3102,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA25">
@@ -3111,7 +3119,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA26">
@@ -3127,7 +3135,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA27">
@@ -3143,7 +3151,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF04MA28">
@@ -3160,7 +3168,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA01">
@@ -3177,7 +3185,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA02">
@@ -3193,7 +3201,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA03">
@@ -3210,7 +3218,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA04">
@@ -3226,7 +3234,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA05">
@@ -3244,7 +3252,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA06">
@@ -3260,7 +3268,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA07">
@@ -3278,7 +3286,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA08">
@@ -3296,7 +3304,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA09">
@@ -3312,7 +3320,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA10">
@@ -3328,7 +3336,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA11">
@@ -3344,7 +3352,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA12">
@@ -3361,7 +3369,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA13">
@@ -3378,7 +3386,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA14">
@@ -3395,7 +3403,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA15">
@@ -3411,7 +3419,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA16">
@@ -3427,7 +3435,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA17">
@@ -3444,7 +3452,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA18">
@@ -3463,7 +3471,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA19">
@@ -3479,7 +3487,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA20">
@@ -3495,7 +3503,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA21">
@@ -3512,7 +3520,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA22">
@@ -3528,7 +3536,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA23">
@@ -3544,7 +3552,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA24">
@@ -3560,7 +3568,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>PARTIALLY_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.5.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#BNCC_EF05MA25">
@@ -3576,7 +3584,7 @@
     <cc:conceptMappingStatus>partial</cc:conceptMappingStatus>
     <cc:currentActivityCoverageStatus>NOT_COVERED</cc:currentActivityCoverageStatus>
     <cc:currentActivityCount rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</cc:currentActivityCount>
-    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial; aguarda revisão profissional.</rdfs:comment>
+    <rdfs:comment xml:lang="pt-BR">Mapeamento habilidade-conceito proposto pelo ContaComigo (v0.6.0) a partir do texto oficial e revisado por profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
 
@@ -3617,8 +3625,8 @@
     <cc:prerequisiteConcept rdf:resource="https://contacomigo.org/ontology#MultiplicationConcept"/>
     <cc:dependentConcept rdf:resource="https://contacomigo.org/ontology#DivisionConcept"/>
     <cc:mappingOrigin>ContaComigo semantic analysis of BNCC EF04MA04; EF04MA13</cc:mappingOrigin>
-    <cc:relationReviewStatus>needs_professional_review</cc:relationReviewStatus>
-    <rdfs:comment xml:lang="pt-BR">A BNCC pede "as relações inversas entre as operações [...] de multiplicação e de divisão" (EF04MA13). No 2º e 3º ano a divisão por repartição aparece junto com a multiplicação; por isso esta relação requer revisão profissional.</rdfs:comment>
+    <cc:relationReviewStatus>reviewed_by_professional</cc:relationReviewStatus>
+    <rdfs:comment xml:lang="pt-BR">A BNCC pede "as relações inversas entre as operações [...] de multiplicação e de divisão" (EF04MA13). No 2º e 3º ano a divisão por repartição aparece junto com a multiplicação; a relação foi confirmada em revisão profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="https://contacomigo.org/ontology#Prerequisite_DivisionToFraction">
@@ -3751,8 +3759,8 @@
     <cc:prerequisiteConcept rdf:resource="https://contacomigo.org/ontology#CongruenceConcept"/>
     <cc:dependentConcept rdf:resource="https://contacomigo.org/ontology#SimilarityConcept"/>
     <cc:mappingOrigin>ContaComigo semantic analysis of BNCC EF03MA16; EF05MA18</cc:mappingOrigin>
-    <cc:relationReviewStatus>needs_professional_review</cc:relationReviewStatus>
-    <rdfs:comment xml:lang="pt-BR">A BNCC pede "Reconhecer figuras congruentes" (EF03MA16) e, no 5º ano, "a congruência dos ângulos" em ampliações e reduções (EF05MA18). A congruência de figuras e a de ângulos não são a mesma noção; por isso esta relação requer revisão profissional.</rdfs:comment>
+    <cc:relationReviewStatus>reviewed_by_professional</cc:relationReviewStatus>
+    <rdfs:comment xml:lang="pt-BR">A BNCC pede "Reconhecer figuras congruentes" (EF03MA16) e, no 5º ano, "a congruência dos ângulos" em ampliações e reduções (EF05MA18). A congruência de figuras e a de ângulos não são a mesma noção; a relação foi confirmada em revisão profissional.</rdfs:comment>
     <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
   </owl:NamedIndividual>
   <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF02MA01"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#PlaceValueConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
@@ -3928,5 +3936,352 @@
   <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA22"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#ProbabilityConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
   <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA23"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#ProbabilityConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
   <owl:Axiom><owl:annotatedSource rdf:resource="https://contacomigo.org/ontology#BNCC_EF05MA25"/><owl:annotatedProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/><owl:annotatedTarget rdf:resource="https://contacomigo.org/ontology#DataInterpretationConcept"/><cc:mappingOrigin>ContaComigo semantic analysis</cc:mappingOrigin></owl:Axiom>
+
+  <!-- ===================== v0.7.0 ===================== -->
+  <!-- External vocabulary used by IRI, declared so that the file is OWL 2 DL
+       without importing Dublin Core, SKOS or PROV-O. -->
+  <owl:AnnotationProperty rdf:about="http://purl.org/dc/terms/source"/>
+  <owl:AnnotationProperty rdf:about="http://purl.org/dc/terms/title"/>
+  <owl:AnnotationProperty rdf:about="http://purl.org/dc/terms/description"/>
+  <owl:AnnotationProperty rdf:about="http://purl.org/dc/terms/creator"/>
+  <owl:AnnotationProperty rdf:about="http://purl.org/dc/terms/license"/>
+  <owl:AnnotationProperty rdf:about="http://www.w3.org/2004/02/skos/core#changeNote"/>
+  <owl:Class rdf:about="http://www.w3.org/ns/prov#Entity"/>
+  <owl:Class rdf:about="http://www.w3.org/ns/prov#Activity"/>
+  <owl:ObjectProperty rdf:about="http://www.w3.org/ns/prov#wasDerivedFrom"/>
+  <owl:ObjectProperty rdf:about="http://www.w3.org/ns/prov#wasGeneratedBy"/>
+
+  <!-- (1) Disjointness -->
+  <owl:AllDisjointClasses>
+    <owl:members rdf:parseType="Collection">
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#MathematicalKnowledge"/>
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#CurricularKnowledge"/>
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#LearnerKnowledge"/>
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#ActivityKnowledge"/>
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#LearningAnalyticsEvidence"/>
+    </owl:members>
+    <rdfs:comment xml:lang="pt-BR">As cinco camadas de conhecimento não compartilham indivíduos. Fundamento: BATCH_02 (modelo do aprendiz) mantém conceitos matemáticos e relações didáticas separados de características do aprendiz, de características de atividade e de evidências; BATCH_02 (BNCC) representa a BNCC como camada curricular separada da ontologia matemática, do modelo do aprendiz e das atividades.</rdfs:comment>
+  </owl:AllDisjointClasses>
+  <owl:AllDisjointClasses>
+    <owl:members rdf:parseType="Collection">
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#CurriculumSkill"/>
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#Curriculum"/>
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#CurriculumDomain"/>
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#CurriculumLevel"/>
+    </owl:members>
+    <rdfs:comment xml:lang="pt-BR">Na estrutura da BNCC, habilidade, documento curricular, unidade temática e ano escolar são elementos de natureza diferente.</rdfs:comment>
+  </owl:AllDisjointClasses>
+  <owl:AllDisjointClasses>
+    <owl:members rdf:parseType="Collection">
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#Activity"/>
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#ActivityCharacteristic"/>
+    </owl:members>
+    <rdfs:comment xml:lang="pt-BR">Uma atividade não é uma de suas características; as características descrevem atividades por meio de propriedades (BATCH_02, semântica de atividades).</rdfs:comment>
+  </owl:AllDisjointClasses>
+  <owl:AllDisjointClasses>
+    <owl:members rdf:parseType="Collection">
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#ActivityType"/>
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#Modality"/>
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#Representation"/>
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#InteractionType"/>
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#DifficultyProfile"/>
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#ActivityAffordance"/>
+    </owl:members>
+    <rdfs:comment xml:lang="pt-BR">Dimensões independentes de caracterização de atividades: tipo, modalidade, representação, interação, perfil de dificuldade e recurso de interação (BATCH_02, semântica de atividades, seções 4 e 5).</rdfs:comment>
+  </owl:AllDisjointClasses>
+  <owl:AllDisjointClasses>
+    <owl:members rdf:parseType="Collection">
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#MathematicalConcept"/>
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#DidacticRelation"/>
+    </owl:members>
+    <rdfs:comment xml:lang="pt-BR">Um conceito matemático não é uma relação didática entre conceitos (relações didáticas são reificadas, BATCH_02 OntoMathEdu). Os subconceitos matemáticos não são declarados disjuntos: o BATCH_02 registra que essas partições não afirmam disjunção.</rdfs:comment>
+  </owl:AllDisjointClasses>
+
+  <!-- (2) Functional properties; year and thematic-unit individuals are distinct -->
+  <rdf:Description rdf:about="https://contacomigo.org/ontology#belongsToGrade">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment xml:lang="pt-BR">Cada habilidade da BNCC pertence a um único ano; o próprio código (EF01MA… a EF05MA…) identifica o ano.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://contacomigo.org/ontology#belongsToCurriculumDomain">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment xml:lang="pt-BR">Cada habilidade aparece em uma única unidade temática nos quadros da BNCC.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://contacomigo.org/ontology#belongsToCurriculum">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment xml:lang="pt-BR">Cada habilidade pertence a um único documento curricular.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://contacomigo.org/ontology#prerequisiteConcept">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment xml:lang="pt-BR">Cada relação de pré-requisito reificada liga exatamente um conceito anterior.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://contacomigo.org/ontology#dependentConcept">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment xml:lang="pt-BR">Cada relação de pré-requisito reificada liga exatamente um conceito dependente.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://contacomigo.org/ontology#hasCurriculumCode">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment xml:lang="pt-BR">Cada habilidade tem um único código alfanumérico na BNCC.</rdfs:comment>
+  </rdf:Description>
+  <owl:AllDifferent>
+    <owl:distinctMembers rdf:parseType="Collection">
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#BNCCElementaryYear1"/>
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#BNCCElementaryYear2"/>
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#BNCCElementaryYear3"/>
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#BNCCElementaryYear4"/>
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#BNCCElementaryYear5"/>
+    </owl:distinctMembers>
+    <rdfs:comment xml:lang="pt-BR">Os cinco anos são indivíduos distintos; sem isso, uma habilidade ligada a dois anos levaria o raciocinador a igualar os anos em vez de apontar a inconsistência.</rdfs:comment>
+  </owl:AllDifferent>
+  <owl:AllDifferent>
+    <owl:distinctMembers rdf:parseType="Collection">
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#BNCCAlgebraDomain"/>
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#BNCCGeometryDomain"/>
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#BNCCMeasuresDomain"/>
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#BNCCStatisticsDomain"/>
+    </owl:distinctMembers>
+    <rdfs:comment xml:lang="pt-BR">As cinco unidades temáticas de Matemática da BNCC são indivíduos distintos.</rdfs:comment>
+  </owl:AllDifferent>
+
+  <!-- (3) Necessary conditions -->
+  <rdf:Description rdf:about="https://contacomigo.org/ontology#BNCCSkill">
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="https://contacomigo.org/ontology#belongsToGrade"/>
+        <owl:someValuesFrom rdf:resource="https://contacomigo.org/ontology#CurriculumLevel"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="https://contacomigo.org/ontology#belongsToCurriculumDomain"/>
+        <owl:someValuesFrom rdf:resource="https://contacomigo.org/ontology#CurriculumDomain"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="https://contacomigo.org/ontology#addressesMathematicalConcept"/>
+        <owl:someValuesFrom rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="https://contacomigo.org/ontology#belongsToCurriculum"/>
+        <owl:hasValue rdf:resource="https://contacomigo.org/ontology#BrazilianNationalCommonCoreCurriculum"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://contacomigo.org/ontology#PrerequisiteRelation">
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="https://contacomigo.org/ontology#prerequisiteConcept"/>
+        <owl:someValuesFrom rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="https://contacomigo.org/ontology#dependentConcept"/>
+        <owl:someValuesFrom rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+  </rdf:Description>
+
+  <!-- (4) Transitive prerequisite between concepts -->
+  <owl:ObjectProperty rdf:about="https://contacomigo.org/ontology#isPrerequisiteOf">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
+    <rdfs:domain rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
+    <rdfs:range rdf:resource="https://contacomigo.org/ontology#MathematicalConcept"/>
+    <owl:propertyChainAxiom rdf:parseType="Collection">
+      <rdf:Description>
+        <owl:inverseOf rdf:resource="https://contacomigo.org/ontology#prerequisiteConcept"/>
+      </rdf:Description>
+      <rdf:Description rdf:about="https://contacomigo.org/ontology#dependentConcept"/>
+    </owl:propertyChainAxiom>
+    <rdfs:label xml:lang="en">is prerequisite of</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">é pré-requisito de</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Visão direta das relações de pré-requisito reificadas: se uma PrerequisiteRelation liga o conceito A (prerequisiteConcept) ao conceito B (dependentConcept), então A é pré-requisito de B. A relação é transitiva, como a relação de precedência entre itens de conhecimento na teoria dos espaços de conhecimento (Doignon e Falmagne, 1999).</rdfs:comment>
+    <dcterms:source rdf:resource="https://doi.org/10.1007/978-3-642-58625-5"/>
+  </owl:ObjectProperty>
+
+  <!-- (5) Defined classes from the BNCC organisation (local definitions; no equivalence to external ontologies) -->
+  <owl:Class rdf:about="https://contacomigo.org/ontology#BNCCYear1Skill">
+    <owl:equivalentClass>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <rdf:Description rdf:about="https://contacomigo.org/ontology#BNCCSkill"/>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="https://contacomigo.org/ontology#belongsToGrade"/>
+            <owl:hasValue rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear1"/>
+          </owl:Restriction>
+        </owl:intersectionOf>
+      </owl:Class>
+    </owl:equivalentClass>
+    <rdfs:label xml:lang="en">BNCC skill of year 1</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Habilidade BNCC do 1º ano</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Classe definida: toda habilidade BNCC do 1º ano do Ensino Fundamental. A pertença é inferida pelo raciocinador a partir de cc:belongsToGrade.</rdfs:comment>
+    <cc:conceptOrigin>literature-grounded ContaComigo concept</cc:conceptOrigin>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#BNCCYear2Skill">
+    <owl:equivalentClass>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <rdf:Description rdf:about="https://contacomigo.org/ontology#BNCCSkill"/>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="https://contacomigo.org/ontology#belongsToGrade"/>
+            <owl:hasValue rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear2"/>
+          </owl:Restriction>
+        </owl:intersectionOf>
+      </owl:Class>
+    </owl:equivalentClass>
+    <rdfs:label xml:lang="en">BNCC skill of year 2</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Habilidade BNCC do 2º ano</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Classe definida: toda habilidade BNCC do 2º ano do Ensino Fundamental. A pertença é inferida pelo raciocinador a partir de cc:belongsToGrade.</rdfs:comment>
+    <cc:conceptOrigin>literature-grounded ContaComigo concept</cc:conceptOrigin>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#BNCCYear3Skill">
+    <owl:equivalentClass>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <rdf:Description rdf:about="https://contacomigo.org/ontology#BNCCSkill"/>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="https://contacomigo.org/ontology#belongsToGrade"/>
+            <owl:hasValue rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear3"/>
+          </owl:Restriction>
+        </owl:intersectionOf>
+      </owl:Class>
+    </owl:equivalentClass>
+    <rdfs:label xml:lang="en">BNCC skill of year 3</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Habilidade BNCC do 3º ano</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Classe definida: toda habilidade BNCC do 3º ano do Ensino Fundamental. A pertença é inferida pelo raciocinador a partir de cc:belongsToGrade.</rdfs:comment>
+    <cc:conceptOrigin>literature-grounded ContaComigo concept</cc:conceptOrigin>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#BNCCYear4Skill">
+    <owl:equivalentClass>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <rdf:Description rdf:about="https://contacomigo.org/ontology#BNCCSkill"/>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="https://contacomigo.org/ontology#belongsToGrade"/>
+            <owl:hasValue rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear4"/>
+          </owl:Restriction>
+        </owl:intersectionOf>
+      </owl:Class>
+    </owl:equivalentClass>
+    <rdfs:label xml:lang="en">BNCC skill of year 4</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Habilidade BNCC do 4º ano</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Classe definida: toda habilidade BNCC do 4º ano do Ensino Fundamental. A pertença é inferida pelo raciocinador a partir de cc:belongsToGrade.</rdfs:comment>
+    <cc:conceptOrigin>literature-grounded ContaComigo concept</cc:conceptOrigin>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#BNCCYear5Skill">
+    <owl:equivalentClass>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <rdf:Description rdf:about="https://contacomigo.org/ontology#BNCCSkill"/>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="https://contacomigo.org/ontology#belongsToGrade"/>
+            <owl:hasValue rdf:resource="https://contacomigo.org/ontology#BNCCElementaryYear5"/>
+          </owl:Restriction>
+        </owl:intersectionOf>
+      </owl:Class>
+    </owl:equivalentClass>
+    <rdfs:label xml:lang="en">BNCC skill of year 5</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Habilidade BNCC do 5º ano</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Classe definida: toda habilidade BNCC do 5º ano do Ensino Fundamental. A pertença é inferida pelo raciocinador a partir de cc:belongsToGrade.</rdfs:comment>
+    <cc:conceptOrigin>literature-grounded ContaComigo concept</cc:conceptOrigin>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#BNCCNumbersSkill">
+    <owl:equivalentClass>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <rdf:Description rdf:about="https://contacomigo.org/ontology#BNCCSkill"/>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="https://contacomigo.org/ontology#belongsToCurriculumDomain"/>
+            <owl:hasValue rdf:resource="https://contacomigo.org/ontology#BNCCNumbersDomain"/>
+          </owl:Restriction>
+        </owl:intersectionOf>
+      </owl:Class>
+    </owl:equivalentClass>
+    <rdfs:label xml:lang="en">BNCC skill in the Numbers thematic unit</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Habilidade BNCC da unidade temática Números</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Classe definida: toda habilidade BNCC classificada nos quadros oficiais na unidade temática indicada. A pertença é inferida pelo raciocinador a partir de cc:belongsToCurriculumDomain.</rdfs:comment>
+    <cc:conceptOrigin>literature-grounded ContaComigo concept</cc:conceptOrigin>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#BNCCAlgebraSkill">
+    <owl:equivalentClass>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <rdf:Description rdf:about="https://contacomigo.org/ontology#BNCCSkill"/>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="https://contacomigo.org/ontology#belongsToCurriculumDomain"/>
+            <owl:hasValue rdf:resource="https://contacomigo.org/ontology#BNCCAlgebraDomain"/>
+          </owl:Restriction>
+        </owl:intersectionOf>
+      </owl:Class>
+    </owl:equivalentClass>
+    <rdfs:label xml:lang="en">BNCC skill in the Algebra thematic unit</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Habilidade BNCC da unidade temática Álgebra</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Classe definida: toda habilidade BNCC classificada nos quadros oficiais na unidade temática indicada. A pertença é inferida pelo raciocinador a partir de cc:belongsToCurriculumDomain.</rdfs:comment>
+    <cc:conceptOrigin>literature-grounded ContaComigo concept</cc:conceptOrigin>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#BNCCGeometrySkill">
+    <owl:equivalentClass>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <rdf:Description rdf:about="https://contacomigo.org/ontology#BNCCSkill"/>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="https://contacomigo.org/ontology#belongsToCurriculumDomain"/>
+            <owl:hasValue rdf:resource="https://contacomigo.org/ontology#BNCCGeometryDomain"/>
+          </owl:Restriction>
+        </owl:intersectionOf>
+      </owl:Class>
+    </owl:equivalentClass>
+    <rdfs:label xml:lang="en">BNCC skill in the Geometry thematic unit</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Habilidade BNCC da unidade temática Geometria</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Classe definida: toda habilidade BNCC classificada nos quadros oficiais na unidade temática indicada. A pertença é inferida pelo raciocinador a partir de cc:belongsToCurriculumDomain.</rdfs:comment>
+    <cc:conceptOrigin>literature-grounded ContaComigo concept</cc:conceptOrigin>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#BNCCMeasuresSkill">
+    <owl:equivalentClass>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <rdf:Description rdf:about="https://contacomigo.org/ontology#BNCCSkill"/>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="https://contacomigo.org/ontology#belongsToCurriculumDomain"/>
+            <owl:hasValue rdf:resource="https://contacomigo.org/ontology#BNCCMeasuresDomain"/>
+          </owl:Restriction>
+        </owl:intersectionOf>
+      </owl:Class>
+    </owl:equivalentClass>
+    <rdfs:label xml:lang="en">BNCC skill in the Quantities and Measures thematic unit</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Habilidade BNCC da unidade temática Grandezas e medidas</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Classe definida: toda habilidade BNCC classificada nos quadros oficiais na unidade temática indicada. A pertença é inferida pelo raciocinador a partir de cc:belongsToCurriculumDomain.</rdfs:comment>
+    <cc:conceptOrigin>literature-grounded ContaComigo concept</cc:conceptOrigin>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:Class>
+  <owl:Class rdf:about="https://contacomigo.org/ontology#BNCCStatisticsSkill">
+    <owl:equivalentClass>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <rdf:Description rdf:about="https://contacomigo.org/ontology#BNCCSkill"/>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="https://contacomigo.org/ontology#belongsToCurriculumDomain"/>
+            <owl:hasValue rdf:resource="https://contacomigo.org/ontology#BNCCStatisticsDomain"/>
+          </owl:Restriction>
+        </owl:intersectionOf>
+      </owl:Class>
+    </owl:equivalentClass>
+    <rdfs:label xml:lang="en">BNCC skill in the Probability and Statistics thematic unit</rdfs:label>
+    <rdfs:label xml:lang="pt-BR">Habilidade BNCC da unidade temática Probabilidade e estatística</rdfs:label>
+    <rdfs:comment xml:lang="pt-BR">Classe definida: toda habilidade BNCC classificada nos quadros oficiais na unidade temática indicada. A pertença é inferida pelo raciocinador a partir de cc:belongsToCurriculumDomain.</rdfs:comment>
+    <cc:conceptOrigin>literature-grounded ContaComigo concept</cc:conceptOrigin>
+    <dcterms:source rdf:resource="https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf"/>
+  </owl:Class>
 
 </rdf:RDF>

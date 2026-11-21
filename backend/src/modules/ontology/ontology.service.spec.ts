@@ -61,7 +61,7 @@ describe('OntologyService', () => {
     expect(service.getStatus()).toEqual(expect.objectContaining({
       loaded: true,
       ontologyIri: 'https://contacomigo.org/ontology',
-      ontologyVersion: '0.6.0',
+      ontologyVersion: '0.7.0',
       cachedBnccSkills: 126,
     }));
     expect((service as any).ontology).toBe(firstCache);
@@ -144,7 +144,7 @@ describe('OntologyService', () => {
     expect(result.excludedCandidateIds).toEqual(['invalid']);
     expect(result.trace.candidateDecisions[1].reasons)
       .toContain('TARGET_SKILL_NOT_DECLARED_BY_ACTIVITY');
-    expect(result.trace.ontologyVersion).toBe('0.6.0');
+    expect(result.trace.ontologyVersion).toBe('0.7.0');
     expect(result.trace.fallbackUsed).toBe(false);
   });
 

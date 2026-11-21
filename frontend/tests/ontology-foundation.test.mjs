@@ -3,6 +3,21 @@ import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
 
 const ontologyUrl = new URL('../../ontology/contacomigo/contacomigo.owl', import.meta.url);
+
+// Equivalence with OntoMathEdu, LASDONT or any other external ontology is
+// never claimed (alignments use cc:alignmentRelation). Since v0.7.0 local
+// defined classes may use owl:equivalentClass, but only over ContaComigo
+// terms: every IRI inside an equivalentClass block must be in the cc
+// namespace or an OWL/RDF built-in.
+function assertNoExternalEquivalence(ontology) {
+  for (const [, block] of ontology.matchAll(/<owl:equivalentClass\b[^>]*>([\s\S]*?)<\/owl:equivalentClass>/g)) {
+    for (const [, iri] of block.matchAll(/rdf:(?:resource|about)="([^"]+)"/g)) {
+      assert.match(iri, /^https:\/\/contacomigo\.org\/ontology#|^http:\/\/www\.w3\.org\/(2002\/07\/owl|1999\/02\/22-rdf-syntax-ns|2001\/XMLSchema)#/,
+        `owl:equivalentClass must not reference external ontology IRI ${iri}`);
+    }
+  }
+  assert.doesNotMatch(ontology, /<owl:equivalentClass rdf:resource=/);
+}
 const activitiesSeedUrl = new URL('../../backend/src/database/seeds/activities.seed.ts', import.meta.url);
 
 function bnccSkillBlocks(ontology) {
@@ -51,7 +66,7 @@ test('OntoMathEdu alignments have explicit provenance without imports or equival
   const alignedEntities = ontology.match(/<cc:alignmentRelation>/g) ?? [];
 
   assert.doesNotMatch(ontology, /<owl:imports\b/);
-  assert.doesNotMatch(ontology, /<owl:equivalentClass\b/);
+  assertNoExternalEquivalence(ontology);
   assert.match(ontology, /sourceOntology/);
   assert.match(ontology, /sourceIRI/);
   assert.match(ontology, /alignmentRelation/);
@@ -82,7 +97,8 @@ test('learner characteristics are contextual evidence entities and not fixed lea
     assert.match(ontology, new RegExp(`#${concept}\\b`));
   }
   assert.doesNotMatch(ontology, /VisualLearner|AuditoryLearner|VisualLearningStyle|AuditoryLearningStyle/);
-  assert.doesNotMatch(ontology, /<owl:imports\b|<owl:equivalentClass\b/);
+  assert.doesNotMatch(ontology, /<owl:imports\b/);
+  assertNoExternalEquivalence(ontology);
 });
 
 test('learner evidence supports temporal provenance and separates insufficient evidence', async () => {
@@ -234,7 +250,7 @@ test('BNCC skills remain curriculum individuals without numeric prerequisite ass
   const skills = bnccSkillBlocks(ontology);
 
   assert.match(ontology, /#BNCCSkill[\s\S]*#CurriculumSkill/);
-  assert.doesNotMatch(ontology, /<owl:equivalentClass\b/);
+  assertNoExternalEquivalence(ontology);
   for (const { code, body } of skills) {
     assert.doesNotMatch(body, /prerequisiteConcept|requiresPrerequisite/, `${code} has an unsafe prerequisite assertion`);
     assert.doesNotMatch(body, /LearnerCharacteristic|LearnerSkillState/);
@@ -413,4 +429,36 @@ test('Learning Analytics bridge declares aggregate evidence without runtime chil
   }
   assert.doesNotMatch(ontology, /Learner_123|ObservedVisualStrength_xyz|VisualInteractionEvidence_abc|Activity_45/);
   assert.doesNotMatch(ontology, /<cc:(?:studentId|sessionId|responseTimeMs|attempts|hints|skip|completion)>/);
+});
+
+test('v0.7.0 formalises BNCC structure with disjointness, functional and transitive properties and defined classes', async () => {
+  const ontology = await readFile(ontologyUrl, 'utf8');
+  assert.match(ontology, /<owl:versionInfo>0\.7\.0<\/owl:versionInfo>/);
+  assert.match(ontology, /<owl:versionIRI rdf:resource="https:\/\/contacomigo\.org\/ontology\/0\.7\.0"\/>/);
+  assert.match(ontology, /<dcterms:license rdf:resource="https:\/\/creativecommons\.org\/licenses\/by\/4\.0\/"\/>/);
+
+  // Five knowledge layers are pairwise disjoint.
+  const disjointBlocks = [...ontology.matchAll(/<owl:AllDisjointClasses>([\s\S]*?)<\/owl:AllDisjointClasses>/g)].map((m) => m[1]);
+  const layers = disjointBlocks.find((b) => b.includes('#MathematicalKnowledge"'));
+  for (const layer of ['MathematicalKnowledge', 'CurricularKnowledge', 'LearnerKnowledge', 'ActivityKnowledge', 'LearningAnalyticsEvidence']) {
+    assert.match(layers, new RegExp(`#${layer}"`));
+  }
+  // The learner layer keeps BATCH_02 decisions: no disjointness between
+  // strengths and support needs, no diagnostic axioms.
+  assert.ok(!disjointBlocks.some((b) => /#ObservedStrength"|#SupportNeed"/.test(b)));
+  // Mathematical sub-concepts are not declared disjoint (BATCH_02 OntoMathEdu).
+  assert.ok(!disjointBlocks.some((b) => /#NumberConcept"|#BasicGeometryConcept"/.test(b)));
+
+  for (const property of ['belongsToGrade', 'belongsToCurriculumDomain', 'belongsToCurriculum', 'prerequisiteConcept', 'dependentConcept', 'hasCurriculumCode']) {
+    assert.match(ontology, new RegExp(`<rdf:Description rdf:about="https://contacomigo\\.org/ontology#${property}">\\s*<rdf:type rdf:resource="http://www\\.w3\\.org/2002/07/owl#FunctionalProperty"/>`));
+  }
+  assert.match(ontology, /#isPrerequisiteOf">\s*<rdf:type rdf:resource="http:\/\/www\.w3\.org\/2002\/07\/owl#TransitiveProperty"\/>/);
+  assert.match(ontology, /<owl:propertyChainAxiom rdf:parseType="Collection">\s*<rdf:Description>\s*<owl:inverseOf rdf:resource="https:\/\/contacomigo\.org\/ontology#prerequisiteConcept"\/>/);
+
+  for (let year = 1; year <= 5; year += 1) {
+    assert.match(ontology, new RegExp(`#BNCCYear${year}Skill">[\\s\\S]*?#BNCCElementaryYear${year}"`));
+  }
+  for (const unit of ['Numbers', 'Algebra', 'Geometry', 'Measures', 'Statistics']) {
+    assert.match(ontology, new RegExp(`#BNCC${unit}Skill">[\\s\\S]*?#BNCC${unit}Domain"`));
+  }
 });
