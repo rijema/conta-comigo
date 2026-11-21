@@ -51,6 +51,10 @@ export class User {
   @Column({ nullable: true, unique: true, length: 128, name: 'registration_nonce' })
   registrationNonce?: string;
 
+  /** Professional: the clinic she owns. Guardian: the clinic that follows the family. */
+  @Column({ type: 'uuid', nullable: true, name: 'clinic_id' })
+  clinicId?: string | null;
+
   @OneToOne(() => ChildProfile, (profile) => profile.user, {
     cascade: true,
     nullable: true,

@@ -18,6 +18,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { UpdateChildProfileDto } from './dto/update-child-profile.dto';
 import { UserRole } from './enums/user-role.enum';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { LearnerScoped } from './guards/learner-access.guard';
 
 @ApiTags('users')
 @ApiBearerAuth()
@@ -26,23 +27,28 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  // Every user in the system: admin only (professionals list their clinic's
+  // children through GET /educator/learners).
   @Get()
-  @Roles(UserRole.ADMIN, UserRole.PROFESSIONAL)
+  @Roles(UserRole.ADMIN)
   findAll() {
     return this.usersService.findAll();
   }
 
   @Get(':id')
+  @LearnerScoped('id')
   findOne(@Param('id') id: string) {
     return this.usersService.findById(id);
   }
 
   @Get(':id/child-profile')
+  @LearnerScoped('id')
   getChildProfile(@Param('id') id: string) {
     return this.usersService.getChildProfile(id);
   }
 
   @Put(':id/child-profile')
+  @LearnerScoped('id')
   updateChildProfile(
     @Param('id') id: string,
     @Body() dto: UpdateChildProfileDto,

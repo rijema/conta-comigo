@@ -2,7 +2,6 @@ import {
   IsEmail,
   IsString,
   MinLength,
-  IsEnum,
   IsOptional,
   IsBoolean,
   IsDateString,
@@ -10,6 +9,9 @@ import {
   IsInt,
   Min,
   Max,
+  IsIn,
+  IsUUID,
+  MaxLength,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
@@ -39,9 +41,24 @@ export class RegisterDto {
   @MinLength(8)
   password: string;
 
-  @ApiProperty({ enum: UserRole, example: UserRole.GUARDIAN })
-  @IsEnum(UserRole)
+  // Only these two roles can be self-assigned. CHILD accounts are created by
+  // a guardian and ADMIN sees every child, so neither may come from sign-up.
+  @ApiProperty({ enum: [UserRole.GUARDIAN, UserRole.PROFESSIONAL], example: UserRole.GUARDIAN })
+  @IsIn([UserRole.GUARDIAN, UserRole.PROFESSIONAL], {
+    message: 'Escolha se você é responsável ou profissional.',
+  })
   role: UserRole;
+
+  @ApiProperty({ required: false, description: 'Clinic name (professional sign-up only; must not be registered yet)' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  clinicName?: string;
+
+  @ApiProperty({ required: false, description: 'Clinic that follows the child (guardian sign-up only)' })
+  @IsOptional()
+  @IsUUID()
+  clinicId?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()

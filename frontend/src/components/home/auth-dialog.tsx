@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useModalFocus } from "@/hooks/use-modal-focus";
 import { authService } from "@/lib/auth";
+import { api } from "@/lib/api-client";
 import { ConsentModal } from "@/components/lgpd/consent-modal";
 
 export type AuthView = "login" | "register";
@@ -21,7 +22,10 @@ const emptyForm = {
   name: "", email: "", password: "", guardianEmail: "",
   role: "guardian" as "guardian" | "professional",
   childName: "", childAge: "", childPassword: "", consent: false,
+  clinicName: "", clinicId: "",
 };
+
+type ClinicOption = { id: string; name: string };
 
 export function AuthDialog({ open, initialView, onClose }: Props) {
   const { login } = useAuth();
@@ -36,7 +40,19 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [consentModalOpen, setConsentModalOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
+  const [clinics, setClinics] = useState<ClinicOption[] | null>(null);
+  const [clinicsFailed, setClinicsFailed] = useState(false);
+  const [clinicInvalid, setClinicInvalid] = useState(false);
   const requiresChildProfile = form.role === "guardian";
+
+  // Guardians pick the clinic that follows the child from the clinics that
+  // already have a professional; loaded only when that step is reached.
+  useEffect(() => {
+    if (!open || view !== "register" || step !== 2 || form.role !== "guardian" || clinics) return;
+    api.get<ClinicOption[]>("/clinics")
+      .then((list) => { setClinics(list); setClinicsFailed(false); })
+      .catch(() => setClinicsFailed(true));
+  }, [open, view, step, form.role, clinics]);
 
   useEffect(() => {
     if (!open) return;
@@ -45,6 +61,7 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
     setForm(emptyForm);
     setError("");
     setSuccess("");
+    setClinicInvalid(false);
   }, [open, initialView]);
 
   if (!open) return null;
@@ -82,13 +99,20 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
       setError("Preencha os dados da criança para continuar.");
       return;
     }
-    setLoading(true); setError("");
+    if (form.role === "professional" && form.clinicName.trim().length < 3) {
+      setClinicInvalid(true);
+      setError("Informe o nome da sua clínica para continuar.");
+      return;
+    }
+    setLoading(true); setError(""); setClinicInvalid(false);
     try {
       await authService.register({
         name: form.name, email: form.email, password: form.password, role: form.role,
         childProfile: requiresChildProfile && form.childName
           ? { name: form.childName, age: Number(form.childAge) } : undefined,
         childPassword: requiresChildProfile ? form.childPassword : undefined,
+        clinicName: form.role === "professional" ? form.clinicName.trim() : undefined,
+        clinicId: form.role === "guardian" && form.clinicId ? form.clinicId : undefined,
         lgpdConsent: true, consentTimestamp: new Date().toISOString(),
       });
       authService.clearRegistrationNonce();
@@ -98,6 +122,9 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
       const message = reason?.message || "Não foi possível criar a conta.";
       if (message === "Email already registered") {
         setError("Essa conta já foi criada. Tente entrar com o mesmo e-mail ou recupere a senha.");
+      } else if (/clínica/i.test(message)) {
+        setClinicInvalid(true);
+        setError(message);
       } else {
         setError(message);
       }
@@ -113,7 +140,11 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
     <div className="fixed inset-0 z-[100] flex justify-center overflow-y-auto bg-slate-950/55 p-3 backdrop-blur-sm"
       onMouseDown={(event) => event.target === event.currentTarget && onClose()}
     >
-      {/* `my-auto` (not `items-center` on the flex parent) centers the dialog
+      {/* `grid-rows-[minmax(0,1fr)]` caps the single row at the dialog's
+          max-height. Without it the row grew with the form (more fields on
+          the sign-up step), the form column never scrolled and the TitiA
+          picture stretched past the visible area and was cut off.
+          `my-auto` (not `items-center` on the flex parent) centers the dialog
           when it's short but lets it scroll from the top when it's taller
           than the viewport — items-center + overflow clips the top of
           overflowing flex children and the user can never scroll up to it.
@@ -121,7 +152,7 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
           collapse making `vh` taller than what's actually visible. */}
       <section ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="auth-title"
         onKeyDown={(event) => event.key === "Escape" && onClose()}
-        className="my-auto grid max-h-[94svh] w-full max-w-4xl overflow-hidden rounded-[2rem] bg-white shadow-2xl md:grid-cols-[.85fr_1.15fr]">
+        className="my-auto grid max-h-[94svh] w-full max-w-4xl grid-rows-[minmax(0,1fr)] overflow-hidden rounded-[2rem] bg-white shadow-2xl md:grid-cols-[.85fr_1.15fr]">
         <div className="relative hidden overflow-hidden bg-violet-100 bg-gradient-to-br from-violet-100 via-pink-50 to-amber-50 md:block">
           <Image src="/assets/mainiconfirstpage.png" alt="TitiA, assistente de aprendizagem do Conta Comigo"
             fill sizes="360px" className="object-contain object-bottom pt-12" />
@@ -289,10 +320,34 @@ export function AuthDialog({ open, initialView, onClose }: Props) {
                   Consentimento no seu primeiro acesso.
                 </p>
               </> : <>
+                {form.role === "professional" && <>
+                  <Field label="Nome da clínica">
+                    <input className={fieldClass} required minLength={3} maxLength={255} autoComplete="organization"
+                      aria-describedby="clinic-name-help" aria-invalid={clinicInvalid || undefined}
+                      value={form.clinicName}
+                      onChange={(e) => { update("clinicName", e.target.value); setClinicInvalid(false); }} />
+                  </Field>
+                  <p id="clinic-name-help" className="-mt-2 text-sm text-slate-700">
+                    Cada clínica tem uma única conta de profissional. Você verá apenas as crianças
+                    cujos responsáveis escolherem a sua clínica.
+                  </p>
+                </>}
                 {requiresChildProfile && <>
                   <Field label="Nome da criança"><input className={fieldClass} required value={form.childName} onChange={(e) => update("childName", e.target.value)} /></Field>
                   <Field label="Idade da criança"><input type="number" min={4} max={12} className={fieldClass} required value={form.childAge} onChange={(e) => update("childAge", e.target.value)} /></Field>
                   <Field label="Senha da criança"><input type="password" minLength={4} className={fieldClass} required value={form.childPassword} onChange={(e) => update("childPassword", e.target.value)} /></Field>
+                  <Field label="Clínica que acompanha a criança">
+                    <select className={fieldClass} value={form.clinicId} aria-describedby="clinic-select-help"
+                      aria-busy={!clinics && !clinicsFailed} onChange={(e) => update("clinicId", e.target.value)}>
+                      <option value="">Nenhuma clínica por enquanto</option>
+                      {(clinics ?? []).map((clinic) => <option key={clinic.id} value={clinic.id}>{clinic.name}</option>)}
+                    </select>
+                  </Field>
+                  <p id="clinic-select-help" className="-mt-2 text-sm text-slate-700">
+                    {clinicsFailed
+                      ? "Não foi possível carregar a lista de clínicas. Você pode continuar sem clínica."
+                      : "Só a profissional dessa clínica poderá ver o progresso da criança. Sem clínica, nenhuma profissional vê os dados."}
+                  </p>
                 </>}
                 <label className="flex items-start gap-3 rounded-2xl bg-violet-50 p-4 text-sm text-slate-700">
                   <input type="checkbox" checked={form.consent} onChange={(e) => update("consent", e.target.checked)} className="mt-0.5 h-5 w-5 accent-violet-600" />

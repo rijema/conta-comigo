@@ -81,6 +81,8 @@ export function getPendingMigrationClasses() {
   const { AddPauseEventTypes1729000001000 } = require('./migrations/1729000001000-AddPauseEventTypes');
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { AddAttendances1728100000000 } = require('./migrations/1728100000000-AddAttendances');
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { AddClinics1729000002000 } = require('./migrations/1729000002000-AddClinics');
 
   return [
     BaselineProductionSchema1728000000000,
@@ -112,5 +114,8 @@ export function getPendingMigrationClasses() {
     AddPauseEventTypes1729000001000,
     // Professional attendance flow (start/resume/end without learner login).
     AddAttendances1728100000000,
+    // Clinic scoping (professionals only see children of their own clinic)
+    // + data: Ciclo clinic, Angela, real children and their guardians.
+    AddClinics1729000002000,
   ];
 }

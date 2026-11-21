@@ -30,7 +30,13 @@ export class UsersService {
     });
   }
 
-  async createChildAccount(guardianId: string, childName: string, hashedPassword: string, age: number): Promise<User> {
+  async createChildAccount(
+    guardianId: string,
+    childName: string,
+    hashedPassword: string,
+    age: number,
+    clinicId: string | null = null,
+  ): Promise<User> {
     const slug = childName.toLowerCase().replace(/\s+/g, '.');
     const email = `${slug}.filho.${guardianId.substring(0, 6)}@contacomigo.internal`;
 
@@ -49,10 +55,16 @@ export class UsersService {
       userId: savedChild.id,
       guardianId,
       age,
+      clinicId,
     });
     await this.childProfileRepo.save(profile);
 
     return savedChild;
+  }
+
+  /** Only for rolling back a sign-up that failed right after the user row was created. */
+  async deleteUnusedAccount(userId: string): Promise<void> {
+    await this.userRepo.delete(userId);
   }
 
   async findById(id: string): Promise<User | null> {

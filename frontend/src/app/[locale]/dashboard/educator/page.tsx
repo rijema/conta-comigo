@@ -11,6 +11,7 @@ import { ResearchDebugPanel } from "@/components/recommendation/research-debug-p
 import { ChatNowCard } from "@/components/titia/chat-now-card";
 import { enterAttendance } from "@/lib/attendance";
 import { ChildScreenEditor } from "@/components/educator/child-screen-editor";
+import { ClaimClinicCard, RemoveFromClinicDialog } from "@/components/educator/clinic-membership";
 
 const SKILLS = ["visual", "auditive", "logical", "motor", "sensory"] as const;
 type Skill = typeof SKILLS[number];
@@ -70,6 +71,12 @@ export default function EducatorDashboardPage() {
   const [savedMsg, setSavedMsg] = useState(false);
   const [pendingAttendances, setPendingAttendances] = useState<any[]>([]);
   const [startingAttendance, setStartingAttendance] = useState<string | null>(null);
+  // undefined = not loaded (or failed); null = account without clinic.
+  const [clinic, setClinic] = useState<{ id: string; name: string } | null | undefined>(undefined);
+  const [removeOpen, setRemoveOpen] = useState(false);
+  const [removing, setRemoving] = useState(false);
+  const [removeError, setRemoveError] = useState("");
+  const [statusMessage, setStatusMessage] = useState("");
   const router = useRouter();
   const searchParams = useSearchParams();
   const locale = useLocale();
@@ -99,17 +106,55 @@ export default function EducatorDashboardPage() {
     }
     const token = authService.getStoredToken();
     if (!token) return;
-    api.get<any[]>("/educator/learners", token)
-      .then((data) => {
-        setLearners(data);
-        if (data.length > 0) handleSelectLearner(data[0], token);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    api.get<{ id: string; name: string } | undefined>("/clinics/mine", token)
+      .then((data) => setClinic(data || null))
+      .catch(console.error);
+    loadLearners(token);
     api.get<any[]>("/educator/attendance/active", token)
       .then(setPendingAttendances)
       .catch(console.error);
   }, [user, authLoading, locale, router]);
+
+  const loadLearners = (token: string) => {
+    api.get<any[]>("/educator/learners", token)
+      .then((data) => {
+        setLearners(data);
+        if (data.length > 0) handleSelectLearner(data[0], token);
+        else setSelected(null);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  };
+
+  const handleClaimClinic = async (name: string) => {
+    const token = authService.getStoredToken();
+    if (!token) return;
+    const created = await api.post<{ id: string; name: string }>("/clinics/claim", { name }, token);
+    setClinic(created);
+    setStatusMessage(`Clínica “${created.name}” cadastrada.`);
+    loadLearners(token);
+  };
+
+  const handleRemoveFromClinic = async () => {
+    const token = authService.getStoredToken();
+    if (!selected || !token) return;
+    setRemoving(true);
+    setRemoveError("");
+    try {
+      await api.delete(`/educator/learners/${selected.id}/clinic`, token);
+      const removedName = selected.name;
+      const remaining = learners.filter((l) => l.id !== selected.id);
+      setLearners(remaining);
+      setRemoveOpen(false);
+      setStatusMessage(`${removedName} foi removido(a) da sua clínica e não aparece mais no painel.`);
+      if (remaining.length > 0) handleSelectLearner(remaining[0], token);
+      else { setSelected(null); setProfile(null); }
+    } catch (reason: any) {
+      setRemoveError(reason?.message || "Não foi possível remover a criança da clínica. Tente de novo.");
+    } finally {
+      setRemoving(false);
+    }
+  };
 
   const handleStartAttendance = async (learnerId: string) => {
     const token = authService.getStoredToken();
@@ -220,7 +265,9 @@ export default function EducatorDashboardPage() {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold">🎓 Painel do Profissional</h1>
-            <p className="text-indigo-200 text-sm">Olá, {user?.name?.split(" ")[0]}!</p>
+            <p className="text-indigo-100 text-sm">
+              Olá, {user?.name?.split(" ")[0]}!{clinic ? <> · Clínica: <strong>{clinic.name}</strong></> : null}
+            </p>
           </div>
           <button
             onClick={logout}
@@ -230,6 +277,25 @@ export default function EducatorDashboardPage() {
           </button>
         </div>
       </header>
+
+      {selected && (
+        <RemoveFromClinicDialog
+          open={removeOpen}
+          learnerName={selected.name}
+          clinicName={clinic?.name}
+          busy={removing}
+          error={removeError}
+          onCancel={() => setRemoveOpen(false)}
+          onConfirm={handleRemoveFromClinic}
+        />
+      )}
+
+      <div className="max-w-7xl mx-auto px-4 pt-4 print:hidden">
+        <p role="status" aria-live="polite" className={statusMessage ? "rounded-xl border-l-4 border-emerald-600 bg-emerald-50 p-3 text-sm font-semibold text-emerald-900" : "sr-only"}>
+          {statusMessage}
+        </p>
+        {clinic === null && <div className="mt-4"><ClaimClinicCard onClaim={handleClaimClinic} /></div>}
+      </div>
 
       {pendingAttendances.length > 0 && (
         <div className="max-w-7xl mx-auto px-4 pt-4 print:hidden">
@@ -280,7 +346,11 @@ export default function EducatorDashboardPage() {
                 </button>
               ))}
               {learners.length === 0 && (
-                <p className="text-xs text-slate-600 px-2 py-4 text-center">Nenhum aluno cadastrado</p>
+                <p className="text-xs text-slate-600 px-2 py-4 text-center">
+                  {clinic === null
+                    ? "Cadastre sua clínica para ver as crianças."
+                    : "Nenhuma criança ligada à sua clínica ainda. Ela aparece aqui quando o responsável escolhe a sua clínica no cadastro."}
+                </p>
               )}
             </div>
           </div>
@@ -324,6 +394,13 @@ export default function EducatorDashboardPage() {
                       className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors print:hidden"
                     >
                       📄 Gerar Relatório
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setRemoveError(""); setRemoveOpen(true); }}
+                      className="px-4 py-2 rounded-xl border-2 border-red-700 text-red-800 text-sm font-semibold hover:bg-red-50 focus-visible:ring-4 focus-visible:ring-red-400 print:hidden"
+                    >
+                      Remover da clínica
                     </button>
                     {report && (
                       <button

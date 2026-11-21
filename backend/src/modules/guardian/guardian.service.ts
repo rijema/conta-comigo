@@ -458,10 +458,13 @@ ${question}
     });
     const savedChild = await this.userRepo.save(child);
 
+    // A new child follows the guardian's clinic (if any).
+    const guardian = await this.userRepo.findOne({ where: { id: guardianId } });
     const profile = this.childProfileRepo.create({
       userId: savedChild.id,
       guardianId,
       age,
+      clinicId: guardian?.clinicId ?? null,
     });
     await this.childProfileRepo.save(profile);
 

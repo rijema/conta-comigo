@@ -13,6 +13,7 @@ import { LoginDto } from './dto/login.dto';
 import { ConfigService } from '@nestjs/config';
 import { UserRole } from '../users/enums/user-role.enum';
 import { randomUUID } from 'crypto';
+import { ClinicsService } from '../users/services/clinics.service';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +23,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly clinicsService: ClinicsService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -51,14 +53,40 @@ export class AuthService {
       );
     }
 
-    const { childProfile, lgpdConsent, consentTimestamp, childPassword, registrationNonce, ...userFields } = dto;
+    // Clinic scoping: a professional registers her own clinic (a name that is
+    // already registered is refused, so nobody can sign up "as" an existing
+    // clinic and see its children); a guardian picks the clinic that follows
+    // the child. Validate before creating anything.
+    let guardianClinicId: string | null = null;
+    if (dto.role === UserRole.PROFESSIONAL) {
+      await this.clinicsService.assertNameAvailable(dto.clinicName);
+    } else if (dto.clinicId) {
+      guardianClinicId = (await this.clinicsService.findSelectable(dto.clinicId)).id;
+    }
+
+    const {
+      childProfile, lgpdConsent, consentTimestamp, childPassword, registrationNonce,
+      clinicName, clinicId, ...userFields
+    } = dto;
     const hashedPassword = await bcrypt.hash(userFields.password, 12);
     const user = await this.usersService.create({
       ...userFields,
       email: normalizedEmail,
       password: hashedPassword,
       registrationNonce,
+      clinicId: guardianClinicId,
     });
+
+    if (dto.role === UserRole.PROFESSIONAL) {
+      try {
+        const clinic = await this.clinicsService.claimForProfessional(user.id, clinicName);
+        user.clinicId = clinic.id;
+      } catch (error) {
+        // Lost the race for this clinic name: undo the account.
+        await this.usersService.deleteUnusedAccount(user.id);
+        throw error;
+      }
+    }
 
     if (lgpdConsent) {
       await this.usersService.grantLgpdConsent(user.id);
@@ -77,6 +105,7 @@ export class AuthService {
           childProfile.name,
           childHash,
           childProfile.age,
+          guardianClinicId,
         );
         this.logger.log(`Child account created: ${childUser.email} linked to guardian ${user.email}`);
       } else {

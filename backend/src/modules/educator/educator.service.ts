@@ -17,6 +17,7 @@ import { CreateProfessionalFeedbackDto } from './dto/create-professional-feedbac
 import { LongitudinalLearningAnalyticsService } from '../learning-events/longitudinal-learning-analytics.service';
 import { Attendance, AttendanceStatus } from './entities/attendance.entity';
 import { AuthService } from '../auth/auth.service';
+import { LearnerAccessService, Requester } from '../users/services/learner-access.service';
 
 @Injectable()
 export class EducatorService {
@@ -44,6 +45,7 @@ export class EducatorService {
     @InjectRepository(Attendance)
     private readonly attendanceRepo: Repository<Attendance>,
     private readonly authService: AuthService,
+    private readonly learnerAccess: LearnerAccessService,
     private readonly longitudinalAnalytics?: LongitudinalLearningAnalyticsService,
   ) {}
 
@@ -52,13 +54,23 @@ export class EducatorService {
     return this.longitudinalAnalytics.getProfessionalReport(learnerId);
   }
 
-  async getStats() {
-    const learners = await this.userRepo.find({
-      where: { role: UserRole.GUARDIAN, isActive: true },
-      relations: ['childProfile'],
-    });
+  /**
+   * Child profiles the requester may list: admin sees all; a professional
+   * only sees children of her own clinic; anyone else sees none.
+   */
+  private async visibleProfiles(requester: Requester): Promise<ChildProfile[]> {
+    if (requester?.role === UserRole.ADMIN) {
+      return this.childProfileRepo.find({ relations: ['user'] });
+    }
+    const clinicId = await this.learnerAccess.professionalClinicId(requester?.userId);
+    if (!clinicId) return [];
+    return this.childProfileRepo.find({ where: { clinicId }, relations: ['user'] });
+  }
 
-    const learnersWithProfiles = learners.filter((u) => u.childProfile);
+  async getStats(requester: Requester) {
+    const learnersWithProfiles = (await this.visibleProfiles(requester))
+      .filter((p) => p.user && p.user.isActive)
+      .map((p) => ({ ...p.user, childProfile: p }));
 
     const profiles = await Promise.all(
       learnersWithProfiles.map(async (user) => {
@@ -99,8 +111,8 @@ export class EducatorService {
     };
   }
 
-  async getAllLearners() {
-    const profiles = await this.childProfileRepo.find({ relations: ['user'] });
+  async getAllLearners(requester: Requester) {
+    const profiles = await this.visibleProfiles(requester);
     return profiles
       .filter((p) => p.user)
       .map((p) => ({
@@ -311,11 +323,13 @@ export class EducatorService {
 
   async createAdaptationFeedback(
     transitionId: string,
-    professionalId: string,
+    requester: Requester,
     dto: CreateProfessionalFeedbackDto,
   ) {
+    const professionalId = requester.userId;
     const transition = await this.transitionRepo.findOne({ where: { id: transitionId } });
     if (!transition) throw new NotFoundException('Adaptation transition not found');
+    await this.learnerAccess.assertCanAccess(requester, transition.studentId);
     const existing = await this.professionalFeedbackRepo.findOne({
       where: { transitionId, professionalId },
     });
@@ -463,6 +477,23 @@ export class EducatorService {
       await this.attendanceRepo.save(attendance);
     }
     return { id: attendance.id, status: attendance.status };
+  }
+
+  /**
+   * The professional unlinks a child that is not from her clinic. Nothing is
+   * deleted: the child and her history stay with the guardian, and the child
+   * simply stops appearing for this clinic.
+   */
+  async removeLearnerFromClinic(requester: Requester, learnerId: string) {
+    const profile = await this.childProfileRepo.findOne({ where: { userId: learnerId } });
+    if (!profile?.clinicId) throw new NotFoundException('Learner not found');
+    await this.childProfileRepo.update({ id: profile.id }, { clinicId: null });
+
+    // Close any attendance this professional left open for the child.
+    await this.attendanceRepo.update(
+      { learnerId, professionalId: requester.userId, status: AttendanceStatus.ACTIVE },
+      { status: AttendanceStatus.ENDED, endedAt: new Date() },
+    );
   }
 
   async getActiveAttendances(professionalId: string) {

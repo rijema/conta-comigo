@@ -1,6 +1,7 @@
 import { Body, Controller, Post, Get, UseGuards, Param } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { LearnerScoped } from '../users/guards/learner-access.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { TrackVisualCommunicationEventDto } from './dto/track-visual-communication-event.dto';
 import { LearningEventService } from './learning-event.service';
@@ -100,12 +101,14 @@ export class LearningEventsController {
   }
 
   @Get('review/evidence/:studentId')
+  @LearnerScoped('studentId')
   @ApiOperation({ summary: 'Get longitudinal review evidence for professional dashboard' })
   async getReviewEvidence(@Param('studentId') studentId: string) {
     return this.reviewAnalyticsService.getReviewEvidence(studentId);
   }
 
   @Get('review/export/:studentId')
+  @LearnerScoped('studentId')
   @ApiOperation({ summary: 'Export longitudinal review evidence for research' })
   async exportReviewEvidence(@Param('studentId') studentId: string) {
     return this.reviewExportService.exportReviewEvidence(studentId);

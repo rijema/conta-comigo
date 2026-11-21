@@ -24,6 +24,10 @@ export class ChildProfile {
   @Column({ nullable: true })
   guardianId: string;
 
+  /** Only professionals of this clinic can see the child. Null = no clinic. */
+  @Column({ type: 'uuid', nullable: true, name: 'clinic_id' })
+  clinicId?: string | null;
+
   @Column({ nullable: true })
   age: number;
 

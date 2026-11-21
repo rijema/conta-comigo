@@ -16,6 +16,7 @@ import { ProfessionalRecommendationFeedback } from './entities/professional-reco
 import { LearningEventsModule } from '../learning-events/learning-events.module';
 import { Attendance } from './entities/attendance.entity';
 import { AuthModule } from '../auth/auth.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { AuthModule } from '../auth/auth.module';
     AdeModule,
     LearningEventsModule,
     AuthModule,
+    UsersModule,
   ],
   controllers: [EducatorController],
   providers: [EducatorService],

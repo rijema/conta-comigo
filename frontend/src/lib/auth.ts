@@ -26,6 +26,10 @@ export interface RegisterPayload {
     age: number;
   };
   childPassword?: string;
+  /** Professional sign-up: the clinic she registers (must be new). */
+  clinicName?: string;
+  /** Guardian sign-up: clinic that follows the child. */
+  clinicId?: string;
 }
 
 const REGISTRATION_NONCE_KEY = "pending_registration_nonce";

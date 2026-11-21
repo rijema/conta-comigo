@@ -79,7 +79,9 @@ function fixture(method, p, role, screen = {}) {
   };
   if (p.startsWith('/users/') && p.endsWith('/child-profile')) return { name: 'Olívia', age: 7, uiPreferences: screen.childPrefs ?? {} };
   if (/^\/educator\/learners\/[^/]+\/skills$/.test(p)) return { success: true };
-  if (p === '/educator/learners' || p === '/users/educator/learners') return LEARNERS;
+  if (p === '/clinics') return [{ id: 'clinic-ciclo', name: 'Ciclo - Centro de Fonoaudiologia' }, { id: 'clinic-solar', name: 'Clínica Solar' }];
+  if (p === '/clinics/mine') return screen.noClinic ? '' : { id: 'clinic-ciclo', name: 'Ciclo - Centro de Fonoaudiologia' };
+  if (p === '/educator/learners' || p === '/users/educator/learners') return screen.noClinic ? [] : LEARNERS;
   if (p === '/educator/attendance/active') return [{ attendanceId: 'a1', learnerId: 'l1', learnerName: 'Olívia', startedAt: '2026-11-03T17:28:33Z' }];
   if (/\/longitudinal-analytics$/.test(p)) return LONGITUDINAL;
   if (/^\/educator\/learners\/[^/]+\/profile$/.test(p)) return PROFILE;
@@ -121,6 +123,45 @@ const SCREENS = [
   { name: 'settings', role: 'child', path: '/pt/settings' },
   { name: 'guardian-dashboard', role: 'guardian', path: '/pt/dashboard/guardian' },
   { name: 'educator-dashboard', role: 'professional', path: '/pt/dashboard/educator' },
+  { name: 'educator-remove-from-clinic', role: 'professional', path: '/pt/dashboard/educator', open: async (page) => {
+    await page.getByRole('button', { name: 'Remover da clínica' }).click();
+    await page.getByRole('alertdialog').waitFor();
+  } },
+  { name: 'educator-no-clinic', role: 'professional', path: '/pt/dashboard/educator', noClinic: true, open: async (page) => {
+    await page.getByRole('heading', { name: 'Cadastre a sua clínica' }).waitFor();
+  } },
+  // Sign-up step 2 on a short laptop screen: the form must scroll inside the
+  // dialog and the TitiA picture must stay inside it (it used to be cut off).
+  ...['Responsável', 'Educador'].map((role) => ({
+    name: `home-register-step2-${role === 'Responsável' ? 'guardian' : 'professional'}`, role: null, path: '/pt',
+    viewport: { width: 1280, height: 640 },
+    open: async (page) => {
+      await page.getByRole('button', { name: 'Cadastrar', exact: true }).first().click();
+      const dialog = page.getByRole('dialog');
+      await dialog.getByLabel('Seu nome').fill('Ana Souza');
+      await dialog.getByLabel('E-mail').fill('ana@exemplo.org');
+      await dialog.getByLabel(/^Senha/).fill('senhaSegura123');
+      await dialog.getByRole('button', { name: role }).click();
+      await dialog.getByRole('button', { name: 'Continuar' }).click();
+      await dialog.getByText('Etapa 2 de 2').waitFor();
+      const layout = await page.evaluate(() => {
+        const frame = document.querySelector('[role=dialog]');
+        const scroller = frame.querySelector('.overflow-y-auto');
+        const titia = frame.querySelector('img[alt*="TitiA"]');
+        return {
+          frameBottom: frame.getBoundingClientRect().bottom,
+          scrollerBottom: scroller.getBoundingClientRect().bottom,
+          titiaBottom: titia && titia.offsetParent ? titia.getBoundingClientRect().bottom : 0,
+        };
+      });
+      // The form area must end inside the dialog (otherwise it grows with the
+      // fields, never scrolls and the last ones are clipped)…
+      if (layout.scrollerBottom > layout.frameBottom + 1) throw new Error(`form area overflows the dialog (${JSON.stringify(layout)})`);
+      // …and the TitiA picture must not be cut by the dialog edge.
+      if (layout.titiaBottom > layout.frameBottom + 1) throw new Error(`TitiA is cut off (${JSON.stringify(layout)})`);
+      await dialog.getByRole('button', { name: 'Criar conta' }).scrollIntoViewIfNeeded();
+    },
+  })),
   ...['Perfil e experiência', 'IA/ADE', 'Relatório'].map((tab) => ({
     name: `educator-tab-${tab.normalize('NFD').replace(/[^a-zA-Z]/g, '').toLowerCase()}`, role: 'professional', path: '/pt/dashboard/educator',
     open: async (page) => { await page.getByRole('button', { name: new RegExp(tab) }).first().click(); },

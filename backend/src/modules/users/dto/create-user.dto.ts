@@ -22,4 +22,7 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   registrationNonce?: string;
+
+  @IsOptional()
+  clinicId?: string | null;
 }

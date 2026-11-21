@@ -15,15 +15,16 @@ describe('EducatorService professional recommendation feedback', () => {
     };
     const adeRepo = { save: jest.fn() };
     const knowledgeTracing = { observe: jest.fn() };
+    const learnerAccess = { assertCanAccess: jest.fn().mockResolvedValue(undefined) };
     const service = new EducatorService(
       {} as any, {} as any, {} as any, adeRepo as any, {} as any, {} as any,
       knowledgeTracing as any, {} as any, transitionRepo as any, {} as any, feedbackRepo as any,
-      {} as any, {} as any,
+      {} as any, {} as any, learnerAccess as any,
     );
 
     const result = await service.createAdaptationFeedback(
       transition.id,
-      'professional-1',
+      { userId: 'professional-1', role: 'professional' },
       { rating: ProfessionalFeedbackRating.PARTIALLY_ADEQUATE, reasonCodes: ['insufficient_information'] },
     );
 
@@ -33,5 +34,8 @@ describe('EducatorService professional recommendation feedback', () => {
     }));
     expect(adeRepo.save).not.toHaveBeenCalled();
     expect(knowledgeTracing.observe).not.toHaveBeenCalled();
+    expect(learnerAccess.assertCanAccess).toHaveBeenCalledWith(
+      { userId: 'professional-1', role: 'professional' }, 'student-1',
+    );
   });
 });
